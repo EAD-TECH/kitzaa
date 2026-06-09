@@ -8,11 +8,11 @@ import logger from './src/middlewares/logger.js';
 
 const app = express()
 
+app.use(express.json());
 app.use(cors());
 app.use('/api/v1/uploads', express.static('uploads')); // Serve uploaded files
-app.use(queryHandler);
+
 app.use(helmet());
-app.use(compression());
 app.use('/api/v1', rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // limit each IP to 100 requests per windowMs
@@ -33,10 +33,13 @@ app.use(compression({
 // Nested Query
 app.set("query parser", "extended");
 
+// Query Handler:
+app.use(queryHandler);
+
 
 // Auhentication:
 // app.use(require('./src/middlewares/authentication'));
 
-app.use(express.json());
+
 
 export default app;
