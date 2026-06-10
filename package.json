@@ -1,0 +1,37 @@
+{
+  "name": "kindora",
+  "version": "1.0.0",
+  "description": "🔹eventlari listeleyebilicek",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EAD-TECH/kindora.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/EAD-TECH/kindora/issues"
+  },
+  "homepage": "https://github.com/EAD-TECH/kindora#readme",
+  "dependencies": {
+    "compression": "^1.8.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.2.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.6.3",
+    "morgan": "^1.11.0",
+    "rotating-file-stream": "^3.2.9"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
