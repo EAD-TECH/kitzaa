@@ -5,6 +5,7 @@ import User from "../models/user.js";
 const userController = {
   list: async (req, res) => {
     /* 
+
             #swagger.tags = ['Users']
             #swagger.summary = 'List Users'
             #swagger.desription = `
@@ -18,11 +19,14 @@ const userController = {
             `
         */
 
-    const result = await res.getModelList(User).select("username firstName lastName phone email role isActive isEmailVerified language location avatarUrl");
+    //! admin tüm user'lari görebilir, parent/normaluser/organizatör sadece kendisini görebilir
+    const customFilter = req.user.isAdmin ? {} : { _id: req.user._id };
+
+    const result = await res.getModelList(User, customFilter).select("username firstName lastName phone email role isActive isEmailVerified language location avatarUrl");
 
     res.status(200).send({
       error: false,
-      details: await res.getModelListDetails(User),
+      details: await res.getModelListDetails(User, customFilter),
       result,
     });
   },
