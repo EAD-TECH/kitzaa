@@ -1,4 +1,5 @@
 import { mongoose } from "../configs/dbConnection";
+import bcrypt from "bcrypt";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PASSWORD_REGEX =
@@ -43,6 +44,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Username is required"],
       trim: true,
+      unique: true,
       maxlength: [50, "Username cannot exceed 50 characters"],
     },
     firstName: {
@@ -143,10 +145,10 @@ const userSchema = new mongoose.Schema(
       },
     },
   },
-  { collection: "users", timestamp: true },
+  { collection: "users", timestamps: true },
 );
 
-usersSchema.pre("save", async function () {
+userSchema.pre("save", async function () {
   if (!this.isModified("password")) {
     return;
   }
@@ -154,6 +156,8 @@ usersSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, 10);
 });
 
-usersSchema.methods.matchPassword = async function (password) {
+userSchema.methods.matchPassword = async function (password) {
   return bcrypt.compare(password, this.password);
 };
+
+export default mongoose.model("User", userSchema);
