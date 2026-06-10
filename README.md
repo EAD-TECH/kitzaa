@@ -1,3 +1,12 @@
+# KULLANILAN PAKETLER
+ 1. SIFRE HASH: BCRYPT
+
+
+
+
+
+
+
 # USER olmayanlar
 
 🔹eventlari listeleyebilicek
@@ -34,3 +43,25 @@
 
 # Brachlaramizi actik
 
+
+### YAPILANLAR
+
+ 1.  BCRYPT  PAKETI KULLANILDI SIFRE HASHLEME ICIN :
+
+
+bcrypt Kullan Eğer:
+✅ Hızlı deployment gerekirse
+✅ Basit kurulum/maintenance istersen
+✅ Paylaşılan hosting kullanıyorsan
+✅ Serverless ortam (Lambda, Vercel, Netlify)
+✅ Ekip deneyimi bcrypt'te fazlaysa
+✅ Enterprise compatibility önemliyse
+Argon2 Kullan Eğer:
+✅ Maksimum güvenlik istersen (banking, healthcare)
+✅ Uzun vadeli security gerekirse
+✅ Dedicated server/container kullanıyorsan
+✅ Modern stack (Node 12+) varsa
+✅ OWASP compliance zorunlu
+✅ AWS/GCP managed services kullanıyorsan
+
+2. USER tablosuna username bilgisi eklendi
