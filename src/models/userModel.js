@@ -146,6 +146,7 @@ const userSchema = new mongoose.Schema(
   { collection: "users", timestamp: true },
 );
 
+//hash
 usersSchema.pre("save", async function () {
   if (!this.isModified("password")) {
     return;
@@ -154,6 +155,11 @@ usersSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, 10);
 });
 
+//compare password
 usersSchema.methods.matchPassword = async function (password) {
   return bcrypt.compare(password, this.password);
 };
+
+
+const User = mongoose.model('User', userSchema)
+exports.module = User
