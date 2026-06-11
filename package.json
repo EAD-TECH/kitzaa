@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/EAD-TECH/kindora#readme",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "compression": "^1.8.1",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",

@@ -1,4 +1,5 @@
 import { mongoose } from "../configs/dbConnection";
+import bcrypt from "bcrypt";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PASSWORD_REGEX =
@@ -43,6 +44,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Username is required"],
       trim: true,
+      unique: true,
       maxlength: [50, "Username cannot exceed 50 characters"],
     },
     firstName: {
@@ -143,7 +145,7 @@ const userSchema = new mongoose.Schema(
       },
     },
   },
-  { collection: "users", timestamp: true },
+  { collection: "users", timestamps: true },
 );
 
 //hash

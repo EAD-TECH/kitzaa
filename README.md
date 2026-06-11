@@ -49,6 +49,7 @@
  1.  BCRYPT  PAKETI KULLANILDI SIFRE HASHLEME ICIN :
 
 
+
 bcrypt Kullan Eğer:
 ✅ Hızlı deployment gerekirse
 ✅ Basit kurulum/maintenance istersen
@@ -65,3 +66,14 @@ Argon2 Kullan Eğer:
 ✅ AWS/GCP managed services kullanıyorsan
 
 2. USER tablosuna username bilgisi eklendi
+3. 
+
+
+
+
+
+
+ ### YAPILACAKLAR
+ 1. Like olaylari yapilacak event category ve forumlar icin 
+    post islemi: event/id/postlike post islemi olacak bu bu sekile bir route oluisturulacak buraya istek atildiginda leki icinde user id sini kaldirip koyacak 
+    getislemi :getlike yapacagiz events/id/getlike route olusturulacak. Burdada bir evente de ait tüm likelarini getirecegiz.
