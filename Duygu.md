@@ -29,3 +29,17 @@ User
     ├── organizationName: "Spielhaus Berlin"
     ├── contactEmail: info@spielhaus-berlin.de   ← halka gösterilen
     └── website, phone, description...
+
+
+
+
+
+
+
+
+
+
+> [!WARNING]
+> Dikkat
+ savedEvents / savedActivities büyüme riski
+Bunu önceki analizde de söyledim — bu array'ler User dökümanı içinde büyüdükçe sorun çıkarır. Ama bu ayrı bir karar, şimdilik not olarak geçelim.
