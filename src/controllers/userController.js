@@ -1,8 +1,11 @@
 "use strict";
 
-import User from "../models/user.js";
+import CustomError from "../helpers/customError.js";
+import { toUserDTO } from "../helpers/toUserDTO.js";
+import User from "../models/userModel.js";
 
 const userController = {
+
   list: async (req, res) => {
     /* 
 
@@ -19,31 +22,23 @@ const userController = {
             `
         */
 
-    //! admin tüm user'lari görebilir, parent/normaluser/organizatör sadece kendisini görebilir
-    const customFilter = req.user.isAdmin ? {} : { _id: req.user._id };
+    // console.log('list controller calisiyor')
+    const customFilter = req.user.role === 'admin' ? {} : { _id: req.user._id };
 
-    const result = await res.getModelList(User, customFilter).select("username firstName lastName phone email role isActive isEmailVerified language location avatarUrl");
+    const result = await res.getModelList(User, customFilter)
 
-    res.status(200).send({
-      error: false,
-      details: await res.getModelListDetails(User, customFilter),
-      result,
-    });
+    if (!result) {
+      throw new CustomError('User not found', 404);
+    }
+
+    const details =
+      res.status(200).send({
+        error: false,
+        details: await res.getModelListDetails(User, customFilter),
+        user: toUserDTO(result)
+      })
   },
 
-  create: async (req, res) => {
-    /* 
-            #swagger.tags = ['Users']
-            #swagger.summary = 'Create User'
-        */
-
-    const result = await User.create(req.body);
-
-    res.status(201).send({
-      error: false,
-      result,
-    });
-  },
 
   read: async (req, res) => {
     /* 
@@ -51,11 +46,27 @@ const userController = {
             #swagger.summary = 'Get Single User'
         */
 
-    const result = await User.findOne({ _id: req.params.id });
+    // console.log('read calisti')
+
+    // console.log('userId', req.user._id)
+
+    const userId = req.user._id
+
+    // console.log('userId var', userId)
+
+    const result = await User.findOne({ _id: userId });
+
+    // console.log('result', result)
+
+    if (!result) {
+      throw new CustomError('User not found', 404);
+    }
+
+
 
     res.status(200).send({
       error: false,
-      result,
+      user: toUserDTO(result)
     });
   },
 
@@ -65,15 +76,53 @@ const userController = {
             #swagger.summary = 'Update User'
         */
 
-    const result = await User.findOneAndUpdate({ _id: req.params.id }, req.body, {
-      runValidators: true, // run validation method
-      new: true, // returns updated data
+    const validatedData = req.body
+
+    // console.log('updateValidateddata', validatedData)
+
+    const userId = req.user._id
+
+    const result = await User.findByIdAndUpdate(userId, validatedData, {
+      runValidators: true,
+      new: true,
     });
 
-    res.status(202).send({
+    // console.log('update-result', result)
+
+    res.status(200).send({
       error: false,
-      result,
+      user: toUserDTO(result)
     });
+  },
+
+  updatePassword: async (req, res) => {
+
+    console.log('updatepasswordUser', req.body)
+
+    const validatedData = req.body
+    const userId = req.user._id
+
+    // console.log('updatepasswordUser', userId)
+
+    const user = await User.findById(userId).select("+password")
+
+    // console.log('updatepasswordUser', user)
+
+    if (!user) throw new CustomError('User not found', 404)
+
+    const isMatch = await user.matchPassword(validatedData.currentPassword)
+
+    if (!isMatch) throw new CustomError('Current password is incorrect', 400)
+
+    user.password = validatedData.newPassword
+    await user.save()
+
+
+    res.status(200).send({
+      error: false,
+      message: 'Password updated successfully'
+    });
+
   },
 
   deletee: async (req, res) => {
@@ -81,14 +130,19 @@ const userController = {
             #swagger.tags = ['Users']
             #swagger.summary = 'Delete User'
         */
+    const userId = req.user._id;
 
-    const result = await User.deleteOne({ _id: req.params.id });
+    const result = await User.findByIdAndDelete(userId);
 
-    res.status(result.deletedCount ? 204 : 404).send({
-      error: true,
-      message: "Data is not found or already deleted.",
-    });
-  },
-};
+    if (!result) {
+      throw new CustomError(
+        'User not found or already deleted.',
+        404
+      );
+    }
 
+    res.sendStatus(204);
+  }
+
+}
 export default userController;

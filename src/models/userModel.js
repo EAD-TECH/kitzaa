@@ -1,4 +1,4 @@
-import { mongoose } from '../configs/dbConnection';
+import { mongoose } from '../configs/dbConnection.js';
 import bcrypt from 'bcrypt';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -128,8 +128,8 @@ const userSchema = new mongoose.Schema(
     // ── Rol & Durum ───────────────────────────────────────────────
     role: {
       type: String,
-      enum: ['parent', 'organizer', 'admin'],
-      default: 'parent',
+      enum: ['user', 'organizer', 'admin'],
+      default: 'user',
     },
     isActive: {
       type: Boolean,
@@ -187,10 +187,11 @@ userSchema.pre('save', async function () {
     this.refreshToken = null;
     this.refreshTokenExp = null;
   }
-});
+}); // buraya update kismini eklememe gerek kamadi. cunlu password degisikligi icin ayri bir endpoint olusturdum ve orda da yeni passwordu eklemek icin save() kullandim
 
 //compare password
-usersSchema.methods.matchPassword = async function (password) {
+userSchema.methods.matchPassword = async function (password) {
+  if (!password || !this.password) return false;
   return bcrypt.compare(password, this.password);
 };
 

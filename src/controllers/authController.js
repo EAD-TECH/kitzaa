@@ -1,98 +1,166 @@
 "use strict"
-/* -------------------------------------------------------
-    | FULLSTACK TEAM | NODEJS / EXPRESS |
-------------------------------------------------------- */
-import userModel from "../models/userModel";
-import { generateAccessToken, generateRefreshToken } from "../helpers/generateJwt";
-import CustomError from "../helpers/customError";
+
+import User from "../models/userModel.js";
+import { generateAccessToken, generateRefreshToken } from "../helpers/generateJwt.js";
+import CustomError from "../helpers/customError.js";
+import jwt from "jsonwebtoken";
+import { toUserDTO } from "../helpers/toUserDTO.js";
 
 
-module.exports = {
+const authController = {
+
   login: async (req, res) => {
 
-    const { username, email, password } = req.body;
+    const validatedData = req.body;
 
-    if (!((username || email) && password))
-      throw new CustomError(
-        "Username or email and password are required.",
-        401,
-      );
+    // console.log('validatedData', validatedData)
 
     const user = await User.findOne({
-      $or: [{ email }, { username }],
-      password,
-    });
+      $or: [
+        { email: validatedData.login },
+        { username: validatedData.login }
+      ]
+    }).select("+password")
+
+    console.log('user', user)
 
     if (!user) throw new CustomError("Wrong email/username or password", 401);
+
+
+
+    //password compare
+    const isMatchingPassword = await user.matchPassword(validatedData.password)
+
+    if (!isMatchingPassword) {
+      throw new CustomError('Invalid email or password.', 404)
+    }
 
     if (!user.isActive)
       throw new CustomError("The user status is not active", 401);
 
-    if(!user.isEmailVerified)
-      throw new CustomError("The user email is not verified", 401);
+    // if (!user.isEmailVerified)
+    //   throw new CustomError("The user email is not verified", 401);
 
+    //token create
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
+
+    console.log('tokens', refreshToken)
 
     user.refreshToken = refreshToken;
     await user.save();
 
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', //normalde localde http uzerinde calisiyoruz. ama production asamasinda https uzerinde calismasi icin sadece. browser cookieyi kabul etmiyor bunu yazinca http de.
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    })
+
     res.status(200).send({
       error: false,
-      bearer: { access: accessToken, refresh: refreshToken },
-    });
+      accessToken,
+      user: toUserDTO(user)
+    })
   },
 
-  logout: (req, res) => {
+  register: async (req, res) => {
+
+    const validatedData = req.body;
+    // console.log('validate data', validatedData)
+
+    const userExists = await User.findOne({
+      $or: [{ email: validatedData.email }, { username: validatedData.username }],
+    });
+
+    if (userExists) {
+      throw new CustomError('Email or username is already registered.', 409);
+    }
+
+    const newUser = await User.create(validatedData)
+
+    // console.log('newUser', newUser)
+
+    //token create
+    const accessToken = generateAccessToken(newUser);
+    const refreshToken = generateRefreshToken(newUser);
+
+    newUser.refreshToken = refreshToken
+    await newUser.save()
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.status(201).send({
+      error: false,
+      new: true,
+      accessToken,
+      user: toUserDTO(newUser),
+    })
+
+  },
+
+
+  logout: async (req, res) => {
 
     const user = await User.findById(req.user._id);
 
     if (!user) throw new CustomError("User must first login", 401);
 
-    if (user) {
-    user.refreshToken = null
-    await user.save()
-  }
+    res.clearCookie('refreshToken');
+
+    if (user) {  
+      user.refreshToken = null
+      await user.save()
+    }
 
     res.status(200).send({
       error: false,
-      message: "Logout successfull.",
+      message: 'logout is successful'
     });
   },
 
-  refresh: (req, res) => {
 
+  refresh: async (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
 
-    const { refresh } = req.body;
+    if (!refreshToken) throw new CustomError("Refresh token is missing.", 400);
 
-    if (!refresh) throw new CustomError("Refresh token is missing.", 400);
+    try {
+      const refreshData = jwt.verify(refreshToken, process.env.REFRESH_KEY);
+      const user = await User.findById(refreshData.id).select("+refreshToken");  // refreshtoken in basina arti koymamin sebebi schemada bu kisim select:false oldugu cin.
+      if (!user) throw new CustomError("Refresh data is not valid.", 401);
+      if (!user.isActive) throw new CustomError("This account is banned.", 401);
+      if (user.refreshToken !== refreshToken)
+        throw new CustomError("Refresh token is not valid.", 401);
 
-    jwt.verify(refresh, process.env.REFRESH_KEY, async (err, refreshData) => {
-      if (err) return next(new CustomError(`JWT Error: ${err.message}`, 401));
+      const accessToken = generateAccessToken(user);
+      const newRefreshToken = generateRefreshToken(user);
 
-      const user = await User.findById(refreshData._id);
+      user.refreshToken = newRefreshToken;
+      await user.save();
 
-      if (!user)
-        return next(new CustomError("Refresh data is not valid.", 401));
-
-      if (!user.isActive)
-        return next(new CustomError("This account is banned.", 401));
-
-      const accessData = {
-        _id: user._id,
-        username: user.username,
-        isActive: user.isActive,
-        isAdmin: user.isAdmin,
-      };
-
-      const access = jwt.sign(accessData, process.env.ACCESS_KEY, {
-        expiresIn: "1m",
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
       res.status(200).send({
         error: false,
-        bearer: { access },
+        accessToken
       });
-    });
+
+    } catch (err) {
+      throw new CustomError(`JWT Error: ${err.message}`, 401);
+    }
   },
+
 };
+
+export default authController;
