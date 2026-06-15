@@ -30,3 +30,6 @@
 # bakilcaklar
 
 refresh databaseden siliniyor mu bak
+
+
+bu deneme
