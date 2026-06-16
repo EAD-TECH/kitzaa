@@ -1,4 +1,5 @@
-import { mongoose } from "../configs/dbConnection";
+import { mongoose } from '../configs/dbConnection.js';
+import bcrypt from 'bcrypt';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PASSWORD_REGEX =
@@ -16,7 +17,7 @@ const locationSchema = new mongoose.Schema(
     city: {
       type: String,
       trim: true,
-      required: [true, "City is required"],
+      required: [true, 'City is required'],
     },
     district: {
       type: String,
@@ -26,58 +27,83 @@ const locationSchema = new mongoose.Schema(
     zipCode: {
       type: String,
       trim: true,
-      match: [/^\d{5}$/, "Please enter a valid German postal code (5 digits)"],
+      match: [/^\d{5}$/, 'Please enter a valid German postal code (5 digits)'],
       default: null,
     },
     country: {
       type: String,
-      default: "DE",
+      default: 'DE',
     },
   },
-  { _id: false },
+  { _id: false }
 );
 
 const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,
-      required: [true, "Username is required"],
+      required: [true, 'Username is required'],
       trim: true,
-      maxlength: [50, "Username cannot exceed 50 characters"],
+      unique: true,
+      maxlength: [50, 'Username cannot exceed 50 characters'],
     },
     firstName: {
       type: String,
-      required: [true, "First name is required"],
+      required: [true, 'First name is required'],
       trim: true,
-      maxlength: [50, "First name cannot exceed 50 characters"],
+      maxlength: [50, 'First name cannot exceed 50 characters'],
     },
 
     lastName: {
       type: String,
-      required: [true, "Last name is required"],
+      required: [true, 'Last name is required'],
       trim: true,
-      maxlength: [50, "Last name cannot exceed 50 characters"],
+      maxlength: [50, 'Last name cannot exceed 50 characters'],
     },
     email: {
       type: String,
-      required: [true, "Email is required"],
+      required: [true, 'Email is required'],
       unique: true,
       lowercase: true,
       trim: true,
       validate: {
         validator: (value) => EMAIL_REGEX.test(value),
-        message: "Please enter a valid email address",
+        message: 'Please enter a valid email address',
       },
     },
+
     password: {
       type: String,
-      required: [true, "Password is required"],
+      required: [true, 'Password is required'],
       select: false,
       validate: {
         validator: (value) => PASSWORD_REGEX.test(value),
         message:
-          "Password must be at least 8 characters and contain uppercase, lowercase, number, and special character",
+          'Password must be at least 8 characters and contain uppercase, lowercase, number, and special character',
       },
+    },
+
+    institutionId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Institution',
+      default: null,
+    },
+    // ── Email doğrulama ───────────────────────────
+    emailVerifyToken: {
+      type: String,
+      default: null,
+      select: false,
+    },
+    // ── Şifre sıfırlama ───────────────────────────
+    passwordResetToken: {
+      type: String,
+      default: null,
+      select: false,
+    },
+    passwordResetExp: {
+      type: Date,
+      default: null,
+      select: false,
     },
     phone: {
       type: String,
@@ -86,7 +112,7 @@ const userSchema = new mongoose.Schema(
       validate: {
         validator: (value) => !value || PHONE_REGEX.test(value),
         message:
-          "Please enter a valid phone number (international format supported)",
+          'Please enter a valid phone number (international format supported)',
       },
     },
     avatarUrl: {
@@ -96,8 +122,8 @@ const userSchema = new mongoose.Schema(
     // ── Rol & Durum ───────────────────────────────────────────────
     role: {
       type: String,
-      enum: ["parent", "organizer", "admin"],
-      default: "parent",
+      enum: ['user', 'organizer', 'admin'],
+      default: 'user',
     },
     isActive: {
       type: Boolean,
@@ -110,24 +136,42 @@ const userSchema = new mongoose.Schema(
 
     language: {
       type: String,
-      enum: ["de", "en"],
-      default: "de",
+      enum: ['de', 'en'],
+      default: 'de',
     },
 
     location: {
       type: locationSchema,
-      required: [true, "Location information is required"],
+      required: [true, 'Location information is required'],
     },
+    refreshToken: {
+      type: String,
+      default: null,
+      select: false, // ← önemli, sorgularda gelmesin
+    },
+
+    passwordResetToken: {
+      type: String,
+      default: null,
+      select: false,
+    },
+
+    passwordResetExp: {
+      type: Date,
+      default: null,
+      select: false,
+    },
+    
     savedEvents: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Event",
+        ref: 'Event',
       },
     ],
     savedActivities: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Activity",
+        ref: 'Activity',
       },
     ],
     notifications: {
@@ -143,23 +187,24 @@ const userSchema = new mongoose.Schema(
       },
     },
   },
-  { collection: "users", timestamp: true },
+  { collection: 'users', timestamps: true }
 );
 
-//hash
-usersSchema.pre("save", async function () {
-  if (!this.isModified("password")) {
-    return;
+userSchema.pre('save', async function () {
+  if (this.isModified('password')) {
+    this.password = await bcrypt.hash(this.password, 10);
   }
 
-  this.password = await bcrypt.hash(this.password, 10);
-});
+  if (this.isModified('role')) {
+    this.refreshToken = null;
+    this.refreshTokenExp = null;
+  }
+}); // buraya update kismini eklememe gerek kamadi. cunlu password degisikligi icin ayri bir endpoint olusturdum ve orda da yeni passwordu eklemek icin save() kullandim
 
 //compare password
-usersSchema.methods.matchPassword = async function (password) {
+userSchema.methods.matchPassword = async function (password) {
+  if (!password || !this.password) return false;
   return bcrypt.compare(password, this.password);
 };
 
-
-const User = mongoose.model('User', userSchema)
-exports.module = User
+export default mongoose.model('User', userSchema);

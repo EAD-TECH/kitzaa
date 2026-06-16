@@ -1,6 +1,7 @@
 import "dotenv/config";
 
 import app from './server.js';
+import { dbConnection } from './src/configs/dbConnection.js';
 import { errorHandler, notFound } from './src/middlewares/errorHandler.js';
 
 const PORT = process.env.PORT || 3000;
@@ -11,6 +12,7 @@ app.all("/health", (req, res) => {
 
 app.use(notFound).use(errorHandler);
 
+await dbConnection();
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
