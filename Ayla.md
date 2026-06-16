@@ -50,7 +50,7 @@ Refresh token iptal edilir
 
  2. forgot password icin root olusturdum. POST /auth/forgot-password
 
- 3. dfdfsdsffsdsfsdfds
+ 3. degistirildi
 
 
 
