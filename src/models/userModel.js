@@ -105,12 +105,6 @@ const userSchema = new mongoose.Schema(
       default: null,
       select: false,
     },
-    refreshToken: {
-      type: String,
-      default: null,
-      select: false, // ← önemli, sorgularda gelmesin
-    },
-
     phone: {
       type: String,
       trim: true,
@@ -150,6 +144,24 @@ const userSchema = new mongoose.Schema(
       type: locationSchema,
       required: [true, 'Location information is required'],
     },
+    refreshToken: {
+      type: String,
+      default: null,
+      select: false, // ← önemli, sorgularda gelmesin
+    },
+
+    passwordResetToken: {
+      type: String,
+      default: null,
+      select: false,
+    },
+
+    passwordResetExp: {
+      type: Date,
+      default: null,
+      select: false,
+    },
+    
     savedEvents: [
       {
         type: mongoose.Schema.Types.ObjectId,
