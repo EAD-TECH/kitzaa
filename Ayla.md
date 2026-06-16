@@ -15,21 +15,44 @@
 
 
 
-# yapilcaklar
-
-1. admin icin user crud islemleri icin ayri bir endpoint olustur. /api/v1/admin/users/
-
-
-
 # fikirler
 
 1. frontend de location kismini user dan alirken, locationinizi girerseniz yakininizdaki etkinliklerden haberdar olabilirsiniz gibi birsey yazalim. bu kisim opsionel.
 
 
+# password reset algoritmasi
 
-# bakilcaklar
+Forgot Password a tiklanir
+↓
+Mail girilir
+↓
+Random token oluştur
+↓
+Hashlenmiş token DB'ye kaydet
+↓
+Mail gönder
+↓
+Kullanıcı linke tıklar
+↓
+Yeni şifre girer
+↓
+Token doğrulanır
+↓
+Şifre değiştirilir
+↓
+Reset token silinir
+↓
+Refresh token iptal edilir
 
-refresh databaseden siliniyor mu bak
 
 
-adjkshfjhsdfjsdkfjds
+ 1. schemaya passwordResetToken(mail icin üretilen ve hashlenen token) ve PasswordResetExp(token ne kadar süre gecerli olucak)  
+
+ 2. forgot password icin root olusturdum. POST /auth/forgot-password
+
+ 3. 
+
+
+
+
+

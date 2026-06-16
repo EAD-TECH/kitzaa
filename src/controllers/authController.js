@@ -161,6 +161,12 @@ const authController = {
     }
   },
 
+  forgotPassword: async (req, res) => {
+
+    
+
+  }
+
 };
 
 export default authController;
