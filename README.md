@@ -92,7 +92,27 @@ Argon2 Kullan Eğer:
 
 
 
- 10. Like olaylari yapilacak event category ve forumlar icin 
+ 10.Like olaylari yapilacak event category ve forumlar icin 
     post islemi: event/id/postlike post islemi olacak bu bu sekile bir route oluisturulacak buraya istek atildiginda leki icinde user id sini kaldirip koyacak 
     getislemi :getlike yapacagiz events/id/getlike route olusturulacak. Burdada bir evente de ait tüm likelarini getirecegiz.
+
+
+
+1.(a)
+    1.1. registerda mail gönderme welcome to kindora (mail hesabi acmaliyiz)
+    1.2. loginde password unuttum olaylari login rest
+    1.3. admin/user controller /router eklenecek
+    1.4. Admin onay/red endpoint'leri(organizatör olayi icin)
+
+  
+
+ 3(d). Organizatör basvurusu endpoitlerini yazmamiz lazim model/controller/routelari olusturmmaiz lazim
+    3.1. Institution model
+    3.2. Başvuru endpoint'i (POST /institutions/apply)
+    3.3. Admin onay/red endpoint'leri
+    3.4. notAlreadyApplied middleware (çift başvuru engeli)
+    3.5. checkOrganizerApproved middleware
+    3.6. isEmailverified organitör form gönderdiginde mail gidecek
+
+
 
