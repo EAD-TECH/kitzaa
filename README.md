@@ -69,27 +69,22 @@ Argon2 Kullan Eğer:
 3. 
 
 
-
-
  ### YAPILACAKLAR
- 1. auth(login/register/logout) durumunu yapacagiz
-    1.1. registerda mail dogrulama (mail hesabi acmaliyiz)
-    1.2. loginde password unuttum olaylari
-    1.3. loginde isEmailVerified kontrolü
-    1.4. isActive mi kontrolu yapilacak
- 2. jwt islemlerini yapmak
- 3. authentication midleware olusturalim
- 4. permissionlari role bazli olusturalim
- 5. Organizatör basvurusu endpoitlerini yazmamiz lazim model/controller/routelari olusturmmaiz lazim
-    5.1. Institution model
-    5.2. Başvuru endpoint'i (POST /institutions/apply)
-    5.3. Admin onay/red endpoint'leri
-    5.4. notAlreadyApplied middleware (çift başvuru engeli)
-    5.5. checkOrganizerApproved middleware
- 6. Normal user icin model/controller/route/jwt olaylairni yapmmaiz lazim
- 
- 
+ 1.(a) 
+    1.1. registerda mail gönderme welcome to kindora (mail hesabi acmaliyiz)
+    1.2. loginde password unuttum olaylari login rest
+    1.3. isActive mi kontrolu yapilacak ??? belki yapilmis olabilir bak
 
+ 2.(e) admin/user controller /router eklenecek
+   2.1 Admin onay/red endpoint'leri(organizatör olayi icin)
+
+ 3(d). Organizatör basvurusu endpoitlerini yazmamiz lazim model/controller/routelari olusturmmaiz lazim
+    3.1. Institution model
+    3.2. Başvuru endpoint'i (POST /institutions/apply)
+    3.3. Admin onay/red endpoint'leri
+    3.4. notAlreadyApplied middleware (çift başvuru engeli)
+    3.5. checkOrganizerApproved middleware
+    3.6. isEmailverified organitör form gönderdiginde mail gidecek 
 
 
  10. Like olaylari yapilacak event category ve forumlar icin 
