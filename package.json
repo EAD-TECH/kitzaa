@@ -2,10 +2,11 @@
   "name": "kitzaa-backend",
   "version": "1.0.0",
   "description": "🔹eventlari listeleyebilicek",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx watch index.ts"
   },
   "repository": {
     "type": "git",
@@ -35,9 +36,15 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/compression": "^1.7.5",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/morgan": "^1.9.9",
     "@types/node": "^26.1.1",
-    "nodemon": "^3.1.14",
+    "tsx": "^4.19.2",
     "typescript": "^7.0.2"
   }
 }

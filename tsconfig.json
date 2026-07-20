@@ -39,5 +39,12 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
-  }
+
+    // Interop
+    // express, jsonwebtoken, bcrypt, cors, morgan gibi CommonJS paketlerden
+    // default import yapabilmek icin gerekli (esModuleInterop olmadan tsc hata verir)
+    "esModuleInterop": true
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }
