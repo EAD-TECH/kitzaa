@@ -31,16 +31,16 @@ const queryHandler = async (req, res, next) => {
   let skip = parseInt(req.query?.skip);
   skip = skip > 0 ? skip : (page - 1) * limit;
 
-  res.getModelList = async (Model, populate = null) => {
-    return await Model.find({ ...filter, ...search })
+  res.getModelList = async (Model,customFilter= {}, populate = null) => {
+    return await Model.find({ ...filter, ...search, ...customFilter })
       .sort(sort)
       .skip(skip)
       .limit(limit)
       .populate(populate);
   };
 
-  res.getModelListDetails = async (Model) => {
-    const count = await Model.countDocuments({ ...filter, ...search });
+  res.getModelListDetails = async (Model, customFilter = {}) => {
+    const count = await Model.countDocuments({ ...filter, ...search, ...customFilter });
     return {
       count,
       filter,

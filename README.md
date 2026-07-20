@@ -49,6 +49,7 @@
  1.  BCRYPT  PAKETI KULLANILDI SIFRE HASHLEME ICIN :
 
 
+
 bcrypt Kullan Eğer:
 ✅ Hızlı deployment gerekirse
 ✅ Basit kurulum/maintenance istersen
@@ -65,3 +66,33 @@ Argon2 Kullan Eğer:
 ✅ AWS/GCP managed services kullanıyorsan
 
 2. USER tablosuna username bilgisi eklendi
+3. 
+
+
+
+
+ ### YAPILACAKLAR
+ 1. auth(login/register/logout) durumunu yapacagiz
+    1.1. registerda mail dogrulama (mail hesabi acmaliyiz)
+    1.2. loginde password unuttum olaylari
+    1.3. loginde isEmailVerified kontrolü
+    1.4. isActive mi kontrolu yapilacak
+ 2. jwt islemlerini yapmak
+ 3. authentication midleware olusturalim
+ 4. permissionlari role bazli olusturalim
+ 5. Organizatör basvurusu endpoitlerini yazmamiz lazim model/controller/routelari olusturmmaiz lazim
+    5.1. Institution model
+    5.2. Başvuru endpoint'i (POST /institutions/apply)
+    5.3. Admin onay/red endpoint'leri
+    5.4. notAlreadyApplied middleware (çift başvuru engeli)
+    5.5. checkOrganizerApproved middleware
+ 6. Normal user icin model/controller/route/jwt olaylairni yapmmaiz lazim
+ 
+ 
+
+
+
+ 10. Like olaylari yapilacak event category ve forumlar icin 
+    post islemi: event/id/postlike post islemi olacak bu bu sekile bir route oluisturulacak buraya istek atildiginda leki icinde user id sini kaldirip koyacak 
+    getislemi :getlike yapacagiz events/id/getlike route olusturulacak. Burdada bir evente de ait tüm likelarini getirecegiz.
+

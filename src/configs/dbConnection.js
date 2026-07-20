@@ -4,7 +4,7 @@
 ------------------------------------------------------- */
 // MongoDB Connection:
 
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const dbConnection = async function () {
   await mongoose
@@ -17,7 +17,4 @@ const dbConnection = async function () {
 };
 
 /* ------------------------------------------------------- */
-module.exports = {
-  mongoose,
-  dbConnection,
-};
+export { mongoose, dbConnection };

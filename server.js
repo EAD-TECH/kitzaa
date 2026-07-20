@@ -5,6 +5,8 @@ import helmet from 'helmet';
 import compression from 'compression';
 import queryHandler from './src/middlewares/queryHandler.js';
 import logger from './src/middlewares/logger.js';
+import indexRoute from './src/routes/index.js';
+import cookieParser from 'cookie-parser';
 
 const app = express()
 
@@ -30,11 +32,18 @@ app.use(compression({
     }
 }))
 
+
+// cookie parser
+app.use(cookieParser());
+
 // Nested Query
 app.set("query parser", "extended");
 
 // Query Handler:
 app.use(queryHandler);
+
+// Routes:
+app.use('/api/v1', indexRoute);
 
 
 // Auhentication:
