@@ -15,13 +15,15 @@ interface SendMailOptions {
   to: string;
   subject: string;
   html: string;
+  text?: string;
 }
 
-export const sendMail = async ({ to, subject, html }: SendMailOptions) => {
+export const sendMail = async ({ to, subject, html, text }: SendMailOptions) => {
   await transporter.sendMail({
     from: process.env.MAIL_FROM,
     to,
     subject,
     html,
+    text: text ?? html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(),
   });
 };

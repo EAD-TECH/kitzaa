@@ -1,77 +1,95 @@
-export const welcomeTemplate = (name: string, confirmUrl: string = "https://kitzaa.de/confirm") => `
+interface WelcomeTemplateParams {
+  username: string;
+  loginUrl?: string;
+}
+
+export const welcomeTemplate = ({ username, loginUrl = 'https://kitzaa.de/login' }: WelcomeTemplateParams): string => `
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Willkommen bei Kitzaa</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Willkommen bei Kitzaa</title>
 </head>
-<body style="margin:0; padding:0; background-color:#f7f9fc; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#f7f9fc; padding: 20px 0;">
-        <tr>
-            <td align="center">
-                <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color:#ffffff; border-radius:20px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
-                    
-                    <!-- Header -->
-                    <tr>
-                        <td align="center" style="background: linear-gradient(135deg, #ff8a65 0%, #ff6b81 100%); padding: 32px 20px; color:#ffffff;">
-                            <h1 style="margin:0; font-size:32px; font-weight:800; letter-spacing:-1px;">Kitzaa 🎉</h1>
-                            <p style="margin:6px 0 0 0; font-size:15px; opacity:0.95; font-weight:500;">Das Familien- & Event-Portal</p>
-                        </td>
-                    </tr>
+<body style="margin:0; padding:0; background-color:#F4EFE7; font-family:'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F4EFE7; padding:48px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px; background-color:#FFFFFF; border-radius:28px; overflow:hidden; box-shadow:0 10px 30px rgba(194,109,77,0.12);">
 
-                    <!-- Body -->
-                    <tr>
-                        <td style="padding: 32px 36px; color:#334155;">
-                            <h2 style="color:#1e293b; margin-top:0; font-size:22px; font-weight:700;">Herzlich willkommen, ${name}! 🎈</h2>
-                            <p style="font-size:15px; line-height:1.6; color:#475569; margin-bottom:20px;">
-                                Schön, dass du da bist! Wir freuen uns riesig, dich und deine Familie in der Kitzaa-Community begrüßen zu dürfen.
-                            </p>
-                            <p style="font-size:15px; line-height:1.6; color:#475569; margin-bottom:24px;">
-                                Entdecke jetzt tolle Familien-Events, kreative Workshops und unvergessliche Erlebnisse in deiner Nähe.
-                            </p>
-                            
-                            <!-- Highlight Box -->
-                            <div style="background-color:#fff7ed; border-left:4px solid #ff8a65; padding:16px 20px; border-radius:12px; margin:24px 0;">
-                                <strong style="color:#c2410c; font-size:15px; display:block; margin-bottom:8px;">Deine Vorteile bei Kitzaa:</strong>
-                                <ul style="margin:0; padding-left:20px; color:#57534e; font-size:14px; line-height:1.6;">
-                                    <li style="margin-bottom:6px;">Exklusive Events & Workshops direkt in deiner Nähe</li>
-                                    <li style="margin-bottom:6px;">Einfache Online-Anmeldung & Ticket-Buchung</li>
-                                    <li>Lieblings-Events auf der Merkliste speichern</li>
-                                </ul>
-                            </div>
-
-                            <p style="font-size:14px; color:#64748b; margin-top:24px;">
-                                Bitte klicke auf den Button unten, um deine E-Mail-Adresse zu bestätigen:
-                            </p>
-
-                            <!-- Button -->
-                            <div style="text-align:center; margin:32px 0;">
-                                <a href="${confirmUrl}" style="background:linear-gradient(135deg, #ff6b81 0%, #ff8a65 100%); color:#ffffff; text-decoration:none; padding:14px 36px; border-radius:50px; font-weight:bold; font-size:15px; display:inline-block; box-shadow:0 4px 14px rgba(255, 107, 129, 0.4);">Registrierung bestätigen ✨</a>
-                            </div>
-
-                            <p style="font-size:12px; color:#94a3b8; text-align:center; margin-top:20px; word-break:break-all;">
-                                Falls der Button nicht klickbar ist, nutze diesen Link:<br>
-                                <a href="${confirmUrl}" style="color:#64748b;">${confirmUrl}</a>
-                            </p>
-                        </td>
-                    </tr>
-
-                    <!-- Footer -->
-                    <tr>
-                        <td align="center" style="background-color:#f8fafc; padding:24px; border-top:1px solid #f1f5f9; color:#94a3b8; font-size:12px;">
-                            <p style="margin:0 0 6px 0; color:#475569; font-size:13px;">Liebe Grüße,<br><strong>Dein Kitzaa-Team ❤️</strong></p>
-                            <p style="margin:0;">© Kitzaa • Alle Rechte vorbehalten</p>
-                            <p style="margin:6px 0 0 0; font-size:12px; color:#64748b;">
-                                🌐 <a href="https://kitzaa.de" style="color:#64748b; text-decoration:none;">kitzaa.de</a> &nbsp;•&nbsp; ✉️ hallo@kitzaa.de
-                            </p>
-                        </td>
-                    </tr>
-
-                </table>
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg, #E8C16C 0%, #C26D4D 100%); padding:44px 32px; text-align:center;">
+              <div style="width:72px; height:72px; margin:0 auto 16px; background-color:rgba(255,255,255,0.22); border-radius:50%; line-height:72px; font-size:34px;">
+                🦌
+              </div>
+              <h1 style="margin:0; color:#FFFFFF; font-size:24px; font-weight:700; letter-spacing:-0.3px;">
+                Willkommen, ${username}!
+              </h1>
+              <p style="margin:8px 0 0; color:rgba(255,255,255,0.9); font-size:14px;">
+                Schön, dass du bei Kitzaa dabei bist 🌼
+              </p>
             </td>
-        </tr>
-    </table>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:36px 32px 8px;">
+              <p style="margin:0 0 20px; color:#4A5568; font-size:15px; line-height:1.7;">
+                Hallo <strong style="color:#2D3748;">${username}</strong>, dein Konto ist startklar! Ab jetzt findest du kinderfreundliche Events in deiner Nähe und kannst dich im Familienforum mit anderen Eltern austauschen.
+              </p>
+
+              <!-- Feature list -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding:14px 16px; background-color:#F9F6F1; border-radius:16px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td width="40" style="font-size:20px; vertical-align:top; padding:6px 0;">🎪</td>
+                        <td style="color:#2D3748; font-size:14px; line-height:1.6; padding:6px 0;">Kinderfreundliche Events entdecken &amp; buchen</td>
+                      </tr>
+                      <tr>
+                        <td width="40" style="font-size:20px; vertical-align:top; padding:6px 0;">💬</td>
+                        <td style="color:#2D3748; font-size:14px; line-height:1.6; padding:6px 0;">Im Familienforum austauschen &amp; Fragen stellen</td>
+                      </tr>
+                      <tr>
+                        <td width="40" style="font-size:20px; vertical-align:top; padding:6px 0;">👨‍👩‍👧‍👦</td>
+                        <td style="color:#2D3748; font-size:14px; line-height:1.6; padding:6px 0;">Andere Familien aus deiner Umgebung kennenlernen</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- CTA -->
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:32px auto 8px;">
+                <tr>
+                  <td align="center" style="border-radius:999px; background-color:#8BA88E;">
+                    <a href="${loginUrl}" target="_blank" style="display:inline-block; padding:15px 40px; color:#FFFFFF; font-size:15px; font-weight:600; text-decoration:none; border-radius:999px;">
+                      Jetzt loslegen →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:24px 32px 32px; text-align:center;">
+              <p style="margin:0 0 4px; color:#A0AEC0; font-size:12px;">
+                Wir freuen uns auf dich und deine Familie 🌼
+              </p>
+              <p style="margin:0; color:#CBD5E0; font-size:11px;">
+                Fragen? Schreib uns an <a href="mailto:support@kitzaa.de" style="color:#8BA88E; text-decoration:underline;">support@kitzaa.de</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
 `;
