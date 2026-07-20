@@ -1,24 +1,25 @@
 {
-  "name": "kindora",
+  "name": "kitzaa-backend",
   "version": "1.0.0",
   "description": "🔹eventlari listeleyebilicek",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx watch index.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/EAD-TECH/kindora.git"
+    "url": "git+https://github.com/EAD-TECH/kitzaa-backend.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "bugs": {
-    "url": "https://github.com/EAD-TECH/kindora/issues"
+    "url": "https://github.com/EAD-TECH/kitzaa-backend/issues"
   },
-  "homepage": "https://github.com/EAD-TECH/kindora#readme",
+  "homepage": "https://github.com/EAD-TECH/kitzaa-backend#readme",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "compression": "^1.8.1",
@@ -35,6 +36,15 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "@types/bcrypt": "^5.0.2",
+    "@types/compression": "^1.7.5",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^26.1.1",
+    "tsx": "^4.19.2",
+    "typescript": "^7.0.2"
   }
 }
