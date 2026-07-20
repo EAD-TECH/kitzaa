@@ -7,12 +7,15 @@ import queryHandler from './src/middlewares/queryHandler.js';
 import logger from './src/middlewares/logger.js';
 import indexRoute from './src/routes/index.js';
 import cookieParser from 'cookie-parser';
+import morgan from 'morgan';
+
 
 const app = express()
 
 app.use(express.json());
 app.use(cors());
 app.use('/api/v1/uploads', express.static('uploads')); // Serve uploaded files
+app.use(morgan('dev'));
 
 app.use(helmet());
 app.use('/api/v1', rateLimit({
