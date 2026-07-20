@@ -1,5 +1,5 @@
 {
-  "name": "kindora",
+  "name": "kitzaa-backend",
   "version": "1.0.0",
   "description": "🔹eventlari listeleyebilicek",
   "main": "index.js",
@@ -9,16 +9,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/EAD-TECH/kindora.git"
+    "url": "git+https://github.com/EAD-TECH/kitzaa-backend.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "bugs": {
-    "url": "https://github.com/EAD-TECH/kindora/issues"
+    "url": "https://github.com/EAD-TECH/kitzaa-backend/issues"
   },
-  "homepage": "https://github.com/EAD-TECH/kindora#readme",
+  "homepage": "https://github.com/EAD-TECH/kitzaa-backend#readme",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "compression": "^1.8.1",
