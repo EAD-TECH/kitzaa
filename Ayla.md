@@ -54,5 +54,11 @@ Refresh token iptal edilir
 
 
 
+# mail gonderme
+
+1. env. dosyasina mail icin gerekli key ler girilir
+2. src/services/mail.service.ts dosyasi olusturulur. icerisine service modulu yazilir.
+3. 
+
 
 
