@@ -6,6 +6,9 @@ import CustomError from "../helpers/customError.js";
 import jwt from "jsonwebtoken";
 import { toUserDTO } from "../helpers/toUserDTO.js";
 
+import { welcomeTemplate } from "../mail/templates/welcome.template.js";
+import { sendMail } from "../mail/mail.service.js";
+
 
 const authController = {
 
@@ -88,6 +91,23 @@ const authController = {
     newUser.refreshToken = refreshToken
     await newUser.save()
 
+
+    //mail
+    try {
+
+     const mail =  await sendMail({
+        to: newUser.email,
+        subject: "Willkommen bei Kitzaa",
+        html: welcomeTemplate({ username: newUser.username })
+      })
+
+      console.log("mail", mail)
+
+    } catch (error) {
+      console.log('Failed to send email.', error)
+    }
+
+
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -113,7 +133,7 @@ const authController = {
 
     res.clearCookie('refreshToken');
 
-    if (user) {  
+    if (user) {
       user.refreshToken = null
       await user.save()
     }
@@ -144,7 +164,7 @@ const authController = {
       user.refreshToken = newRefreshToken;
       await user.save();
 
-      res.cookie('refreshToken', refreshToken, {
+      res.cookie('refreshToken', newRefreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
@@ -163,7 +183,11 @@ const authController = {
 
   forgotPassword: async (req, res) => {
 
-    
+// email var mi kontrol et
+// raw token üret
+// raw tokeni hashleyip veri tabanina kaydet
+// token a son kullanma tarihi ata
+//
 
   }
 

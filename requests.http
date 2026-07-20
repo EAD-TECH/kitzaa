@@ -1,0 +1,114 @@
+### ==========================================================
+### Kindora / Kitzaa Backend - REST Client requests
+### Requires the "REST Client" VS Code extension (humao.rest-client)
+### ==========================================================
+
+@baseUrl = http://localhost:8000/api/v1
+@contentType = application/json
+
+### ------------------------------------------------------------
+### Health check
+### ------------------------------------------------------------
+GET http://localhost:8000/health
+
+
+### ------------------------------------------------------------
+### AUTH
+### ------------------------------------------------------------
+
+### Register
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "aylaa",
+  "firstName": "ayla",
+  "lastName": "ayla",
+  "email": "aylaataydir@gmail.com",
+  "password": "Ayla123.",
+  "phone": "+491234567890",
+  "language": "de",
+  "location": {
+    "city": "Berlin",
+    "zipCode": "10115",
+    "country": "DE"
+  }
+}
+
+
+### Login
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "login": "johndoe",
+  "password": "Passw0rd!"
+}
+
+### Capture the access token returned by login for use below
+@accessToken = {{login.response.body.$.accessToken}}
+
+
+### Refresh access token (uses the httpOnly refreshToken cookie set by login/register)
+POST {{baseUrl}}/auth/refresh
+
+
+### Logout
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{accessToken}}
+
+
+### Forgot password
+### NOTE: authController.forgotPassword is currently an empty stub (no logic implemented yet)
+POST {{baseUrl}}/auth/forgot-password
+Content-Type: {{contentType}}
+
+{
+  "email": "john.doe@example.com"
+}
+
+
+### ------------------------------------------------------------
+### USERS (all require Authorization: Bearer {{accessToken}})
+### ------------------------------------------------------------
+
+### List users (supports query params via queryHandler middleware, e.g. ?page=1&limit=10)
+GET {{baseUrl}}/users
+Authorization: Bearer {{accessToken}}
+
+
+### Get single user by id
+@userId = REPLACE_WITH_USER_ID
+GET {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{accessToken}}
+
+
+### Update user
+PUT {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "firstName": "Johnny",
+  "location": {
+    "city": "Munich"
+  }
+}
+
+
+### Delete user
+DELETE {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{accessToken}}
+
+
+### Update password
+PUT {{baseUrl}}/users/{{userId}}/password
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "currentPassword": "Passw0rd!",
+  "newPassword": "NewPassw0rd!1",
+  "confirmPassword": "NewPassw0rd!1"
+}

@@ -22,27 +22,20 @@
 
 # password reset algoritmasi
 
-Forgot Password a tiklanir
-↓
-Mail girilir
-↓
-Random token oluştur
-↓
-Hashlenmiş token DB'ye kaydet
-↓
-Mail gönder
-↓
-Kullanıcı linke tıklar
-↓
-Yeni şifre girer
-↓
-Token doğrulanır
-↓
-Şifre değiştirilir
-↓
-Reset token silinir
-↓
-Refresh token iptal edilir
+1. Kullanıcı email'ini girer → "Şifremi Unuttum" formu
+2. Backend: email veritabanında var mı kontrol edilir
+3. Var ise:
+   a. Rastgele, tahmin edilemez bir token üretilir (ham token)
+   b. Bu token HASH'lenip veritabanına kaydedilir (ham hali DEĞİL)
+   c. Token'a bir son kullanma tarihi (expiry) atanır (örn. 1 saat)
+   d. Kullanıcıya HAM token içeren bir reset linki mail atılır
+4. Kullanıcı mail'deki linke tıklar → frontend'de yeni şifre formu açılır
+5. Kullanıcı yeni şifreyi girer → frontend, URL'deki ham token + yeni şifreyi backend'e gönderir
+6. Backend:
+   a. Gelen ham token'ı HASH'ler
+   b. Veritabanında bu hash'e sahip, süresi dolmamış bir kayıt var mı arar
+   c. Varsa: yeni şifreyi hash'leyip kaydeder, token'ı ve expiry'yi temizler
+   d. Yoksa: "geçersiz veya süresi dolmuş token" hatası döner
 
 
 
@@ -53,6 +46,12 @@ Refresh token iptal edilir
  3. degistirildi
 
 
+
+# mail gonderme
+
+1. env. dosyasina mail icin gerekli key ler girilir
+2. src/services/mail.service.ts dosyasi olusturulur. icerisine service modulu yazilir.
+3. server.ts dosyasina import edildi.
 
 
 
