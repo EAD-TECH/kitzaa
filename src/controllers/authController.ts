@@ -1,3 +1,4 @@
+import { Params } from './../../node_modules/@types/express-serve-static-core/index.d';
 "use strict"
 
 import User from "../models/userModel.js";
@@ -8,6 +9,8 @@ import { toUserDTO } from "../helpers/toUserDTO.js";
 
 import { welcomeTemplate } from "../mail/templates/welcome.template.js";
 import { sendMail } from "../mail/mail.service.js";
+import { generateResetToken } from "../helpers/generateResetToken.js";
+import { resetPasswordTemplate } from "../mail/templates/resetPassword.template.js";
 
 
 const authController = {
@@ -95,7 +98,7 @@ const authController = {
     //mail
     try {
 
-     const mail =  await sendMail({
+      const mail = await sendMail({
         to: newUser.email,
         subject: "Willkommen bei Kitzaa",
         html: welcomeTemplate({ username: newUser.username })
@@ -146,6 +149,7 @@ const authController = {
 
 
   refresh: async (req, res) => {
+
     const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) throw new CustomError("Refresh token is missing.", 400);
@@ -181,13 +185,54 @@ const authController = {
     }
   },
 
+
   forgotPassword: async (req, res) => {
 
-// email var mi kontrol et
-// raw token üret
-// raw tokeni hashleyip veri tabanina kaydet
-// token a son kullanma tarihi ata
-//
+    const { email } = req.body
+
+    const genericResponse = {
+      error: 'false',
+      message: 'Falls die E-Mail-Adresse existiert, wurde ein Link zum Zurücksetzen des Passworts gesendet.',
+    };
+
+    const user = await User.findOne({ email: email.toLowerCase() })
+
+    if (!user) {
+      return res.status(200).json(genericResponse);
+    }
+
+    const { rawToken, hashedToken, expires } = generateResetToken();
+
+    user.passwordResetToken = hashedToken;
+    user.passwordResetExp = expires;
+    await user.save()
+
+
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${rawToken}`
+
+    try {
+      await sendMail({
+        to: user.email,
+        subject: 'Passwort zurücksetzen',
+        html: resetPasswordTemplate({ resetUrl }),
+      });
+    } catch (mailError) {
+      user.passwordResetToken = undefined;
+      user.passwordResetExp = undefined;
+      await user.save();
+
+      console.log('Failed to send email.', error)
+      throw new CustomError('E-Mail konnte nicht gesendet werden. Bitte versuche es später erneut.', 500);
+    }
+
+    res.status(200).json(genericResponse);
+
+  },
+
+  resetPassword: async (req, res) => {
+
+    const { token } = req.Params
+    const { newPassword } = req.body
 
   }
 

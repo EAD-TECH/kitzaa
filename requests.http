@@ -21,10 +21,10 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "username": "aylaa",
-  "firstName": "ayla",
-  "lastName": "ayla",
-  "email": "aylaataydir@gmail.com",
+  "username": "duygu",
+  "firstName": "duygu",
+  "lastName": "duygu",
+  "email": "dyg.cankurt17@gmail.com",
   "password": "Ayla123.",
   "phone": "+491234567890",
   "language": "de",
