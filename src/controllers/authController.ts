@@ -1,4 +1,3 @@
-import { Params } from './../../node_modules/@types/express-serve-static-core/index.d';
 "use strict"
 
 import User from "../models/userModel.js";
@@ -231,8 +230,11 @@ const authController = {
 
   resetPassword: async (req, res) => {
 
-    const { token } = req.Params
+    const { token } = req.params
     const { newPassword } = req.body
+
+    
+
 
   }
 
