@@ -1,7 +1,9 @@
 "use strict"
 
+import type { Request, Response } from "express";
 import User from "../models/userModel.js";
 import { generateAccessToken, generateRefreshToken } from "../helpers/generateJwt.js";
+import type { RefreshTokenPayload } from "../helpers/generateJwt.js";
 import CustomError from "../helpers/customError.js";
 import jwt from "jsonwebtoken";
 import { toUserDTO } from "../helpers/toUserDTO.js";
@@ -10,11 +12,17 @@ import { welcomeTemplate } from "../mail/templates/welcome.template.js";
 import { sendMail } from "../mail/mail.service.js";
 import { generateResetToken } from "../helpers/generateResetToken.js";
 import { resetPasswordTemplate } from "../mail/templates/resetPassword.template.js";
+import type {
+  CreateUserInput,
+  LoginInput,
+  ForgotPasswordInput,
+  ResetPasswordInput,
+} from "../validations/user.schema.js";
 
 
 const authController = {
 
-  login: async (req, res) => {
+  login: async (req: Request<{}, any, LoginInput>, res: Response) => {
 
     const validatedData = req.body;
 
@@ -69,7 +77,7 @@ const authController = {
     })
   },
 
-  register: async (req, res) => {
+  register: async (req: Request<{}, any, CreateUserInput>, res: Response) => {
 
     const validatedData = req.body;
     // console.log('validate data', validatedData)
@@ -127,7 +135,7 @@ const authController = {
   },
 
 
-  logout: async (req, res) => {
+  logout: async (req: Request, res: Response) => {
 
     const user = await User.findById(req.user._id);
 
@@ -147,14 +155,15 @@ const authController = {
   },
 
 
-  refresh: async (req, res) => {
+  refresh: async (req: Request, res: Response) => {
 
     const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) throw new CustomError("Refresh token is missing.", 400);
 
     try {
-      const refreshData = jwt.verify(refreshToken, process.env.REFRESH_KEY);
+      
+      const refreshData = jwt.verify(refreshToken, process.env.REFRESH_KEY!) as RefreshTokenPayload;
       const user = await User.findById(refreshData.id).select("+refreshToken");  // refreshtoken in basina arti koymamin sebebi schemada bu kisim select:false oldugu cin.
       if (!user) throw new CustomError("Refresh data is not valid.", 401);
       if (!user.isActive) throw new CustomError("This account is banned.", 401);
@@ -180,12 +189,13 @@ const authController = {
       });
 
     } catch (err) {
-      throw new CustomError(`JWT Error: ${err.message}`, 401);
+      const message = err instanceof Error ? err.message : String(err);
+      throw new CustomError(`JWT Error: ${message}`, 401);
     }
   },
 
 
-  forgotPassword: async (req, res) => {
+  forgotPassword: async (req: Request<{}, any, ForgotPasswordInput>, res: Response) => {
 
     const { email } = req.body
 
@@ -213,14 +223,14 @@ const authController = {
       await sendMail({
         to: user.email,
         subject: 'Passwort zurücksetzen',
-        html: resetPasswordTemplate({ resetUrl }),
+        html: resetPasswordTemplate({ username: user.username, resetUrl }),
       });
     } catch (mailError) {
       user.passwordResetToken = undefined;
       user.passwordResetExp = undefined;
       await user.save();
 
-      console.log('Failed to send email.', error)
+      console.log('Failed to send email.', mailError)
       throw new CustomError('E-Mail konnte nicht gesendet werden. Bitte versuche es später erneut.', 500);
     }
 
@@ -228,12 +238,11 @@ const authController = {
 
   },
 
-  resetPassword: async (req, res) => {
+  resetPassword: async (req: Request<{ token: string }, any, ResetPasswordInput>, res: Response) => {
 
     const { token } = req.params
     const { newPassword } = req.body
 
-    
 
 
   }
