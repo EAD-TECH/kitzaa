@@ -187,7 +187,7 @@ const authController = {
 // raw token üret
 // raw tokeni hashleyip veri tabanina kaydet
 // token a son kullanma tarihi ata
-//
+//Kullanıcıya HAM token içeren bir reset linki mail atılır 
 
   }
 

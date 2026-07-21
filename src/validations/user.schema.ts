@@ -73,6 +73,8 @@ export const createUserSchema = z.object({
     }),
 }).strict(); // strict whitelist disinda herseyi reeddetmek icin kullaniyoruz.
 
+export type CreateUserInput = z.infer<typeof createUserSchema>;
+
 
 // loginschema
 
@@ -86,6 +88,8 @@ export const loginSchema = z.object({
     .string()
     .min(1, 'Password is required'),
 }).strict();
+
+export type LoginInput = z.infer<typeof loginSchema>;
 
 
 // update schema
@@ -175,6 +179,8 @@ export const updateUserSchema = z
     message: 'At least one field must be provided for update.',
   });  // req.body tamamen bossa hata verir. yani hicbir alan degismediyse.
 
+export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+
 
   // password update
 
@@ -199,3 +205,5 @@ export const changePasswordSchema = z
     message: 'Passwords do not match',
     path: ['confirmPassword'],
   });
+
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
