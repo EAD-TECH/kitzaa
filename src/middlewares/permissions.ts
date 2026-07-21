@@ -21,3 +21,11 @@ export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
     }
     next()
 }
+
+export const isOrganizerOrAdmin = (req: Request, res: Response, next: NextFunction) => {
+    console.log('OrganizerOrAdmin', req.user)
+    if (req.user?.role !== 'organizer' && req.user?.role !== 'admin') {
+        throw new CustomError('AuthorizationError: You must be an Organizer or Admin to access this resource.', 403)
+    }
+    next()
+}

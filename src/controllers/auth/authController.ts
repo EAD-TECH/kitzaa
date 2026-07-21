@@ -1,23 +1,23 @@
 "use strict"
 
 import type { Request, Response } from "express";
-import User from "../models/userModel.js";
-import { generateAccessToken, generateRefreshToken } from "../helpers/generateJwt.js";
-import type { RefreshTokenPayload } from "../helpers/generateJwt.js";
-import CustomError from "../helpers/customError.js";
+import User from "../../models/userModel.js";
+import { generateAccessToken, generateRefreshToken } from "../../helpers/generateJwt.js";
+import type { RefreshTokenPayload } from "../../helpers/generateJwt.js";
+import CustomError from "../../helpers/customError.js";
 import jwt from "jsonwebtoken";
-import { toUserDTO } from "../helpers/toUserDTO.js";
+import { toUserDTO } from "../../helpers/toUserDTO.js";
 
-import { welcomeTemplate } from "../mail/templates/welcome.template.js";
-import { sendMail } from "../mail/mail.service.js";
-import { generateResetToken, hashToken } from "../helpers/generateResetToken.js";
-import { resetPasswordTemplate } from "../mail/templates/resetPassword.template.js";
+import { welcomeTemplate } from "../../mail/templates/welcome.template.js";
+import { sendMail } from "../../mail/mail.service.js";
+import { generateResetToken, hashToken } from "../../helpers/generateResetToken.js";
+import { resetPasswordTemplate } from "../../mail/templates/resetPassword.template.js";
 import type {
   CreateUserInput,
   LoginInput,
   ForgotPasswordInput,
   ResetPasswordInput,
-} from "../validations/user.schema.js";
+} from "../../validations/user.schema.js";
 
 
 const authController = {

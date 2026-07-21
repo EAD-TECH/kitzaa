@@ -1,10 +1,10 @@
 "use strict";
 
 import type { Request, Response } from "express";
-import CustomError from "../helpers/customError.js";
-import { toUserDTO } from "../helpers/toUserDTO.js";
-import User from "../models/userModel.js";
-import type { UpdateUserInput, ChangePasswordInput } from "../validations/user.schema.js";
+import CustomError from "../../helpers/customError.js";
+import { toUserDTO } from "../../helpers/toUserDTO.js";
+import User from "../../models/userModel.js";
+import type { UpdateUserInput, ChangePasswordInput } from "../../validations/user.schema.js";
 
 const userController = {
 
