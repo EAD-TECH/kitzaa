@@ -1,13 +1,15 @@
 "use strict";
 
+import type { Request, Response } from "express";
 import CustomError from "../helpers/customError.js";
 import { toUserDTO } from "../helpers/toUserDTO.js";
 import User from "../models/userModel.js";
+import type { UpdateUserInput, ChangePasswordInput } from "../validations/user.schema.js";
 
 const userController = {
 
-  list: async (req, res) => {
-    /* 
+  list: async (req: Request, res: Response) => {
+    /*
 
             #swagger.tags = ['Users']
             #swagger.summary = 'List Users'
@@ -40,8 +42,8 @@ const userController = {
   },
 
 
-  read: async (req, res) => {
-    /* 
+  read: async (req: Request, res: Response) => {
+    /*
             #swagger.tags = ['Users']
             #swagger.summary = 'Get Single User'
         */
@@ -70,8 +72,8 @@ const userController = {
     });
   },
 
-  update: async (req, res) => {
-    /* 
+  update: async (req: Request<{ id: string }, any, UpdateUserInput>, res: Response) => {
+    /*
             #swagger.tags = ['Users']
             #swagger.summary = 'Update User'
         */
@@ -95,7 +97,7 @@ const userController = {
     });
   },
 
-  updatePassword: async (req, res) => {
+  updatePassword: async (req: Request<{ id: string }, any, ChangePasswordInput>, res: Response) => {
 
     console.log('updatepasswordUser', req.body)
 
@@ -125,8 +127,8 @@ const userController = {
 
   },
 
-  deletee: async (req, res) => {
-    /* 
+  deletee: async (req: Request<{ id: string }>, res: Response) => {
+    /*
             #swagger.tags = ['Users']
             #swagger.summary = 'Delete User'
         */

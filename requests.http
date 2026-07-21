@@ -42,8 +42,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "login": "johndoe",
-  "password": "Passw0rd!"
+  "login": "aylaa",
+  "password": "Almanca12."
 }
 
 ### Capture the access token returned by login for use below
@@ -65,7 +65,18 @@ POST {{baseUrl}}/auth/forgot-password
 Content-Type: {{contentType}}
 
 {
-  "email": "john.doe@example.com"
+  "email": "dyg.cankurt17@gmail.com"
+}
+
+
+###
+
+POST {{baseUrl}}/auth/reset-password/29155b09a8d7642e4900bbc0388d23d56ecf5c5912243e4e5aea02a4d651ee60
+Content-Type: {{contentType}}
+
+{
+  "newPassword": "Almanca12.",
+  "confirmPassword":"Almanca12."
 }
 
 
