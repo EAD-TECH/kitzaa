@@ -65,7 +65,7 @@ POST {{baseUrl}}/auth/forgot-password
 Content-Type: {{contentType}}
 
 {
-  "email": "aylaataydir@gmail.com"
+  "email": "dyg.cankurt17@gmail.com"
 }
 
 
