@@ -207,3 +207,38 @@ export const changePasswordSchema = z
   });
 
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+
+
+// forgot password
+
+export const forgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .regex(EMAIL_REGEX, 'Please enter a valid email address'),
+}).strict();
+
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+
+
+// reset password
+
+export const resetPasswordSchema = z
+  .object({
+    newPassword: z
+      .string()
+      .regex(
+        PASSWORD_REGEX,
+        'Password must be at least 8 characters and contain uppercase, lowercase, number, and special character'
+      ),
+
+    confirmPassword: z.string().min(8),
+  })
+  .strict()
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
+
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
