@@ -1,5 +1,11 @@
 import { mongoose } from '../configs/dbConnection.js';
 import bcrypt from 'bcrypt';
+import type {
+  IUser,
+  IUserMethods,
+  UserModel,
+  ILocation,
+} from '../types/user.types.js';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PASSWORD_REGEX =
@@ -7,7 +13,7 @@ const PASSWORD_REGEX =
 const PHONE_REGEX =
   /^[+]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{0,4}$/;
 
-const locationSchema = new mongoose.Schema(
+const locationSchema = new mongoose.Schema<ILocation>(
   {
     state: {
       type: String,
@@ -38,7 +44,7 @@ const locationSchema = new mongoose.Schema(
   { _id: false }
 );
 
-const userSchema = new mongoose.Schema(
+const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>(
   {
     username: {
       type: String,
@@ -149,18 +155,6 @@ const userSchema = new mongoose.Schema(
       default: null,
       select: false, // ← önemli, sorgularda gelmesin
     },
-
-    passwordResetToken: {
-      type: String,
-      default: null,
-      select: false,
-    },
-
-    passwordResetExp: {
-      type: Date,
-      default: null,
-      select: false,
-    },
     
     savedEvents: [
       {
@@ -197,7 +191,6 @@ userSchema.pre('save', async function () {
 
   if (this.isModified('role')) {
     this.refreshToken = null;
-    this.refreshTokenExp = null;
   }
 }); // buraya update kismini eklememe gerek kamadi. cunlu password degisikligi icin ayri bir endpoint olusturdum ve orda da yeni passwordu eklemek icin save() kullandim
 
@@ -207,4 +200,4 @@ userSchema.methods.matchPassword = async function (password) {
   return bcrypt.compare(password, this.password);
 };
 
-export default mongoose.model('User', userSchema);
+export default mongoose.model<IUser, UserModel>('User', userSchema);

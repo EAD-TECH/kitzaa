@@ -1,0 +1,221 @@
+@baseUrl = http://127.0.0.1:8000
+@accessToken = Bearer {{login.response.body.accessToken}}
+
+
+# @name home
+GET {{baseUrl}}
+
+### 
+
+# @name login
+post {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+Authorization: {{accessToken}}
+
+{
+    "login": "admin2@example.com",
+    "password": "Admin21234."
+}
+
+### 
+
+# @name login
+post {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+Authorization: {{accessToken}}
+
+{
+    "login": "ayla2@example.com",
+    "password": "StrongPass123!"
+}
+
+
+### 
+
+# @name register
+post {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "ayla3",
+  "firstName": "ayla",
+  "lastName": "ayla",
+  "email": "ayla3@example.com",
+  "password": "StrongPass123!",
+  "phone": "+4915123456789",
+  "location": {
+    "state": "NRW",
+    "city": "Düsseldorf",
+    "district": "Mitte",
+    "zipCode": "40210",
+    "country": "DE"
+  }
+}
+
+### 
+
+# @name logout
+post {{baseUrl}}/api/v1/auth/logout
+Authorization: {{accessToken}}
+
+### 
+
+# @name refresh
+post {{baseUrl}}/api/v1/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken":"{{login.response.body.cookie.refreshToken}}"
+}
+
+###
+
+
+# @name forgotPassword
+post {{baseUrl}}/api/v1/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "ayla3@example.com"
+}
+
+###
+
+
+# @name userList
+get {{baseUrl}}/api/v1/users/
+Authorization: {{accessToken}}
+
+
+###
+
+# @name userRead
+get {{baseUrl}}/api/v1/users/6a2f0c1631f2b7b296dd9dfb
+Authorization: {{accessToken}}
+
+
+###
+
+# @name userUpdate
+put {{baseUrl}}/api/v1/users/6a2f0c1631f2b7b296dd9dfb
+Content-Type: application/json
+Authorization: {{accessToken}}
+
+{
+    "firstName": "ayla2",
+    "lastName": "ayla2"
+}
+
+###
+# @name userPasswordUpdate
+put {{baseUrl}}/api/v1/users/6a2f0c1631f2b7b296dd9dfb/password
+Content-Type: application/json
+Authorization: {{accessToken}}
+
+{
+    "currentPassword": "StrongPass123!",
+    "newPassword": "StrongPass123.",
+    "confirmPassword": "StrongPass123."
+}
+
+###
+
+# @name userDelete
+delete {{baseUrl}}/api/v1/users/6a10185b52a2f0f53b231cb9
+Authorization: {{accessToken}}
+
+###
+
+# @name reservationList
+get {{baseUrl}}/reservations/
+Authorization: {{accessToken}}
+
+###
+
+# @name reservationRead
+get {{baseUrl}}/reservations/69f86c482265bbd9fe6122eb
+Authorization: {{accessToken}}
+
+###
+
+# @name reservationCreate
+post {{baseUrl}}/reservations
+Content-Type: application/json
+Authorization: {{accessToken}}
+
+{
+  "flightId": "6a244eb673d4fc8c18495162",
+  "passengers": [
+    {
+      "passenger": {
+        "firstName": "Ayla",
+        "lastName": "Ay",
+        "gender": "female",
+        "email": "ayla@example.com",
+        "passportNo": "U1234237"
+      },
+      "seatNumber": "12C"
+    },
+    {
+      "passenger": {
+        "firstName": "Ela",
+        "lastName": "Ay",
+        "gender": "female",
+        "email": "ela@example.com",
+        "passportNo": "U7654324"
+      },
+      "seatNumber": "12D"
+    }
+  ]
+}
+
+###
+
+# @name reservationUpdate
+put {{baseUrl}}/reservations/69f86c482265bbd9fe6122eb
+Content-Type: application/json
+Authorization: {{accessToken}}
+
+{
+    "name": "user abc"
+}
+
+###
+
+# @name reservationDelete
+delete {{baseUrl}}/reservations/69f86bf22265bbd9fe6122e9
+Authorization: {{accessToken}}
+
+###
+# @name passengersList
+get {{baseUrl}}/passengers/
+Authorization: {{accessToken}}
+
+###
+
+# @name passengerRead
+get {{baseUrl}}/passengers/69f86c482265bbd9fe6122eb
+Authorization: {{accessToken}}
+
+###
+
+
+
+###
+
+# @name passengerUpdate
+put {{baseUrl}}/passengers/69f86c482265bbd9fe6122eb
+Content-Type: application/json
+Authorization: {{accessToken}}
+
+{
+    "name": "user abc"
+}
+
+###
+
+# @name passengerDelete
+delete {{baseUrl}}/passengers/69f86bf22265bbd9fe6122e9
+Authorization: {{accessToken}}
+
+###

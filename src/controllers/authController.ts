@@ -95,11 +95,13 @@ const authController = {
     //mail
     try {
 
-      await sendMail({
+     const mail =  await sendMail({
         to: newUser.email,
         subject: "Willkommen bei Kitzaa",
-        html: welcomeTemplate(newUser.name,)
+        html: welcomeTemplate({ username: newUser.username })
       })
+
+      console.log("mail", mail)
 
     } catch (error) {
       console.log('Failed to send email.', error)
@@ -162,7 +164,7 @@ const authController = {
       user.refreshToken = newRefreshToken;
       await user.save();
 
-      res.cookie('refreshToken', refreshToken, {
+      res.cookie('refreshToken', newRefreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
@@ -181,7 +183,11 @@ const authController = {
 
   forgotPassword: async (req, res) => {
 
-
+// email var mi kontrol et
+// raw token üret
+// raw tokeni hashleyip veri tabanina kaydet
+// token a son kullanma tarihi ata
+//
 
   }
 
