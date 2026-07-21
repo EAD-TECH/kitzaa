@@ -10,7 +10,7 @@ import { toUserDTO } from "../helpers/toUserDTO.js";
 
 import { welcomeTemplate } from "../mail/templates/welcome.template.js";
 import { sendMail } from "../mail/mail.service.js";
-import { generateResetToken } from "../helpers/generateResetToken.js";
+import { generateResetToken, hashToken } from "../helpers/generateResetToken.js";
 import { resetPasswordTemplate } from "../mail/templates/resetPassword.template.js";
 import type {
   CreateUserInput,
@@ -162,7 +162,7 @@ const authController = {
     if (!refreshToken) throw new CustomError("Refresh token is missing.", 400);
 
     try {
-      
+
       const refreshData = jwt.verify(refreshToken, process.env.REFRESH_KEY!) as RefreshTokenPayload;
       const user = await User.findById(refreshData.id).select("+refreshToken");  // refreshtoken in basina arti koymamin sebebi schemada bu kisim select:false oldugu cin.
       if (!user) throw new CustomError("Refresh data is not valid.", 401);
@@ -243,7 +243,26 @@ const authController = {
     const { token } = req.params
     const { newPassword } = req.body
 
+    const hashedToken = hashToken(token)
 
+    const user = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExp: { $gt: new Date() }
+    }).select('+resetPasswordToken +resetPasswordExpires +password')
+
+    if (!user) {
+      throw new CustomError('Der Link ist ungültig oder abgelaufen.', 400);
+    }
+
+    user.password = newPassword;
+    user.passwordResetToken = null;
+    user.passwordResetExp = null;
+    await user.save();
+
+    res.status(200).json({
+      error: 'false',
+      message: 'Passwort erfolgreich geändert.',
+    });
 
   }
 
