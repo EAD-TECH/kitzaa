@@ -91,4 +91,56 @@ Bitti.
 3. server.ts dosyasina import edildi.
 
 
+----------------------------------------------------------------------------------------------------------
+
+pre('save') ne zaman çalışır, ne zaman çalışmaz
+
+pre('save') hook'u sadece .save() metodu çağrıldığında tetiklenir — hem yeni döküman oluştururken (create) hem de var olan bir dökümanı .save() ile güncellerken çalışır
+
+# ornek event update pre('save') hooku ile
+
+export const updateEvent = catchAsync<{ id: string }, {}, UpdateEventInput>(
+  async (req, res: Response) => {
+    const event = await Event.findById(req.params.id);
+
+    if (!event) {
+      throw new CustomError('Event nicht gefunden.', 404);
+    }
+
+    Object.assign(event, req.body);
+    await event.save(); // ← pre('save') burada tetiklenir, slug güncellenir
+
+    res.status(200).json({ status: 'success', data: event });
+  }
+);
+
+----------------------------------------------------------------------------------------------------------
+
+
+
+# event ve forum icin slug pre hook u
+
+import { generateUniqueSlug } from '../helpers/slugify.js';
+import Event from './eventModel.js';
+
+eventSchema.pre('save', async function (this: EventDocument) {
+  if (this.isModified('title')) {
+    this.slug = await generateUniqueSlug(this.title, async (slug) => {
+      const existing = await Event.findOne({ slug, _id: { $ne: this._id } });
+      return !!existing;
+    });
+  }
+});
+
+
+
+forumPostSchema.pre('save', async function (this: ForumPostDocument) {
+  if (this.isModified('title')) {
+    this.slug = await generateUniqueSlug(this.title, async (slug) => {
+      const existing = await ForumPost.findOne({ slug, _id: { $ne: this._id } });
+      return !!existing;
+    });
+  }
+});
+
 
