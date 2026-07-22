@@ -107,7 +107,7 @@ Argon2 Kullan Eğer:
   
 
  3(d). Organizatör basvurusu endpoitlerini yazmamiz lazim model/controller/routelari olusturmmaiz lazim
-    3.1. Institution model
+  + 3.1. Institution model
     3.2. Başvuru endpoint'i (POST /institutions/apply)
     3.3. Admin onay/red endpoint'leri
     3.4. notAlreadyApplied middleware (çift başvuru engeli)

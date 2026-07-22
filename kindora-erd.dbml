@@ -1,0 +1,220 @@
+// ============================================================
+//  Kindora - ERD (dbdiagram.io icin DBML)
+//  Kullanim: https://dbdiagram.io -> yeni diyagram -> bu kodu yapistir
+//
+//  NOT: Proje MongoDB (Mongoose) kullaniyor. DBML tablo-tabanli
+//  oldugu icin, gomulu (embedded) alt-dokumanlar ayri tablo gibi
+//  gosterildi ve "embedded" notu eklendi. Gercekte ana dokuman
+//  icinde saklanirlar.
+//
+//  [MEVCUT]   = kodda su an var (userModel.ts, organizerApplicationModel.ts)
+//  [PLANLANAN] = henuz yazilmadi, taslak/oneri
+//
+//  RENK KODU (tablo basligindan anlasilir):
+//    YESIL  (#1E8449) = gercek koleksiyon (MEVCUT)
+//    TURUNCU(#CA6F1E) = gomulu/embedded alt-dokuman (ayri koleksiyon DEGIL)
+//    GRI    (#839192) = PLANLANAN model (henuz yok)
+// ============================================================
+
+// ---------- Enum'lar ----------
+Enum user_role {
+  user
+  organizer
+  admin
+}
+
+Enum language {
+  de
+  en
+}
+
+Enum application_status {
+  pending
+  under_review
+  approved
+  rejected
+  needs_more_info
+}
+
+Enum reviewer_type {
+  admin
+  ai
+  system
+}
+
+Enum institution_status {
+  active
+  suspended
+}
+
+
+// ============================================================
+//  MEVCUT MODELLER
+// ============================================================
+
+// [MEVCUT] users koleksiyonu
+Table users [headercolor: #1E8449] {
+  _id             objectid     [pk]
+  username        string       [not null, unique]
+  firstName       string       [not null]
+  lastName        string       [not null]
+  email           string       [not null, unique]
+  password        string       [not null, note: 'select:false']
+  institutionId   objectid     [ref: > institutions._id, null, note: 'ref Institution']
+  emailVerifyToken    string   [null]
+  passwordResetToken  string   [null]
+  passwordResetExp    datetime [null]
+  phone           string       [null]
+  avatarUrl       string       [null]
+  role            user_role    [not null, default: 'user']
+  isActive        boolean      [not null, default: true]
+  isEmailVerified boolean      [not null, default: false]
+  language        language     [not null, default: 'de']
+  refreshToken    string       [null, note: 'select:false']
+  createdAt       datetime
+  updatedAt       datetime
+
+  Note: 'Kullanici hesabi. location ve notifications gomulu alt-dokuman; savedEvents/savedActivities ObjectId dizileri.'
+}
+
+// [MEVCUT] users icinde gomulu (embedded) - location
+Table "user_location (embedded)" [headercolor: #CA6F1E] {
+  user_id   objectid [ref: - users._id]
+  state     string   [null]
+  city      string   [not null]
+  district  string   [null]
+  zipCode   string   [null]
+  country   string   [not null, default: 'DE']
+
+  Note: 'EMBEDDED: users.location (kendi _id yok)'
+}
+
+// [MEVCUT] users icinde gomulu (embedded) - notifications
+Table "user_notifications (embedded)" [headercolor: #CA6F1E] {
+  user_id            objectid [ref: - users._id]
+  email_newEvents        boolean [default: true]
+  email_eventReminders   boolean [default: true]
+  email_forumReplies     boolean [default: true]
+  email_newsletter       boolean [default: false]
+  push_enabled           boolean [default: false]
+  push_token             string  [null, note: 'select:false']
+
+  Note: 'EMBEDDED: users.notifications (kendi _id yok)'
+}
+
+// [MEVCUT] users.savedEvents / savedActivities (ObjectId dizileri)
+// Mongo'da User dokumani icinde dizi olarak durur; iliskiyi gostermek icin ayri tablo.
+Table "user_saved_items (embedded)" [headercolor: #CA6F1E] {
+  user_id      objectid [ref: > users._id]
+  event_id     objectid [ref: > events._id, null]
+  activity_id  objectid [ref: > activities._id, null]
+
+  Note: 'EMBEDDED diziler: users.savedEvents[] ve users.savedActivities[]'
+}
+
+// [MEVCUT] organizerApplications koleksiyonu
+Table organizerApplications [headercolor: #1E8449] {
+  _id             objectid            [pk]
+  userId          objectid            [ref: > users._id, not null, note: 'basvuran kullanici']
+  message         string              [null]
+  status          application_status  [not null, default: 'pending']
+  reviewedBy      objectid            [ref: > users._id, null, note: 'karari veren admin']
+  reviewerType    reviewer_type       [null, note: 'AI-ready']
+  rejectedReason  string              [null]
+  reviewedAt      datetime            [null]
+  createdAt       datetime
+  updatedAt       datetime
+
+  Note: 'Organizator basvurusu (state machine). institutionData ve statusHistory gomulu.'
+}
+
+// [MEVCUT] organizerApplications icinde gomulu - institutionData
+Table "application_institutionData (embedded)" [headercolor: #CA6F1E] {
+  application_id  objectid [ref: - organizerApplications._id]
+  name         string [not null]
+  description  string [null]
+  address      string [null]
+  phone        string [null]
+  website      string [null]
+  category     string [null]
+
+  Note: 'EMBEDDED: organizerApplications.institutionData (kendi _id yok)'
+}
+
+// [MEVCUT] organizerApplications icinde gomulu dizi - statusHistory
+Table "application_statusHistory (embedded)" [headercolor: #CA6F1E] {
+  application_id  objectid            [ref: > organizerApplications._id]
+  status          application_status  [not null]
+  changedBy       objectid            [ref: > users._id, null]
+  changedAt       datetime            [default: `now()`]
+  note            string              [null]
+
+  Note: 'EMBEDDED dizi: organizerApplications.statusHistory[] (audit log)'
+}
+
+
+// [MEVCUT] institutions koleksiyonu (BE-017)
+Table institutions [headercolor: #1E8449] {
+  _id           objectid            [pk]
+  ownerId       objectid            [ref: > users._id, not null, unique, note: 'kurumu yoneten organizer (1 kullanici = 1 kurum)']
+  applicationId objectid            [ref: > organizerApplications._id, not null, note: 'hangi basvurudan olustu']
+  name          string              [not null]
+  slug          string              [not null, unique, note: 'public URL: kizilay-istanbul']
+  description   string              [null]
+  address       string              [null]
+  phone         string              [null]
+  website       string              [null]
+  category      string              [null]
+  logoUrl       string              [null]
+  status        institution_status  [not null, default: 'active']
+  createdAt     datetime
+  updatedAt     datetime
+
+  Note: 'Basvuru onaylaninca institutionData buradan kalici bir kurum kaydina donusur. users.institutionId buraya isaret eder.'
+}
+
+
+// ============================================================
+//  PLANLANAN MODELLER (taslak - alanlar onerisel)
+// ============================================================
+
+// [PLANLANAN] Etkinlikler
+Table events [headercolor: #839192] {
+  _id           objectid  [pk]
+  institutionId objectid  [ref: > institutions._id, not null]
+  createdBy     objectid  [ref: > users._id, not null]
+  title         string    [not null]
+  description   string    [null]
+  startDate     datetime  [not null]
+  endDate       datetime  [null]
+  createdAt     datetime
+  updatedAt     datetime
+
+  Note: 'PLANLANAN'
+}
+
+// [PLANLANAN] Aktiviteler
+Table activities [headercolor: #839192] {
+  _id           objectid  [pk]
+  institutionId objectid  [ref: > institutions._id, null]
+  createdBy     objectid  [ref: > users._id, not null]
+  title         string    [not null]
+  description   string    [null]
+  createdAt     datetime
+  updatedAt     datetime
+
+  Note: 'PLANLANAN'
+}
+
+// [PLANLANAN] Forum gonderileri / yanitlari
+Table forum_posts [headercolor: #839192] {
+  _id        objectid  [pk]
+  authorId   objectid  [ref: > users._id, not null]
+  parentId   objectid  [ref: > forum_posts._id, null, note: 'yanit ise ust gonderi']
+  title      string    [null]
+  body       string    [not null]
+  createdAt  datetime
+  updatedAt  datetime
+
+  Note: 'PLANLANAN: notifications.email.forumReplies bu modele isaret ediyor'
+}

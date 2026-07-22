@@ -43,3 +43,30 @@ User
 > Dikkat
  savedEvents / savedActivities büyüme riski
 Bunu önceki analizde de söyledim — bu array'ler User dökümanı içinde büyüdükçe sorun çıkarır. Ama bu ayrı bir karar, şimdilik not olarak geçelim.
+
+---
+
+## 🗂️ Sprint 1 — Organizatör Başvuru Görevlerim (BE-017 → BE-026)
+
+**Tasarım kararı:** İki model → `OrganizerApplication` (başvuru = state machine) + `Institution` (onayda oluşur). Backlog'daki `/institutions/apply` yerine kendi tasarımımızla (`/organizer-applications`) devam ediyoruz. "e" kişisi olmadığı için admin onay/red görevleri (BE-024/025/026) de bende.
+
+**İşaretleme:** `- [x]` tamamlandı · `- [ ]` yapılacak
+
+### ✅ Tamamlananlar
+- [x] `src/types/organizerApplication.types.ts` — başvuru tipleri (IOrganizerApplication, IInstitutionData, IStatusHistory, enum'lar, model/document tipleri)
+- [x] `src/models/organizerApplicationModel.ts` — başvuru şeması (state machine alanları, statusHistory, gömülü alt-şemalar, generic bağlama)
+- [x] **BE-017** — Institution model + tipler (`institution.types.ts`, `institutionModel.ts`) + ERD güncellemesi
+
+### ⏳ Yapılacaklar
+- [ ] **BE-027** — Zod şemaları: başvuru + admin aksiyonları (`organizerApplication.schema.ts`) 👈 SIRADA
+- [ ] `req.user` tiplemesi (`src/types/express.d.ts`)
+- [ ] **BE-022** — `isEmailVerified` middleware (başvurudan önce zorunlu)
+- [ ] **BE-020** — `notAlreadyApplied` middleware (çift başvuru engeli)
+- [ ] **BE-021** — `checkOrganizerApproved` middleware
+- [ ] State machine helper — `assertTransition(from, to)` (izinli geçişler)
+- [ ] **BE-018 / BE-019** — başvuru controller + router (`POST /organizer-applications` apply, `GET /my`)
+- [ ] **BE-023** — başvuru sonrası bilgilendirme maili
+- [ ] **BE-024** — admin: başvuruyu onaylama endpoint'i
+- [ ] **BE-025** — admin: başvuruyu reddetme (opsiyonel sebep)
+- [ ] **BE-026** — onaydan sonra kullanıcı rol/status güncelleme (organizer + refreshToken sıfırlama)
+- [ ] Test: başvur → admin onayla → kullanıcı organizer oldu mu, institution oluştu mu, yeniden login token role=organizer mi
