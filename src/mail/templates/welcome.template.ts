@@ -19,10 +19,14 @@ export const welcomeTemplate = ({ username, loginUrl = 'https://kitzaa.de/login'
 
           <!-- Header -->
           <tr>
-            <td style="background:linear-gradient(135deg, #E8C16C 0%, #C26D4D 100%); padding:44px 32px; text-align:center;">
-              <div style="width:72px; height:72px; margin:0 auto 16px; background-color:rgba(255,255,255,0.22); border-radius:50%; line-height:72px; font-size:34px;">
-                🦌
-              </div>
+            <td bgcolor="#C26D4D" style="background-color:#C26D4D; background-image:linear-gradient(135deg, #E8C16C 0%, #C26D4D 100%); padding:44px 32px; text-align:center;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 16px;">
+                <tr>
+                  <td width="72" height="72" align="center" valign="middle" style="width:72px; height:72px; background-color:rgba(255,255,255,0.22); border-radius:50%; font-size:34px; line-height:1;">
+                    🦌
+                  </td>
+                </tr>
+              </table>
               <h1 style="margin:0; color:#FFFFFF; font-size:24px; font-weight:700; letter-spacing:-0.3px;">
                 Willkommen, ${username}!
               </h1>

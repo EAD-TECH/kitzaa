@@ -58,3 +58,19 @@ export interface IUserMethods {
 export type UserModel = Model<IUser, {}, IUserMethods>;
 
 export type UserDocument = HydratedDocument<IUser, IUserMethods>;
+
+export interface UserDTO {
+    _id: string;
+    username: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    avatar: string | null;
+    role: 'user' | 'organizer' | 'admin';
+    language: string;
+    location?: ILocation;
+    isEmailVerified: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+}
+

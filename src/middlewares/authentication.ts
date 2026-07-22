@@ -1,10 +1,12 @@
 "use strict"
 
+import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 import CustomError from "../helpers/customError.js"
+import type { AccessTokenPayload } from "../helpers/generateJwt.js";
 
-const authentication = async (req, res, next) => {
+const authentication = async (req: Request, res: Response, next: NextFunction) => {
 
     const authHeader = req.headers.authorization
 
@@ -16,15 +18,19 @@ const authentication = async (req, res, next) => {
 
     const token = authHeader.split(' ')[1]
 
-    let decoded;
+    if (!token) {
+        throw new CustomError('AuthenticationError: Token not found.', 401)
+    }
+
+    let decoded: AccessTokenPayload;
 
     try {
-        decoded = jwt.verify(token, process.env.ACCESS_KEY);
+        decoded = jwt.verify(token, process.env.ACCESS_KEY!) as AccessTokenPayload;
     } catch {
         throw new CustomError("Invalid or expired token.", 401);
     }
 
-   
+
     const user = await User.findById(decoded._id)
 
     console.log('decoded token', decoded)

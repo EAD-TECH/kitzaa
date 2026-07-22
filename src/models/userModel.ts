@@ -4,6 +4,7 @@ import type {
   IUser,
   IUserMethods,
   UserModel,
+  UserDocument,
   ILocation,
 } from '../types/user.types.js';
 
@@ -59,7 +60,6 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>(
       trim: true,
       maxlength: [50, 'First name cannot exceed 50 characters'],
     },
-
     lastName: {
       type: String,
       required: [true, 'Last name is required'],
@@ -73,22 +73,20 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>(
       lowercase: true,
       trim: true,
       validate: {
-        validator: (value) => EMAIL_REGEX.test(value),
+        validator: (value: string) => EMAIL_REGEX.test(value),
         message: 'Please enter a valid email address',
       },
     },
-
     password: {
       type: String,
       required: [true, 'Password is required'],
       select: false,
       validate: {
-        validator: (value) => PASSWORD_REGEX.test(value),
+        validator: (value: string) => PASSWORD_REGEX.test(value),
         message:
           'Password must be at least 8 characters and contain uppercase, lowercase, number, and special character',
       },
     },
-
     institutionId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Institution',
@@ -116,7 +114,7 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>(
       trim: true,
       default: null,
       validate: {
-        validator: (value) => !value || PHONE_REGEX.test(value),
+        validator: (value: string | null) => !value || PHONE_REGEX.test(value),
         message:
           'Please enter a valid phone number (international format supported)',
       },
@@ -139,13 +137,11 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>(
       type: Boolean,
       default: false,
     },
-
     language: {
       type: String,
       enum: ['de', 'en'],
       default: 'de',
     },
-
     location: {
       type: locationSchema,
       required: [true, 'Location information is required'],
@@ -155,7 +151,6 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>(
       default: null,
       select: false, // ← önemli, sorgularda gelmesin
     },
-    
     savedEvents: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -184,18 +179,21 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>(
   { collection: 'users', timestamps: true }
 );
 
-userSchema.pre('save', async function () {
+userSchema.pre('save', async function (this: UserDocument) {
   if (this.isModified('password')) {
-    this.password = await bcrypt.hash(this.password, 10);
+    this.password = await bcrypt.hash(this.password, 12);
   }
 
   if (this.isModified('role')) {
     this.refreshToken = null;
   }
-}); // buraya update kismini eklememe gerek kamadi. cunlu password degisikligi icin ayri bir endpoint olusturdum ve orda da yeni passwordu eklemek icin save() kullandim
+});
 
-//compare password
-userSchema.methods.matchPassword = async function (password) {
+// compare password
+userSchema.methods.matchPassword = async function (
+  this: UserDocument,
+  password: string
+): Promise<boolean> {
   if (!password || !this.password) return false;
   return bcrypt.compare(password, this.password);
 };

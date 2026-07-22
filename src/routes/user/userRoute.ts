@@ -1,8 +1,8 @@
 import { Router } from "express";
-import userController from "../controllers/userController.js";
-import authentication from "../middlewares/authentication.js";
-import { validateBody } from "../middlewares/validateBody.js";
-import { changePasswordSchema, updateUserSchema } from "../validations/user.schema.js";
+import userController from "../../controllers/user/userController.js";
+import authentication from "../../middlewares/authentication.js";
+import { validateBody } from "../../middlewares/validateBody.js";
+import { changePasswordSchema, updateUserSchema } from "../../validations/user.schema.js";
 
 const router = Router();
 router.use(authentication);

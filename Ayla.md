@@ -22,28 +22,65 @@
 
 # password reset algoritmasi
 
-1. Kullanıcı email'ini girer → "Şifremi Unuttum" formu
-2. Backend: email veritabanında var mı kontrol edilir
-3. Var ise:
-   a. Rastgele, tahmin edilemez bir token üretilir (ham token)
-   b. Bu token HASH'lenip veritabanına kaydedilir (ham hali DEĞİL)
-   c. Token'a bir son kullanma tarihi (expiry) atanır (örn. 1 saat)
-   d. Kullanıcıya HAM token içeren bir reset linki mail atılır
-4. Kullanıcı mail'deki linke tıklar → frontend'de yeni şifre formu açılır
-5. Kullanıcı yeni şifreyi girer → frontend, URL'deki ham token + yeni şifreyi backend'e gönderir
-6. Backend:
-   a. Gelen ham token'ı HASH'ler
-   b. Veritabanında bu hash'e sahip, süresi dolmamış bir kayıt var mı arar
-   c. Varsa: yeni şifreyi hash'leyip kaydeder, token'ı ve expiry'yi temizler
-   d. Yoksa: "geçersiz veya süresi dolmuş token" hatası döner
+Kullanıcı
+    │
+    │ 1. "Şifremi Unuttum" butonuna basar
+    ▼
+POST /auth/forgot-password
+    │
+    │ Kullanıcı bulunursa
+    │
+    ├── Rastgele token oluştur
+    ├── Token'ın hash'ini DB'ye kaydet
+    ├── Expire time kaydet (15 dk)
+    └── Mail gönder
+
+Mail:
+
+https://example.com/reset-password?token=abcdef123456.....
+
+↓
+
+Kullanıcı linke tıklar
+
+↓
+
+Frontend açılır
+
+↓
+
+Yeni şifre ister
+
+↓
+
+POST /auth/reset-password
+
+{
+   token,
+   password
+}
+
+↓
+
+Backend
+
+- token hashle
+- DB'de ara
+- expire geçmiş mi?
+- kullanılmış mı?
+- yeni şifreyi hashle
+- kullanıcı şifresini değiştir
+- token sil
+
+↓
+
+Bitti.
 
 
 
  1. schemaya passwordResetToken(mail icin üretilen ve hashlenen token) ve PasswordResetExp(token ne kadar süre gecerli olucak)  
 
  2. forgot password icin root olusturdum. POST /auth/forgot-password
-
- 3. degistirildi
 
 
 
