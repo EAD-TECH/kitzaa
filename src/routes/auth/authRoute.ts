@@ -1,9 +1,9 @@
-import { createUserSchema, forgotPasswordSchema, loginSchema, resetPasswordSchema } from './../validations/user.schema.js';
+import { createUserSchema, forgotPasswordSchema, loginSchema, resetPasswordSchema } from '../../validations/user.schema.js';
 
 import { Router } from "express";
-import authController from "../controllers/authController.js";
-import { validateBody } from "../middlewares/validateBody.js";
-import authentication from "../middlewares/authentication.js";
+import authController from "../../controllers/auth/authController.js";
+import { validateBody } from "../../middlewares/validateBody.js";
+import authentication from "../../middlewares/authentication.js";
 
 const router = Router();
 
