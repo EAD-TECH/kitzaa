@@ -55,10 +55,10 @@ Bunu önceki analizde de söyledim — bu array'ler User dökümanı içinde bü
 ### ✅ Tamamlananlar
 - [x] `src/types/organizerApplication.types.ts` — başvuru tipleri (IOrganizerApplication, IInstitutionData, IStatusHistory, enum'lar, model/document tipleri)
 - [x] `src/models/organizerApplicationModel.ts` — başvuru şeması (state machine alanları, statusHistory, gömülü alt-şemalar, generic bağlama)
+- [x] **BE-017** — Institution model + tipler (`institution.types.ts`, `institutionModel.ts`) + ERD güncellemesi
 
 ### ⏳ Yapılacaklar
-- [ ] **BE-017** — Institution model + type/interface (`institution.types.ts`, `institutionModel.ts`)
-- [ ] **BE-027** — Zod şemaları: başvuru + admin aksiyonları (`organizerApplication.schema.ts`)
+- [ ] **BE-027** — Zod şemaları: başvuru + admin aksiyonları (`organizerApplication.schema.ts`) 👈 SIRADA
 - [ ] `req.user` tiplemesi (`src/types/express.d.ts`)
 - [ ] **BE-022** — `isEmailVerified` middleware (başvurudan önce zorunlu)
 - [ ] **BE-020** — `notAlreadyApplied` middleware (çift başvuru engeli)
