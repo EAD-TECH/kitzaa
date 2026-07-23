@@ -7,11 +7,26 @@
 4. schemalarin validation i icin validateBody midleware olusturdum. 
 5. userschemda parent rolunu user la degistirdim. her kullanici parent olmak zorunda degil.
 6. tüm dosyalardaki require importlarini düzelttim. config dosyalarin ve digerinde.
-7. cookie parser paketi yukledim. daha guvenli olmasi icin refreshtoken i cookie icinde gonderdim. access token i headers ile
+7. cookie parser paketi yukledim. daha guvenli olmasi icin refreshtoken i cookie icinde gonderdim.access tokeni response la. access token i headers bearer ile alicaz. 
 8. authenticaion middleware i  ekledim
 9. permissions middleware i ekledim. (permissonlarda isLogin kismini kaldirdim. cunku authentication da ayni islemi yapiyor. sadece admin ve ya organizer gereken yerlere bu permissinolari koyucam.)
 10. useer islemlerinde response da user bilgilerini gonderirken, merkezi bir fonksiyon olusturdum. helpers/toUserDTO.js
 11. password update islemi icin ayri bir endpoint olusturdum. update isleminin karmasik olmamasi ve guvenlik acisindan daha iyi olmasi icin.
+
+
+
+# anlamadiklarim
+
+```javascript
+
+export const createEventSchema = baseEventSchema
+  .strict()
+  .refine((data) => data.isFree || !!data.price, {    // burasi ne anlam geliyor !!.
+    message: 'Price is required for paid events',
+    path: ['price'],
+  });  
+
+```
 
 
 
@@ -118,29 +133,13 @@ export const updateEvent = catchAsync<{ id: string }, {}, UpdateEventInput>(
 
 
 
-# event ve forum icin slug pre hook u
-
-import { generateUniqueSlug } from '../helpers/slugify.js';
-import Event from './eventModel.js';
-
-eventSchema.pre('save', async function (this: EventDocument) {
-  if (this.isModified('title')) {
-    this.slug = await generateUniqueSlug(this.title, async (slug) => {
-      const existing = await Event.findOne({ slug, _id: { $ne: this._id } });
-      return !!existing;
-    });
-  }
-});
 
 
+# category ile ilgili hersey
 
-forumPostSchema.pre('save', async function (this: ForumPostDocument) {
-  if (this.isModified('title')) {
-    this.slug = await generateUniqueSlug(this.title, async (slug) => {
-      const existing = await ForumPost.findOne({ slug, _id: { $ne: this._id } });
-      return !!existing;
-    });
-  }
-});
+1. user sadece read ve list yapabiliyor. admin hepsini.
 
 
+# event ile ilgili hersey
+
+1.router.route("/:slug").get(read);  frontendde event read edilirken id ile degil slug ile cagrilicak, SEO acisidnan iyi olmasi icin.
