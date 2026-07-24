@@ -23,9 +23,9 @@ Content-Type: {{contentType}}
 {
   "username": "duygu",
   "firstName": "duygu",
-  "lastName": "duygu",
+  "lastName": "cankurt",
   "email": "dyg.cankurt17@gmail.com",
-  "password": "Ayla123.",
+  "password": "Duygu123.",
   "phone": "+491234567890",
   "language": "de",
   "location": {
@@ -42,8 +42,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "login": "aylaa",
-  "password": "Almanca12."
+  "login": "duygu",
+  "password": "Duygu123."
 }
 
 ### Capture the access token returned by login for use below
@@ -181,3 +181,25 @@ Content-Type: {{contentType}}
 ### Delete category
 DELETE {{baseUrl}}/admin/categories/{{categoryId}}
 Authorization: Bearer {{accessToken}}
+
+
+### ------------------------------------------------------------
+### ORGANIZER APPLICATION (requires Authorization)
+### ------------------------------------------------------------
+
+### Apply as organizer
+POST {{baseUrl}}/organizer-applications
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "institutionData": {
+    "name": "Spielhaus Berlin",
+    "description": "Kinder und Familien Aktivitäten",
+    "address": "Berlin, Germany",
+    "phone": "+491234567890",
+    "website": "https://spielhaus-berlin.de",
+    "category": "Kinder & Familie"
+  },
+  "message": "Ich organisiere seit 5 Jahren Veranstaltungen für Familien."
+}
