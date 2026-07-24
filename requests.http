@@ -126,6 +126,64 @@ Content-Type: {{contentType}}
 
 
 ### ------------------------------------------------------------
+### EVENT CATEGORIES (user) - list/read only, active categories only
+### ------------------------------------------------------------
+
+### List categories (supports query params via queryHandler middleware, e.g. ?page=1&limit=10)
+GET {{baseUrl}}/category
+Authorization: Bearer {{accessToken}}
+
+
+### Get single category by id
+@categoryId = REPLACE_WITH_CATEGORY_ID
+GET {{baseUrl}}/category/{{categoryId}}
+Authorization: Bearer {{accessToken}}
+
+
+### ------------------------------------------------------------
+### EVENT CATEGORIES (admin) - full CRUD, requires role: admin
+### ------------------------------------------------------------
+
+### Create category
+POST {{baseUrl}}/admin/categories
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Konzerte",
+  "description": "Live-Musik-Veranstaltungen",
+  "icon": "music",
+  "isActive": true
+}
+
+
+### List all categories (active and inactive)
+GET {{baseUrl}}/admin/categories
+Authorization: Bearer {{accessToken}}
+
+
+### Get single category by id
+GET {{baseUrl}}/admin/categories/{{categoryId}}
+Authorization: Bearer {{accessToken}}
+
+
+### Update category
+PUT {{baseUrl}}/admin/categories/{{categoryId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Konzerte & Festivals",
+  "isActive": true
+}
+
+
+### Delete category
+DELETE {{baseUrl}}/admin/categories/{{categoryId}}
+Authorization: Bearer {{accessToken}}
+
+
+### ------------------------------------------------------------
 ### ORGANIZER APPLICATION (requires Authorization)
 ### ------------------------------------------------------------
 
