@@ -1,9 +1,9 @@
 interface WelcomeTemplateParams {
   username: string;
-  loginUrl?: string;
+  verifyUrl?: string;
 }
 
-export const welcomeTemplate = ({ username, loginUrl = 'https://kitzaa.de/login' }: WelcomeTemplateParams): string => `
+export const welcomeTemplate = ({ username, verifyUrl = 'https://kitzaa.de/verify' }: WelcomeTemplateParams): string => `
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -69,8 +69,8 @@ export const welcomeTemplate = ({ username, loginUrl = 'https://kitzaa.de/login'
               <table role="presentation" cellpadding="0" cellspacing="0" style="margin:32px auto 8px;">
                 <tr>
                   <td align="center" style="border-radius:999px; background-color:#8BA88E;">
-                    <a href="${loginUrl}" target="_blank" style="display:inline-block; padding:15px 40px; color:#FFFFFF; font-size:15px; font-weight:600; text-decoration:none; border-radius:999px;">
-                      Jetzt loslegen →
+                    <a href="${verifyUrl}" target="_blank" style="display:inline-block; padding:15px 40px; color:#FFFFFF; font-size:15px; font-weight:600; text-decoration:none; border-radius:999px;">
+                      E-Mail bestätigen →
                     </a>
                   </td>
                 </tr>

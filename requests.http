@@ -21,11 +21,11 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "username": "duygu",
-  "firstName": "duygu",
-  "lastName": "cankurt",
-  "email": "dyg.cankurt17@gmail.com",
-  "password": "Duygu123.",
+  "username": "nUser",
+  "firstName": "nUser",
+  "lastName": "ncankurt",
+  "email": "musacankurt2@gmail.com",
+  "password": "nDuygu123.",
   "phone": "+491234567890",
   "language": "de",
   "location": {
@@ -194,12 +194,33 @@ Content-Type: {{contentType}}
 
 {
   "institutionData": {
-    "name": "Spielhaus Berlin",
-    "description": "Kinder und Familien Aktivitäten",
-    "address": "Berlin, Germany",
+    "name": "Malhaus Pforzheim",
+    "description": "Kinder Aktivitäten",
+    "address": "Pforzheim, Germany",
     "phone": "+491234567890",
-    "website": "https://spielhaus-berlin.de",
-    "category": "Kinder & Familie"
+    "website": "https://malhaus-pforzheim.de",
+    "category": "Kinder"
   },
-  "message": "Ich organisiere seit 5 Jahren Veranstaltungen für Familien."
+  "message": "Ich organisiere seit 3 Jahren Veranstaltungen für Kinder."
 }
+
+
+### ------------------------------------------------------------
+### ORGANIZER APPLICATIONS (admin) - requires role: admin
+### Login above must be an admin user so {{accessToken}} works here
+### ------------------------------------------------------------
+
+### List organizer applications (e.g. ?page=1&limit=10 or ?filter[status]=pending)
+GET {{baseUrl}}/admin/organizer-applications
+Authorization: Bearer {{accessToken}}
+
+
+### Get single organizer application by id
+@organizerApplicationId = 6a64a0a73639c5fa1c78ed2c
+GET {{baseUrl}}/admin/organizer-applications/{{organizerApplicationId}}
+Authorization: Bearer {{accessToken}}
+
+
+### Approve organizer application (creates Institution + sets user role to organizer)
+PUT {{baseUrl}}/admin/organizer-applications/{{organizerApplicationId}}/approve
+Authorization: Bearer {{accessToken}}
