@@ -43,3 +43,34 @@ export interface IOrganizerApplication {
 
 export type OrganizerApplicationModel = Model<IOrganizerApplication>;
 export type OrganizerApplicationDocument = HydratedDocument<IOrganizerApplication>;
+
+export interface InstitutionDataDTO {
+  name: string;
+  description?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  website?: string | null;
+  category?: string | null;
+}
+
+export interface StatusHistoryDTO {
+  status: ApplicationStatus;
+  changedBy: string | null;
+  changedAt: Date;
+  note?: string | null;
+}
+
+export interface OrganizerApplicationDTO {
+  _id: string;
+  userId: string;
+  institutionData: InstitutionDataDTO;
+  message: string | null;
+  status: ApplicationStatus;
+  reviewedBy: string | null;
+  reviewerType: ReviewerType | null;
+  rejectedReason: string | null;
+  reviewedAt: Date | null;
+  statusHistory: StatusHistoryDTO[];
+  createdAt: Date;
+  updatedAt: Date;
+}

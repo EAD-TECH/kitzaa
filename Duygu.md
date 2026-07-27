@@ -70,3 +70,7 @@ Bunu önceki analizde de söyledim — bu array'ler User dökümanı içinde bü
 - [ ] **BE-025** — admin: başvuruyu reddetme (opsiyonel sebep)
 - [ ] **BE-026** — onaydan sonra kullanıcı rol/status güncelleme (organizer + refreshToken sıfırlama)
 - [ ] Test: başvur → admin onayla → kullanıcı organizer oldu mu, institution oluştu mu, yeniden login token role=organizer mi
+
+
+Sorulacakalr
+1-)isEmialVerified durumu middleware de mi yapilmali

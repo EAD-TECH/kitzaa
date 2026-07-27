@@ -244,3 +244,25 @@ Authorization: Bearer {{accessToken}}
 # @name deleteEvent
 DELETE {{baseUrl}}/events/6a65e128593cc260697d7f5c
 Authorization: Bearer {{accessToken}}
+
+
+### ------------------------------------------------------------
+### ORGANIZER APPLICATION (requires Authorization)
+### ------------------------------------------------------------
+
+### Apply as organizer
+POST {{baseUrl}}/organizer-applications
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "institutionData": {
+    "name": "Spielhaus Berlin",
+    "description": "Kinder und Familien Aktivitäten",
+    "address": "Berlin, Germany",
+    "phone": "+491234567890",
+    "website": "https://spielhaus-berlin.de",
+    "category": "Kinder & Familie"
+  },
+  "message": "Ich organisiere seit 5 Jahren Veranstaltungen für Familien."
+}
