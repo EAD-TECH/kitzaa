@@ -7,8 +7,9 @@ import { applyOrganizerSchema } from "../../validations/organizerApplication.sch
 const router = Router();
 router.use(authentication);
 
-const { apply } = organizerApplicationController;
+const { apply, me } = organizerApplicationController;
 
 router.route("/").post(validateBody(applyOrganizerSchema), apply);
+router.route("/me").get(me);
 
 export default router;

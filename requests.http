@@ -205,6 +205,35 @@ Content-Type: {{contentType}}
 }
 
 
+### Get my organizer applications
+GET {{baseUrl}}/organizer-applications/me
+Authorization: Bearer {{accessToken}}
+
+
+### ------------------------------------------------------------
+### INSTITUTION (requires Authorization + role: organizer)
+### ------------------------------------------------------------
+
+### Get my institution
+GET {{baseUrl}}/institutions/me
+Authorization: Bearer {{accessToken}}
+
+
+### Update my institution
+PUT {{baseUrl}}/institutions/me
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Hüpftag Niefern",
+  "description": "Aktualisierte Beschreibung",
+  "address": "Niefern, Germany",
+  "phone": "+491234567890",
+  "website": "https://malhaus-niefern.de",
+  "category": "Kinder"
+}
+
+
 ### ------------------------------------------------------------
 ### ORGANIZER APPLICATIONS (admin) - requires role: admin
 ### Login above must be an admin user so {{accessToken}} works here

@@ -38,21 +38,35 @@ const OrganizerApplicationController = {
       statusHistory: [{ status: "pending", changedBy: userId, changedAt: new Date() }],
     });
 
-     //mail
-        try {
-          await sendMail({
-            to: req.user.email,
-            subject: "Organisator-Antrag eingegangen",
-            html: organizerApplicationReceivedTemplate({ username: req.user.username, institutionName: institutionData.name}),
-          });
-        } catch (error) {
-          console.log("Failed to send email.", error);
-        }
+    //mail
+    try {
+      await sendMail({
+        to: req.user.email,
+        subject: "Organisator-Antrag eingegangen",
+        html: organizerApplicationReceivedTemplate({
+          username: req.user.username,
+          institutionName: institutionData.name,
+        }),
+      });
+    } catch (error) {
+      console.log("Failed to send email.", error);
+    }
 
     res.status(201).send({
       error: false,
       message: "Your application has been submitted.",
       application: toOrganizerApplicationDTO(application),
+    });
+  },
+
+  me: async (req: Request, res: Response) => {
+    const applications = await OrganizerApplication.find({ userId: req.user._id }).sort({
+      createdAt: -1,
+    });
+
+    res.status(200).send({
+      error: false,
+      applications: toOrganizerApplicationDTO(applications),
     });
   },
 };
