@@ -140,6 +140,8 @@ export const updateEvent = catchAsync<{ id: string }, {}, UpdateEventInput>(
 1. user sadece read ve list yapabiliyor. admin hepsini.
 
 
+
+
 # event ile ilgili hersey
 
 1.router.route("/:slug").get(read);  frontendde event read edilirken id ile degil slug ile cagrilicak, SEO acisidnan iyi olmasi icin.
@@ -157,3 +159,9 @@ export const updateEvent = catchAsync<{ id: string }, {}, UpdateEventInput>(
 7. JOIN / LEAVE / LIKE  gibi controllerlarda save() degil findByIdAndUpdate kullandim. cünkü save() de ayni anda farkli kisiler basarsa karisiklik olusabilir.kapasite de. likeda da ayni anda 2 kisi basarsa birininki digerini ezebilir
 
 8. admin tüm eventlerin katilimcilarini görebilicek. user ve organizator sadece kendininkileri.
+
+
+
+
+# Uploadthing uygulama
+
