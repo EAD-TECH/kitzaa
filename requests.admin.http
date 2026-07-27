@@ -6,8 +6,11 @@
 
 @baseUrl = http://localhost:8000/api/v1
 @contentType = application/json
+@accessToken = {{login.response.body.$.accessToken}}
 
-### Login as admin
+
+
+### 
 # @name login
 POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
@@ -17,13 +20,7 @@ Content-Type: {{contentType}}
   "password": "AdminAyla12."
 }
 
-### Capture the access token returned by login for use below
-@accessToken = {{login.response.body.$.accessToken}}
 
-
-### ------------------------------------------------------------
-### ADMIN USERS - full CRUD, requires role: admin
-### ------------------------------------------------------------
 
 ### Create user
 # @name createAdminUser
@@ -40,32 +37,37 @@ Content-Type: {{contentType}}
   "role": "admin"
 }
 
-### Capture the id returned by create for use below
-@adminUserId = {{createAdminUser.response.body.$.user._id}}
 
 
-### List all users
+### 
+# @name listUser
 GET {{baseUrl}}/admin/users
 Authorization: Bearer {{accessToken}}
 
 
-### Get single user by id
-GET {{baseUrl}}/admin/users/{{adminUserId}}
+
+### 
+# @name readUser
+GET {{baseUrl}}/admin/users/6a65df87593cc260697d7f55
 Authorization: Bearer {{accessToken}}
 
 
-### Update user (including role)
-PUT {{baseUrl}}/admin/users/{{adminUserId}}
+
+### 
+# @name updateUser
+PUT {{baseUrl}}/admin/users/6a65df87593cc260697d7f55
 Authorization: Bearer {{accessToken}}
 Content-Type: {{contentType}}
 
 {
-  "role": "organizer",
-  "firstName": "Organizer"
+  "role": "admin",
+  "firstName": "test"
 }
 
 
-### Update user password
+
+### 
+# @name updateUserPassword
 PUT {{baseUrl}}/admin/users/{{adminUserId}}/password
 Authorization: Bearer {{accessToken}}
 Content-Type: {{contentType}}
@@ -77,79 +79,98 @@ Content-Type: {{contentType}}
 }
 
 
-### Delete user
-DELETE {{baseUrl}}/admin/users/{{adminUserId}}
+
+### 
+# @name deleteUser
+DELETE {{baseUrl}}/admin/users/6a65df87593cc260697d7f55
 Authorization: Bearer {{accessToken}}
 
 
+
+
 ### ------------------------------------------------------------
-### EVENT CATEGORIES (admin) - full CRUD, requires role: admin
+### CATEGORY
 ### ------------------------------------------------------------
 
-### Create category
-# @name createAdminCategory
+
+
+### 
+# @name createCategory
 POST {{baseUrl}}/admin/categories
 Authorization: Bearer {{accessToken}}
 Content-Type: {{contentType}}
 
 {
-  "name": "Konzerte",
-  "description": "Live-Musik-Veranstaltungen",
+  "name": "schwimmen",
+  "description": "schwimmen",
   "icon": "music",
   "isActive": true
 }
 
-### Capture the id returned by create for use below
-@adminCategoryId = {{createAdminCategory.response.body.$.category._id}}
 
 
-### List all categories (active and inactive)
+### 
+# @name categoryList
 GET {{baseUrl}}/admin/categories
 Authorization: Bearer {{accessToken}}
 
 
-### Get single category by id
-GET {{baseUrl}}/admin/categories/{{adminCategoryId}}
+
+### 
+# @name categoryRead
+GET {{baseUrl}}/admin/categories/6a65d605593cc260697d7f53
 Authorization: Bearer {{accessToken}}
 
 
-### Update category
-PUT {{baseUrl}}/admin/categories/{{adminCategoryId}}
+
+### 
+# @name categoryUpdate
+PUT {{baseUrl}}/admin/categories/6a65d605593cc260697d7f53
 Authorization: Bearer {{accessToken}}
 Content-Type: {{contentType}}
 
 {
-  "name": "Konzerte & Festivals",
+  "name": "festival & konzerte",
   "isActive": true
 }
 
 
-### Delete category
-DELETE {{baseUrl}}/admin/categories/{{adminCategoryId}}
+
+### 
+# @name caegoryDelete
+DELETE {{baseUrl}}/admin/categories/6a6739cd162d3c07099e3b46
 Authorization: Bearer {{accessToken}}
+
 
 
 ### ------------------------------------------------------------
 ### EVENTS (admin) - requires role: admin
 ### ------------------------------------------------------------
 
-### List all events (any status)
+
+
+###
+# @name eventList
 GET {{baseUrl}}/admin/events
 Authorization: Bearer {{accessToken}}
 
 
-### Get single event by id
-@adminEventId = REPLACE_WITH_EVENT_ID
-GET {{baseUrl}}/admin/events/{{adminEventId}}
+### 
+# @name eventRead
+GET {{baseUrl}}/admin/events/6a65d61c593cc260697d7f54
 Authorization: Bearer {{accessToken}}
 
 
-### Approve event
+
+### 
+# @name eventApprove
 PUT {{baseUrl}}/admin/events/6a65e210593cc260697d7f5d/approve
 Authorization: Bearer {{accessToken}}
 
 
-### Reject event
+
+### 
+# @name eventReject
 PUT {{baseUrl}}/admin/events/6a6701edc264874cceb07c99/reject
 Authorization: Bearer {{accessToken}}
 Content-Type: {{contentType}}
@@ -159,11 +180,14 @@ Content-Type: {{contentType}}
 }
 
 
-### Cancel event
+### 
+# @name eventCreate
 PUT {{baseUrl}}/admin/events/6a65e27a593cc260697d7f5e/cancel
 Authorization: Bearer {{accessToken}}
 
 
-### Delete event
-DELETE {{baseUrl}}/admin/events/{{adminEventId}}
+
+### 
+# @name eventDelete
+DELETE {{baseUrl}}/admin/events/6a65d61c593cc260697d7f54
 Authorization: Bearer {{accessToken}}

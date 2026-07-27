@@ -17,6 +17,8 @@ const eventController = {
       { path: 'createdBy', select: 'username avatarUrl' },
     ]);
 
+    console.log('result', result)
+
     res.status(200).send({
       error: false,
       details: await res.getModelListDetails(Event, customFilter),

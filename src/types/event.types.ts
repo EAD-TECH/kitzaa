@@ -112,7 +112,8 @@ export interface EventDTO {
 
 // omit createdBy haric tum alanlari al demek ve yazilanlari ekle
 export interface AdminEventDTO extends Omit<EventDTO, 'createdBy'> {
-  createdBy: EventCreatedByRef & { role: 'user' | 'organizer' | 'admin' };
+  // createdBy silinmis bir kullaniciya isaret ediyorsa (dangling ref) sadece id string'i olarak doner.
+  createdBy: (EventCreatedByRef & { role: 'user' | 'organizer' | 'admin' }) | string;
   rejectedReason: string | null;
   approvedAt: Date | null;
 }

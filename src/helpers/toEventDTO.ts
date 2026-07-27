@@ -4,12 +4,19 @@ import type { EventCategoryDocument } from "../types/eventCategory.types.js";
 import type { UserDocument } from "../types/user.types.js";
 
 // categoryId sadece populate edilmisse zengin obje olarak, aksi halde duz id string'i olarak doner.
+// Referans verilen kategori silinmisse (dangling ref) populate sonucu null olur; bu durumda orijinal id'ye geri duser.
 function toCategoryRef(event: EventDocument): string | EventCategoryRef {
-  if (!event.populated('categoryId')) {
+  const populatedId = event.populated('categoryId');
+
+  if (!populatedId) {
     return event.categoryId.toString();
   }
 
-  const category = event.categoryId as unknown as EventCategoryDocument;
+  const category = event.categoryId as unknown as EventCategoryDocument | null;
+
+  if (!category) {
+    return populatedId.toString();
+  }
 
   return {
     _id: category._id!.toString(),
@@ -20,12 +27,19 @@ function toCategoryRef(event: EventDocument): string | EventCategoryRef {
 }
 
 // createdBy sadece populate edilmisse zengin obje olarak, aksi halde duz id string'i olarak doner.
+// Referans verilen kullanici silinmisse (dangling ref) populate sonucu null olur; bu durumda orijinal id'ye geri duser.
 function toCreatedByRef(event: EventDocument): string | EventCreatedByRef {
-  if (!event.populated('createdBy')) {
+  const populatedId = event.populated('createdBy');
+
+  if (!populatedId) {
     return event.createdBy.toString();
   }
 
-  const user = event.createdBy as unknown as UserDocument;
+  const user = event.createdBy as unknown as UserDocument | null;
+
+  if (!user) {
+    return populatedId.toString();
+  }
 
   return {
     _id: user._id!.toString(),
@@ -82,7 +96,8 @@ export function toAdminEventDTO(event: EventDocument | EventDocument[] | null): 
     return event.map(item => toAdminEventDTO(item));
   }
 
-  const createdBy = event.createdBy as unknown as UserDocument;
+  const createdBy = event.createdBy as unknown as UserDocument | null;
+  const createdByPopulatedId = event.populated('createdBy');
 
   return {
     _id: event._id.toString(),
@@ -93,12 +108,14 @@ export function toAdminEventDTO(event: EventDocument | EventDocument[] | null): 
     images: event.images ?? [],
     categoryId: toCategoryRef(event),
     ageRange: event.ageRange,
-    createdBy: {
-      _id: createdBy._id!.toString(),
-      username: createdBy.username,
-      avatarUrl: createdBy.avatarUrl ?? null,
-      role: createdBy.role,
-    },
+    createdBy: createdBy
+      ? {
+        _id: createdBy._id!.toString(),
+        username: createdBy.username,
+        avatarUrl: createdBy.avatarUrl ?? null,
+        role: createdBy.role,
+      }
+      : (createdByPopulatedId ?? event.createdBy).toString(),
     status: event.status,
     rejectedReason: event.rejectedReason ?? null,
     approvedAt: event.approvedAt ?? null,

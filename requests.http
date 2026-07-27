@@ -87,19 +87,19 @@ Authorization: Bearer {{accessToken}}
 ###
 # @name UserRead
 @userId = REPLACE_WITH_USER_ID
-GET {{baseUrl}}/users/{{userId}}
+GET {{baseUrl}}/users/6a673a11162d3c07099e3b48
 Authorization: Bearer {{accessToken}}
 
 
 
 ### 
 # @name UserUpdate
-PUT {{baseUrl}}/users/{{userId}}
+PUT {{baseUrl}}/users/6a673a11162d3c07099e3b48
 Authorization: Bearer {{accessToken}}
 Content-Type: {{contentType}}
 
 {
-  "firstName": "Johnny",
+  "firstName": "test",
   "location": {
     "city": "Munich"
   }
@@ -108,7 +108,7 @@ Content-Type: {{contentType}}
 
 ### 
 # @name DeleteUser
-DELETE {{baseUrl}}/users/{{userId}}
+DELETE {{baseUrl}}/users/6a673a11162d3c07099e3b48
 Authorization: Bearer {{accessToken}}
 
 
@@ -136,8 +136,7 @@ Authorization: Bearer {{accessToken}}
 
 ### 
 # @name readCategories
-@categoryId = REPLACE_WITH_CATEGORY_ID
-GET {{baseUrl}}/category/{{categoryId}}
+GET {{baseUrl}}/category/6a6739f1162d3c07099e3b47
 Authorization: Bearer {{accessToken}}
 
 
@@ -165,7 +164,7 @@ Content-Type: {{contentType}}
     "zipCode": "10115",
     "country": "DE"
   },
-  "capacity": { "max": 1 }
+  "capacity": { "max": 6 }
 }
 
 
@@ -180,34 +179,34 @@ Authorization: Bearer {{accessToken}}
 
 ### 
 # @name readEvent
-GET {{baseUrl}}/events/{{eventSlug}}
+GET {{baseUrl}}/events/kinderfest-im-park-11
 Authorization: Bearer {{accessToken}}
 
 
 
 ### 
 # @name updateEvent
-PUT {{baseUrl}}/events/{{eventId}}
+PUT {{baseUrl}}/events/6a65e210593cc260697d7f5d
 Authorization: Bearer {{accessToken}}
 Content-Type: {{contentType}}
 
 {
-  "title": "Kinderfest im Park (aktualisiert)",
-  "capacity": { "max": 60 }
+  "title": "Kinderfest im Parkkk",
+  "capacity": { "max": 10 }
 }
 
 
 
 ### Join event
 # @name joinEvent
-POST {{baseUrl}}/events/6a65e128593cc260697d7f5c/join
+POST {{baseUrl}}/events/6a674100175ec34cf6c7250f/join
 Authorization: Bearer {{accessToken}}
 
 
 
 ### Leave event
 # @name leaveEvent
-POST {{baseUrl}}/events/{{eventId}}/leave
+POST {{baseUrl}}/events/6a674100175ec34cf6c7250f/leave
 Authorization: Bearer {{accessToken}}
 
 
