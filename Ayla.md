@@ -143,3 +143,17 @@ export const updateEvent = catchAsync<{ id: string }, {}, UpdateEventInput>(
 # event ile ilgili hersey
 
 1.router.route("/:slug").get(read);  frontendde event read edilirken id ile degil slug ile cagrilicak, SEO acisidnan iyi olmasi icin.
+
+2. Admin - incelenecek bekleyen etkinlikleri listele endpoint ile yapmiycaz. filter sorgusu ile yapicaz.
+
+3. update ve delete lerde forum ve eventi req.resource icinden alicaz. cunku permissions larda isOwnerOrAdmin middlewareinde bu dokumani cagiriyoruz. tekrar sorgu yazip documani cagirmamiza gerek yok.
+
+4. frontendde event create ederken isFree kismini biz true ya da false gondericez. organizerse false, degilse true gibi. bir de ucret ekleme kismi userlarda hic cikmiycak. organizatorlerde goruunucek sadece
+
+5. organization etkinlik olustururken organizayson onaylandi mi diye ekstra controller da kontrol etmeye gerek yok. cünkü zaten role degisince logout oluyor ve organizator olarak yeniden login olmasi gerekiyor.
+
+6. ilk event create edildiginde pending olarak controllerda yazmaya gerek yok. cunku schema da default:pending. ve zod schmaadan da bunu almadigimiz icin user tarafindan böyle bir alan gelmesine izin vermiyoruz. o yüzden güvenli.
+
+7. JOIN / LEAVE / LIKE  gibi controllerlarda save() degil findByIdAndUpdate kullandim. cünkü save() de ayni anda farkli kisiler basarsa karisiklik olusabilir.kapasite de. likeda da ayni anda 2 kisi basarsa birininki digerini ezebilir
+
+8. admin tüm eventlerin katilimcilarini görebilicek. user ve organizator sadece kendininkileri.

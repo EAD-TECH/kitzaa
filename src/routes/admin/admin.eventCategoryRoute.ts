@@ -3,10 +3,12 @@ import adminEventCategoryController from "../../controllers/admin/admin.eventCat
 import authentication from "../../middlewares/authentication.js";
 import { isAdmin } from "../../middlewares/permissions.js";
 import { validateBody } from "../../middlewares/validateBody.js";
+import { validateObjectIdParam } from "../../middlewares/validateObjectId.js";
 import { createEventCategorySchema, updateEventCategorySchema } from "../../validations/eventCategory.schema.js";
 
 const router = Router();
 router.use(authentication, isAdmin);
+router.param('id', validateObjectIdParam);
 
 const { list, create, read, update, deletee } = adminEventCategoryController;
 
