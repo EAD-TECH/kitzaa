@@ -75,6 +75,20 @@ export interface IEvent {
 export type EventModel = Model<IEvent>;
 export type EventDocument = HydratedDocument<IEvent>;
 
+// categoryId/createdBy populate edilmisse zengin ref objesi, edilmemisse duz id string'i olarak doner.
+export interface EventCategoryRef {
+  _id: string;
+  name: string;
+  slug: string;
+  icon: string;
+}
+
+export interface EventCreatedByRef {
+  _id: string;
+  username: string;
+  avatarUrl: string | null;
+}
+
 export interface EventDTO {
   _id: string;
   title: string;
@@ -82,9 +96,9 @@ export interface EventDTO {
   description: string;
   coverImage: string | null;
   images: string[];
-  categoryId: string;
+  categoryId: string | EventCategoryRef;
   ageRange: IAgeRange;
-  createdBy: string;
+  createdBy: string | EventCreatedByRef;
   status: EventStatus;
   isFree: boolean;
   price: IPrice | null;
@@ -94,4 +108,11 @@ export interface EventDTO {
   viewCount: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+// omit createdBy haric tum alanlari al demek ve yazilanlari ekle
+export interface AdminEventDTO extends Omit<EventDTO, 'createdBy'> {
+  createdBy: EventCreatedByRef & { role: 'user' | 'organizer' | 'admin' };
+  rejectedReason: string | null;
+  approvedAt: Date | null;
 }

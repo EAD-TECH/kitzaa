@@ -2,10 +2,12 @@ import { Router } from "express";
 import userController from "../../controllers/user/userController.js";
 import authentication from "../../middlewares/authentication.js";
 import { validateBody } from "../../middlewares/validateBody.js";
+import { validateObjectIdParam } from "../../middlewares/validateObjectId.js";
 import { changePasswordSchema, updateUserSchema } from "../../validations/user.schema.js";
 
 const router = Router();
 router.use(authentication);
+router.param('id', validateObjectIdParam);
 
 const { list, read, update, updatePassword, deletee } = userController;
 

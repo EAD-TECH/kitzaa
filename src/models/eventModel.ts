@@ -46,8 +46,10 @@ const locationSchema = new mongoose.Schema(
         },
         country: { type: String, default: 'DE' },
         coordinates: {
-            lat: { type: Number },
-            lng: { type: Number },
+            type: {
+                lat: { type: Number },
+                lng: { type: Number },
+            },
             _id: false,
             default: null,
         },
@@ -101,6 +103,7 @@ const eventSchema = new mongoose.Schema<IEvent, EventModel>(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'EventCategory',
             required: [true, 'Category is required'],
+            index: true,
         },
         ageRange: { type: ageRangeSchema, required: true },
         createdBy: {
@@ -112,6 +115,7 @@ const eventSchema = new mongoose.Schema<IEvent, EventModel>(
             type: String,
             enum: ['pending', 'approved', 'rejected', 'cancelled', 'completed'],
             default: 'pending',
+            index: true,
         },
         rejectedReason: { type: String, default: null },
         approvedAt: { type: Date, default: null },
@@ -170,13 +174,6 @@ eventSchema.pre('save', function (this: EventDocument) {
         if (this.status === 'rejected' && !this.rejectedReason) {
             throw new Error('rejectedReason is required when status is "rejected"');
         }
-    }
-});
-
-// ── capacity.current, capacity.max'ı aşamaz ────────────
-eventSchema.pre('save', function (this: EventDocument) {
-    if (this.capacity.current > this.capacity.max) {
-        throw new Error('capacity.current cannot exceed capacity.max');
     }
 });
 

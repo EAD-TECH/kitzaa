@@ -1,0 +1,169 @@
+### ==========================================================
+### Kindora / Kitzaa Backend - ADMIN REST Client requests
+### Requires the "REST Client" VS Code extension (humao.rest-client)
+### All requests below require an account with role: admin.
+### ==========================================================
+
+@baseUrl = http://localhost:8000/api/v1
+@contentType = application/json
+
+### Login as admin
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "login": "adminAyla",
+  "password": "AdminAyla12."
+}
+
+### Capture the access token returned by login for use below
+@accessToken = {{login.response.body.$.accessToken}}
+
+
+### ------------------------------------------------------------
+### ADMIN USERS - full CRUD, requires role: admin
+### ------------------------------------------------------------
+
+### Create user
+# @name createAdminUser
+POST {{baseUrl}}/admin/users
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "username": "adminAyla",
+  "firstName": "adminAyla",
+  "lastName": "adminAyla",
+  "email": "ataydirayla@gmail.com",
+  "password": "AdminAyla12.",
+  "role": "admin"
+}
+
+### Capture the id returned by create for use below
+@adminUserId = {{createAdminUser.response.body.$.user._id}}
+
+
+### List all users
+GET {{baseUrl}}/admin/users
+Authorization: Bearer {{accessToken}}
+
+
+### Get single user by id
+GET {{baseUrl}}/admin/users/{{adminUserId}}
+Authorization: Bearer {{accessToken}}
+
+
+### Update user (including role)
+PUT {{baseUrl}}/admin/users/{{adminUserId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "role": "organizer",
+  "firstName": "Organizer"
+}
+
+
+### Update user password
+PUT {{baseUrl}}/admin/users/{{adminUserId}}/password
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "currentPassword": "Organizer1.",
+  "newPassword": "NewOrganizer1.",
+  "confirmPassword": "NewOrganizer1."
+}
+
+
+### Delete user
+DELETE {{baseUrl}}/admin/users/{{adminUserId}}
+Authorization: Bearer {{accessToken}}
+
+
+### ------------------------------------------------------------
+### EVENT CATEGORIES (admin) - full CRUD, requires role: admin
+### ------------------------------------------------------------
+
+### Create category
+# @name createAdminCategory
+POST {{baseUrl}}/admin/categories
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Konzerte",
+  "description": "Live-Musik-Veranstaltungen",
+  "icon": "music",
+  "isActive": true
+}
+
+### Capture the id returned by create for use below
+@adminCategoryId = {{createAdminCategory.response.body.$.category._id}}
+
+
+### List all categories (active and inactive)
+GET {{baseUrl}}/admin/categories
+Authorization: Bearer {{accessToken}}
+
+
+### Get single category by id
+GET {{baseUrl}}/admin/categories/{{adminCategoryId}}
+Authorization: Bearer {{accessToken}}
+
+
+### Update category
+PUT {{baseUrl}}/admin/categories/{{adminCategoryId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Konzerte & Festivals",
+  "isActive": true
+}
+
+
+### Delete category
+DELETE {{baseUrl}}/admin/categories/{{adminCategoryId}}
+Authorization: Bearer {{accessToken}}
+
+
+### ------------------------------------------------------------
+### EVENTS (admin) - requires role: admin
+### ------------------------------------------------------------
+
+### List all events (any status)
+GET {{baseUrl}}/admin/events
+Authorization: Bearer {{accessToken}}
+
+
+### Get single event by id
+@adminEventId = REPLACE_WITH_EVENT_ID
+GET {{baseUrl}}/admin/events/{{adminEventId}}
+Authorization: Bearer {{accessToken}}
+
+
+### Approve event
+PUT {{baseUrl}}/admin/events/6a65e210593cc260697d7f5d/approve
+Authorization: Bearer {{accessToken}}
+
+
+### Reject event
+PUT {{baseUrl}}/admin/events/6a6701edc264874cceb07c99/reject
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "rejectedReason": "Etkinlik aciklamasi yetersiz."
+}
+
+
+### Cancel event
+PUT {{baseUrl}}/admin/events/6a65e27a593cc260697d7f5e/cancel
+Authorization: Bearer {{accessToken}}
+
+
+### Delete event
+DELETE {{baseUrl}}/admin/events/{{adminEventId}}
+Authorization: Bearer {{accessToken}}

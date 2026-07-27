@@ -1,30 +1,25 @@
-### ==========================================================
-### Kindora / Kitzaa Backend - REST Client requests
-### Requires the "REST Client" VS Code extension (humao.rest-client)
-### ==========================================================
+
 
 @baseUrl = http://localhost:8000/api/v1
 @contentType = application/json
+@accessToken = {{login.response.body.$.accessToken}}
 
-### ------------------------------------------------------------
-### Health check
-### ------------------------------------------------------------
+
+
 GET http://localhost:8000/health
 
 
-### ------------------------------------------------------------
-### AUTH
-### ------------------------------------------------------------
 
 ### Register
+# @name register
 POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "username": "duygu",
-  "firstName": "duygu",
-  "lastName": "duygu",
-  "email": "dyg.cankurt17@gmail.com",
+  "username": "test",
+  "firstName": "test",
+  "lastName": "test",
+  "email": "example@gmail.com",
   "password": "Ayla123.",
   "phone": "+491234567890",
   "language": "de",
@@ -36,31 +31,29 @@ Content-Type: {{contentType}}
 }
 
 
-### Login
+### 
 # @name login
 POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "login": "aylaa",
-  "password": "Almanca12."
+  "login": "test",
+  "password": "Ayla123."
 }
 
-### Capture the access token returned by login for use below
-@accessToken = {{login.response.body.$.accessToken}}
-
-
-### Refresh access token (uses the httpOnly refreshToken cookie set by login/register)
+### 
+# @name refresh
 POST {{baseUrl}}/auth/refresh
 
 
-### Logout
+### 
+# @name logout
 POST {{baseUrl}}/auth/logout
 Authorization: Bearer {{accessToken}}
 
 
-### Forgot password
-### NOTE: authController.forgotPassword is currently an empty stub (no logic implemented yet)
+### 
+# @name forgotPassword
 POST {{baseUrl}}/auth/forgot-password
 Content-Type: {{contentType}}
 
@@ -70,7 +63,7 @@ Content-Type: {{contentType}}
 
 
 ###
-
+# @name resetPassword
 POST {{baseUrl}}/auth/reset-password/29155b09a8d7642e4900bbc0388d23d56ecf5c5912243e4e5aea02a4d651ee60
 Content-Type: {{contentType}}
 
@@ -84,18 +77,23 @@ Content-Type: {{contentType}}
 ### USERS (all require Authorization: Bearer {{accessToken}})
 ### ------------------------------------------------------------
 
-### List users (supports query params via queryHandler middleware, e.g. ?page=1&limit=10)
+### 
+# @name UserList
 GET {{baseUrl}}/users
 Authorization: Bearer {{accessToken}}
 
 
-### Get single user by id
+
+###
+# @name UserRead
 @userId = REPLACE_WITH_USER_ID
 GET {{baseUrl}}/users/{{userId}}
 Authorization: Bearer {{accessToken}}
 
 
-### Update user
+
+### 
+# @name UserUpdate
 PUT {{baseUrl}}/users/{{userId}}
 Authorization: Bearer {{accessToken}}
 Content-Type: {{contentType}}
@@ -108,12 +106,15 @@ Content-Type: {{contentType}}
 }
 
 
-### Delete user
+### 
+# @name DeleteUser
 DELETE {{baseUrl}}/users/{{userId}}
 Authorization: Bearer {{accessToken}}
 
 
-### Update password
+
+### 
+# @name UpdatePassword
 PUT {{baseUrl}}/users/{{userId}}/password
 Authorization: Bearer {{accessToken}}
 Content-Type: {{contentType}}
@@ -125,59 +126,121 @@ Content-Type: {{contentType}}
 }
 
 
-### ------------------------------------------------------------
-### EVENT CATEGORIES (user) - list/read only, active categories only
-### ------------------------------------------------------------
 
-### List categories (supports query params via queryHandler middleware, e.g. ?page=1&limit=10)
+###
+# @name listCategories
 GET {{baseUrl}}/category
 Authorization: Bearer {{accessToken}}
 
 
-### Get single category by id
+
+### 
+# @name readCategories
 @categoryId = REPLACE_WITH_CATEGORY_ID
 GET {{baseUrl}}/category/{{categoryId}}
 Authorization: Bearer {{accessToken}}
 
 
-### ------------------------------------------------------------
-### EVENT CATEGORIES (admin) - full CRUD, requires role: admin
-### ------------------------------------------------------------
 
-### Create category
-POST {{baseUrl}}/admin/categories
+### 
+# @name createEvent
+POST {{baseUrl}}/events
 Authorization: Bearer {{accessToken}}
 Content-Type: {{contentType}}
 
 {
-  "name": "Konzerte",
-  "description": "Live-Musik-Veranstaltungen",
-  "icon": "music",
-  "isActive": true
+  "title": "Kinderfest im Park",
+  "description": "Ein spassiges Kinderfest mit Spielen und Musik.",
+  "categoryId": "6a65d605593cc260697d7f53",
+  "ageRange": { "min": 3, "max": 12 },
+  "isFree": true,
+  "schedule": {
+    "startDate": "2026-08-15",
+    "startTime": "10:00",
+    "endTime": "16:00"
+  },
+  "location": {
+    "addressLine": "Parkstrasse 1",
+    "city": "Berlin",
+    "zipCode": "10115",
+    "country": "DE"
+  },
+  "capacity": { "max": 1 }
 }
 
 
-### List all categories (active and inactive)
-GET {{baseUrl}}/admin/categories
+
+
+### 
+# @name listEvent
+GET {{baseUrl}}/events
 Authorization: Bearer {{accessToken}}
 
 
-### Get single category by id
-GET {{baseUrl}}/admin/categories/{{categoryId}}
+
+### 
+# @name readEvent
+GET {{baseUrl}}/events/{{eventSlug}}
 Authorization: Bearer {{accessToken}}
 
 
-### Update category
-PUT {{baseUrl}}/admin/categories/{{categoryId}}
+
+### 
+# @name updateEvent
+PUT {{baseUrl}}/events/{{eventId}}
 Authorization: Bearer {{accessToken}}
 Content-Type: {{contentType}}
 
 {
-  "name": "Konzerte & Festivals",
-  "isActive": true
+  "title": "Kinderfest im Park (aktualisiert)",
+  "capacity": { "max": 60 }
 }
 
 
-### Delete category
-DELETE {{baseUrl}}/admin/categories/{{categoryId}}
+
+### Join event
+# @name joinEvent
+POST {{baseUrl}}/events/6a65e128593cc260697d7f5c/join
+Authorization: Bearer {{accessToken}}
+
+
+
+### Leave event
+# @name leaveEvent
+POST {{baseUrl}}/events/{{eventId}}/leave
+Authorization: Bearer {{accessToken}}
+
+
+
+### Toggle like on event
+# @name likeEvent
+POST {{baseUrl}}/events/6a65e128593cc260697d7f5c/like
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name listParticipants
+GET {{baseUrl}}/events/6a65e128593cc260697d7f5c/participants
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name listMyEvents
+GET {{baseUrl}}/events/my-events
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name MyParticipationsEvent
+GET {{baseUrl}}/events/my-participations
+Authorization: Bearer {{accessToken}}
+
+
+
+### Delete
+# @name deleteEvent
+DELETE {{baseUrl}}/events/6a65e128593cc260697d7f5c
 Authorization: Bearer {{accessToken}}
