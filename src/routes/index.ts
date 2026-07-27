@@ -5,7 +5,7 @@ import authRoute from "./auth/authRoute.js";
 import adminRoute from './admin/index.js';
 import eventCategoryRoute from './user/eventCategoyRoute.js';
 import eventRoute from './user/eventRoute.js';
-import organizerApplicationRoute from "./organizerApplicationRoute.js";
+import organizerApplicationRoute from "./user/organizerApplicationRoute.js";
 
 const router = Router();
 

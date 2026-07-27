@@ -194,11 +194,11 @@ Content-Type: {{contentType}}
 
 {
   "institutionData": {
-    "name": "Malhaus Pforzheim",
+    "name": "Hüpftag Niefern",
     "description": "Kinder Aktivitäten",
-    "address": "Pforzheim, Germany",
+    "address": "Niefern, Germany",
     "phone": "+491234567890",
-    "website": "https://malhaus-pforzheim.de",
+    "website": "https://malhaus-niefern.de",
     "category": "Kinder"
   },
   "message": "Ich organisiere seit 3 Jahren Veranstaltungen für Kinder."
@@ -216,7 +216,7 @@ Authorization: Bearer {{accessToken}}
 
 
 ### Get single organizer application by id
-@organizerApplicationId = 6a64a0a73639c5fa1c78ed2c
+@organizerApplicationId = 6a666e09104a80874e01e9dd
 GET {{baseUrl}}/admin/organizer-applications/{{organizerApplicationId}}
 Authorization: Bearer {{accessToken}}
 
@@ -224,3 +224,13 @@ Authorization: Bearer {{accessToken}}
 ### Approve organizer application (creates Institution + sets user role to organizer)
 PUT {{baseUrl}}/admin/organizer-applications/{{organizerApplicationId}}/approve
 Authorization: Bearer {{accessToken}}
+
+
+### Reject organizer application (rejectedReason required, min 3 chars)
+PUT {{baseUrl}}/admin/organizer-applications/{{organizerApplicationId}}/reject
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "rejectedReason": "Unterlagen unvollständig"
+}
