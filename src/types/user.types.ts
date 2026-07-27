@@ -34,6 +34,7 @@ export interface IUser {
     password: string;
     institutionId?: Types.ObjectId | null;
     emailVerifyToken?: string | null;
+    emailVerifyExp?: Date | null;
     passwordResetToken?: string | null;
     passwordResetExp?: Date | null;
     phone?: string | null;

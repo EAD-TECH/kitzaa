@@ -1,9 +1,9 @@
 import crypto from 'crypto';
 
-export const generateResetToken = () => {
+export const generateSecureToken = (expiresInMs: number) => {
   const rawToken = crypto.randomBytes(32).toString('hex');
   const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
-  const expires = new Date(Date.now() + 30 * 60 * 1000); 
+  const expires = new Date(Date.now() + expiresInMs);
 
   return { rawToken, hashedToken, expires };
 };

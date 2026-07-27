@@ -23,3 +23,20 @@ export interface IInstitution {
 
 export type InstitutionModel = Model<IInstitution>;
 export type InstitutionDocument = HydratedDocument<IInstitution>;
+
+export interface InstitutionDTO {
+  _id: string;
+  ownerId: string;
+  applicationId: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  address: string | null;
+  phone: string | null;
+  website: string | null;
+  category: string | null;
+  logoUrl: string | null;
+  status: InstitutionStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}

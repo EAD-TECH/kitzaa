@@ -98,6 +98,11 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>(
       default: null,
       select: false,
     },
+    emailVerifyExp: {
+      type: Date,
+      default: null,
+      select: false,
+    },
     // ── Şifre sıfırlama ───────────────────────────
     passwordResetToken: {
       type: String,
