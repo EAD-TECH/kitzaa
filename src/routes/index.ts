@@ -5,7 +5,8 @@ import authRoute from "./auth/authRoute.js";
 import adminRoute from './admin/index.js';
 import eventCategoryRoute from './user/eventCategoyRoute.js';
 import eventRoute from './user/eventRoute.js';
-import organizerApplicationRoute from "./organizerApplicationRoute.js";
+import organizerApplicationRoute from "./user/organizerApplicationRoute.js";
+import institutionRoute from "./user/institutionRoute.js";
 
 const router = Router();
 
@@ -14,7 +15,8 @@ router.use("/auth", authRoute);
 router.use("/admin", adminRoute);
 router.use("/category", eventCategoryRoute);
 router.use("/events", eventRoute);
-router.use("/organizer-applications", organizerApplicationRoute)
+router.use("/organizer-applications", organizerApplicationRoute);
+router.use("/institutions", institutionRoute);
 
 export default router;
 
