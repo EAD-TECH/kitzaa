@@ -256,12 +256,72 @@ Content-Type: {{contentType}}
 
 {
   "institutionData": {
-    "name": "Spielhaus Berlin",
-    "description": "Kinder und Familien Aktivitäten",
-    "address": "Berlin, Germany",
+    "name": "Hüpftag Niefern",
+    "description": "Kinder Aktivitäten",
+    "address": "Niefern, Germany",
     "phone": "+491234567890",
-    "website": "https://spielhaus-berlin.de",
-    "category": "Kinder & Familie"
+    "website": "https://malhaus-niefern.de",
+    "category": "Kinder"
   },
-  "message": "Ich organisiere seit 5 Jahren Veranstaltungen für Familien."
+  "message": "Ich organisiere seit 3 Jahren Veranstaltungen für Kinder."
+}
+
+
+### Get my organizer applications
+GET {{baseUrl}}/organizer-applications/me
+Authorization: Bearer {{accessToken}}
+
+
+### ------------------------------------------------------------
+### INSTITUTION (requires Authorization + role: organizer)
+### ------------------------------------------------------------
+
+### Get my institution
+GET {{baseUrl}}/institutions/me
+Authorization: Bearer {{accessToken}}
+
+
+### Update my institution
+PUT {{baseUrl}}/institutions/me
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Hüpftag Niefern",
+  "description": "Aktualisierte Beschreibung",
+  "address": "Niefern, Germany",
+  "phone": "+491234567890",
+  "website": "https://malhaus-niefern.de",
+  "category": "Kinder"
+}
+
+
+### ------------------------------------------------------------
+### ORGANIZER APPLICATIONS (admin) - requires role: admin
+### Login above must be an admin user so {{accessToken}} works here
+### ------------------------------------------------------------
+
+### List organizer applications (e.g. ?page=1&limit=10 or ?filter[status]=pending)
+GET {{baseUrl}}/admin/organizer-applications
+Authorization: Bearer {{accessToken}}
+
+
+### Get single organizer application by id
+@organizerApplicationId = 6a666e09104a80874e01e9dd
+GET {{baseUrl}}/admin/organizer-applications/{{organizerApplicationId}}
+Authorization: Bearer {{accessToken}}
+
+
+### Approve organizer application (creates Institution + sets user role to organizer)
+PUT {{baseUrl}}/admin/organizer-applications/{{organizerApplicationId}}/approve
+Authorization: Bearer {{accessToken}}
+
+
+### Reject organizer application (rejectedReason required, min 3 chars)
+PUT {{baseUrl}}/admin/organizer-applications/{{organizerApplicationId}}/reject
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "rejectedReason": "Unterlagen unvollständig"
 }
