@@ -1,25 +1,31 @@
 
-export const toUserDTO = (user) => {
+import type { UserDocument, UserDTO } from "../types/user.types.js";
 
-    // find dizi dondurdugu icin list yaparken buraya dusmuyordu. result dizisinde birden fazla obje olabilirdi o yuzden asagidaki dizi mi kontrolunu yaptik.
-  if (Array.isArray(user)) {
-    return user.map((item) => toUserDTO(item));
-  }
+// Function overloads
+export function toUserDTO(user: UserDocument): UserDTO;
+export function toUserDTO(user: UserDocument[]): UserDTO[];
+export function toUserDTO(user: UserDocument | UserDocument[] | null): UserDTO | UserDTO[] | null;
 
+// Implementation
+export function toUserDTO(user: UserDocument | UserDocument[] | null): UserDTO | UserDTO[] | null {
   if (!user) return null;
 
+  if (Array.isArray(user)) {
+    return user.map(item => toUserDTO(item));
+  }
+
   return {
-    id: user._id,
+    _id: user._id.toString(),
     username: user.username,
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
+    avatar: user.avatarUrl ?? null,
     role: user.role,
-    avatarUrl: user.avatarUrl,
     language: user.language,
     location: user.location,
     isEmailVerified: user.isEmailVerified,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
+    createdAt: user.createdAt!, 
+    updatedAt: user.updatedAt!,
   };
-};
+}

@@ -1,0 +1,193 @@
+### ==========================================================
+### Kindora / Kitzaa Backend - ADMIN REST Client requests
+### Requires the "REST Client" VS Code extension (humao.rest-client)
+### All requests below require an account with role: admin.
+### ==========================================================
+
+@baseUrl = http://localhost:8000/api/v1
+@contentType = application/json
+@accessToken = {{login.response.body.$.accessToken}}
+
+
+
+### 
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "login": "adminAyla",
+  "password": "AdminAyla12."
+}
+
+
+
+### Create user
+# @name createAdminUser
+POST {{baseUrl}}/admin/users
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "username": "adminAyla",
+  "firstName": "adminAyla",
+  "lastName": "adminAyla",
+  "email": "ataydirayla@gmail.com",
+  "password": "AdminAyla12.",
+  "role": "admin"
+}
+
+
+
+### 
+# @name listUser
+GET {{baseUrl}}/admin/users
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name readUser
+GET {{baseUrl}}/admin/users/6a65df87593cc260697d7f55
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name updateUser
+PUT {{baseUrl}}/admin/users/6a65df87593cc260697d7f55
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "role": "admin",
+  "firstName": "test"
+}
+
+
+
+### 
+# @name updateUserPassword
+PUT {{baseUrl}}/admin/users/{{adminUserId}}/password
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "currentPassword": "Organizer1.",
+  "newPassword": "NewOrganizer1.",
+  "confirmPassword": "NewOrganizer1."
+}
+
+
+
+### 
+# @name deleteUser
+DELETE {{baseUrl}}/admin/users/6a65df87593cc260697d7f55
+Authorization: Bearer {{accessToken}}
+
+
+
+
+### ------------------------------------------------------------
+### CATEGORY
+### ------------------------------------------------------------
+
+
+
+### 
+# @name createCategory
+POST {{baseUrl}}/admin/categories
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "schwimmen",
+  "description": "schwimmen",
+  "icon": "music",
+  "isActive": true
+}
+
+
+
+### 
+# @name categoryList
+GET {{baseUrl}}/admin/categories
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name categoryRead
+GET {{baseUrl}}/admin/categories/6a65d605593cc260697d7f53
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name categoryUpdate
+PUT {{baseUrl}}/admin/categories/6a65d605593cc260697d7f53
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "festival & konzerte",
+  "isActive": true
+}
+
+
+
+### 
+# @name caegoryDelete
+DELETE {{baseUrl}}/admin/categories/6a6739cd162d3c07099e3b46
+Authorization: Bearer {{accessToken}}
+
+
+
+### ------------------------------------------------------------
+### EVENTS (admin) - requires role: admin
+### ------------------------------------------------------------
+
+
+
+###
+# @name eventList
+GET {{baseUrl}}/admin/events
+Authorization: Bearer {{accessToken}}
+
+
+### 
+# @name eventRead
+GET {{baseUrl}}/admin/events/6a65d61c593cc260697d7f54
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name eventApprove
+PUT {{baseUrl}}/admin/events/6a65e210593cc260697d7f5d/approve
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name eventReject
+PUT {{baseUrl}}/admin/events/6a6701edc264874cceb07c99/reject
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "rejectedReason": "Etkinlik aciklamasi yetersiz."
+}
+
+
+### 
+# @name eventCreate
+PUT {{baseUrl}}/admin/events/6a65e27a593cc260697d7f5e/cancel
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name eventDelete
+DELETE {{baseUrl}}/admin/events/6a65d61c593cc260697d7f54
+Authorization: Bearer {{accessToken}}

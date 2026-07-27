@@ -1,46 +1,79 @@
 "use strict";
 
-const queryHandler = async (req, res, next) => {
+import type { Request, Response, NextFunction } from "express";
+import type { QueryHandlerQuery } from "../types/queryHandler.types.js";
+import type { Model, PopulateOption, PopulateOptions } from "mongoose";
+
+const queryHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+
+  const query = req.query as QueryHandlerQuery
 
   //* Filter:
-  // URL?filter[fieldName]=value1&filter[fieldName2]=value2
-  const filter = req.query?.filter || {};
+  const filter = query.filter ?? {};
 
   //* Search:
-  // URL?search[fieldName]=value1&search[fieldName2]=value2
-  const search = req.query?.search || {};
+  const search = query.search ?? {};
 
   for (let key in search) search[key] = { $regex: search[key], $options: "i" };
 
   //* Sorting:
-  // URL?sort[fieldName]=value1&sort[fieldName2]=value2
-  const sort = req.query?.sort || {};
+  const sort = query.sort ?? {};
 
   //? PAGINATION:
   // URL?page=3&limit=10&skip=20
 
-  //* Page:
-  let page = parseInt(req.query?.page);
-  page = page > 0 ? page : 1;
+  const page = Number(query.page) > 0 ? Number(query.page) : 1;
 
-  //* Limit:
-  let limit = parseInt(req.query?.limit);
-  limit = limit > 0 ? limit : 20;
+  const limit = Number(query.limit) > 0 ? Number(query.limit) : 20;
 
   //* Skip:
-  let skip = parseInt(req.query?.skip);
-  skip = skip > 0 ? skip : (page - 1) * limit;
 
-  res.getModelList = async (Model,customFilter= {}, populate = null) => {
-    return await Model.find({ ...filter, ...search, ...customFilter })
+  const skip =
+    Number(query.skip) > 0
+      ? Number(query.skip)
+      : (page - 1) * limit;
+
+
+
+  res.getModelList = async <T>(
+    model: Model<T>,
+    customFilter: Record<string, unknown> = {},
+    populate?: string | PopulateOptions | (string | PopulateOptions)[]
+  ): Promise<T[]> => {
+    const query = model
+      .find({
+        ...filter,
+        ...search,
+        ...customFilter,
+      })
       .sort(sort)
       .skip(skip)
-      .limit(limit)
-      .populate(populate);
+      .limit(limit);
+
+    if (populate) {
+      const normalizedPopulate =
+        typeof populate === "string" ? [populate] : populate;
+      query.populate(normalizedPopulate);
+    }
+
+    return await query;
   };
 
-  res.getModelListDetails = async (Model, customFilter = {}) => {
-    const count = await Model.countDocuments({ ...filter, ...search, ...customFilter });
+
+  res.getModelListDetails = async <T>(
+    model: Model<T>,
+    customFilter: Record<string, unknown> = {}
+  ) => {
+    const count = await model.countDocuments({
+      ...filter,
+      ...search,
+      ...customFilter,
+    });
+
     return {
       count,
       filter,
@@ -53,15 +86,16 @@ const queryHandler = async (req, res, next) => {
         count <= limit
           ? false
           : {
-              previos: page > 1 ? page - 1 : false,
-              current: page,
-              next: page < Math.ceil(count / limit) ? page + 1 : false,
-              total: Math.ceil(count / limit),
-            },
+            previous: page > 1 ? page - 1 : false,
+            current: page,
+            next: page < Math.ceil(count / limit) ? page + 1 : false,
+            total: Math.ceil(count / limit),
+          },
     };
   };
 
   next();
+
 };
 
 export default queryHandler;

@@ -8,6 +8,10 @@ const PASSWORD_REGEX =
 const PHONE_REGEX =
     /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,4}[-\s.]?[0-9]{0,4}$/;
 
+
+
+    
+
 export const createUserSchema = z.object({
     username: z
         .string()
@@ -76,6 +80,24 @@ export const createUserSchema = z.object({
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 
 
+
+
+
+
+// admin: create user (role atayabilir)
+
+export const adminCreateUserSchema = createUserSchema.extend({
+    role: z.enum(['user', 'organizer', 'admin']).default('user'),
+}).strict();
+
+export type AdminCreateUserInput = z.infer<typeof adminCreateUserSchema>;
+
+
+
+
+
+
+
 // loginschema
 
 export const loginSchema = z.object({
@@ -87,14 +109,18 @@ export const loginSchema = z.object({
   password: z
     .string()
     .min(1, 'Password is required'),
-}).strict();
+}).strict();  // ekstra alan eklenemez. fazlaliklar atilir.
 
 export type LoginInput = z.infer<typeof loginSchema>;
 
 
+
+
+
+
 // update schema
 
-export const updateUserSchema = z
+const updateUserShape = z
   .object({
     username: z
       .string()
@@ -173,13 +199,42 @@ export const updateUserSchema = z
           .optional(),
       })
       .optional(),
-  })
+  });
+
+
+
+
+
+export const updateUserSchema = updateUserShape    //shape diye ayirdik cunku refine dan sonra extend kulllanilamiyor.
   .strict()
   .refine((data) => Object.keys(data).length > 0, {
     message: 'At least one field must be provided for update.',
   });  // req.body tamamen bossa hata verir. yani hicbir alan degismediyse.
 
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+
+
+
+
+
+
+// admin: update user (role atayabilir/degistirebilir)
+
+export const adminUpdateUserSchema = updateUserShape
+  .extend({
+    role: z.enum(['user', 'organizer', 'admin']).optional(),
+  })
+  .strict()
+  .refine((data) => Object.keys(data).length > 0, {
+    message: 'At least one field must be provided for update.',
+  });
+
+export type AdminUpdateUserInput = z.infer<typeof adminUpdateUserSchema>;
+
+
+
+
+
 
 
   // password update
@@ -209,6 +264,11 @@ export const changePasswordSchema = z
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 
 
+
+
+
+
+
 // forgot password
 
 export const forgotPasswordSchema = z.object({
@@ -220,6 +280,11 @@ export const forgotPasswordSchema = z.object({
 }).strict();
 
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+
+
+
+
+
 
 
 // reset password
