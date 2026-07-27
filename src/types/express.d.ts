@@ -40,7 +40,10 @@ declare global {
 declare global {
     namespace Express {
         interface Request {
-            user: UserDocument
+            user: UserDocument;
+            // isOwnerOrAdmin gibi middleware'lerin bulup birakti bir dokuman (Event, Forum, ...).
+            // Model'e ozel oldugu icin controller'da ilgili Document tipine  eklenerek kullanilir.
+            resource?: unknown
         }
     }
 }
