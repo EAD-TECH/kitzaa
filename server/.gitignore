@@ -2,11 +2,6 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=node
 
 ### Node ###
-
-.cursor
-.vscode
-.claude
-
 # Logs
 logs
 *.log

@@ -1,0 +1,327 @@
+
+
+@baseUrl = http://localhost:8000/api/v1
+@contentType = application/json
+@accessToken = {{login.response.body.$.accessToken}}
+
+
+
+GET http://localhost:8000/health
+
+
+
+### Register
+# @name register
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "test",
+  "firstName": "test",
+  "lastName": "test",
+  "email": "example@gmail.com",
+  "password": "Ayla123.",
+  "phone": "+491234567890",
+  "language": "de",
+  "location": {
+    "city": "Berlin",
+    "zipCode": "10115",
+    "country": "DE"
+  }
+}
+
+
+### 
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "login": "test",
+  "password": "Ayla123."
+}
+
+### 
+# @name refresh
+POST {{baseUrl}}/auth/refresh
+
+
+### 
+# @name logout
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{accessToken}}
+
+
+### 
+# @name forgotPassword
+POST {{baseUrl}}/auth/forgot-password
+Content-Type: {{contentType}}
+
+{
+  "email": "dyg.cankurt17@gmail.com"
+}
+
+
+###
+# @name resetPassword
+POST {{baseUrl}}/auth/reset-password/29155b09a8d7642e4900bbc0388d23d56ecf5c5912243e4e5aea02a4d651ee60
+Content-Type: {{contentType}}
+
+{
+  "newPassword": "Almanca12.",
+  "confirmPassword":"Almanca12."
+}
+
+
+### ------------------------------------------------------------
+### USERS (all require Authorization: Bearer {{accessToken}})
+### ------------------------------------------------------------
+
+### 
+# @name UserList
+GET {{baseUrl}}/users
+Authorization: Bearer {{accessToken}}
+
+
+
+###
+# @name UserRead
+@userId = REPLACE_WITH_USER_ID
+GET {{baseUrl}}/users/6a673a11162d3c07099e3b48
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name UserUpdate
+PUT {{baseUrl}}/users/6a673a11162d3c07099e3b48
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "firstName": "test",
+  "location": {
+    "city": "Munich"
+  }
+}
+
+
+### 
+# @name DeleteUser
+DELETE {{baseUrl}}/users/6a673a11162d3c07099e3b48
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name UpdatePassword
+PUT {{baseUrl}}/users/{{userId}}/password
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "currentPassword": "Passw0rd!",
+  "newPassword": "NewPassw0rd!1",
+  "confirmPassword": "NewPassw0rd!1"
+}
+
+
+
+###
+# @name listCategories
+GET {{baseUrl}}/category
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name readCategories
+GET {{baseUrl}}/category/6a6739f1162d3c07099e3b47
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name createEvent
+POST {{baseUrl}}/events
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "title": "Kinderfest im Park",
+  "description": "Ein spassiges Kinderfest mit Spielen und Musik.",
+  "categoryId": "6a65d605593cc260697d7f53",
+  "ageRange": { "min": 3, "max": 12 },
+  "isFree": true,
+  "schedule": {
+    "startDate": "2026-08-15",
+    "startTime": "10:00",
+    "endTime": "16:00"
+  },
+  "location": {
+    "addressLine": "Parkstrasse 1",
+    "city": "Berlin",
+    "zipCode": "10115",
+    "country": "DE"
+  },
+  "capacity": { "max": 6 }
+}
+
+
+
+
+### 
+# @name listEvent
+GET {{baseUrl}}/events
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name readEvent
+GET {{baseUrl}}/events/kinderfest-im-park-11
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name updateEvent
+PUT {{baseUrl}}/events/6a65e210593cc260697d7f5d
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "title": "Kinderfest im Parkkk",
+  "capacity": { "max": 10 }
+}
+
+
+
+### Join event
+# @name joinEvent
+POST {{baseUrl}}/events/6a674100175ec34cf6c7250f/join
+Authorization: Bearer {{accessToken}}
+
+
+
+### Leave event
+# @name leaveEvent
+POST {{baseUrl}}/events/6a674100175ec34cf6c7250f/leave
+Authorization: Bearer {{accessToken}}
+
+
+
+### Toggle like on event
+# @name likeEvent
+POST {{baseUrl}}/events/6a65e128593cc260697d7f5c/like
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name listParticipants
+GET {{baseUrl}}/events/6a65e128593cc260697d7f5c/participants
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name listMyEvents
+GET {{baseUrl}}/events/my-events
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name MyParticipationsEvent
+GET {{baseUrl}}/events/my-participations
+Authorization: Bearer {{accessToken}}
+
+
+
+### Delete
+# @name deleteEvent
+DELETE {{baseUrl}}/events/6a65e128593cc260697d7f5c
+Authorization: Bearer {{accessToken}}
+
+
+### ------------------------------------------------------------
+### ORGANIZER APPLICATION (requires Authorization)
+### ------------------------------------------------------------
+
+### Apply as organizer
+POST {{baseUrl}}/organizer-applications
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "institutionData": {
+    "name": "Hüpftag Niefern",
+    "description": "Kinder Aktivitäten",
+    "address": "Niefern, Germany",
+    "phone": "+491234567890",
+    "website": "https://malhaus-niefern.de",
+    "category": "Kinder"
+  },
+  "message": "Ich organisiere seit 3 Jahren Veranstaltungen für Kinder."
+}
+
+
+### Get my organizer applications
+GET {{baseUrl}}/organizer-applications/me
+Authorization: Bearer {{accessToken}}
+
+
+### ------------------------------------------------------------
+### INSTITUTION (requires Authorization + role: organizer)
+### ------------------------------------------------------------
+
+### Get my institution
+GET {{baseUrl}}/institutions/me
+Authorization: Bearer {{accessToken}}
+
+
+### Update my institution
+PUT {{baseUrl}}/institutions/me
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Hüpftag Niefern",
+  "description": "Aktualisierte Beschreibung",
+  "address": "Niefern, Germany",
+  "phone": "+491234567890",
+  "website": "https://malhaus-niefern.de",
+  "category": "Kinder"
+}
+
+
+### ------------------------------------------------------------
+### ORGANIZER APPLICATIONS (admin) - requires role: admin
+### Login above must be an admin user so {{accessToken}} works here
+### ------------------------------------------------------------
+
+### List organizer applications (e.g. ?page=1&limit=10 or ?filter[status]=pending)
+GET {{baseUrl}}/admin/organizer-applications
+Authorization: Bearer {{accessToken}}
+
+
+### Get single organizer application by id
+@organizerApplicationId = 6a666e09104a80874e01e9dd
+GET {{baseUrl}}/admin/organizer-applications/{{organizerApplicationId}}
+Authorization: Bearer {{accessToken}}
+
+
+### Approve organizer application (creates Institution + sets user role to organizer)
+PUT {{baseUrl}}/admin/organizer-applications/{{organizerApplicationId}}/approve
+Authorization: Bearer {{accessToken}}
+
+
+### Reject organizer application (rejectedReason required, min 3 chars)
+PUT {{baseUrl}}/admin/organizer-applications/{{organizerApplicationId}}/reject
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "rejectedReason": "Unterlagen unvollständig"
+}
