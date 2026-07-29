@@ -1,4 +1,4 @@
-import type { Types } from "mongoose";
+import type { ObjectId, Types } from "mongoose";
 
 export type NotificationType =
   | "post_like"
@@ -21,8 +21,7 @@ export interface INotification extends IBaseDocument {
   recipientId: Types.ObjectId;
   title: string;
   isRead: boolean;
-  relatedId?: string | null
-  linkNotification?: string |null;
-
+  relatedId?: Types.ObjectId | null;
+  linkNotification?: string | null;
   message: string;
 }
