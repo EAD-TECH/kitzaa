@@ -5,7 +5,7 @@ export const listNotificationsById = async (req: Request, res: Response) => {
   // 1. Sadece bu kullanıcıya ait olanları filtrele
   const customFilter: any = { recipientId: req.user._id };
 
-  /* eger FE sadece ?isRead=false olanları derse customfıltera bunu eklıyorm 2. Dinamik "Okunmamış" filtresi  */
+  /* eger FE sadece ?isRead=false olanları derse customfıltera bunu eklıyorm   */
   if (req.query.isRead === "false") {
     customFilter.isRead = false;
   }
