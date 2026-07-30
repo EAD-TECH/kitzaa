@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import type { Request } from "express";
 import User from "../models/userModel.js";
 import Event from "../models/eventModel.js";
+import Post from "../models/postModel.js";
 import type { AccessTokenPayload } from "../helpers/generateJwt.js";
 
 const f = createUploadthing();   // bununla uploudThing routelarini olusturuyoruz.
@@ -59,6 +60,7 @@ export const uploadRouter = {
   eventImage: f({ image: { maxFileSize: "8MB", maxFileCount: 5 } })
     .input(z.object({ eventId: z.string().optional() }))
     .middleware(async ({ req, input }) => {
+      console.log("Middleware çalıştı");
       const user = await getUserFromRequest(req);
 
       if (!input.eventId) {
@@ -79,19 +81,46 @@ export const uploadRouter = {
       return { userId: user._id.toString(), eventId: input.eventId };
     })
     .onUploadComplete(async ({ metadata, file }) => {
+      console.log(file.url);
       if (metadata.eventId) {
         await Event.findByIdAndUpdate(metadata.eventId, { $push: { images: file.url } });
       }
     }),
 
-  // 3. Social kapisi: model hazir olunca onUploadComplete icini dolduracaksin.
-  socialImage: f({ image: { maxFileSize: "8MB", maxFileCount: 4 } })
-    .middleware(async ({ req }) => {
+  // 3. Social (post) fotografi kapisi: Post.imageUrl tekil oldugu icin max 1 dosya.
+  // postId varsa (var olan post'u guncelleme) sahiplik kontrolu yapilir,
+  // postId yoksa (post henuz olusturulmadi, create akisinda) sadece giris yapmis olmasi yeterli.
+  socialImage: f({ image: { maxFileSize: "8MB", maxFileCount: 1 } })
+    .input(z.object({ postId: z.string().optional() }))
+    .middleware(async ({ req, input }) => {
       const user = await getUserFromRequest(req);
-      return { userId: user._id.toString() };
+
+      if (!input.postId) {
+        return { userId: user._id.toString(), postId: null, previousImageUrl: null };
+      }
+
+      const post = await Post.findById(input.postId);
+
+      if (!post) {
+        throw new UploadThingError("Post not found");
+      }
+
+      const isAuthor = post.authorId.equals(user._id);
+      if (!isAuthor && user.role !== "admin") {
+        throw new UploadThingError("You do not have permission to upload images for this post.");
+      }
+
+      return { userId: user._id.toString(), postId: input.postId, previousImageUrl: post.imageUrl ?? null };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Social image uploaded by", metadata.userId, file.url);
+      if (!metadata.postId) return;
+
+      if (metadata.previousImageUrl) {
+        const oldKey = metadata.previousImageUrl.split("/").pop()!;
+        await utapi.deleteFiles(oldKey);
+      }
+
+      await Post.findByIdAndUpdate(metadata.postId, { imageUrl: file.url });
     }),
 
 } satisfies FileRouter;

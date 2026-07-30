@@ -10,6 +10,12 @@ GET http://localhost:8000/health
 
 
 
+### UploadThing route config kontrolu (sunucu ayakta mi, router dogru mount edilmis mi)
+# @name uploadthingConfig
+GET http://localhost:8000/api/uploadthing
+
+
+
 ### Register
 # @name register
 POST {{baseUrl}}/auth/register
