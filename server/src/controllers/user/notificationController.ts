@@ -23,3 +23,19 @@ export const listNotificationsById = async (req: Request, res: Response) => {
     data: { payload: notifications },
   });
 };
+
+export const getUnReadNotificationCount = async (
+  req: Request,
+  res: Response,
+) => {
+  const unreadCount = await Notification.countDocuments({
+    recipientId: req.user._id,
+    isRead: false,
+  });
+
+  /* sayıyı dondum */
+  res.status(200).json({
+    success: true,
+    data: { count: unreadCount },
+  });
+};
