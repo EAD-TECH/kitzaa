@@ -1,6 +1,6 @@
 
-import { createUploadthing, UploadThingError, type FileRouter } from "uploadthing/express";
-import { UTApi } from "uploadthing/server";
+import { createUploadthing, type FileRouter } from "uploadthing/express";
+import { UTApi, UploadThingError } from "uploadthing/server";
 import { z } from "zod";
 import jwt from "jsonwebtoken";
 import type { Request } from "express";
@@ -54,11 +54,17 @@ export const uploadRouter = {
       await User.findByIdAndUpdate(metadata.userId, { avatarUrl: file.url });
     }),
 
-  // 2. Event fotografi kapisi: coklu dosya, sadece event sahibi/admin yukleyebilir.
+  // 2. Event fotografi kapisi: coklu dosya. eventId varsa (var olan event'e ekleme) sahiplik kontrolu yapilir,
+  // eventId yoksa (event henuz olusturulmadi, create akisinda) sadece giris yapmis olmasi yeterli.
   eventImage: f({ image: { maxFileSize: "8MB", maxFileCount: 5 } })
-    .input(z.object({ eventId: z.string() }))// bu, frontend'in upload isteğiyle birlikte göndermesi gereken ekstra veriyi tanımlıyor. Profil fotoğrafında böyle bir şeye gerek yoktu (kimin yükleyeceği zaten token'dan belliydi), ama event fotoğrafında hangi event'e yükleneceğini bilmemiz gerekiyor — bu yüzden frontend, upload isteğiyle birlikte { eventId: "64f..." } göndermek zorunda. Zod, bu verinin doğru formatta (string) geldiğini garanti ediyor.
+    .input(z.object({ eventId: z.string().optional() }))
     .middleware(async ({ req, input }) => {
       const user = await getUserFromRequest(req);
+
+      if (!input.eventId) {
+        return { userId: user._id.toString(), eventId: null };
+      }
+
       const event = await Event.findById(input.eventId);
 
       if (!event) {
@@ -70,10 +76,12 @@ export const uploadRouter = {
         throw new UploadThingError("You do not have permission to upload images for this event.");
       }
 
-      return { eventId: input.eventId };
+      return { userId: user._id.toString(), eventId: input.eventId };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      await Event.findByIdAndUpdate(metadata.eventId, { $push: { images: file.url } });
+      if (metadata.eventId) {
+        await Event.findByIdAndUpdate(metadata.eventId, { $push: { images: file.url } });
+      }
     }),
 
   // 3. Social kapisi: model hazir olunca onUploadComplete icini dolduracaksin.
