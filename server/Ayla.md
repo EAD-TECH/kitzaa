@@ -29,6 +29,17 @@ export const createEventSchema = baseEventSchema
 ```
 
 
+# yeni ögrendiklerim / sonradan bakmak istediklerim
+
+
+```javascript
+
+const createdBy = event.createdBy as unknown as UserDocument;  
+```
+
+createdBy => objectId döner. bu userDocumentteki id ile uyusmayabilir. o yüzden önce bilinmeyen bir tipe ceviriyoruz, sonra userDocument ye ceviriyoruz
+
+
 
 # fikirler
 
@@ -196,3 +207,6 @@ mevcut authentication middleware'ini olduğu gibi bağlayamıyoruz çünkü Uplo
 
 authentication.ts' (req, res, next) — işi bitince req.user = user yapıp next() çağırıyor, Express'in route zincirine bağlı.
 UploadThing'in .middleware()'i ise ({ req, res }) => { ... return metadata } şeklinde çalışıyor — next() diye bir şey yok, req.user'a bir şey atamıyorsun, bunun yerine bir obje return ediyorsun ve o obje onUploadComplete'e metadata olarak geçiyor. Çünkü /api/uploadthing isteği senin normal Express route zincirinden (app.use('/api/v1', ...)) geçmiyor — createRouteHandler kendi içinde ayrı bir yönlendirme yapıyor.
+
+
+

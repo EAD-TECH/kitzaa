@@ -164,19 +164,31 @@ Authorization: Bearer {{accessToken}}
 
 ### 
 # @name eventApprove
-PUT {{baseUrl}}/admin/events/6a65e210593cc260697d7f5d/approve
+PUT {{baseUrl}}/admin/events/6a6c8833d3a66ceb807d335f/approve
 Authorization: Bearer {{accessToken}}
 
 
 
 ### 
 # @name eventReject
-PUT {{baseUrl}}/admin/events/6a6701edc264874cceb07c99/reject
+PUT {{baseUrl}}/admin/events/6a6c893fd3a66ceb807d3360/reject
 Authorization: Bearer {{accessToken}}
 Content-Type: {{contentType}}
 
 {
   "rejectedReason": "Etkinlik aciklamasi yetersiz."
+}
+
+
+
+### 
+# @name eventCancel
+PUT {{baseUrl}}/admin/events/6a6c8833d3a66ceb807d335f/cancel
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "cancelledReason": "Etkinlik aciklamasi yetersiz."
 }
 
 
