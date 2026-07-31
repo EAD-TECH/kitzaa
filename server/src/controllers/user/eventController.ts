@@ -61,6 +61,7 @@ const eventController = {
 
     const newEvent = await Event.create({
       ...validatedData,
+      coverImage: validatedData.coverImage ?? validatedData.images[0] ?? null,
       createdBy: req.user._id,
     });
 
