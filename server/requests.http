@@ -133,6 +133,12 @@ Content-Type: {{contentType}}
 
 
 
+### ------------------------------------------------------------
+### CATEGORY
+### ------------------------------------------------------------
+
+
+
 ###
 # @name listCategories
 GET {{baseUrl}}/category
@@ -144,6 +150,12 @@ Authorization: Bearer {{accessToken}}
 # @name readCategories
 GET {{baseUrl}}/category/6a6739f1162d3c07099e3b47
 Authorization: Bearer {{accessToken}}
+
+
+
+### ------------------------------------------------------------
+### EVENT
+### ------------------------------------------------------------
 
 
 
@@ -160,7 +172,7 @@ Content-Type: {{contentType}}
   "ageRange": { "min": 3, "max": 12 },
   "isFree": true,
   "schedule": {
-    "startDate": "2026-08-15",
+    "startDate": "2026-07-31",
     "startTime": "10:00",
     "endTime": "16:00"
   },

@@ -164,14 +164,14 @@ Authorization: Bearer {{accessToken}}
 
 ### 
 # @name eventApprove
-PUT {{baseUrl}}/admin/events/6a6c8833d3a66ceb807d335f/approve
+PUT {{baseUrl}}/admin/events/6a6c78df857a6ada93a73502/approve
 Authorization: Bearer {{accessToken}}
 
 
 
 ### 
 # @name eventReject
-PUT {{baseUrl}}/admin/events/6a6c893fd3a66ceb807d3360/reject
+PUT {{baseUrl}}/admin/events/6a6c78df857a6ada93a73502/reject
 Authorization: Bearer {{accessToken}}
 Content-Type: {{contentType}}
 

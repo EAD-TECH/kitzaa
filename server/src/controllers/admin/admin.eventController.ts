@@ -8,8 +8,8 @@ import { eventApprovedTemplate } from "../../mail/templates/eventApproved.templa
 import { eventCancelledTemplate } from "../../mail/templates/eventCancelled.template.js";
 import { eventRejectedTemplate } from "../../mail/templates/eventRejected.template.js";
 import Event from "../../models/eventModel.js";
-import type { UserDocument } from "../../types/user.types.js";
-import type { CancelEventInput, RejectEventInput } from "../../validations/event.schema.js";
+import type { RejectEventInput } from "../../validations/event.schema.js";
+import { assertValidTransition } from "../../helpers/eventStateMachine.js";
 
 const CREATED_BY_POPULATE = { path: 'createdBy', select: 'username email avatarUrl role' };
 
@@ -53,6 +53,8 @@ const adminEventController = {
       throw new CustomError('Event not found', 404);
     }
 
+    assertValidTransition(event.status, 'approved');
+
     event.status = 'approved'
     await event.save()
 
@@ -86,6 +88,8 @@ const adminEventController = {
     if (!event) {
       throw new CustomError('Event not found', 404);
     }
+
+    assertValidTransition(event.status, 'rejected');
 
     event.status = 'rejected';
     event.rejectedReason = req.body.rejectedReason;
@@ -121,6 +125,8 @@ const adminEventController = {
     if (!event) {
       throw new CustomError('Event not found', 404);
     }
+
+    assertValidTransition(event.status, 'cancelled');
 
     event.status = 'cancelled';
     event.cancelledReason = req.body.cancelledReason;
