@@ -160,6 +160,29 @@ export const updateEvent = catchAsync<{ id: string }, {}, UpdateEventInput>(
 
 8. admin tüm eventlerin katilimcilarini görebilicek. user ve organizator sadece kendininkileri.
 
+****************************
+
+eventlar olduktan sonra event status u otomatik completed yapmak icin **node-cron** kütüphanesini kullandim.
+
+Her gün (veya her saat)
+        |
+        ↓
+Backend otomatik çalışır
+        |
+        ↓
+Tarihi geçmiş eventleri bulur
+        |
+        ↓
+Status = completed yapar
+
+
+src
+ |
+ ├── jobs
+       └── eventStatus.job.ts
+ 
+
+
 
 
 
@@ -196,3 +219,25 @@ mevcut authentication middleware'ini olduğu gibi bağlayamıyoruz çünkü Uplo
 
 authentication.ts' (req, res, next) — işi bitince req.user = user yapıp next() çağırıyor, Express'in route zincirine bağlı.
 UploadThing'in .middleware()'i ise ({ req, res }) => { ... return metadata } şeklinde çalışıyor — next() diye bir şey yok, req.user'a bir şey atamıyorsun, bunun yerine bir obje return ediyorsun ve o obje onUploadComplete'e metadata olarak geçiyor. Çünkü /api/uploadthing isteği senin normal Express route zincirinden (app.use('/api/v1', ...)) geçmiyor — createRouteHandler kendi içinde ayrı bir yönlendirme yapıyor.
+
+******************
+
+frontendde update image durumunda backend yeni resmi otomatik update edicek. frontende url yine gidicek ama frontendin url i backende gondermesine gerek yok.
+ama create de frontend urlleri gondermeli kayit icin
+
+
+
+
+# event state maschine helper
+
+Neden faydalı
+
+1.Bir "durum makinesi", bir şeyin hangi durumdan hangi duruma geçebileceğini açıkça tanımlayan bir kural seti. Amaç: rastgele/mantıksız geçişleri engellemek.
+
+2.Diyelim admin panelinde bir buton hatası oldu ve aynı "onayla" isteği iki kez arka arkaya gönderildi (çift tıklama, network retry). State machine olmadan, ikinci istek de sorunsuz çalışır, hiçbir hata vermez ama mantıksız (zaten onaylı bir şeyi tekrar onaylıyor). State machine ile, ikinci istek anlamlı bir hata verir: "Invalid transition from approved to approved" — bu hem debug'ı kolaylaştırır hem veri tutarlılığını garanti eder.
+
+pending ──────► approved ──────► completed
+         │               │
+         │               └──────► cancelled
+         │
+         └──────► rejected

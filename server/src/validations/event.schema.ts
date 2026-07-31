@@ -28,6 +28,10 @@ const scheduleSchema = z
     .refine((data) => !data.endDate || data.startDate <= data.endDate, {
         message: 'startDate cannot be after endDate',
         path: ['endDate'],
+    })
+    .refine((data) => data.startDate >= new Date(new Date().setHours(0, 0, 0, 0)), {
+        message: 'startDate cannot be in the past',
+        path: ['startDate'],
     });
 
 const locationSchema = z.object({

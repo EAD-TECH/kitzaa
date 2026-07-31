@@ -5,6 +5,7 @@ import CustomError from "../../helpers/customError.js";
 import { toAdminEventDTO } from "../../helpers/toEventDTO.js";
 import Event from "../../models/eventModel.js";
 import type { RejectEventInput } from "../../validations/event.schema.js";
+import { assertValidTransition } from "../../helpers/eventStateMachine.js";
 
 const CREATED_BY_POPULATE = { path: 'createdBy', select: 'username avatarUrl role' };
 
@@ -48,6 +49,8 @@ const adminEventController = {
       throw new CustomError('Event not found', 404);
     }
 
+    assertValidTransition(event.status, 'approved');
+
     event.status = 'approved'
     await event.save()
 
@@ -65,6 +68,8 @@ const adminEventController = {
     if (!event) {
       throw new CustomError('Event not found', 404);
     }
+
+    assertValidTransition(event.status, 'rejected');
 
     event.status = 'rejected';
     event.rejectedReason = req.body.rejectedReason;
@@ -84,6 +89,8 @@ const adminEventController = {
     if (!event) {
       throw new CustomError('Event not found', 404);
     }
+
+    assertValidTransition(event.status, 'cancelled');
 
     event.status = 'cancelled';
     await event.save();
