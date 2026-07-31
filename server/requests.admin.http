@@ -180,6 +180,18 @@ Content-Type: {{contentType}}
 }
 
 
+
+### 
+# @name eventCancel
+PUT {{baseUrl}}/admin/events/6a6c8833d3a66ceb807d335f/cancel
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "cancelledReason": "Etkinlik aciklamasi yetersiz."
+}
+
+
 ### 
 # @name eventCreate
 PUT {{baseUrl}}/admin/events/6a65e27a593cc260697d7f5e/cancel

@@ -5,7 +5,7 @@ import authentication from "../../middlewares/authentication.js";
 import { isOwnerOrAdmin } from "../../middlewares/permissions.js";
 import { validateBody } from "../../middlewares/validateBody.js";
 import { validateObjectIdParam } from "../../middlewares/validateObjectId.js";
-import { createEventSchema, updateEventSchema } from "../../validations/event.schema.js";
+import { cancelEventSchema, createEventSchema, updateEventSchema } from "../../validations/event.schema.js";
 
 const router = Router();
 router.use(authentication);
@@ -17,7 +17,7 @@ router.route("/").get(list).post(validateBody(createEventSchema), create);
 router.route("/my-events").get(myEvents);
 router.route("/my-participations").get(myParticipations);
 router.route("/:slug").get(read);
-router.route("/:id").put(isOwnerOrAdmin(Event), validateBody(updateEventSchema), update).delete(isOwnerOrAdmin(Event), deletee);
+router.route("/:id").put(isOwnerOrAdmin(Event), validateBody(updateEventSchema), update).delete(isOwnerOrAdmin(Event), validateBody(cancelEventSchema), deletee);
 router.route("/:id/participants").get(isOwnerOrAdmin(Event), participants);
 router.route("/:id/join").post(join);
 router.route("/:id/leave").post(leave);

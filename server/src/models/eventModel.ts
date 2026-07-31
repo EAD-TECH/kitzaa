@@ -118,6 +118,7 @@ const eventSchema = new mongoose.Schema<IEvent, EventModel>(
             index: true,
         },
         rejectedReason: { type: String, default: null },
+        cancelledReason: { type: String, default: null },
         approvedAt: { type: Date, default: null },
         isFree: { type: Boolean, default: true },
         price: { type: priceSchema, default: null },

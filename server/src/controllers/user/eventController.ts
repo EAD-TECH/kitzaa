@@ -62,6 +62,7 @@ const eventController = {
 
     const newEvent = await Event.create({
       ...validatedData,
+      coverImage: validatedData.coverImage ?? validatedData.images[0] ?? null,
       createdBy: req.user._id,
     });
 
@@ -91,7 +92,7 @@ const eventController = {
 
 
 
-  deletee: async (req: Request<{ id: string }>, res: Response) => {
+  deletee: async (req: Request<{ id: string }, any, CancelEventInput>, res: Response) => {
     // isOwnerOrAdmin middleware'i sahiplik/admin kontrolunu yapip event'i req.resource'a koyuyor.
     const event = req.resource as EventDocument;
 

@@ -29,6 +29,17 @@ export const createEventSchema = baseEventSchema
 ```
 
 
+# yeni ögrendiklerim / sonradan bakmak istediklerim
+
+
+```javascript
+
+const createdBy = event.createdBy as unknown as UserDocument;  
+```
+
+createdBy => objectId döner. bu userDocumentteki id ile uyusmayabilir. o yüzden önce bilinmeyen bir tipe ceviriyoruz, sonra userDocument ye ceviriyoruz
+
+
 
 # fikirler
 
@@ -241,3 +252,5 @@ pending ──────► approved ──────► completed
          │               └──────► cancelled
          │
          └──────► rejected
+
+

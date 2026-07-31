@@ -118,6 +118,7 @@ export function toAdminEventDTO(event: EventDocument | EventDocument[] | null): 
       : (createdByPopulatedId ?? event.createdBy).toString(),
     status: event.status,
     rejectedReason: event.rejectedReason ?? null,
+    cancelledReason: event.cancelledReason ?? null,
     approvedAt: event.approvedAt ?? null,
     isFree: event.isFree,
     price: event.price ?? null,
