@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { Notification } from "../../models/notificationModel.js";
+import { _discriminatedUnion } from "zod/v4/core";
 
 export const listNotificationsById = async (req: Request, res: Response) => {
   // 1. Sadece bu kullanıcıya ait olanları filtrele
@@ -37,5 +38,47 @@ export const getUnReadNotificationCount = async (
   res.status(200).json({
     success: true,
     data: { count: unreadCount },
+  });
+};
+
+/* tek bıldırm okundu yapmak ısterse */
+
+export const patchNotification = async (req: Request, res: Response) => {
+  const notificationId = req.params.id;
+  const recipientId = req.user?._id;
+
+  const updatedAsREadnotification = await Notification.findOneAndUpdate(
+    { recipientId, _id: notificationId },
+    { isRead: true },
+    { new: true, runValidators: true },
+  );
+
+  if (!updatedAsREadnotification) {
+    throw new Error("Notification couldnt found ");
+  }
+  return res.status(200).json({
+    success: true,
+    message: "Notification is read successfully",
+    data: { payload: updatedAsREadnotification },
+  });
+};
+
+/* kullanıcı eger tum bıldırımlerını okundu yapmak ısterse */
+
+export const patchAllNotificationAsRead = async (
+  req: Request,
+  res: Response,
+) => {
+  /* Sadece okunmamış olanları hedefliyorum o yuzden fılterdan gecırıp false ları getırdım */
+  const customFilter: any = { recipientId: req.user._id, isRead: false };
+
+  const updatedAllnotifications = await Notification.updateMany(customFilter, {
+    isRead: true,
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "All Notifications are read successfully",
+    data: updatedAllnotifications.modifiedCount,
   });
 };
