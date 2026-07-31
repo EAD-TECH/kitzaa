@@ -34,3 +34,12 @@ Express v5 ile async hatalar yakalanıyor ama sessizce fırlatıldıgı ıcın b
 props olarak aldım verımı ve Notification modelimi cagırarak bu modelın create metodu yardımıyla olusturdm fonksıyonmu
 
 ***
+
+Listeleme (listNotificationsById)
+
+Okunmamış Sayısı (getUnreadNotificationCount)
+
+Tek Bildirimi Okundu olarak İşaretleme (patchNotificationAsRead)
+
+Tümünü Okundu İşaretleme (patchAllNotificationsAsRead)
+yapılanlar
