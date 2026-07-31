@@ -8,6 +8,8 @@ import logger from './src/middlewares/logger.js';
 import indexRoute from './src/routes/index.js';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
+import { createRouteHandler } from "uploadthing/express";
+import { uploadRouter } from "./src/configs/uploadthing.js";
 
 
 const app = express()
@@ -24,6 +26,16 @@ app.use('/api/v1', rateLimit({
     message: 'Too many requests, please try again later.'
 }));
 
+
+// app.use('/api/v1', indexRoute); satirinin altina:
+app.use(
+  "/api/uploadthing",
+  createRouteHandler({
+    router: uploadRouter,
+    config: { token: process.env.UPLOADTHING_TOKEN },
+  })
+);
+
 app.use(logger);
 app.use(compression({
     threshold: 1024,
@@ -34,6 +46,7 @@ app.use(compression({
         } return compression.filter(req, res);
     }
 }))
+
 
 
 // cookie parser

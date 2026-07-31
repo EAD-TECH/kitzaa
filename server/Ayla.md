@@ -140,6 +140,8 @@ export const updateEvent = catchAsync<{ id: string }, {}, UpdateEventInput>(
 1. user sadece read ve list yapabiliyor. admin hepsini.
 
 
+
+
 # event ile ilgili hersey
 
 1.router.route("/:slug").get(read);  frontendde event read edilirken id ile degil slug ile cagrilicak, SEO acisidnan iyi olmasi icin.
@@ -157,3 +159,40 @@ export const updateEvent = catchAsync<{ id: string }, {}, UpdateEventInput>(
 7. JOIN / LEAVE / LIKE  gibi controllerlarda save() degil findByIdAndUpdate kullandim. cünkü save() de ayni anda farkli kisiler basarsa karisiklik olusabilir.kapasite de. likeda da ayni anda 2 kisi basarsa birininki digerini ezebilir
 
 8. admin tüm eventlerin katilimcilarini görebilicek. user ve organizator sadece kendininkileri.
+
+
+
+
+# Uploadthing uygulama
+
+Resmin kendisi backend'e hiç uğramıyor — doğrudan tarayıcıdan UploadThing'in deposuna gidiyor. Ama link iki yere birden geliyor, sırasıyla:
+
+1. Kullanıcı "resim seç" dediğinde, tarayıcı önce senin backend'ine gidip "ben resim yükleyeceğim, izin ver" diyor.
+2. Senin backend'in (bekçi kontrolünü yaptıktan sonra) UploadThing'e "tamam, bu kullanıcı için geçici bir yükleme izni ver" diye soruyor, UploadThing de geçici bir "buraya yükle" adresi veriyor.
+
+3. Backend bu geçici adresi tarayıcıya geri yolluyor.
+
+4. Tarayıcı, gerçek resmi doğrudan o geçici adrese, yani 
+5. UploadThing'e yolluyor — senin backend'in araya girmiyor, resim baytları hiç senin sunucundan geçmiyor.
+UploadThing resmi aldıktan sonra, kendi kendine, arka planda senin backend'ini arıyor: "bu kullanıcı için şu resmi kaydettim, işte linki" diye. Bu, tarayıcının tetiklediği bir şey değil — UploadThing'in sunucusu senin sunucunu çağırıyor (buna "webhook" deniyor, bir sunucunun başka bir sunucuyu bilgilendirmesi).
+
+6. Aynı anda, tarayıcıdaki yükleme işlemi de bitince, tarayıcı da aynı linki kendi tarafında görüyor (kullanıcı arayüzünde "yüklendi" yazması için).
+
+┌──────────┐         ┌─────────────────┐         ┌───────────────┐
+│ Frontend │────1───→│ UploadThing      │────2───→│ Sizin Backend │
+│          │  dosya   │ Sunucusu         │ "kontrol │ (middleware)  │
+│          │←──5─────│                  │←───3────│               │
+└──────────┘  sonuç   │                  │  onay   └───────────────┘
+                      │                  │
+                      │                  │────4───→┌───────────────┐
+                      │                  │ "bitti"  │ Sizin Backend │
+                      │                  │←────────│ (onUploadComplete)│
+                      └─────────────────┘          └───────────────┘
+                      
+
+******************
+
+mevcut authentication middleware'ini olduğu gibi bağlayamıyoruz çünkü UploadThing'in middleware sistemi Express'in middleware sisteminden farklı bir kalıpla çalışıyor:
+
+authentication.ts' (req, res, next) — işi bitince req.user = user yapıp next() çağırıyor, Express'in route zincirine bağlı.
+UploadThing'in .middleware()'i ise ({ req, res }) => { ... return metadata } şeklinde çalışıyor — next() diye bir şey yok, req.user'a bir şey atamıyorsun, bunun yerine bir obje return ediyorsun ve o obje onUploadComplete'e metadata olarak geçiyor. Çünkü /api/uploadthing isteği senin normal Express route zincirinden (app.use('/api/v1', ...)) geçmiyor — createRouteHandler kendi içinde ayrı bir yönlendirme yapıyor.
