@@ -99,7 +99,7 @@ export const eventStatusSchema = z
     });
 
 
-// REJECT SCHEMA (admin reject action body)
+// REJECT SCHEMA 
 
 export const rejectEventSchema = z
     .object({
@@ -107,7 +107,17 @@ export const rejectEventSchema = z
     })
     .strict();
 
+
+// CANCEL SCHEMA 
+
+export const cancelEventSchema = z
+    .object({
+        cancelledReason: z.string().trim().min(1, 'cancelledReason is required'),
+    })
+    .strict();
+
 export type CreateEventInput = z.infer<typeof createEventSchema>;
 export type UpdateEventInput = z.infer<typeof updateEventSchema>;
 export type EventStatusInput = z.infer<typeof eventStatusSchema>;
 export type RejectEventInput = z.infer<typeof rejectEventSchema>;
+export type CancelEventInput = z.infer<typeof cancelEventSchema>;

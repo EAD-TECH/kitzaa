@@ -5,7 +5,7 @@ import CustomError from "../../helpers/customError.js";
 import { toEventDTO } from "../../helpers/toEventDTO.js";
 import Event from "../../models/eventModel.js";
 import type { EventDocument } from "../../types/event.types.js";
-import type { CreateEventInput, UpdateEventInput } from "../../validations/event.schema.js";
+import type { CancelEventInput, CreateEventInput, UpdateEventInput } from "../../validations/event.schema.js";
 
 const eventController = {
 
@@ -91,11 +91,13 @@ const eventController = {
 
 
 
-  deletee: async (req: Request<{ id: string }>, res: Response) => {
+  deletee: async (req: Request<{ id: string }, any, CancelEventInput>, res: Response) => {
     // isOwnerOrAdmin middleware'i sahiplik/admin kontrolunu yapip event'i req.resource'a koyuyor.
     const event = req.resource as EventDocument;
 
-    await event.deleteOne();
+    event.status = 'cancelled';
+    event.cancelledReason = req.body.cancelledReason;
+    await event.save();
 
     res.sendStatus(204);
   },

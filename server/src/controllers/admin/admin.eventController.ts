@@ -3,10 +3,15 @@
 import type { Request, Response } from "express";
 import CustomError from "../../helpers/customError.js";
 import { toAdminEventDTO } from "../../helpers/toEventDTO.js";
+import { sendMail } from "../../mail/mail.service.js";
+import { eventApprovedTemplate } from "../../mail/templates/eventApproved.template.js";
+import { eventCancelledTemplate } from "../../mail/templates/eventCancelled.template.js";
+import { eventRejectedTemplate } from "../../mail/templates/eventRejected.template.js";
 import Event from "../../models/eventModel.js";
-import type { RejectEventInput } from "../../validations/event.schema.js";
+import type { UserDocument } from "../../types/user.types.js";
+import type { CancelEventInput, RejectEventInput } from "../../validations/event.schema.js";
 
-const CREATED_BY_POPULATE = { path: 'createdBy', select: 'username avatarUrl role' };
+const CREATED_BY_POPULATE = { path: 'createdBy', select: 'username email avatarUrl role' };
 
 const adminEventController = {
 
@@ -51,6 +56,22 @@ const adminEventController = {
     event.status = 'approved'
     await event.save()
 
+    const createdBy = event.createdBy as unknown as UserDocument;
+
+    try {
+      await sendMail({
+        to: createdBy.email,
+        subject: "Event genehmigt",
+        html: eventApprovedTemplate({
+          username: createdBy.username,
+          eventTitle: event.title,
+          eventSlug: event.slug,
+        }),
+      });
+    } catch (error) {
+      console.log("Failed to send email.", error);
+    }
+
     res.status(200).send({
       error: false,
       event: toAdminEventDTO(event)
@@ -70,6 +91,22 @@ const adminEventController = {
     event.rejectedReason = req.body.rejectedReason;
     await event.save();
 
+    const createdBy = event.createdBy as unknown as UserDocument;
+
+    try {
+      await sendMail({
+        to: createdBy.email,
+        subject: "Event abgelehnt",
+        html: eventRejectedTemplate({
+          username: createdBy.username,
+          eventTitle: event.title,
+          rejectedReason: event.rejectedReason,
+        }),
+      });
+    } catch (error) {
+      console.log("Failed to send email.", error);
+    }
+
     res.status(200).send({
       error: false,
       event: toAdminEventDTO(event)
@@ -77,7 +114,7 @@ const adminEventController = {
 
   },
 
-  cancel: async (req: Request<{ id: string }>, res: Response) => {
+  cancel: async (req: Request<{ id: string }, any, CancelEventInput>, res: Response) => {
 
     const event = await Event.findById(req.params.id).populate(CREATED_BY_POPULATE);
 
@@ -86,7 +123,24 @@ const adminEventController = {
     }
 
     event.status = 'cancelled';
+    event.cancelledReason = req.body.cancelledReason;
     await event.save();
+
+    const createdBy = event.createdBy as unknown as UserDocument;
+
+    try {
+      await sendMail({
+        to: createdBy.email,
+        subject: "Event abgesagt",
+        html: eventCancelledTemplate({
+          username: createdBy.username,
+          eventTitle: event.title,
+          cancelledReason: event.cancelledReason,
+        }),
+      });
+    } catch (error) {
+      console.log("Failed to send email.", error);
+    }
 
     res.status(200).send({
       error: false,

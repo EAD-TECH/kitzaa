@@ -22,10 +22,10 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "username": "test",
-  "firstName": "test",
-  "lastName": "test",
-  "email": "example@gmail.com",
+  "username": "ayla",
+  "firstName": "ayla",
+  "lastName": "ayla",
+  "email": "aylaataydir@gmail.com",
   "password": "Ayla123.",
   "phone": "+491234567890",
   "language": "de",
@@ -43,7 +43,7 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "login": "test",
+  "login": "ayla",
   "password": "Ayla123."
 }
 

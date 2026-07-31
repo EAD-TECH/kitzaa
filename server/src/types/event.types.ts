@@ -59,6 +59,7 @@ export interface IEvent {
   createdBy: Types.ObjectId;
   status: EventStatus;
   rejectedReason?: string | null;
+  cancelledReason?: string | null;
   approvedAt?: Date | null;
   isFree: boolean;
   price?: IPrice | null;
@@ -115,5 +116,6 @@ export interface AdminEventDTO extends Omit<EventDTO, 'createdBy'> {
   // createdBy silinmis bir kullaniciya isaret ediyorsa (dangling ref) sadece id string'i olarak doner.
   createdBy: (EventCreatedByRef & { role: 'user' | 'organizer' | 'admin' }) | string;
   rejectedReason: string | null;
+  cancelledReason: string | null;
   approvedAt: Date | null;
 }
