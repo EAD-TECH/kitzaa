@@ -3,6 +3,7 @@
 @baseUrl = http://localhost:8000/api/v1
 @contentType = application/json
 @accessToken = {{login.response.body.$.accessToken}}
+@notificationID={{listNotifications.response.body.$.data[0].id}}
 
 
 
@@ -35,6 +36,24 @@ Content-Type: {{contentType}}
     "country": "DE"
   }
 }
+###
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "elif",
+  "firstName": "elif",
+  "lastName": "ayla",
+  "email": "elifyuzer12@gmail.com",
+  "password": "Password1!.",
+  "phone": "+491234567890",
+  "language": "de",
+  "location": {
+    "city": "Berlin",
+    "zipCode": "10115",
+    "country": "DE"
+  }
+}
 
 
 ### 
@@ -43,8 +62,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "login": "ayla",
-  "password": "Ayla123."
+  "login": "elif",
+  "password": "Password1!."
 }
 
 ### 
@@ -343,3 +362,39 @@ Content-Type: application/json
 {
   "rejectedReason": "Unterlagen unvollständig"
 }
+
+
+### ------------------------------------------------------------
+### NOTIFICATIONS (requires Authorization: Bearer {{accessToken}})
+### ------------------------------------------------------------
+
+###
+# @name listNotifications
+GET {{baseUrl}}/notifications
+Authorization: Bearer {{accessToken}}
+
+
+###
+# @name listUnreadNotifications
+GET {{baseUrl}}/notifications?isRead=false
+Authorization: Bearer {{accessToken}}
+
+
+###
+# @name getUnreadCount
+GET {{baseUrl}}/notifications/unread-count
+Authorization: Bearer {{accessToken}}
+
+
+###
+# @name markAsRead
+# 
+
+PATCH {{baseUrl}}/notifications/{{notificationID}}
+Authorization: Bearer {{accessToken}}
+
+
+###
+# @name markAllAsRead
+GET {{baseUrl}}/notifications/mark-all-read
+Authorization: Bearer {{accessToken}}
