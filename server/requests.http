@@ -343,3 +343,38 @@ Content-Type: application/json
 {
   "rejectedReason": "Unterlagen unvollständig"
 }
+
+
+
+### ------------------------------------------------------------
+### SOCIAL POSTS (requires Authorization — run login first)
+### ------------------------------------------------------------
+
+### Create post (minimal)
+# @name createPost
+POST {{baseUrl}}/posts
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "text": "Today's park event was amazing!"
+}
+
+
+### Create post (with optional fields)
+# @name createPostFull
+POST {{baseUrl}}/posts
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "text": "A short note after yoga.",
+  "city": "Berlin",
+  "placeName": "Tiergarten",
+  "location": {
+    "lat": 52.5145,
+    "lng": 13.3501
+  },
+  "eventId": "6a674100175ec34cf6c7250f",
+  "imageUrl": "https://example.com/post-image.jpg"
+}

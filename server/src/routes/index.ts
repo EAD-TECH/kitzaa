@@ -7,6 +7,7 @@ import eventCategoryRoute from './user/eventCategoyRoute.js';
 import eventRoute from './user/eventRoute.js';
 import organizerApplicationRoute from "./user/organizerApplicationRoute.js";
 import institutionRoute from "./user/institutionRoute.js";
+import socialPostRoute from "./user/socialPostRoute.js";
 
 const router = Router();
 
@@ -17,6 +18,7 @@ router.use("/category", eventCategoryRoute);
 router.use("/events", eventRoute);
 router.use("/organizer-applications", organizerApplicationRoute);
 router.use("/institutions", institutionRoute);
+router.use("/posts", socialPostRoute);
 
 export default router;
 
