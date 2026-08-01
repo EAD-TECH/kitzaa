@@ -378,3 +378,15 @@ Content-Type: {{contentType}}
   "eventId": "6a674100175ec34cf6c7250f",
   "imageUrl": "https://example.com/post-image.jpg"
 }
+
+
+### List posts (feed — newest first)
+# @name listPosts
+GET {{baseUrl}}/posts?sort[createdAt]=-1&page=1&limit=20
+Authorization: Bearer {{accessToken}}
+
+
+### List posts (paginated example)
+# @name listPostsPage2
+GET {{baseUrl}}/posts?sort[createdAt]=-1&page=2&limit=10
+Authorization: Bearer {{accessToken}}

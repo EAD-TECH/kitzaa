@@ -7,8 +7,8 @@ import { createPostSchema } from '../../validations/post.schema.js';
 const router = Router();
 router.use(authentication);
 
-const { create } = socialPostController;
+const { list, create } = socialPostController;
 
-router.route('/').post(validateBody(createPostSchema), create);
+router.route('/').get(list).post(validateBody(createPostSchema), create);
 
 export default router;
