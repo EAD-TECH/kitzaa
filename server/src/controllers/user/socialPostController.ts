@@ -8,6 +8,21 @@ import Post from "../../models/postModel.js";
 import type { CreatePostInput } from "../../validations/post.schema.js";
 
 const socialPostController = {
+  list: async (req: Request, res: Response) => {
+    const customFilter = { isDeleted: false };
+
+    const result = await res.getModelList(Post, customFilter, [
+      { path: "authorId", select: "username firstName lastName avatarUrl" },
+      { path: "eventId", select: "title slug" },
+    ]);
+
+    res.status(200).send({
+      error: false,
+      details: await res.getModelListDetails(Post, customFilter),
+      posts: toPostDTO(result, req.user._id),
+    });
+  },
+
   create: async (req: Request<{}, any, CreatePostInput>, res: Response) => {
     const validatedData = req.body;
     const userId = req.user._id;
