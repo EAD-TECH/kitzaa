@@ -1,4 +1,4 @@
-import type { ObjectId, Types } from "mongoose";
+import type { ObjectId, Types, HydratedDocument } from "mongoose";
 
 export type NotificationType =
   | "post_like"
@@ -24,4 +24,16 @@ export interface INotification extends IBaseDocument {
   relatedId?: Types.ObjectId | null;
   linkNotification?: string | null;
   message: string;
+}
+
+export type NotificationDocument = HydratedDocument<INotification>;
+
+export interface NotificationDTO extends IBaseDocument {
+  _id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  isRead: boolean;
+  relatedId?: string | null;
+  linkNotification?: string | null;
 }
