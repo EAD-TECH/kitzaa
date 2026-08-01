@@ -1,4 +1,5 @@
 import type {
+  AdminNotificationDTO,
   NotificationDocument,
   NotificationDTO,
 } from "../types/notifications.types.js";
@@ -11,7 +12,7 @@ export function toNotificationDTO(
 
 /* bildirim listesi gelirse liste donulur */
 export function toNotificationDTO(
-  notifications: NotificationDocument[],
+  notification: NotificationDocument[],
 ): NotificationDTO[];
 
 /* bos gelırse bos domulur */
@@ -33,7 +34,7 @@ export function toNotificationDTO(
     return notification.map((not) => toNotificationDTO(not));
   }
 
-  /* eger tek bir obje gelirse */
+  /* eger tek bir obje gelirse  */
 
   return {
     _id: notification._id.toString(),
@@ -48,5 +49,37 @@ export function toNotificationDTO(
     /*  IBaseDocument'ten gelen tarihler */
     createdAt: notification.createdAt,
     updatedAt: notification.updatedAt,
+  };
+}
+
+/* eger kısı admın ıse fe tarafına daha extent veri yollamak lazım */
+
+export function toAdminNotificationDTO(
+  notification: NotificationDocument,
+): AdminNotificationDTO;
+
+export function toAdminNotificationDTO(
+  notifications: NotificationDocument[],
+): AdminNotificationDTO[];
+
+/* 2. Ana Uygulama (Implementation) - Sadece TEK bir gövde! */
+export function toAdminNotificationDTO(
+  notification: NotificationDocument | NotificationDocument[] | null,
+): AdminNotificationDTO | AdminNotificationDTO[] | null {
+  /* Defensive kod: veri yoksa sistemi koru */
+  if (!notification) return null;
+
+  if (Array.isArray(notification)) {
+    return notification.map((not) => ({
+      ...toNotificationDTO(not),
+      recipientId: not.recipientId.toHexString(),
+    }));
+  }
+
+  /* eger gelen verim tek obje ıse */
+
+  return {
+    ...toAdminNotificationDTO(notification),
+    recipientId: notification.recipientId.toString(),
   };
 }
