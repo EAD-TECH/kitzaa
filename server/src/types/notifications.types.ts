@@ -39,3 +39,10 @@ export interface NotificationDTO extends IBaseDocument {
   relatedId?: string | null;
   linkNotification?: string | null;
 }
+
+
+/* tekrar aynı verılerı yazmak yerıne extend ıle normal userdan verilerimi extend ettim */
+export interface AdminNotificationDTO extends NotificationDTO {
+  recipientId:string
+}
+
