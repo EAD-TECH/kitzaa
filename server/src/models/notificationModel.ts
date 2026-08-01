@@ -13,6 +13,8 @@ const NOTFICATION_TYPES: NotificationType[] = [
   "forum_reply",
   "nearby_event",
   "organizer_approved",
+  "organizer_application",
+  "event_review",
   "system",
 ];
 
