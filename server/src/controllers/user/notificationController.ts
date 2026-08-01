@@ -22,7 +22,7 @@ export const listNotificationsById = async (req: Request, res: Response) => {
   res.status(200).json({
     success: true,
     details,
-    notifications:toNotificationDTO(notifications),
+    notifications: toNotificationDTO(notifications),
   });
 };
 
@@ -60,7 +60,7 @@ export const patchNotification = async (req: Request, res: Response) => {
   return res.status(200).json({
     success: true,
     message: "Notification is read successfully",
-   updatedAsREadnotification:toNotificationDTO(updatedAsREadnotification)
+    updatedAsREadnotification: toNotificationDTO(updatedAsREadnotification),
   });
 };
 
