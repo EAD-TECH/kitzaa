@@ -1,0 +1,39 @@
+"use strict";
+
+import type { Request, Response } from "express";
+import CustomError from "../../helpers/customError.js";
+import { toPostDTO } from "../../helpers/toPostDTO.js";
+import Event from "../../models/eventModel.js";
+import Post from "../../models/postModel.js";
+import type { CreatePostInput } from "../../validations/post.schema.js";
+
+const socialPostController = {
+  create: async (req: Request<{}, any, CreatePostInput>, res: Response) => {
+    const validatedData = req.body;
+    const userId = req.user._id;
+
+    if (validatedData.eventId) {
+      const event = await Event.findById(validatedData.eventId).select("_id");
+      if (!event) {
+        throw new CustomError("Event not found", 404);
+      }
+    }
+
+    const newPostData = await Post.create({
+      ...validatedData,
+      authorId: userId,
+    });
+
+    await newPostData.populate([
+      { path: "authorId", select: "username firstName lastName avatarUrl" },
+      { path: "eventId", select: "title slug" },
+    ]);
+
+    res.status(201).send({
+      error: false,
+      post: toPostDTO(newPostData, userId),
+    });
+  },
+};
+
+export default socialPostController;
