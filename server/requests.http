@@ -391,3 +391,9 @@ Authorization: Bearer {{accessToken}}
 @postId = 6a6f2daa0e713a567279f84c
 GET {{baseUrl}}/posts/{{postId}}
 Authorization: Bearer {{accessToken}}
+
+
+### Delete post (soft delete — owner or admin)
+# @name deletePost
+DELETE {{baseUrl}}/posts/{{postId}}
+Authorization: Bearer {{accessToken}}
