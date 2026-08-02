@@ -1,8 +1,11 @@
+import { email } from "zod";
 import type {
   AdminNotificationDTO,
   NotificationDocument,
   NotificationDTO,
 } from "../types/notifications.types.js";
+import type { UserDocument } from "../types/user.types.js";
+import type { EventDocument } from "../types/event.types.js";
 
 /* asırı yükleme imzaları  tek bıldırım verırsen tek sonuc donerım*/
 
@@ -34,6 +37,12 @@ export function toNotificationDTO(
     return notification.map((not) => toNotificationDTO(not));
   }
 
+  const senderData = notification.senderId as unknown as UserDocument | null;
+
+  /* etkinliğin detayları relatedid dokumanı ıle eventdocument ustunden alıyorm */
+
+  const eventData = notification.relatedId as unknown as EventDocument | null;
+
   /* eger tek bir obje gelirse  */
 
   return {
@@ -49,6 +58,24 @@ export function toNotificationDTO(
     /*  IBaseDocument'ten gelen tarihler */
     createdAt: notification.createdAt,
     updatedAt: notification.updatedAt,
+    /* bildirimin kıme aıt oldugunun detayı */
+    sender: senderData
+      ? {
+          username: senderData.username,
+          email: senderData.email,
+          avatarUrl: senderData.avatarUrl ?? null,
+        }
+      : undefined,
+
+    /* event detaylari */
+    eventSummary: eventData
+      ? {
+          name: eventData.title,
+          /* kategori populate se ismini al */
+          category: (eventData.categoryId as unknown as any)?.name ?? "",
+          date: eventData.schedule?.startDate,
+        }
+      : undefined,
   };
 }
 
@@ -72,14 +99,14 @@ export function toAdminNotificationDTO(
   if (Array.isArray(notification)) {
     return notification.map((not) => ({
       ...toNotificationDTO(not),
-      recipientId: not.recipientId.toHexString(),
+      recipientId: not.recipientId.toString(),
     }));
   }
 
   /* eger gelen verim tek obje ıse */
 
   return {
-    ...toAdminNotificationDTO(notification),
+    ...toNotificationDTO(notification),
     recipientId: notification.recipientId.toString(),
   };
 }
