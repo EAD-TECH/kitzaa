@@ -14,7 +14,26 @@ export const getAdminNotificationQueue = async (
     customFilter.isRead = false;
   }
   //console.log("kontrol et filtreyi",customFilter)
-  const notifications = await res.getModelList!(Notification, customFilter);
+
+  const notifications = await res.getModelList!(Notification, customFilter, [
+    /* bildirimi yollayanın detayları */
+    {
+      path: "senderId",
+      select: "username email avatarUrl",
+    },
+
+    /* etkink ve category detayı */
+
+    {
+      path: "relatedId",
+      select: "title schedule categoryId",
+      populate: {
+        path: "categoryId",
+        select: "name",
+      },
+    },
+  ]);
+
   const details = await res.getModelListDetails!(Notification, customFilter);
   /*   const result = toAdminNotificationDTO(notifications); */
   //console.log("verinin sanitizasyonuna bak",result)
