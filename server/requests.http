@@ -393,6 +393,17 @@ GET {{baseUrl}}/posts/{{postId}}
 Authorization: Bearer {{accessToken}}
 
 
+### Update post (owner or admin)
+# @name updatePost
+PUT {{baseUrl}}/posts/{{postId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "text": "Updated post text after the event."
+}
+
+
 ### Delete post (soft delete — owner or admin)
 # @name deletePost
 DELETE {{baseUrl}}/posts/{{postId}}
