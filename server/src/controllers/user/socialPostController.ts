@@ -6,6 +6,7 @@ import { toPostDTO } from "../../helpers/toPostDTO.js";
 import Event from "../../models/eventModel.js";
 import Post from "../../models/postModel.js";
 import type { CreatePostInput } from "../../validations/post.schema.js";
+import type { PostDocument } from "../../types/post.types.js";
 
 const socialPostController = {
   list: async (req: Request, res: Response) => {
@@ -68,6 +69,20 @@ const socialPostController = {
       error: false,
       post: toPostDTO(newPostData, userId),
     });
+  },
+
+  deletee: async (req: Request<{ id: string }>, res: Response) => {
+    // isOwnerOrAdmin middleware sahiplik/admin kontrolunu yapip post'u req.resource'a koyuyor.
+    const post = req.resource as PostDocument;
+
+    if (post.isDeleted) {
+      throw new CustomError("Post not found", 404);
+    }
+
+    post.isDeleted = true;
+    await post.save();
+
+    res.sendStatus(204);
   },
 };
 
