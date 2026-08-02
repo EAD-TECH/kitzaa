@@ -10,16 +10,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/EAD-TECH/kitzaa-backend.git"
+    "url": "git+https://github.com/EAD-TECH/kitzaa.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "bugs": {
-    "url": "https://github.com/EAD-TECH/kitzaa-backend/issues"
+    "url": "https://github.com/EAD-TECH/kitzaa/issues"
   },
-  "homepage": "https://github.com/EAD-TECH/kitzaa-backend#readme",
+  "homepage": "https://github.com/EAD-TECH/kitzaa#readme",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "compression": "^1.8.1",
