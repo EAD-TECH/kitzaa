@@ -23,6 +23,26 @@ const socialPostController = {
     });
   },
 
+  read: async (req: Request<{ id: string }>, res: Response) => {
+    const result = await Post.findOneAndUpdate(
+      { _id: req.params.id, isDeleted: false },
+      { $inc: { viewCount: 1 } },
+      { new: true },
+    ).populate([
+      { path: "authorId", select: "username firstName lastName avatarUrl" },
+      { path: "eventId", select: "title slug" },
+    ]);
+
+    if (!result) {
+      throw new CustomError("Post not found", 404);
+    }
+
+    res.status(200).send({
+      error: false,
+      post: toPostDTO(result, req.user._id),
+    });
+  },
+
   create: async (req: Request<{}, any, CreatePostInput>, res: Response) => {
     const validatedData = req.body;
     const userId = req.user._id;
