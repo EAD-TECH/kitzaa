@@ -65,7 +65,7 @@ export function toNotificationDTO(
           email: senderData.email,
           avatarUrl: senderData.avatarUrl ?? null,
         }
-      : undefined,
+      : null,
 
     /* event detaylari */
     eventSummary: eventData
@@ -75,7 +75,7 @@ export function toNotificationDTO(
           category: (eventData.categoryId as unknown as any)?.name ?? "",
           date: eventData.schedule?.startDate,
         }
-      : undefined,
+      :null,
   };
 }
 
