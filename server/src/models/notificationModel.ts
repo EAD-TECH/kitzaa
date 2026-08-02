@@ -56,6 +56,11 @@ const notificationSchema = new Schema<INotification>(
       required: true,
       trim: true,
     },
+    senderId:{
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default:null
+    }
   },
 
   { timestamps: true },
