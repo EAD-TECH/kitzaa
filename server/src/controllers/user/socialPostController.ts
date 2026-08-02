@@ -5,7 +5,7 @@ import CustomError from "../../helpers/customError.js";
 import { toPostDTO } from "../../helpers/toPostDTO.js";
 import Event from "../../models/eventModel.js";
 import Post from "../../models/postModel.js";
-import type { CreatePostInput } from "../../validations/post.schema.js";
+import type { CreatePostInput, UpdatePostInput } from "../../validations/post.schema.js";
 import type { PostDocument } from "../../types/post.types.js";
 
 const socialPostController = {
@@ -68,6 +68,35 @@ const socialPostController = {
     res.status(201).send({
       error: false,
       post: toPostDTO(newPostData, userId),
+    });
+  },
+
+  update: async (req: Request<{ id: string }, any, UpdatePostInput>, res: Response) => {
+    // isOwnerOrAdmin middleware sahiplik/admin kontrolunu yapip post'u req.resource'a koyuyor.
+    const post = req.resource as PostDocument;
+
+    if (post.isDeleted) {
+      throw new CustomError("Post not found", 404);
+    }
+
+    if (req.body.eventId) {
+      const event = await Event.findById(req.body.eventId).select("_id");
+      if (!event) {
+        throw new CustomError("Event not found", 404);
+      }
+    }
+
+    Object.assign(post, req.body);
+    await post.save();
+
+    await post.populate([
+      { path: "authorId", select: "username firstName lastName avatarUrl" },
+      { path: "eventId", select: "title slug" },
+    ]);
+
+    res.status(200).send({
+      error: false,
+      post: toPostDTO(post, req.user._id),
     });
   },
 
