@@ -382,11 +382,12 @@ Content-Type: {{contentType}}
 
 ### List posts (feed — newest first)
 # @name listPosts
-GET {{baseUrl}}/posts?sort[createdAt]=-1&page=1&limit=20
+GET {{baseUrl}}/posts
 Authorization: Bearer {{accessToken}}
 
 
-### List posts (paginated example)
-# @name listPostsPage2
-GET {{baseUrl}}/posts?sort[createdAt]=-1&page=2&limit=10
+### Read post by id (increments viewCount)
+# @name readPost
+@postId = 6a6f2daa0e713a567279f84c
+GET {{baseUrl}}/posts/{{postId}}
 Authorization: Bearer {{accessToken}}
