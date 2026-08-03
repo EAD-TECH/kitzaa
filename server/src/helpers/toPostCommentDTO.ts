@@ -1,12 +1,12 @@
-import type { Types } from 'mongoose';
-import type { PostCommentDocument, PostCommentDTO } from '../types/postComment.types.js';
-import type { PostAuthorSummary } from '../types/post.types.js';
-import type { UserDocument } from '../types/user.types.js';
+import type { Types } from "mongoose";
+import type { PostCommentDocument, PostCommentDTO } from "../types/postComment.types.js";
+import type { PostAuthorSummary } from "../types/post.types.js";
+import type { UserDocument } from "../types/user.types.js";
 
 type CurrentUserId = string | Types.ObjectId | null | undefined;
 
 function toAuthorSummary(comment: PostCommentDocument): PostAuthorSummary {
-  const populatedId = comment.populated('authorId');
+  const populatedId = comment.populated("authorId");
 
   if (!populatedId) {
     return { _id: comment.authorId.toString() };
@@ -43,7 +43,7 @@ function toParentCommentId(comment: PostCommentDocument): string | null {
 
   // DTO'da sadece id; parent populate edilmez. Yanlislikla populate
   // edildiyse dokumanin _id'sini al (toPostDTO dangling-ref stili).
-  if (comment.populated('parentCommentId')) {
+  if (comment.populated("parentCommentId")) {
     const parent = comment.parentCommentId as unknown as { _id?: Types.ObjectId } | null;
     return parent?._id?.toString() ?? null;
   }
@@ -52,10 +52,7 @@ function toParentCommentId(comment: PostCommentDocument): string | null {
 }
 
 // Function overloads
-export function toPostCommentDTO(
-  comment: PostCommentDocument,
-  currentUserId?: CurrentUserId,
-): PostCommentDTO;
+export function toPostCommentDTO(comment: PostCommentDocument, currentUserId?: CurrentUserId): PostCommentDTO;
 export function toPostCommentDTO(
   comment: PostCommentDocument[],
   currentUserId?: CurrentUserId,
