@@ -404,6 +404,12 @@ Content-Type: {{contentType}}
 }
 
 
+### Toggle like on post
+# @name likePost
+POST {{baseUrl}}/posts/{{postId}}/like
+Authorization: Bearer {{accessToken}}
+
+
 ### Delete post (soft delete — owner or admin)
 # @name deletePost
 DELETE {{baseUrl}}/posts/{{postId}}
