@@ -11,7 +11,7 @@ const router = Router();
 router.use(authentication);
 router.param('id', validateObjectIdParam);
 
-const { list, read, create, update, deletee } = socialPostController;
+const { list, read, create, update, deletee, toggleLike } = socialPostController;
 
 router.route('/').get(list).post(validateBody(createPostSchema), create);
 router
@@ -19,5 +19,6 @@ router
   .get(read)
   .put(isOwnerOrAdmin(Post, 'authorId'), validateBody(updatePostSchema), update)
   .delete(isOwnerOrAdmin(Post, 'authorId'), deletee);
+router.route("/:id/like").post(toggleLike);
 
 export default router;
