@@ -17,7 +17,7 @@ router.param("id", validateObjectIdParam);
 
 /* statik rotalarım */
 router.route("/unread-count").get(getUnReadNotificationCount);
-router.route("/mark-all-read").get(patchAllNotificationAsRead);
+router.route("/mark-all-read").patch(patchAllNotificationAsRead);
 
 /* kok rotada listeleme yapması ıcın rota */
 
