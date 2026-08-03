@@ -306,6 +306,10 @@ eventSchema.index({
 
 1. frontendde adres bilgilerini alirken lat ve lng yi de belirliycez. bunun icin GEOCODING servisine ihtiyacimiz olucak. koordinantlari frontendde datayla göndermis olucaz.
 
+2. validateQuery middleware i olusturdum. req.validatedQuery e data yi ekledim. controllerda o sekilde karsiliycak.
+
+3. event controllera nearby endpointi ekledim. 
+
 Kullanıcı adresi girer
         │
         ▼

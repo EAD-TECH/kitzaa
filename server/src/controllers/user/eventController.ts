@@ -34,7 +34,7 @@ const eventController = {
       status: 'approved',
       'location.coordinates': {
         $near: {
-          $geometry: { type: 'Point', coordinates: [lng, lat] },
+          $geometry: { type: 'Point', coordinates: [lng, lat] }, // nereye göre yakinlik olcucez.
           $maxDistance: radius,
         },
       },
