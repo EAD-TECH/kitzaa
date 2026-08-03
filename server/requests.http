@@ -471,8 +471,14 @@ Authorization: Bearer {{accessToken}}
 
 ### ------------------------------------------------------------
 ### SOCIAL POST COMMENTS (requires Authorization — run login first)
-### 1) Login  2) Create/read post (sets {{postId}})  3) Create comment
+### 1) Login  2) Create/read post (sets {{postId}})  3) List / create comment
 ### ------------------------------------------------------------
+
+### List comments for a post
+# @name listComments
+GET {{baseUrl}}/comments
+Authorization: Bearer {{accessToken}}
+
 
 ### Create top-level comment
 # @name createComment

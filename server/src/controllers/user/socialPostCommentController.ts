@@ -8,6 +8,20 @@ import Post from "../../models/postModel.js";
 import type { CreatePostCommentInput } from "../../validations/postComment.schema.js";
 
 const socialPostCommentController = {
+  list: async (req: Request, res: Response) => {
+      const customFilter = { isDeleted: false };
+  
+      const result = await res.getModelList(PostComment, customFilter, [
+        { path: "authorId", select: "username firstName lastName avatarUrl" }
+      ]);
+  
+      res.status(200).send({
+        error: false,
+        details: await res.getModelListDetails(PostComment, customFilter),
+        comments: toPostCommentDTO(result, req.user._id),
+      });
+    },
+
   create: async (req: Request<{}, any, CreatePostCommentInput>, res: Response) => {
     const validatedData = req.body;
     const userId = req.user._id;

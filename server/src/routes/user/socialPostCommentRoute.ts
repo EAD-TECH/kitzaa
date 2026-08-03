@@ -7,8 +7,8 @@ import { createPostCommentSchema } from "../../validations/postComment.schema.js
 const router = Router();
 router.use(authentication);
 
-const { create } = socialPostCommentController;
+const { list, create } = socialPostCommentController;
 
-router.route("/").post(validateBody(createPostCommentSchema), create);
+router.route("/").get(list).post(validateBody(createPostCommentSchema), create);
 
 export default router;
