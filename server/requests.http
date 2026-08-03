@@ -398,3 +398,72 @@ Authorization: Bearer {{accessToken}}
 # @name markAllAsRead
 GET {{baseUrl}}/notifications/mark-all-read
 Authorization: Bearer {{accessToken}}
+
+### ------------------------------------------------------------
+### SOCIAL POSTS (requires Authorization — run login first)
+### ------------------------------------------------------------
+
+### Create post (minimal)
+# @name createPost
+POST {{baseUrl}}/posts
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "text": "Today's park event was amazing!"
+}
+
+
+### Create post (with optional fields)
+# @name createPostFull
+POST {{baseUrl}}/posts
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "text": "A short note after yoga.",
+  "city": "Berlin",
+  "placeName": "Tiergarten",
+  "location": {
+    "lat": 52.5145,
+    "lng": 13.3501
+  },
+  "eventId": "6a674100175ec34cf6c7250f",
+  "imageUrl": "https://example.com/post-image.jpg"
+}
+
+
+### List posts (feed — newest first)
+# @name listPosts
+GET {{baseUrl}}/posts
+Authorization: Bearer {{accessToken}}
+
+
+### Read post by id (increments viewCount)
+# @name readPost
+@postId = 6a6f2daa0e713a567279f84c
+GET {{baseUrl}}/posts/{{postId}}
+Authorization: Bearer {{accessToken}}
+
+
+### Update post (owner or admin)
+# @name updatePost
+PUT {{baseUrl}}/posts/{{postId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "text": "Updated post text after the event."
+}
+
+
+### Toggle like on post
+# @name likePost
+POST {{baseUrl}}/posts/{{postId}}/like
+Authorization: Bearer {{accessToken}}
+
+
+### Delete post (soft delete — owner or admin)
+# @name deletePost
+DELETE {{baseUrl}}/posts/{{postId}}
+Authorization: Bearer {{accessToken}}

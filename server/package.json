@@ -10,16 +10,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/EAD-TECH/kitzaa-backend.git"
+    "url": "git+https://github.com/EAD-TECH/kitzaa.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "bugs": {
-    "url": "https://github.com/EAD-TECH/kitzaa-backend/issues"
+    "url": "https://github.com/EAD-TECH/kitzaa/issues"
   },
-  "homepage": "https://github.com/EAD-TECH/kitzaa-backend#readme",
+  "homepage": "https://github.com/EAD-TECH/kitzaa#readme",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "compression": "^1.8.1",
@@ -35,6 +35,8 @@
     "node-cron": "^4.6.0",
     "nodemailer": "^9.0.3",
     "rotating-file-stream": "^3.2.9",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1",
     "uploadthing": "^7.7.4",
     "zod": "^4.4.3"
   },
@@ -48,6 +50,8 @@
     "@types/morgan": "^1.9.9",
     "@types/node": "^26.1.1",
     "@types/nodemailer": "^8.0.1",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "nodemon": "^3.1.14",
     "tsx": "^4.19.2",
     "typescript": "^7.0.2"
