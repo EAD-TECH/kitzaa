@@ -39,7 +39,7 @@ export const getAdminNotificationQueue = async (
   //console.log("verinin sanitizasyonuna bak",result)
 
   res.status(200).json({
-    success: true,
+   error:false,
     details,
     notifications: toAdminNotificationDTO(notifications),
   });
