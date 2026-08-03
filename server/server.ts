@@ -10,6 +10,8 @@ import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import { createRouteHandler } from "uploadthing/express";
 import { uploadRouter } from "./src/configs/uploadthing.js";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./src/docs/swagger.js";
 
 
 const app = express()
@@ -19,6 +21,20 @@ app.use(cors());
 app.use('/api/v1/uploads', express.static('uploads')); // Serve uploaded files
 app.use(morgan('dev'));
 
+
+//Swagger
+
+const swaggerCustomCss = `
+  .swagger-ui .model-title, .swagger-ui .model-title__text { font-size: 13px !important; }
+  .swagger-ui .markdown li { line-height: 1.8 !important; margin: 8px 0 !important; }
+  .swagger-ui .renderedMarkdown code { line-height: 1.6 !important; }
+`;
+
+app.use('/api-docs',
+     swaggerUi.serve,
+     swaggerUi.setup(swaggerSpec, { customCss: swaggerCustomCss })
+    );
+
 app.use(helmet());
 app.use('/api/v1', rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
@@ -27,7 +43,7 @@ app.use('/api/v1', rateLimit({
 }));
 
 
-// app.use('/api/v1', indexRoute); satirinin altina:
+// Uploadthing
 app.use(
   "/api/uploadthing",
   createRouteHandler({
