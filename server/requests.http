@@ -414,3 +414,34 @@ Authorization: Bearer {{accessToken}}
 # @name deletePost
 DELETE {{baseUrl}}/posts/{{postId}}
 Authorization: Bearer {{accessToken}}
+
+
+### ------------------------------------------------------------
+### SOCIAL POST COMMENTS (requires Authorization — run login first)
+### 1) Login  2) Create/read post (sets {{postId}})  3) Create comment
+### ------------------------------------------------------------
+
+### Create top-level comment
+# @name createComment
+POST {{baseUrl}}/comments
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "postId": "{{postId}}",
+  "text": "Great post, thanks for sharing!"
+}
+
+
+### Create reply to a top-level comment
+# @name createCommentReply
+@parentCommentId = {{createComment.response.body.$.comment._id}}
+POST {{baseUrl}}/comments
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "postId": "{{postId}}",
+  "text": "Totally agree!",
+  "parentCommentId": "{{parentCommentId}}"
+}
