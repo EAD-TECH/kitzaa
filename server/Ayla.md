@@ -254,3 +254,91 @@ pending ──────► approved ──────► completed
          └──────► rejected
 
 
+
+
+# geo search
+
+MongoDB'nin "GeoJSON" diye bir standardı var. Dünyadaki çoğu harita sistemi bunu kullanıyor. Google Maps, OpenStreetMap, Mapbox, MongoDB hepsi aynı standardı destekliyor.
+
+GeoJSON'da nokta şöyle yazılır:
+
+```javascript
+
+{
+    "type": "Point",
+    "coordinates": [7.5889, 50.3569]  // dizi halinde tutmaliyiz cünkü GeoJSON standardi böyle.  lng, lat.(longitude, latitude)
+}
+
+
+// eski schema - MongoDB'nin geospatial sorguları için uygun değil. MongoDB $near, $geoWithin gibi sorguları doğrudan bu formatta kullanamaz. bu yüzden mongodb nin anliycagi sekle donusturdum.
+
+coordinates: {
+    type: {
+        lat: { type: Number },
+        lng: { type: Number },
+    },
+    _id: false,
+    default: null,
+}
+
+//  yeni schema
+
+coordinates: {
+    type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point",
+    },
+
+    coordinates: {
+        type: [Number],
+        required: true,
+    },
+}
+
+eventSchema.index({
+    "location.coordinates": "2dsphere",  //2dsphere MongoDB'ye "bu alan dünya üzerindeki koordinatları içeriyor" diyen özel bir geospatial index türü.Bu index sayesinde $near, $geoWithin, $maxDistance gibi konum sorguları hızlı ve doğru şekilde çalışır.
+});
+
+```
+
+********** UYGULANISI ***************
+
+1. frontendde adres bilgilerini alirken lat ve lng yi de belirliycez. bunun icin GEOCODING servisine ihtiyacimiz olucak. koordinantlari frontendde datayla göndermis olucaz.
+
+Kullanıcı adresi girer
+        │
+        ▼
+Frontend geocoding servisine adresi gönderir
+        │
+        ▼
+Servis latitude & longitude döndürür
+        │
+        ▼
+Frontend adres + koordinatları birlikte backend'e gönderir
+        │
+        ▼
+Backend MongoDB'ye kaydeder
+
+----------------------------------------
+
+frontendden su sekilde gelicek 
+
+```javascript
+
+{
+    "title": "Zoo",
+    "coordinates": {
+        "lat": 50.35,
+        "lng": 7.58
+    }
+}
+
+biz bunu zod semada bizim mongoDB formatina ceviricek .transform ozelligiyle.  
+
+.transform(({ lat, lng }) => ({
+            type: 'Point' as const,
+            coordinates: [lng, lat] as [number, number],
+        })),
+
+```
