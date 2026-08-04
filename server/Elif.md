@@ -65,3 +65,16 @@ Mimari Kararlar & Ne Yaptım:
   Bu tarz filtrelemeler, karmaşık sorgular ve kimin neyi göreceğine karar verme işlemleri Service katmanında yapılmalı best practice. "nearbyUsers" bulma işlemi tam olarak bir iş mantığı oldugu için bu sekılde insiyatif aldım
 
 - Son olarak, eventController içerisindeki create metodunda bu servis fonksiyonunu çağırdım. Kritik Mimari Karar: Etkinliği oluşturan kullanıcıyı, arka plandaki bildirim atılma süreci boyunca bekletmemek adına servisi başına await koymadan (Fire and Forget mantığıyla) asenkron olarak tetikledim. Böylece response süresi uzamadan kullanıcıya anında başarılı yanıtı dönülmüş oldu.
+
+
+## [[KTZ-61-NOT-019] - Notifications / Nearby events](https://dygcankurt17.atlassian.net/browse/KTZ-61)
+
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-61`
+- **Mimari Kararlar & Ne Yaptım:**
+
+- notifyUsersForCancelledEvent adında bir fonksiyonu notificationServices dosyasının ıcıne yazıcm bunu.
+- Bu fonskıyon ıcınde verıtabanına sorgu atmama gerek yok.Cunku iptal edilen event objesinı bu fonksıyona parametre olarak verdıgımde ıcınde zaten event.participats olacak
+-ben bu event.participants dizisini alıcm bossa bos return atıcm
+-doluysa userid ile map liycm yeni bir dizi yapıcm sonra bunu sendbulknotification motoruma atıcm 
+sonrada controllerda atesliycm bunu
