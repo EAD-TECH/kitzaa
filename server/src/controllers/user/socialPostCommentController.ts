@@ -114,6 +114,40 @@ const socialPostCommentController = {
 
     res.sendStatus(204);
   },
+
+  toggleLike: async (req: Request<{ id: string }>, res: Response) => {
+    const commentId = req.params.id;
+    const userId = req.user._id;
+
+    // Soft-delete edilmis yoruma like basilamaz.
+    const comment = await PostComment.findOne({ _id: commentId, isDeleted: false });
+
+    if (!comment) {
+      throw new CustomError("Comment not found", 404);
+    }
+
+    const alreadyLiked = comment.likes?.some((id) => id.equals(userId)) ?? false;
+
+    const updatedComment = await PostComment.findOneAndUpdate(
+      { _id: commentId, isDeleted: false },
+      alreadyLiked
+        ? { $pull: { likes: userId } }
+        : { $addToSet: { likes: userId } },
+      { new: true },
+    ).populate([
+      { path: "authorId", select: "username firstName lastName avatarUrl" },
+    ]);
+
+    if (!updatedComment) {
+      throw new CustomError("Comment not found", 404);
+    }
+
+    res.status(200).send({
+      error: false,
+      liked: !alreadyLiked,
+      comment: toPostCommentDTO(updatedComment, userId),
+    });
+  },
 };
 
 export default socialPostCommentController;

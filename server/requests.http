@@ -525,6 +525,12 @@ Content-Type: {{contentType}}
 }
 
 
+### Toggle like on comment
+# @name likeComment
+POST {{baseUrl}}/comments/{{commentId}}/like
+Authorization: Bearer {{accessToken}}
+
+
 ### Delete comment (soft delete — owner or admin)
 # @name deleteComment
 DELETE {{baseUrl}}/comments/{{commentId}}
