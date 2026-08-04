@@ -6,6 +6,7 @@ import { toEventDTO } from "../../helpers/toEventDTO.js";
 import Event from "../../models/eventModel.js";
 import type { EventDocument } from "../../types/event.types.js";
 import type {
+  CancelEventInput,
   CreateEventInput,
   UpdateEventInput,
 } from "../../validations/event.schema.js";
@@ -67,7 +68,8 @@ const eventController = {
     });
 
     /* olusturulan yenı etkınlık db ye gıderken aynı anda await olmadan kullanıcıya bıldırım atmak */
-
+    console.log("API Yanıtı dönüyor, arka planda KTZ-58 motoru ateşleniyor...");
+    notifyUsersForNearbyEvent(newEvent);
     notifyUsersForNearbyEvent(newEvent);
 
     res.status(201).send({
