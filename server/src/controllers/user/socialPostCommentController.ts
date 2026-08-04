@@ -5,7 +5,11 @@ import CustomError from "../../helpers/customError.js";
 import { toPostCommentDTO } from "../../helpers/toPostCommentDTO.js";
 import PostComment from "../../models/postCommentModel.js";
 import Post from "../../models/postModel.js";
-import type { CreatePostCommentInput } from "../../validations/postComment.schema.js";
+import type {
+  CreatePostCommentInput,
+  UpdatePostCommentInput,
+} from "../../validations/postComment.schema.js";
+import type { PostCommentDocument } from "../../types/postComment.types.js";
 
 const socialPostCommentController = {
   list: async (req: Request, res: Response) => {
@@ -68,6 +72,27 @@ const socialPostCommentController = {
     res.status(201).send({
       error: false,
       comment: toPostCommentDTO(newPostCommentData, userId),
+    });
+  },
+
+  update: async (req: Request<{ id: string }, any, UpdatePostCommentInput>, res: Response) => {
+    // isOwnerOrAdmin middleware sahiplik/admin kontrolunu yapip comment'i req.resource'a koyuyor.
+    const comment = req.resource as PostCommentDocument;
+
+    if (comment.isDeleted) {
+      throw new CustomError("Comment not found", 404);
+    }
+
+    Object.assign(comment, req.body);
+    await comment.save();
+
+    await comment.populate([
+      { path: "authorId", select: "username firstName lastName avatarUrl" },
+    ]);
+
+    res.status(200).send({
+      error: false,
+      comment: toPostCommentDTO(comment, req.user._id),
     });
   },
 };
