@@ -95,6 +95,25 @@ const socialPostCommentController = {
       comment: toPostCommentDTO(comment, req.user._id),
     });
   },
+
+  deletee: async (req: Request<{ id: string }>, res: Response) => {
+    // isOwnerOrAdmin middleware sahiplik/admin kontrolunu yapip comment'i req.resource'a koyuyor.
+    const comment = req.resource as PostCommentDocument;
+
+    if (comment.isDeleted) {
+      throw new CustomError("Comment not found", 404);
+    }
+
+    comment.isDeleted = true;
+    await comment.save();
+
+    await Post.findOneAndUpdate(
+      { _id: comment.postId, isDeleted: false },
+      { $inc: { commentsCount: -1 } },
+    );
+
+    res.sendStatus(204);
+  },
 };
 
 export default socialPostCommentController;
