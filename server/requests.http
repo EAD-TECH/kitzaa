@@ -516,3 +516,9 @@ Content-Type: {{contentType}}
 {
   "text": "Edited: Great post, thanks for sharing!"
 }
+
+
+### Delete comment (soft delete — owner or admin)
+# @name deleteComment
+DELETE {{baseUrl}}/comments/{{commentId}}
+Authorization: Bearer {{accessToken}}

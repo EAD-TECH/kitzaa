@@ -14,11 +14,12 @@ const router = Router();
 router.use(authentication);
 router.param("id", validateObjectIdParam);
 
-const { list, create, update } = socialPostCommentController;
+const { list, create, update, deletee } = socialPostCommentController;
 
 router.route("/").get(list).post(validateBody(createPostCommentSchema), create);
 router
   .route("/:id")
-  .put(isOwnerOrAdmin(PostComment, "authorId"), validateBody(updatePostCommentSchema), update);
+  .put(isOwnerOrAdmin(PostComment, "authorId"), validateBody(updatePostCommentSchema), update)
+  .delete(isOwnerOrAdmin(PostComment, "authorId"), deletee);
 
 export default router;
