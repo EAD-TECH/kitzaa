@@ -504,3 +504,15 @@ Content-Type: {{contentType}}
   "text": "Totally agree!",
   "parentCommentId": "{{parentCommentId}}"
 }
+
+
+### Update comment (owner or admin)
+# @name updateComment
+@commentId = {{createComment.response.body.$.comment._id}}
+PUT {{baseUrl}}/comments/{{commentId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "text": "Edited: Great post, thanks for sharing!"
+}
