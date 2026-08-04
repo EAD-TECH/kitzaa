@@ -5,7 +5,7 @@ import CustomError from "../../helpers/customError.js";
 import { toEventDTO } from "../../helpers/toEventDTO.js";
 import Event from "../../models/eventModel.js";
 import type { EventDocument } from "../../types/event.types.js";
-import type { CreateEventInput, UpdateEventInput } from "../../validations/event.schema.js";
+import type { CreateEventInput, NearbyQueryInput, UpdateEventInput } from "../../validations/event.schema.js";
 import { assertValidTransition } from "../../helpers/eventStateMachine.js";
 
 const eventController = {
@@ -27,6 +27,27 @@ const eventController = {
     });
   },
 
+  nearby: async (req: Request, res: Response) => {
+    const { lat, lng, radius } = req.validatedQuery as NearbyQueryInput;
+
+    const events = await Event.find({
+      status: 'approved',
+      'location.coordinates': {
+        $near: {
+          $geometry: { type: 'Point', coordinates: [lng, lat] }, // nereye göre yakinlik olcucez.
+          $maxDistance: radius,
+        },
+      },
+    }).populate([
+      { path: 'categoryId', select: 'name slug icon' },
+      { path: 'createdBy', select: 'username avatarUrl' },
+    ]);
+
+    res.status(200).send({
+      error: false,
+      events: toEventDTO(events),
+    });
+  },
 
 
   read: async (req: Request<{ slug: string }>, res: Response) => {
@@ -108,7 +129,7 @@ const eventController = {
 
 
   join: async (req: Request<{ id: string }>, res: Response) => {
-    
+
     const event = await Event.findById(req.params.id);
 
     if (!event) {
@@ -254,7 +275,7 @@ const eventController = {
   },
 
 
-  
+
 
   myParticipations: async (req: Request, res: Response) => {
 

@@ -269,9 +269,16 @@ Authorization: Bearer {{accessToken}}
 
 
 
-### 
+###
 # @name MyParticipationsEvent
 GET {{baseUrl}}/events/my-participations
+Authorization: Bearer {{accessToken}}
+
+
+
+### Nearby events (5km icinde, Berlin Parkstrasse civari koordinatlar)
+# @name nearbyEvents
+GET {{baseUrl}}/events/nearby?lat=52.5321&lng=13.3845&radius=5000
 Authorization: Bearer {{accessToken}}
 
 
