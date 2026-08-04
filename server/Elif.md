@@ -43,3 +43,25 @@ CONTROLLER VE ROUTE tanımlamalarımı gerceklestırmıstım. KTZ-63-feat-create
    1.1. Veri tabanından gelen ham veriyi temsıl etmesi adına Mongoose un Hydreteddocumentıne ihtiyacım vardı bunu gerceklestırdım .export type NotificationDocument=<Hydrated>
    1.2. Frontende gonderecegım tabagın seklını hangı verilerin gıdecegının template ini olusturdum.
 2. controller sayfasında list ve path fonksiyonlarında DB den cektıgım verıyı notificationDTO ya teslim ettim
+
+## [[KTZ-58-NOT-017] - Notifications / Nearby events](https://dygcankurt17.atlassian.net/browse/KTZ-58)
+
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-58`
+- **Mimari Kararlar & Ne Yaptım:**
+
+Mimari Kararlar & Ne Yaptım:
+
+- Bu taskta cron gibi zaman güdümlü değil, doğrudan olaya (Event) güdümlü bir mantık işlettik.
+
+- Daha önce tekil bildirimler için helper/createNotification fonksiyonunu oluşturmuştum. Ancak bu taskta aynı şehirdeki birçok kullanıcıya bildirim atacağımız için o fonksiyonu kullanmak, her bildirim için DB'ye ayrı ayrı istek atılmasına (performans kaybına) neden olacaktı. Sistemi yormamak ve toplu kayıt yapabilmek için helpers/ altında sendBulkNotifications.ts adında yeni bir veritabanı motoru/şablonu oluşturdum (insertMany kullanıldı).
+
+- Normal akışta, "yakın çevredeki kullanıcıları bulma ve filtreleme" işlemlerini doğrudan eventController içine yazabilirdim. Ancak bu durum controller sayfasını kalabalıklaştıracak (Fat Controller) ve Single Responsibility (Tek Sorumluluk) prensibini ihlal edecekti.
+
+- Bu nedenle projeye "Best Practice" standartlarına uygun bir ara katman (Service) kazandırma kararı aldım. Veritabanı sorgularını ve iş mantığını notificationService.ts dosyasında gerçekleştirdim.
+
+- Kullanıcılar hangi şehirde yaşıyor? Bildirim izinleri açık mı? Etkinliğin kapasitesi doldu mu? Bu gibi sorular "İş Mantığı" (Business Logic) olarak adlandırılır. Projenin kurallarını içerir.
+
+  Bu tarz filtrelemeler, karmaşık sorgular ve kimin neyi göreceğine karar verme işlemleri Service katmanında yapılmalı best practice. "nearbyUsers" bulma işlemi tam olarak bir iş mantığı oldugu için bu sekılde insiyatif aldım
+
+- Son olarak, eventController içerisindeki create metodunda bu servis fonksiyonunu çağırdım. Kritik Mimari Karar: Etkinliği oluşturan kullanıcıyı, arka plandaki bildirim atılma süreci boyunca bekletmemek adına servisi başına await koymadan (Fire and Forget mantığıyla) asenkron olarak tetikledim. Böylece response süresi uzamadan kullanıcıya anında başarılı yanıtı dönülmüş oldu.
