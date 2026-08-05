@@ -47,11 +47,14 @@ const locationSchema = new mongoose.Schema(
         country: { type: String, default: 'DE' },
         coordinates: {
             type: {
-                lat: { type: Number },
-                lng: { type: Number },
+                type: String,
+                enum: ['Point'],
+                default: 'Point',
             },
-            _id: false,
-            default: null,
+            coordinates: {
+                type: [Number],
+                required: true,
+            },
         },
     },
     { _id: false }
@@ -131,6 +134,13 @@ const eventSchema = new mongoose.Schema<IEvent, EventModel>(
     },
     { collection: 'events', timestamps: true }
 );
+
+
+//
+
+eventSchema.index({
+    "location.coordinates": "2dsphere",  //2dsphere MongoDB'ye "bu alan dünya üzerindeki koordinatları içeriyor" diyen özel bir geospatial index türü.
+});
 
 
 // ── Slug otomatik üretimi ──────────────────────────────

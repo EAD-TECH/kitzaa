@@ -8,7 +8,7 @@ message:bıldırımın ıcerıgı olacak
 
 bildirimin bir type ı olabilir begeni mi yorummu veya sıstem tarafından mı bıldırım aldı baska ne olabilir ?
 
-admin: admınn kuyrugunda bekleyen meselabır organızator basvurusunu admın onayladı bunu type eklemem lazım
+admin: admınn kuyrugunda bekleyen mesela bır organızator basvurusunu admın onayladı bunu type eklemem lazım
 adminin gormesigereken bir yaklasan yenı bır event varsa bunun bıldırımının admıne mı gıtmesı lazım (bu bıldırım mail ile mı oluyor ? erd ye bak yıne)
 
 uyelere eventtan bır gun once bıldırım at katılmayı unutmus olmaları ıhtımalıne karsı
@@ -17,6 +17,7 @@ nearby_event: yakınlarda yaklasan bır event yaklasıyorsa kullanıcılar notif
 
 bir kullanıcı bır kullanıcının postuna yorum attıysa postun sahıbıne gıdecek bıldırım eger kı kullanıcı tıklarsa bıldırıme navigate edilck corespan edilen yoruma
 
+gi
 eger kı bır event cancel a duserse sıte uyelerıne bıldırm at
 
 Description
@@ -60,3 +61,10 @@ Mantıgı :
 - .add(1,'day'):1 miktar day ise birimi (Bu sayede yarına git demiş oluyorum)
 - .startOf('day'): Gidilen günün en başına yani gece yarısı 00:00:00 git demiş oldum
 - .toDate(): bu metot ile tüm hesaplamaları yaptıktan sonra Mongoose'a istek attıgımda JS objesıne donustur demıs oluyorum
+CONTROLLER VE ROUTE tanımlamalarımı gerceklestırmıstım. KTZ-63-feat-create-not-dto-helper branch inde
+
+1. Controllerda refactor oncesınde veriyi data:{payload: gonderecegım data seklınde gondermıstım}
+   DTO formatını eklemeden once notification.types.ts te 2 eksıgım vardı
+   1.1. Veri tabanından gelen ham veriyi temsıl etmesi adına Mongoose un Hydreteddocumentıne ihtiyacım vardı bunu gerceklestırdım .export type NotificationDocument=<Hydrated>
+   1.2. Frontende gonderecegım tabagın seklını hangı verilerin gıdecegının template ini olusturdum.
+2. controller sayfasında list ve path fonksiyonlarında DB den cektıgım verıyı notificationDTO ya teslim ettim

@@ -8,6 +8,8 @@ export const createPostCommentSchema = z
       .trim()
       .min(1, 'Text is required')
       .max(1000, 'Text cannot exceed 1000 characters'),
+    // null/omit = top-level; set = reply to that comment (2-level thread)
+    parentCommentId: z.string().trim().min(1).optional().nullable(),
   })
   .strict();
 

@@ -29,10 +29,10 @@ export interface IEventLocation {
   state?: string | null; //eyalet
   zipCode?: string | null;
   country: string;
-  coordinates?: {
-    lat: number;
-    lng: number;
-  } | null;
+   coordinates: {
+    type: 'Point';
+    coordinates: [number, number]; // [lng, lat]
+  };
 }
 
 export interface ICapacity {

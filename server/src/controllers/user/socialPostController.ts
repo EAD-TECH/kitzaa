@@ -113,6 +113,41 @@ const socialPostController = {
 
     res.sendStatus(204);
   },
+
+  toggleLike: async (req: Request<{ id: string }>, res: Response) => {
+    const postId = req.params.id;
+    const userId = req.user._id;
+
+    // Soft-delete edilmis posta like basilamaz (event'te isDeleted yok; post'ta var).
+    const post = await Post.findOne({ _id: postId, isDeleted: false });
+
+    if (!post) {
+      throw new CustomError("Post not found", 404);
+    }
+
+    const alreadyLiked = post.likes?.some((id) => id.equals(userId)) ?? false;
+
+    const updatedPost = await Post.findOneAndUpdate(
+      { _id: postId, isDeleted: false },
+      alreadyLiked
+        ? { $pull: { likes: userId } }
+        : { $addToSet: { likes: userId } },
+      { new: true },
+    ).populate([
+      { path: "authorId", select: "username firstName lastName avatarUrl" },
+      { path: "eventId", select: "title slug" },
+    ]);
+
+    if (!updatedPost) {
+      throw new CustomError("Post not found", 404);
+    }
+
+    res.status(200).send({
+      error: false,
+      liked: !alreadyLiked,
+      post: toPostDTO(updatedPost, userId),
+    });
+  },
 };
 
 export default socialPostController;

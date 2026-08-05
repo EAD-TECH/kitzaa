@@ -47,12 +47,24 @@ const locationSchema = z.object({
     country: z.string().trim().default('DE'),
     coordinates: z
         .object({
-            lat: z.number(),
-            lng: z.number(),
+            lat: z.number().min(-90).max(90),
+            lng: z.number().min(-180).max(180),
         })
-        .optional()
-        .nullable(),
+        .transform(({ lat, lng }) => ({
+            type: 'Point' as const,
+            coordinates: [lng, lat] as [number, number],
+        })),
 });
+
+
+export const nearbyQuerySchema = z.object({
+    lat: z.coerce.number().min(-90).max(90),
+    lng: z.coerce.number().min(-180).max(180),
+    radius: z.coerce.number().positive().max(50000).default(5000), // metre, ust sinir 50km
+});
+
+export type NearbyQueryInput = z.infer<typeof nearbyQuerySchema>;
+
 
 const capacitySchema = z.object({
     max: z.number().int().min(1, 'Capacity must be at least 1'),

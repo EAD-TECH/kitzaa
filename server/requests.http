@@ -3,6 +3,7 @@
 @baseUrl = http://localhost:8000/api/v1
 @contentType = application/json
 @accessToken = {{login.response.body.$.accessToken}}
+@notificationID={{listNotifications.response.body.$.data[0].id}}
 
 
 
@@ -35,6 +36,24 @@ Content-Type: {{contentType}}
     "country": "DE"
   }
 }
+###
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "elif",
+  "firstName": "elif",
+  "lastName": "ayla",
+  "email": "elifyuzer12@gmail.com",
+  "password": "Password1!.",
+  "phone": "+491234567890",
+  "language": "de",
+  "location": {
+    "city": "Berlin",
+    "zipCode": "10115",
+    "country": "DE"
+  }
+}
 
 
 ### 
@@ -43,8 +62,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "login": "ayla",
-  "password": "Ayla123."
+  "login": "elif",
+  "password": "Password1!."
 }
 
 ### 
@@ -250,9 +269,16 @@ Authorization: Bearer {{accessToken}}
 
 
 
-### 
+###
 # @name MyParticipationsEvent
 GET {{baseUrl}}/events/my-participations
+Authorization: Bearer {{accessToken}}
+
+
+
+### Nearby events (5km icinde, Berlin Parkstrasse civari koordinatlar)
+# @name nearbyEvents
+GET {{baseUrl}}/events/nearby?lat=52.5321&lng=13.3845&radius=5000
 Authorization: Bearer {{accessToken}}
 
 
@@ -345,6 +371,40 @@ Content-Type: application/json
 }
 
 
+### ------------------------------------------------------------
+### NOTIFICATIONS (requires Authorization: Bearer {{accessToken}})
+### ------------------------------------------------------------
+
+###
+# @name listNotifications
+GET {{baseUrl}}/notifications
+Authorization: Bearer {{accessToken}}
+
+
+###
+# @name listUnreadNotifications
+GET {{baseUrl}}/notifications?isRead=false
+Authorization: Bearer {{accessToken}}
+
+
+###
+# @name getUnreadCount
+GET {{baseUrl}}/notifications/unread-count
+Authorization: Bearer {{accessToken}}
+
+
+###
+# @name markAsRead
+# 
+
+PATCH {{baseUrl}}/notifications/{{notificationID}}
+Authorization: Bearer {{accessToken}}
+
+
+###
+# @name markAllAsRead
+GET {{baseUrl}}/notifications/mark-all-read
+Authorization: Bearer {{accessToken}}
 
 ### ------------------------------------------------------------
 ### SOCIAL POSTS (requires Authorization — run login first)
@@ -404,7 +464,74 @@ Content-Type: {{contentType}}
 }
 
 
+### Toggle like on post
+# @name likePost
+POST {{baseUrl}}/posts/{{postId}}/like
+Authorization: Bearer {{accessToken}}
+
+
 ### Delete post (soft delete — owner or admin)
 # @name deletePost
 DELETE {{baseUrl}}/posts/{{postId}}
+Authorization: Bearer {{accessToken}}
+
+
+### ------------------------------------------------------------
+### SOCIAL POST COMMENTS (requires Authorization — run login first)
+### 1) Login  2) Create/read post (sets {{postId}})  3) List / create comment
+### ------------------------------------------------------------
+
+### List comments for a post
+# @name listComments
+GET {{baseUrl}}/comments
+Authorization: Bearer {{accessToken}}
+
+
+### Create top-level comment
+# @name createComment
+POST {{baseUrl}}/comments
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "postId": "{{postId}}",
+  "text": "Great post, thanks for sharing!"
+}
+
+
+### Create reply to a top-level comment
+# @name createCommentReply
+@parentCommentId = {{createComment.response.body.$.comment._id}}
+POST {{baseUrl}}/comments
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "postId": "{{postId}}",
+  "text": "Totally agree!",
+  "parentCommentId": "{{parentCommentId}}"
+}
+
+
+### Update comment (owner or admin)
+# @name updateComment
+@commentId = {{createComment.response.body.$.comment._id}}
+PUT {{baseUrl}}/comments/{{commentId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "text": "Edited: Great post, thanks for sharing!"
+}
+
+
+### Toggle like on comment
+# @name likeComment
+POST {{baseUrl}}/comments/{{commentId}}/like
+Authorization: Bearer {{accessToken}}
+
+
+### Delete comment (soft delete — owner or admin)
+# @name deleteComment
+DELETE {{baseUrl}}/comments/{{commentId}}
 Authorization: Bearer {{accessToken}}
