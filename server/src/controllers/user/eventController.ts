@@ -109,7 +109,7 @@ const eventController = {
     await event.save();
 
     console.log(
-      "API Yanıtı dönüyor, arka planda KTZ-61 motoru ateşleniyor...",
+      "API Yanıtı dönüyor, arka planda KTZ-61 motoru ateşleniyor",
     );
     notifyUsersForCancelledEvent(event);
     

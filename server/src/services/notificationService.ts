@@ -47,10 +47,11 @@ export const notifyUsersForCancelledEvent = async (event: any) => {
     type: "event_cancelled",
     title: `Cancel edilmiştir: ${event.title}`,
     // Eğer event objesinde bir iptal sebebi varsa onu kullan, yoksa standart mesaj ver
-    message: event.cancelReason
+    message: event.cancelledReason
       ? `Üzülerek bildiririz ki etkinlik iptal edilmiştir. Sebep: ${event.cancelledReason}`
       : `Üzülerek bildiririz ki "${event.title}" adlı etkinlik organizatör tarafından iptal edilmiştir.`,
     relatedId: event._id,
+    relatedModel: "Event",
     linkNotification: `/events/${event._id}`,
   });
 
