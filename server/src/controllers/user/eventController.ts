@@ -68,8 +68,7 @@ const eventController = {
     });
 
     /* olusturulan yenı etkınlık db ye gıderken aynı anda await olmadan kullanıcıya bıldırım atmak */
-    console.log("API Yanıtı dönüyor, arka planda KTZ-58 motoru ateşleniyor...");
-    notifyUsersForNearbyEvent(newEvent);
+    console.log("API Yanıtı dönüyor, arka planda KTZ-58 motoru ateşleniyor.");
     notifyUsersForNearbyEvent(newEvent);
 
     res.status(201).send({
