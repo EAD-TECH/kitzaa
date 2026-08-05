@@ -12,7 +12,10 @@ import type {
 } from "../../validations/event.schema.js";
 import type { CreateEventInput, NearbyQueryInput, UpdateEventInput } from "../../validations/event.schema.js";
 import { assertValidTransition } from "../../helpers/eventStateMachine.js";
-import { notifyUsersForNearbyEvent } from "../../services/notificationService.js";
+import {
+  notifyUsersForNearbyEvent,
+  notifyUsersForCancelledEvent,
+} from "../../services/notificationService.js";
 
 const eventController = {
   list: async (req: Request, res: Response) => {
@@ -128,6 +131,12 @@ const eventController = {
 
     event.status = "cancelled";
     await event.save();
+
+    console.log(
+      "API Yanıtı dönüyor, arka planda KTZ-61 motoru ateşleniyor",
+    );
+    notifyUsersForCancelledEvent(event);
+    
 
     res.sendStatus(204);
   },

@@ -37,3 +37,33 @@ export const notifyUsersForNearbyEvent = async (event: any) => {
   });
   console.log("[KTZ-58] Yakın çevre bildirimleri başarıyla gönderildi!");
 };
+
+export const notifyUsersForCancelledEvent = async (event: any) => {
+  console.log(
+    " [KTZ-61] İptal bildirim motoru tetiklendi. Etkinlik:",
+    event.title,
+  );
+  console.log(
+    `[KTZ-61] Etkinlikteki toplam katılımcı sayısı: ${event.participants?.length || 0}`,
+  );
+  if (!event.participants || !event.participants.length) return null;
+
+  const userIds = event.participants.map(
+    (participant: any) => participant.userId,
+  );
+
+  await sendBulknotificaitons({
+    userIdsArray: userIds,
+    type: "event_cancelled",
+    title: `Cancel edilmiştir: ${event.title}`,
+    // Eğer event objesinde bir iptal sebebi varsa onu kullan, yoksa standart mesaj ver
+    message: event.cancelledReason
+      ? `Üzülerek bildiririz ki etkinlik iptal edilmiştir. Sebep: ${event.cancelledReason}`
+      : `Üzülerek bildiririz ki "${event.title}" adlı etkinlik organizatör tarafından iptal edilmiştir.`,
+    relatedId: event._id,
+    relatedModel: "Event",
+    linkNotification: `/events/${event._id}`,
+  });
+
+  console.log("[KTZ-61] İptal bildirimleri başarıyla gönderildi!");
+};
