@@ -34,9 +34,10 @@ export const isOrganizerOrAdmin = (req: Request, res: Response, next: NextFuncti
 
 // Kaynagin sahibi ya da admin ise devam eder; kaynagi req.resource'a koyar
 // (controller'da tekrar sorgu atmaya gerek kalmaz).
-export const isOwnerOrAdmin = <T extends { createdBy: Types.ObjectId }>(
+// ownerField: Event'te 'createdBy', Post'ta 'authorId' gibi.
+export const isOwnerOrAdmin = <T>(
     model: Model<T>,
-    ownerField: keyof T = 'createdBy'
+    ownerField: keyof T = 'createdBy' as keyof T,
 ) => {
     return async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
         if (!isValidObjectId(req.params.id)) {

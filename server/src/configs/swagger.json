@@ -1,31 +1,18 @@
+
 {
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "REST API",
-    "description": "### ERD:",
-    "termsOfService": "http://www.CourseName.com/#",
-    "contact": {
-      "name": "",
-      "email": "developer@CourseName.com"
-    },
-    "license": {
-      "name": "ISC"
-    }
+    "title": "Kitzaa API",
+    "description": "Kitzaa - REST API for a children's event discovery and organization platform."
   },
   "host": "127.0.0.1:8000",
-  "basePath": "/",
+  "basePath": "/api/v1",
   "schemes": [
     "http",
     "https"
   ],
   "securityDefinitions": {
-    "Token": {
-      "type": "apiKey",
-      "in": "header",
-      "name": "Authorization",
-      "description": "Simple Token Authentication * Example: <b>Token ...tokenKey...</b>"
-    },
     "Bearer": {
       "type": "apiKey",
       "in": "header",
@@ -40,10 +27,16 @@
     "application/json"
   ],
   "paths": {},
+  "tags": [
+    { "name": "Auth", "description": "Registration, login, password operations" },
+    { "name": "Users", "description": "The logged-in user's own profile" },
+    { "name": "Admin - Users", "description": "User management in the admin panel" },
+    { "name": "Events", "description": "Event listing, creation, participation" },
+    { "name": "Admin - Events", "description": "Event approval/rejection/cancellation in the admin panel" },
+    { "name": "Posts", "description": "Social feed posts, likes, soft-delete" },
+    { "name": "Comments", "description": "Post comments with 2-level threading and likes" }
+  ],
   "security": [
-    {
-      "Token": []
-    },
     {
       "Bearer": []
     }

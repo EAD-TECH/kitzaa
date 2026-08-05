@@ -8,6 +8,8 @@ import eventRoute from "./user/eventRoute.js";
 import organizerApplicationRoute from "./user/organizerApplicationRoute.js";
 import institutionRoute from "./user/institutionRoute.js";
 import notificationRoute from "./user/notificationRoute.js";
+import socialPostRoute from "./user/socialPostRoute.js";
+import socialPostCommentRoute from "./user/socialPostCommentRoute.js";
 
 const router = Router();
 
@@ -19,5 +21,7 @@ router.use("/events", eventRoute);
 router.use("/organizer-applications", organizerApplicationRoute);
 router.use("/institutions", institutionRoute);
 router.use("/notifications", notificationRoute);
+router.use("/posts", socialPostRoute);
+router.use("/comments", socialPostCommentRoute);
 
 export default router;

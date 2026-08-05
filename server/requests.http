@@ -269,9 +269,16 @@ Authorization: Bearer {{accessToken}}
 
 
 
-### 
+###
 # @name MyParticipationsEvent
 GET {{baseUrl}}/events/my-participations
+Authorization: Bearer {{accessToken}}
+
+
+
+### Nearby events (5km icinde, Berlin Parkstrasse civari koordinatlar)
+# @name nearbyEvents
+GET {{baseUrl}}/events/nearby?lat=52.5321&lng=13.3845&radius=5000
 Authorization: Bearer {{accessToken}}
 
 
@@ -397,4 +404,197 @@ Authorization: Bearer {{accessToken}}
 ###
 # @name markAllAsRead
 GET {{baseUrl}}/notifications/mark-all-read
+Authorization: Bearer {{accessToken}}
+
+### ==========================================
+### 1. ORGANİZATÖR OLARAK GİRİŞ YAP
+### ==========================================
+
+### 1. ORGANİZATÖR OLARAK GİRİŞ YAP (Login)
+@name login
+
+
+
+### ==========================================
+### 1. ORGANİZATÖR OLARAK GİRİŞ YAP
+### ==========================================
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "login": "organizer@kitzaa.com",
+  "password": "Password123!"
+}
+
+
+
+
+### ==========================================
+### 3. KTZ-61 TESTİ: ETKİNLİĞİ İPTAL ET
+### ==========================================
+# 
+DELETE {{baseUrl}}/events/60d5ec49f1b2c3d4e5f6a7e1
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "cancelledReason": "Eğitmenimizin ani rahatsızlığı sebebiyle iptal edilmiştir."
+  "title": "Hamburg Yazılım Buluşması",
+  "description": "Hamburg'daki yazılımcılarla bir araya geliyoruz.",
+  "categoryId": "60d5ec49f1b2c3d4e5f6a7c1",
+  "isFree": true,
+  "ageRange": { "min": 18, "max": 99 },
+  "schedule": {
+    "startDate": "2027-01-01T10:00:00Z", 
+    "startTime": "10:00",
+    "endTime": "16:00",
+    "isRecurring": false
+  },
+  "location": {
+    "addressLine": "Hamburg Tech Merkez",
+    "city": "Hamburg",
+    "country": "DE"
+  },
+  "capacity": { "max": 50, "current": 0 }
+}
+
+
+
+
+
+
+
+
+
+
+
+### ------------------------------------------------------------
+### SOCIAL POSTS (requires Authorization — run login first)
+### ------------------------------------------------------------
+
+### Create post (minimal)
+# @name createPost
+POST {{baseUrl}}/posts
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "text": "Today's park event was amazing!"
+}
+
+
+### Create post (with optional fields)
+# @name createPostFull
+POST {{baseUrl}}/posts
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "text": "A short note after yoga.",
+  "city": "Berlin",
+  "placeName": "Tiergarten",
+  "location": {
+    "lat": 52.5145,
+    "lng": 13.3501
+  },
+  "eventId": "6a674100175ec34cf6c7250f",
+  "imageUrl": "https://example.com/post-image.jpg"
+}
+
+
+### List posts (feed — newest first)
+# @name listPosts
+GET {{baseUrl}}/posts
+Authorization: Bearer {{accessToken}}
+
+
+### Read post by id (increments viewCount)
+# @name readPost
+@postId = 6a6f2daa0e713a567279f84c
+GET {{baseUrl}}/posts/{{postId}}
+Authorization: Bearer {{accessToken}}
+
+
+### Update post (owner or admin)
+# @name updatePost
+PUT {{baseUrl}}/posts/{{postId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "text": "Updated post text after the event."
+}
+
+
+### Toggle like on post
+# @name likePost
+POST {{baseUrl}}/posts/{{postId}}/like
+Authorization: Bearer {{accessToken}}
+
+
+### Delete post (soft delete — owner or admin)
+# @name deletePost
+DELETE {{baseUrl}}/posts/{{postId}}
+Authorization: Bearer {{accessToken}}
+
+
+### ------------------------------------------------------------
+### SOCIAL POST COMMENTS (requires Authorization — run login first)
+### 1) Login  2) Create/read post (sets {{postId}})  3) List / create comment
+### ------------------------------------------------------------
+
+### List comments for a post
+# @name listComments
+GET {{baseUrl}}/comments
+Authorization: Bearer {{accessToken}}
+
+
+### Create top-level comment
+# @name createComment
+POST {{baseUrl}}/comments
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "postId": "{{postId}}",
+  "text": "Great post, thanks for sharing!"
+}
+
+
+### Create reply to a top-level comment
+# @name createCommentReply
+@parentCommentId = {{createComment.response.body.$.comment._id}}
+POST {{baseUrl}}/comments
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "postId": "{{postId}}",
+  "text": "Totally agree!",
+  "parentCommentId": "{{parentCommentId}}"
+}
+
+
+### Update comment (owner or admin)
+# @name updateComment
+@commentId = {{createComment.response.body.$.comment._id}}
+PUT {{baseUrl}}/comments/{{commentId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "text": "Edited: Great post, thanks for sharing!"
+}
+
+
+### Toggle like on comment
+# @name likeComment
+POST {{baseUrl}}/comments/{{commentId}}/like
+Authorization: Bearer {{accessToken}}
+
+
+### Delete comment (soft delete — owner or admin)
+# @name deleteComment
+DELETE {{baseUrl}}/comments/{{commentId}}
 Authorization: Bearer {{accessToken}}

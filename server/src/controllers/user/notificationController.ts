@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { Notification } from "../../models/notificationModel.js";
-import { _discriminatedUnion } from "zod/v4/core";
 import { toNotificationDTO } from "../../helpers/toNotificationDTO.js";
+import CustomError from "../../helpers/customError.js";
 
 export const listNotificationsById = async (req: Request, res: Response) => {
   // 1. Sadece bu kullanıcıya ait olanları filtrele
@@ -32,7 +32,7 @@ export const listNotificationsById = async (req: Request, res: Response) => {
 
   // 5. Cevabı dön
   res.status(200).json({
-    success: true,
+    error: false,
     details,
     result,
   });
@@ -50,7 +50,7 @@ export const getUnReadNotificationCount = async (
 
   /* sayıyı dondum */
   res.status(200).json({
-    success: true,
+    error: false,
     data: { count: unreadCount },
   });
 };
@@ -74,12 +74,12 @@ export const patchNotification = async (req: Request, res: Response) => {
   console.log("veri sanitize edilmeden once", updatedAsREadnotification);
 
   if (!updatedAsREadnotification) {
-    throw new Error("Notification couldnt found ");
+    throw new CustomError("Notification not found ",404);
   }
   const result = toNotificationDTO(updatedAsREadnotification);
   console.log("veri sanitize edildimi buna bakmam lazım", result);
   return res.status(200).json({
-    success: true,
+    error: false,
     message: "Notification is read successfully",
     result,
   });
@@ -101,7 +101,7 @@ export const patchAllNotificationAsRead = async (
   console.log("guncelleme sonucu",updatedAllnotifications)
 
   return res.status(200).json({
-    success: true,
+     error: false,
     message: "All Notifications are read successfully",
     data: updatedAllnotifications.modifiedCount,
   });
