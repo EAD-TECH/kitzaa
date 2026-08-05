@@ -39,6 +39,8 @@ export const sendRemindersForTomorrow = async () => {
       .map((participant) => ({
         recipientId: participant.userId,
         relatedId: event._id,
+        relatedModel: "Event",
+        title: "Etkinlik Hatırlatıcısı",
         message: `Morgen beginnt Ihr Event '${event.title}'!`,
         type: "event_reminder",
       })),
@@ -52,9 +54,8 @@ export const sendRemindersForTomorrow = async () => {
   console.log("etkinlik hatırlatıcısı olusturuldu ve sayısı", result.length);
 };
 
-
 /* motoru olusturdm simdi onu tetiklemem lazim her gece 00:00 calısması ıcın*/
-export const startEventReminderJob=()=>{
-  cron.schedule('0 0 * * *',sendRemindersForTomorrow)
-  console.log("event reminder baslattım")
- }
+export const startEventReminderJob = () => {
+  cron.schedule("0 0 * * *", sendRemindersForTomorrow);
+  console.log("event reminder baslattım");
+};
