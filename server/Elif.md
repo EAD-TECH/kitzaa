@@ -48,9 +48,9 @@ CONTROLLER VE ROUTE tanımlamalarımı gerceklestırmıstım. KTZ-63-feat-create
 
 - **Durum:** In Progress
 - **Jira Kartı:** `KTZ-58`
-- **Mimari Kararlar & Ne Yaptım:**
+- **Mimari Kararlar & Ne Yaptım:** 
 
-Mimari Kararlar & Ne Yaptım:
+
 
 - Bu taskta cron gibi zaman güdümlü değil, doğrudan olaya (Event) güdümlü bir mantık işlettik.
 

@@ -7,6 +7,12 @@ interface sendBulknotificaitonPayload {
   title: string;
   message: string;
   relatedId: Types.ObjectId | string | null;
+  relatedModel?:
+    | "Event"
+    | "OrganizerApplication"
+    | "Post"
+    | "PostComment"
+    | null;
   linkNotification?: string | null;
 }
 
@@ -16,6 +22,7 @@ export const sendBulknotificaitons = async ({
   title,
   message,
   relatedId,
+  relatedModel,
   linkNotification,
 }: sendBulknotificaitonPayload) => {
   if (!userIdsArray || !userIdsArray.length) return null;
@@ -25,6 +32,7 @@ export const sendBulknotificaitons = async ({
     const notificationsToInsert = userIdsArray.map((userId) => ({
       recipientId: userId,
       relatedId: relatedId,
+      relatedModel: relatedModel,
       type: type,
       title: title,
       message: message,
@@ -45,6 +53,3 @@ export const sendBulknotificaitons = async ({
     );
   }
 };
-
-
-
