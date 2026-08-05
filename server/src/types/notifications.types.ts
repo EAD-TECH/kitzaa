@@ -9,6 +9,8 @@ export type NotificationType =
   | "forum_reply"
   | "nearby_event"
   | "organizer_approved"
+  | "organizer_application"
+  | "event_review"
   | "system";
 
 export interface IBaseDocument {
@@ -19,11 +21,18 @@ export interface IBaseDocument {
 export interface INotification extends IBaseDocument {
   type: NotificationType;
   recipientId: Types.ObjectId;
+  relatedModel?:
+    | "Event"
+    | "OrganizerApplication"
+    | "Post"
+    | "PostComment"
+    | null;
   title: string;
   isRead: boolean;
   relatedId?: Types.ObjectId | null;
   linkNotification?: string | null;
   message: string;
+  senderId: Types.ObjectId | null;
 }
 
 export type NotificationDocument = HydratedDocument<INotification>;
@@ -36,4 +45,22 @@ export interface NotificationDTO extends IBaseDocument {
   isRead: boolean;
   relatedId?: string | null;
   linkNotification?: string | null;
+  /* senderın organizatorun bılgileri */
+  sender?: {
+    username: string;
+    email: string;
+    avatarUrl: string;
+  };
+  /* eventın detayları */
+
+  eventSummary?: {
+    name: string;
+    category: string;
+    date: Date;
+  };
+}
+
+/* tekrar aynı verılerı yazmak yerıne extend ıle normal userdan verilerimi extend ettim */
+export interface AdminNotificationDTO extends NotificationDTO {
+  recipientId: string;
 }
