@@ -32,7 +32,9 @@
     { "name": "Users", "description": "The logged-in user's own profile" },
     { "name": "Admin - Users", "description": "User management in the admin panel" },
     { "name": "Events", "description": "Event listing, creation, participation" },
-    { "name": "Admin - Events", "description": "Event approval/rejection/cancellation in the admin panel" }
+    { "name": "Admin - Events", "description": "Event approval/rejection/cancellation in the admin panel" },
+    { "name": "Posts", "description": "Social feed posts, likes, soft-delete" },
+    { "name": "Comments", "description": "Post comments with 2-level threading and likes" }
   ],
   "security": [
     {

@@ -5,7 +5,11 @@ import CustomError from "../../helpers/customError.js";
 import { toPostCommentDTO } from "../../helpers/toPostCommentDTO.js";
 import PostComment from "../../models/postCommentModel.js";
 import Post from "../../models/postModel.js";
-import type { CreatePostCommentInput } from "../../validations/postComment.schema.js";
+import type {
+  CreatePostCommentInput,
+  UpdatePostCommentInput,
+} from "../../validations/postComment.schema.js";
+import type { PostCommentDocument } from "../../types/postComment.types.js";
 
 const socialPostCommentController = {
   list: async (req: Request, res: Response) => {
@@ -68,6 +72,80 @@ const socialPostCommentController = {
     res.status(201).send({
       error: false,
       comment: toPostCommentDTO(newPostCommentData, userId),
+    });
+  },
+
+  update: async (req: Request<{ id: string }, any, UpdatePostCommentInput>, res: Response) => {
+    // isOwnerOrAdmin middleware sahiplik/admin kontrolunu yapip comment'i req.resource'a koyuyor.
+    const comment = req.resource as PostCommentDocument;
+
+    if (comment.isDeleted) {
+      throw new CustomError("Comment not found", 404);
+    }
+
+    Object.assign(comment, req.body);
+    await comment.save();
+
+    await comment.populate([
+      { path: "authorId", select: "username firstName lastName avatarUrl" },
+    ]);
+
+    res.status(200).send({
+      error: false,
+      comment: toPostCommentDTO(comment, req.user._id),
+    });
+  },
+
+  deletee: async (req: Request<{ id: string }>, res: Response) => {
+    // isOwnerOrAdmin middleware sahiplik/admin kontrolunu yapip comment'i req.resource'a koyuyor.
+    const comment = req.resource as PostCommentDocument;
+
+    if (comment.isDeleted) {
+      throw new CustomError("Comment not found", 404);
+    }
+
+    comment.isDeleted = true;
+    await comment.save();
+
+    await Post.findOneAndUpdate(
+      { _id: comment.postId, isDeleted: false },
+      { $inc: { commentsCount: -1 } },
+    );
+
+    res.sendStatus(204);
+  },
+
+  toggleLike: async (req: Request<{ id: string }>, res: Response) => {
+    const commentId = req.params.id;
+    const userId = req.user._id;
+
+    // Soft-delete edilmis yoruma like basilamaz.
+    const comment = await PostComment.findOne({ _id: commentId, isDeleted: false });
+
+    if (!comment) {
+      throw new CustomError("Comment not found", 404);
+    }
+
+    const alreadyLiked = comment.likes?.some((id) => id.equals(userId)) ?? false;
+
+    const updatedComment = await PostComment.findOneAndUpdate(
+      { _id: commentId, isDeleted: false },
+      alreadyLiked
+        ? { $pull: { likes: userId } }
+        : { $addToSet: { likes: userId } },
+      { new: true },
+    ).populate([
+      { path: "authorId", select: "username firstName lastName avatarUrl" },
+    ]);
+
+    if (!updatedComment) {
+      throw new CustomError("Comment not found", 404);
+    }
+
+    res.status(200).send({
+      error: false,
+      liked: !alreadyLiked,
+      comment: toPostCommentDTO(updatedComment, userId),
     });
   },
 };
