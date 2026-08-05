@@ -36,6 +36,31 @@ props olarak aldım verımı ve Notification modelimi cagırarak bu modelın cre
 
 ---
 
+## [[NOT-016] - Notifications / Event reminder](https://dygcankurt17.atlassian.net/browse/KTZ-57)
+
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-57`
+- **Mimari Kararlar & Ne Yaptım:**
+
+1. Adım-1 : Yarınki etkinlikleri bul
+
+- Event modeline gidildi Schedule.startDate tam olarak yarın olan tüm etkinlikleri getir.
+
+2. Adım-2 : Etkinlikleri bulurken participantlerde cekıldi.O etkinliğe kaydolmus kısıler
+3. Adım-3 : Buldugum herbir etkinlik ve o etkinliğin içindeki herbir katılımcı ıcın bir bildirim objesi paketi hazrıladım.
+   Notification a eklemek için(type:event_reminder,message,relatedId)
+4. Adım-4Hazırladıgım bu bildirim paketini InsertMany ile veri tabanına kaydettim
+
+Bu taskı gerceklestirirken 2 secenek vardı; yarınkı eventları cekıp zaman aralıgını cron jobs ıcın JS kodlarıyla hesaplamaktı.
+Diğer secenek js() paketi ile zaman aralıgını daha kıs kodlarla ve zaman kayması sorunlarına sebep vermeyecek sekılde(UTC) kaynaklı
+arka planda kendısı hespaldıgı ıcın bunu tercih ettim.
+Mantıgı :
+
+- .dayjs():Sisteme su ankı zamanı al dıyorum
+- .utc():Bu zamanı yerel saatten cıkar evrensel saate cevir
+- .add(1,'day'):1 miktar day ise birimi (Bu sayede yarına git demiş oluyorum)
+- .startOf('day'): Gidilen günün en başına yani gece yarısı 00:00:00 git demiş oldum
+- .toDate(): bu metot ile tüm hesaplamaları yaptıktan sonra Mongoose'a istek attıgımda JS objesıne donustur demıs oluyorum
 CONTROLLER VE ROUTE tanımlamalarımı gerceklestırmıstım. KTZ-63-feat-create-not-dto-helper branch inde
 
 1. Controllerda refactor oncesınde veriyi data:{payload: gonderecegım data seklınde gondermıstım}
