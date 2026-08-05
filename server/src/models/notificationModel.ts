@@ -45,6 +45,13 @@ const notificationSchema = new Schema<INotification>(
       type: Schema.Types.ObjectId,
       default: null,
       trim: true,
+      refPath: "relatedModel", /* tabloyu bu alandan alack */
+    },
+
+    relatedModel: {
+      type: String,
+      enum: ["Event", "OrganizerApplication", "Post", "PostComment"], /* modellerim */
+      default: null,
     },
     linkNotification: {
       type: String,

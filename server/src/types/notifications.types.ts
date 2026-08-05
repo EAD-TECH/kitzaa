@@ -21,6 +21,12 @@ export interface IBaseDocument {
 export interface INotification extends IBaseDocument {
   type: NotificationType;
   recipientId: Types.ObjectId;
+  relatedModel?:
+    | "Event"
+    | "OrganizerApplication"
+    | "Post"
+    | "PostComment"
+    | null;
   title: string;
   isRead: boolean;
   relatedId?: Types.ObjectId | null;
@@ -49,7 +55,7 @@ export interface NotificationDTO extends IBaseDocument {
 
   eventSummary?: {
     name: string;
-    category: string; 
+    category: string;
     date: Date;
   };
 }
