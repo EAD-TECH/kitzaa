@@ -406,6 +406,69 @@ Authorization: Bearer {{accessToken}}
 GET {{baseUrl}}/notifications/mark-all-read
 Authorization: Bearer {{accessToken}}
 
+### ==========================================
+### 1. ORGANİZATÖR OLARAK GİRİŞ YAP
+### ==========================================
+
+### 1. ORGANİZATÖR OLARAK GİRİŞ YAP (Login)
+@name login
+
+
+
+### ==========================================
+### 1. ORGANİZATÖR OLARAK GİRİŞ YAP
+### ==========================================
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "login": "organizer@kitzaa.com",
+  "password": "Password123!"
+}
+
+
+
+
+### ==========================================
+### 3. KTZ-61 TESTİ: ETKİNLİĞİ İPTAL ET
+### ==========================================
+# 
+DELETE {{baseUrl}}/events/60d5ec49f1b2c3d4e5f6a7e1
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "cancelledReason": "Eğitmenimizin ani rahatsızlığı sebebiyle iptal edilmiştir."
+  "title": "Hamburg Yazılım Buluşması",
+  "description": "Hamburg'daki yazılımcılarla bir araya geliyoruz.",
+  "categoryId": "60d5ec49f1b2c3d4e5f6a7c1",
+  "isFree": true,
+  "ageRange": { "min": 18, "max": 99 },
+  "schedule": {
+    "startDate": "2027-01-01T10:00:00Z", 
+    "startTime": "10:00",
+    "endTime": "16:00",
+    "isRecurring": false
+  },
+  "location": {
+    "addressLine": "Hamburg Tech Merkez",
+    "city": "Hamburg",
+    "country": "DE"
+  },
+  "capacity": { "max": 50, "current": 0 }
+}
+
+
+
+
+
+
+
+
+
+
+
 ### ------------------------------------------------------------
 ### SOCIAL POSTS (requires Authorization — run login first)
 ### ------------------------------------------------------------

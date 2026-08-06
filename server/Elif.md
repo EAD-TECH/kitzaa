@@ -36,6 +36,31 @@ props olarak aldım verımı ve Notification modelimi cagırarak bu modelın cre
 
 ---
 
+## [[NOT-016] - Notifications / Event reminder](https://dygcankurt17.atlassian.net/browse/KTZ-57)
+
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-57`
+- **Mimari Kararlar & Ne Yaptım:**
+
+1. Adım-1 : Yarınki etkinlikleri bul
+
+- Event modeline gidildi Schedule.startDate tam olarak yarın olan tüm etkinlikleri getir.
+
+2. Adım-2 : Etkinlikleri bulurken participantlerde cekıldi.O etkinliğe kaydolmus kısıler
+3. Adım-3 : Buldugum herbir etkinlik ve o etkinliğin içindeki herbir katılımcı ıcın bir bildirim objesi paketi hazrıladım.
+   Notification a eklemek için(type:event_reminder,message,relatedId)
+4. Adım-4Hazırladıgım bu bildirim paketini InsertMany ile veri tabanına kaydettim
+
+Bu taskı gerceklestirirken 2 secenek vardı; yarınkı eventları cekıp zaman aralıgını cron jobs ıcın JS kodlarıyla hesaplamaktı.
+Diğer secenek js() paketi ile zaman aralıgını daha kıs kodlarla ve zaman kayması sorunlarına sebep vermeyecek sekılde(UTC) kaynaklı
+arka planda kendısı hespaldıgı ıcın bunu tercih ettim.
+Mantıgı :
+
+- .dayjs():Sisteme su ankı zamanı al dıyorum
+- .utc():Bu zamanı yerel saatten cıkar evrensel saate cevir
+- .add(1,'day'):1 miktar day ise birimi (Bu sayede yarına git demiş oluyorum)
+- .startOf('day'): Gidilen günün en başına yani gece yarısı 00:00:00 git demiş oldum
+- .toDate(): bu metot ile tüm hesaplamaları yaptıktan sonra Mongoose'a istek attıgımda JS objesıne donustur demıs oluyorum
 CONTROLLER VE ROUTE tanımlamalarımı gerceklestırmıstım. KTZ-63-feat-create-not-dto-helper branch inde
 
 1. Controllerda refactor oncesınde veriyi data:{payload: gonderecegım data seklınde gondermıstım}
@@ -43,3 +68,46 @@ CONTROLLER VE ROUTE tanımlamalarımı gerceklestırmıstım. KTZ-63-feat-create
    1.1. Veri tabanından gelen ham veriyi temsıl etmesi adına Mongoose un Hydreteddocumentıne ihtiyacım vardı bunu gerceklestırdım .export type NotificationDocument=<Hydrated>
    1.2. Frontende gonderecegım tabagın seklını hangı verilerin gıdecegının template ini olusturdum.
 2. controller sayfasında list ve path fonksiyonlarında DB den cektıgım verıyı notificationDTO ya teslim ettim
+
+## [[KTZ-58-NOT-017] - Notifications / Nearby events](https://dygcankurt17.atlassian.net/browse/KTZ-58)
+
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-58`
+- **Mimari Kararlar & Ne Yaptım:** 
+
+
+
+- Bu taskta cron gibi zaman güdümlü değil, doğrudan olaya (Event) güdümlü bir mantık işlettik.
+
+- Daha önce tekil bildirimler için helper/createNotification fonksiyonunu oluşturmuştum. Ancak bu taskta aynı şehirdeki birçok kullanıcıya bildirim atacağımız için o fonksiyonu kullanmak, her bildirim için DB'ye ayrı ayrı istek atılmasına (performans kaybına) neden olacaktı. Sistemi yormamak ve toplu kayıt yapabilmek için helpers/ altında sendBulkNotifications.ts adında yeni bir veritabanı motoru/şablonu oluşturdum (insertMany kullanıldı).
+
+- Normal akışta, "yakın çevredeki kullanıcıları bulma ve filtreleme" işlemlerini doğrudan eventController içine yazabilirdim. Ancak bu durum controller sayfasını kalabalıklaştıracak (Fat Controller) ve Single Responsibility (Tek Sorumluluk) prensibini ihlal edecekti.
+
+- Bu nedenle projeye "Best Practice" standartlarına uygun bir ara katman (Service) kazandırma kararı aldım. Veritabanı sorgularını ve iş mantığını notificationService.ts dosyasında gerçekleştirdim.
+
+- Kullanıcılar hangi şehirde yaşıyor? Bildirim izinleri açık mı? Etkinliğin kapasitesi doldu mu? Bu gibi sorular "İş Mantığı" (Business Logic) olarak adlandırılır. Projenin kurallarını içerir.
+
+  Bu tarz filtrelemeler, karmaşık sorgular ve kimin neyi göreceğine karar verme işlemleri Service katmanında yapılmalı best practice. "nearbyUsers" bulma işlemi tam olarak bir iş mantığı oldugu için bu sekılde insiyatif aldım
+
+- Son olarak, eventController içerisindeki create metodunda bu servis fonksiyonunu çağırdım. Kritik Mimari Karar: Etkinliği oluşturan kullanıcıyı, arka plandaki bildirim atılma süreci boyunca bekletmemek adına servisi başına await koymadan (Fire and Forget mantığıyla) asenkron olarak tetikledim. Böylece response süresi uzamadan kullanıcıya anında başarılı yanıtı dönülmüş oldu.
+
+
+## [[KTZ-61-NOT-019] - Notifications / Nearby events](https://dygcankurt17.atlassian.net/browse/KTZ-61)
+
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-61`
+- **Mimari Kararlar & Ne Yaptım:**
+
+
+
+   - Yeni Bildirim Servisi: notificationService.ts dosyası içerisine, iptal edilen etkinliklerin katılımcılarını bilgilendirmek amacıyla notifyUsersForCancelledEvent fonksiyonu inşa edildi.
+
+   - Sorgu (Query) Optimizasyonu: Servis mimarisi, parametre olarak doğrudan iptal edilen event objesini (ve içindeki participants dizisini) alacak şekilde kurgulandı. Bu sayede veritabanına atılacak ekstra ve gereksiz bir sorgunun (I/O maliyeti) önüne geçildi.
+
+   - Defansif Programlama (Early Return): Fonksiyonun başlangıcına, event.participants dizisinin boş olması durumunda bildirim motorunu hiç meşgul etmeden return null ile süreci sonlandıran bir güvenlik kalkanı eklendi.
+
+   - Veri Manipülasyonu: Katılımcıların olduğu senaryoda, .map() metodu kullanılarak obje içerisindeki veriler filtrelendi ve toplu bildirim motorunun ihtiyaç duyduğu saf userId dizisi (array) oluşturuldu.
+
+   - Bulk Motoru Entegrasyonu: Elde edilen ID dizisi, sendBulkNotifications yardımcı fonksiyonuna iletilerek event_cancelled tipinde, dinamik iptal sebebini (cancelledReason) barındıran bildirim paketleri ateşlendi.
+
+   - Controller Entegrasyonu: Yazılan servis, eventController.ts içerisindeki iptal akışına dahil edildi. State Machine güvenlik duvarı (assertValidTransition) geçilip veri tabanına kayıt (await event.save()) yapıldıktan hemen sonra "Ateşle ve Unut (Fire & Forget)" asenkron mantığıyla konumlandırıldı.
