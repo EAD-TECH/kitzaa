@@ -8,10 +8,6 @@ const PASSWORD_REGEX =
 const PHONE_REGEX =
     /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,4}[-\s.]?[0-9]{0,4}$/;
 
-
-
-    
-
 export const createUserSchema = z.object({
     username: z
         .string()
@@ -80,10 +76,6 @@ export const createUserSchema = z.object({
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 
 
-
-
-
-
 // admin: create user (role atayabilir)
 
 export const adminCreateUserSchema = createUserSchema.extend({
@@ -93,28 +85,20 @@ export const adminCreateUserSchema = createUserSchema.extend({
 export type AdminCreateUserInput = z.infer<typeof adminCreateUserSchema>;
 
 
-
-
-
-
-
 // loginschema
 
 export const loginSchema = z.object({
   login: z
     .string()
     .trim()
-    .min(1, 'Username or email is required'),
+    .min(2, 'Username or email is required'),
 
   password: z
     .string()
-    .min(1, 'Password is required'),
+    .min(2, 'Password is required'),
 }).strict();  // ekstra alan eklenemez. fazlaliklar atilir.
 
 export type LoginInput = z.infer<typeof loginSchema>;
-
-
-
 
 
 

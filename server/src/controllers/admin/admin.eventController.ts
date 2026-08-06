@@ -8,8 +8,9 @@ import { eventApprovedTemplate } from "../../mail/templates/eventApproved.templa
 import { eventCancelledTemplate } from "../../mail/templates/eventCancelled.template.js";
 import { eventRejectedTemplate } from "../../mail/templates/eventRejected.template.js";
 import Event from "../../models/eventModel.js";
-import type { RejectEventInput } from "../../validations/event.schema.js";
+import type { CancelEventInput, RejectEventInput } from "../../validations/event.schema.js";
 import { assertValidTransition } from "../../helpers/eventStateMachine.js";
+import type { UserDocument } from "../../types/user.types.js";
 
 const CREATED_BY_POPULATE = { path: 'createdBy', select: 'username email avatarUrl role' };
 

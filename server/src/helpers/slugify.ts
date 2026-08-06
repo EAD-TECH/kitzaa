@@ -24,8 +24,7 @@ export const slugify = (text: string): string => {
  */
 export const generateUniqueSlug = async (
   text: string,
-  checkExists: (slug: string) => Promise<boolean>
-): Promise<string> => {
+  checkExists: (slug: string) => Promise<boolean>): Promise<string> => {
   const baseSlug = slugify(text);
   let slug = baseSlug;
   let counter = 2;
