@@ -15,6 +15,7 @@ const NOTFICATION_TYPES: NotificationType[] = [
   "organizer_approved",
   "organizer_application",
   "event_review",
+  "organizer_prep_summary",
   "system",
 ];
 

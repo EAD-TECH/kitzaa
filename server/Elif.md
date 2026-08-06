@@ -141,3 +141,52 @@ CONTROLLER VE ROUTE tanımlamalarımı gerceklestırmıstım. KTZ-63-feat-create
    - Bulk Motoru Entegrasyonu: Elde edilen ID dizisi, sendBulkNotifications yardımcı fonksiyonuna iletilerek event_cancelled tipinde, dinamik iptal sebebini (cancelledReason) barındıran bildirim paketleri ateşlendi.
 
    - Controller Entegrasyonu: Yazılan servis, eventController.ts içerisindeki iptal akışına dahil edildi. State Machine güvenlik duvarı (assertValidTransition) geçilip veri tabanına kayıt (await event.save()) yapıldıktan hemen sonra "Ateşle ve Unut (Fire & Forget)" asenkron mantığıyla konumlandırıldı.
+
+   ## [[KTZ-70-NOT-019] - Notifications / Organizer prep event](https://dygcankurt17.atlassian.net/browse/KTZ-70)
+
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-70`
+- **Mimari Kararlar & Ne Yaptım:**
+
+- İlk olarak organizerPrepJob dosyasını actım
+- Bir sonrakı gun olucak olan Eventları çektım
+- Organızatorlere bildirim atmak için buldugum etkinlik dızısı uzerınde map ile donerek her etkinliğin katılımcısının sayısını buldum 
+- message kısımları ıcın ne yazacagımı bılmedıgımden bu sekılde bır test mesaj yazdm
+- sonrasında return ıle bıldırım paketimin kutusunu olusturup InsertMany ile DB ye kaydediyorum.
+- Aslında toplu ve teklı bıldırımler ıcın helper dosyasında bıldırım paketı template lerı olusturmustum ama etkınlıklerın kısı sayıları vs her etkınlıgın farklı bır kıtlesı oldugu ıcın burda kendım olusturdm
+- Jobs kısmını normalde server/index içinde cagırıp tetıklemek gerekıyor ama sonrakı tasklar ıcın index sayfasını sısırmemek adına jobs ıcınde ayrı ındex acıp onu ana indexe import ettm.Basta su geldı aklıma :  mesela farklı bıldırımlerın saatlerı aynı olabılır nasıl olur dıye ? Node.js in asenktron calısma mantıgı bunları single thread olarak sıraya alıp db den once hangı yanıt gelırse onu calıstırıyor.ms farkıyla db den yanıt geldıgı ıcın kodların calısmasında sorun yok ama bd ye atılan sorgular darbogaz olusturmasın dıye bır tanesını 5 dk olacak sekılde tetıkledım.
+- Bu taskı sonradan ekledıgım ıcın bildirim tipine "organizer_prep_summary", bu kısmı ekledım.
+- Manuel olarak da route sayfasına kod blogu yapıstırp manuel testını yaptım
+- refPath mantıgını kullandıgm ıcın createHelper fonksıyonunu bu sekılde guncellemeyı unuttugm ıcın burda guncelldım bu kısmı da
+
+
+- Test kodu 
+``` js
+router.get("/test-cron", async (req, res) => {
+  console.log("🛠️ Manuel cron testi başlatılıyor...");
+
+  try {
+    // Fonksiyonları manuel olarak çalıştırıyoruz
+    await sendOrganizerPrepSummary();
+    await sendRemindersForTomorrow();
+
+    console.log(" Manuel cron testi başarıyla tamamlandı!");
+    res.status(200).json({
+      success: true,
+      message:
+        "Zamanlanmış görevler manuel olarak tetiklendi ve hatasız çalıştı.",
+    });
+  } catch (error) {
+    console.error(" Cron testi sırasında hata oluştu:", error);
+    res.status(500).json({
+      success: false,
+      message: "Görevler çalışırken bir hata oluştu.",
+    });
+  }
+});
+
+```
+
+
+
+

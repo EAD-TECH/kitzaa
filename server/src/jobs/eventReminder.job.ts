@@ -56,6 +56,6 @@ export const sendRemindersForTomorrow = async () => {
 
 /* motoru olusturdm simdi onu tetiklemem lazim her gece 00:00 calısması ıcın*/
 export const startEventReminderJob = () => {
-  cron.schedule("0 0 * * *", sendRemindersForTomorrow);
+  cron.schedule("5 0 * * *", sendRemindersForTomorrow);
   console.log("event reminder baslattım");
 };

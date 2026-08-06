@@ -11,6 +11,7 @@ export type NotificationType =
   | "organizer_approved"
   | "organizer_application"
   | "event_review"
+  | "organizer_prep_summary"
   | "system";
 
 export interface IBaseDocument {
@@ -21,18 +22,18 @@ export interface IBaseDocument {
 export interface INotification extends IBaseDocument {
   type: NotificationType;
   recipientId: Types.ObjectId;
+  title: string;
+  isRead: boolean;
+  relatedId?: Types.ObjectId | null;
+  linkNotification?: string | null;
   relatedModel?:
     | "Event"
     | "OrganizerApplication"
     | "Post"
     | "PostComment"
     | null;
-  title: string;
-  isRead: boolean;
-  relatedId?: Types.ObjectId | null;
-  linkNotification?: string | null;
   message: string;
-  senderId: Types.ObjectId | null;
+  senderId?: Types.ObjectId | null;
 }
 
 export type NotificationDocument = HydratedDocument<INotification>;
@@ -52,7 +53,6 @@ export interface NotificationDTO extends IBaseDocument {
     avatarUrl: string;
   };
   /* eventın detayları */
-
   eventSummary?: {
     name: string;
     category: string;
