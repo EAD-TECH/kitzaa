@@ -6,7 +6,7 @@
 
 @baseUrl = http://localhost:8000/api/v1
 @contentType = application/json
-@accessToken = {{login.response.body.$.accessToken}}
+@accessToken = {{login.response.body.accessToken}}
 
 
 
@@ -16,8 +16,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "login": "adminAyla",
-  "password": "AdminAyla12."
+  "login": "elif",
+  "password": "Password1!."
 }
 
 
@@ -203,3 +203,21 @@ Authorization: Bearer {{accessToken}}
 # @name eventDelete
 DELETE {{baseUrl}}/admin/events/6a65d61c593cc260697d7f54
 Authorization: Bearer {{accessToken}}
+
+
+
+### ------------------------------------------------------------
+### NOTIFICATIONS (admin) - requires role: admin
+### ------------------------------------------------------------
+
+### 
+# @name adminNotificationList
+GET {{baseUrl}}/admin/notifications
+Authorization: Bearer {{accessToken}}
+
+### 
+# @name adminNotificationListUnread
+GET {{baseUrl}}/admin/notifications?isRead=false
+Authorization: Bearer {{accessToken}}
+
+

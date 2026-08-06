@@ -9,6 +9,8 @@ export type NotificationType =
   | "forum_reply"
   | "nearby_event"
   | "organizer_approved"
+  | "organizer_application"
+  | "event_review"
   | "organizer_prep_summary"
   | "system";
 
@@ -31,6 +33,7 @@ export interface INotification extends IBaseDocument {
     | "PostComment"
     | null;
   message: string;
+  senderId?: Types.ObjectId | null;
 }
 
 export type NotificationDocument = HydratedDocument<INotification>;
@@ -43,4 +46,21 @@ export interface NotificationDTO extends IBaseDocument {
   isRead: boolean;
   relatedId?: string | null;
   linkNotification?: string | null;
+  /* senderın organizatorun bılgileri */
+  sender?: {
+    username: string;
+    email: string;
+    avatarUrl: string;
+  };
+  /* eventın detayları */
+  eventSummary?: {
+    name: string;
+    category: string;
+    date: Date;
+  };
+}
+
+/* tekrar aynı verılerı yazmak yerıne extend ıle normal userdan verilerimi extend ettim */
+export interface AdminNotificationDTO extends NotificationDTO {
+  recipientId: string;
 }

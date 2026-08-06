@@ -69,6 +69,36 @@ CONTROLLER VE ROUTE tanımlamalarımı gerceklestırmıstım. KTZ-63-feat-create
    1.2. Frontende gonderecegım tabagın seklını hangı verilerin gıdecegının template ini olusturdum.
 2. controller sayfasında list ve path fonksiyonlarında DB den cektıgım verıyı notificationDTO ya teslim ettim
 
+## [KTZ-56- create toNotificationDTO helper](https://dygcankurt17.atlassian.net/browse/KTZ-56)
+
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-56`
+- **Mimari Kararlar & Ne Yaptım:**
+  - Model içerinde ve types alanlarında tanımladıgım enum bildirim tiplerinden bu type için gerekli olan organizer_application
+    ve event_review type ları eksik oldugu ıcın onlar eklendı:chore ile commit edildi .
+- [admin.notificationController.ts](./src/controllers/admin/admin.notificationController.ts) olusturuldu.
+  - Bu taskın amacı adminin onune rastgele bildirimlerin değil aksiyon alınması gereken bildirimlerin dusmesı(onay/red)
+  -
+  - Admin kuyruğu için `customFilter` yapısını spesifik olarak adminController sayfasında yazacagım customFilter içerisine
+    mongoose un `$in` key i ile sadece organızator veya etkilnlik incelemesı olanları getır dedim.
+- sonrasında isRead=false olanlarda istenirse bu dinamik kısım da eklenmıs olacak
+
+- Verinin DTO dan gecerek sanitize edilmesi ve onyuze gıtmesı gereken cleanveri formatında gıtmesı ıcın types sayfasına admine ekstra kullanması gereken recipientId yi ekledim. [notification.types.ts](./src/types/notifications.types.ts)
+
+- toNotficationDTO sayfasında ise tekrar fonksıyon tanımlamak yerıne toNotificationDTO yu cagırdım.Temel bilidrim verisini çektim
+- Admin DTO fonksiyonu içinde yeni suslu parantez actım ve içine ...toNotificationDTO(notification) diyerek yaydım
+- hemen yanına ekstra tanımladıgım recipientId yi tanımladım
+
+- Bu noktada populate manatıgını atladıgım ıcın ilk once notification kısmına senderId:object olacak ssekılde tanımladım.
+- [notification.types.ts](./src/types/notifications.types.ts) sayfasına da populate edebilmem için sender ve event detaylarını ekledım
+  -FRONTEND e gıdecek detaylar ıcın eventSummary ve senderData ile hangi verileri gondermek ıstedıgımı tipleriyle belirttm
+- SenderId olmadıgı için admin gelen bildirimlerin kimden geldiğini goremeyecek bu yuzden modele bu fielde- eklemem lazım :senderId ekledim [notificationModel.ts](./src/models/notificationModel.ts)
+
+- Son olarak da veriyi yollarken populate ederek veritabanından cektım
+
+- **Ne Öğrendim:**
+  - toNotificationDTO ve toAdminNotificationDTO helper fonksiyonlarıyla Controller katmanını veri biçimlendirmeyi kavradım.
+  -
 ## [[KTZ-58-NOT-017] - Notifications / Nearby events](https://dygcankurt17.atlassian.net/browse/KTZ-58)
 
 - **Durum:** In Progress
@@ -156,6 +186,7 @@ router.get("/test-cron", async (req, res) => {
 });
 
 ```
+
 
 
 
