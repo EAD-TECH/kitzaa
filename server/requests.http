@@ -462,6 +462,14 @@ Authorization: Bearer {{accessToken}}
 
 
 
+### ==========================================
+###  KTZ-70 TESTİ: ORGANIZATORE BILDIRIM ATMA (bir gun once)
+
+### ==========================================
+# 
+
+GET {{baseUrl}}/test-cron
+
 
 
 

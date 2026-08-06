@@ -9,6 +9,7 @@ export type NotificationType =
   | "forum_reply"
   | "nearby_event"
   | "organizer_approved"
+  | "organizer_prep_summary"
   | "system";
 
 export interface IBaseDocument {
@@ -23,6 +24,12 @@ export interface INotification extends IBaseDocument {
   isRead: boolean;
   relatedId?: Types.ObjectId | null;
   linkNotification?: string | null;
+  relatedModel?:
+    | "Event"
+    | "OrganizerApplication"
+    | "Post"
+    | "PostComment"
+    | null;
   message: string;
 }
 

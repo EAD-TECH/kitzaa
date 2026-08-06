@@ -8,6 +8,12 @@ interface NotificationPayload {
   message: string;
   linkNotification?: string | null;
   relatedId: Types.ObjectId | null;
+  relatedModel?:
+    | "Event"
+    | "OrganizerApplication"
+    | "Post"
+    | "PostComment"
+    | null;
 }
 
 export const createNotification = async (
@@ -23,6 +29,8 @@ export const createNotification = async (
       message: payload.message,
       linkNotification: payload.linkNotification,
       relatedId: payload.relatedId,
+      relatedModel: payload.relatedModel,
+      
     });
 
     console.log("bilgiyi gormem  lazım", data);
