@@ -5,12 +5,7 @@ import CustomError from "../../helpers/customError.js";
 import { toEventDTO } from "../../helpers/toEventDTO.js";
 import Event from "../../models/eventModel.js";
 import type { EventDocument } from "../../types/event.types.js";
-import type {
-  CancelEventInput,
-  CreateEventInput,
-  UpdateEventInput,
-} from "../../validations/event.schema.js";
-import type { CreateEventInput, NearbyQueryInput, UpdateEventInput } from "../../validations/event.schema.js";
+import type { CancelEventInput, CreateEventInput, NearbyQueryInput, UpdateEventInput } from "../../validations/event.schema.js";
 import { assertValidTransition } from "../../helpers/eventStateMachine.js";
 import {
   notifyUsersForNearbyEvent,
