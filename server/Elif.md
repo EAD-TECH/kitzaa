@@ -34,6 +34,32 @@ controller burda benım ascım garson buna yorumu getırdı bu da db ye kaydett�
 Express v5 ile async hatalar yakalanıyor ama sessizce fırlatıldıgı ıcın burda notıfıcatıon bır yan etkı aslında asıl olay on tarafta commment lıke vs olayları bu sebeple kullanıcı yorum yaptı ama db baglantısı kesıldı dırekt hata alıck yorumum gıtmedı zannedıp db ye tekrar ıstek atıck bunu onlemek adına try -catch kullanabılırm hatayı loglamak ıcın.
 props olarak aldım verımı ve Notification modelimi cagırarak bu modelın create metodu yardımıyla olusturdm fonksıyonmu
 
+````markdown
+## TASKA BAŞLARKEN BUNLARI SOR SÜREKLİ KENDİNE
+
+```
+Tetikleyici Kim? (Kullanıcı mı, Zaman mı, Admin mi?)
+
+Veri Hacmi Ne? (Bu işlem aynı anda 1 kişi için mi çalışacak, 5.000 kişi için mi?)
+
+Kalkanlarım Neler? (Spam'i, çifte tıklamayı veya yetkisiz işlemi nasıl engelliyorum?)
+
+Ya Çökerse? (İşlem yarıda kesilirse, sistem ertesi gün nerede kaldığını hatırlıyor mu?)
+Felaket Senaryosu (Fault Tolerance): Sunucu tam gece 00:00'da bakıma girerse ve sabah 05:00'te açılırsa ne olur? Benim sorgum "Tam olarak 00:00 olanları bul" mu diyor, yoksa "Son 24 saat içinde olanları bul" gibi esnek bir pencereye mi sahip?
+
+Anti-Spam (Idempotency): Bu motor aynı veriyi iki kere okursa, aynı kişiye ikinci mesajı atar mı? (İşte o konuştuğumuz systemNotificationsSent dizisi bu yüzden hayati bir zırhtır).
+
+Büyük Veri (Memory Leak): Ya o gün 10.000 tane etkinlik varsa? Event.find() dediğimde 10.000 kaydı aynı anda RAM'e çekersem Node.js çöker mi? (Bunu insertMany ile optimize ediyorsun, ancak okurken de veriyi parçalayarak almak -pagination/cursor- gerekebilir).
+Sorman Gereken "Kriz" Soruları:
+
+    Çifte Tıklama (Race Condition): Kullanıcı interneti yavaşken "Etkinliğe Katıl" butonuna art arda 5 kere basarsa ne olur? Kapasiteyi yanlışlıkla 5 mi artırırım, yoksa veritabanında "Bu adam zaten katıldı" kalkanım (unique index veya find kontrolü) var mı?
+
+    Geri Alma (Undo): Beğeniyi geri çekerse, bildirim tablosundaki o bildirimi de silecek miyim, yoksa "okunmadı" olarak mı bırakacağım? (KTZ-59'daki soft-delete like/unlike mantığın bunu harika çözüyordu).
+
+    Sessiz Çöküş (Fire & Forget): Yorum veritabanına kaydedildi ama bildirim servisi çöktü. Kullanıcıya "Yorum yapılamadı" hatası dönmeli miyim? (Hayır, asıl iş olan yorum başarılıysa HTTP 201 dönmeli, bildirim arka planda sessizce hata loglamalı).
+```
+````
+
 ---
 
 ## [[NOT-016] - Notifications / Event reminder](https://dygcankurt17.atlassian.net/browse/KTZ-57)
@@ -61,7 +87,7 @@ Mantıgı :
 - .add(1,'day'):1 miktar day ise birimi (Bu sayede yarına git demiş oluyorum)
 - .startOf('day'): Gidilen günün en başına yani gece yarısı 00:00:00 git demiş oldum
 - .toDate(): bu metot ile tüm hesaplamaları yaptıktan sonra Mongoose'a istek attıgımda JS objesıne donustur demıs oluyorum
-CONTROLLER VE ROUTE tanımlamalarımı gerceklestırmıstım. KTZ-63-feat-create-not-dto-helper branch inde
+  CONTROLLER VE ROUTE tanımlamalarımı gerceklestırmıstım. KTZ-63-feat-create-not-dto-helper branch inde
 
 1. Controllerda refactor oncesınde veriyi data:{payload: gonderecegım data seklınde gondermıstım}
    DTO formatını eklemeden once notification.types.ts te 2 eksıgım vardı
@@ -73,9 +99,7 @@ CONTROLLER VE ROUTE tanımlamalarımı gerceklestırmıstım. KTZ-63-feat-create
 
 - **Durum:** In Progress
 - **Jira Kartı:** `KTZ-58`
-- **Mimari Kararlar & Ne Yaptım:** 
-
-
+- **Mimari Kararlar & Ne Yaptım:**
 
 - Bu taskta cron gibi zaman güdümlü değil, doğrudan olaya (Event) güdümlü bir mantık işlettik.
 
@@ -91,28 +115,24 @@ CONTROLLER VE ROUTE tanımlamalarımı gerceklestırmıstım. KTZ-63-feat-create
 
 - Son olarak, eventController içerisindeki create metodunda bu servis fonksiyonunu çağırdım. Kritik Mimari Karar: Etkinliği oluşturan kullanıcıyı, arka plandaki bildirim atılma süreci boyunca bekletmemek adına servisi başına await koymadan (Fire and Forget mantığıyla) asenkron olarak tetikledim. Böylece response süresi uzamadan kullanıcıya anında başarılı yanıtı dönülmüş oldu.
 
-
 ## [[KTZ-61-NOT-019] - Notifications / Nearby events](https://dygcankurt17.atlassian.net/browse/KTZ-61)
 
 - **Durum:** In Progress
 - **Jira Kartı:** `KTZ-61`
 - **Mimari Kararlar & Ne Yaptım:**
+  - Yeni Bildirim Servisi: notificationService.ts dosyası içerisine, iptal edilen etkinliklerin katılımcılarını bilgilendirmek amacıyla notifyUsersForCancelledEvent fonksiyonu inşa edildi.
 
+  - Sorgu (Query) Optimizasyonu: Servis mimarisi, parametre olarak doğrudan iptal edilen event objesini (ve içindeki participants dizisini) alacak şekilde kurgulandı. Bu sayede veritabanına atılacak ekstra ve gereksiz bir sorgunun (I/O maliyeti) önüne geçildi.
 
+  - Defansif Programlama (Early Return): Fonksiyonun başlangıcına, event.participants dizisinin boş olması durumunda bildirim motorunu hiç meşgul etmeden return null ile süreci sonlandıran bir güvenlik kalkanı eklendi.
 
-   - Yeni Bildirim Servisi: notificationService.ts dosyası içerisine, iptal edilen etkinliklerin katılımcılarını bilgilendirmek amacıyla notifyUsersForCancelledEvent fonksiyonu inşa edildi.
+  - Veri Manipülasyonu: Katılımcıların olduğu senaryoda, .map() metodu kullanılarak obje içerisindeki veriler filtrelendi ve toplu bildirim motorunun ihtiyaç duyduğu saf userId dizisi (array) oluşturuldu.
 
-   - Sorgu (Query) Optimizasyonu: Servis mimarisi, parametre olarak doğrudan iptal edilen event objesini (ve içindeki participants dizisini) alacak şekilde kurgulandı. Bu sayede veritabanına atılacak ekstra ve gereksiz bir sorgunun (I/O maliyeti) önüne geçildi.
+  - Bulk Motoru Entegrasyonu: Elde edilen ID dizisi, sendBulkNotifications yardımcı fonksiyonuna iletilerek event_cancelled tipinde, dinamik iptal sebebini (cancelledReason) barındıran bildirim paketleri ateşlendi.
 
-   - Defansif Programlama (Early Return): Fonksiyonun başlangıcına, event.participants dizisinin boş olması durumunda bildirim motorunu hiç meşgul etmeden return null ile süreci sonlandıran bir güvenlik kalkanı eklendi.
+  - Controller Entegrasyonu: Yazılan servis, eventController.ts içerisindeki iptal akışına dahil edildi. State Machine güvenlik duvarı (assertValidTransition) geçilip veri tabanına kayıt (await event.save()) yapıldıktan hemen sonra "Ateşle ve Unut (Fire & Forget)" asenkron mantığıyla konumlandırıldı.
 
-   - Veri Manipülasyonu: Katılımcıların olduğu senaryoda, .map() metodu kullanılarak obje içerisindeki veriler filtrelendi ve toplu bildirim motorunun ihtiyaç duyduğu saf userId dizisi (array) oluşturuldu.
-
-   - Bulk Motoru Entegrasyonu: Elde edilen ID dizisi, sendBulkNotifications yardımcı fonksiyonuna iletilerek event_cancelled tipinde, dinamik iptal sebebini (cancelledReason) barındıran bildirim paketleri ateşlendi.
-
-   - Controller Entegrasyonu: Yazılan servis, eventController.ts içerisindeki iptal akışına dahil edildi. State Machine güvenlik duvarı (assertValidTransition) geçilip veri tabanına kayıt (await event.save()) yapıldıktan hemen sonra "Ateşle ve Unut (Fire & Forget)" asenkron mantığıyla konumlandırıldı.
-
-   ## [[KTZ-70-NOT-019] - Notifications / Organizer prep event](https://dygcankurt17.atlassian.net/browse/KTZ-70)
+  ## [[KTZ-70-NOT-019] - Notifications / Organizer prep event](https://dygcankurt17.atlassian.net/browse/KTZ-70)
 
 - **Durum:** In Progress
 - **Jira Kartı:** `KTZ-70`
@@ -120,18 +140,18 @@ CONTROLLER VE ROUTE tanımlamalarımı gerceklestırmıstım. KTZ-63-feat-create
 
 - İlk olarak organizerPrepJob dosyasını actım
 - Bir sonrakı gun olucak olan Eventları çektım
-- Organızatorlere bildirim atmak için buldugum etkinlik dızısı uzerınde map ile donerek her etkinliğin katılımcısının sayısını buldum 
+- Organızatorlere bildirim atmak için buldugum etkinlik dızısı uzerınde map ile donerek her etkinliğin katılımcısının sayısını buldum
 - message kısımları ıcın ne yazacagımı bılmedıgımden bu sekılde bır test mesaj yazdm
 - sonrasında return ıle bıldırım paketimin kutusunu olusturup InsertMany ile DB ye kaydediyorum.
 - Aslında toplu ve teklı bıldırımler ıcın helper dosyasında bıldırım paketı template lerı olusturmustum ama etkınlıklerın kısı sayıları vs her etkınlıgın farklı bır kıtlesı oldugu ıcın burda kendım olusturdm
-- Jobs kısmını normalde server/index içinde cagırıp tetıklemek gerekıyor ama sonrakı tasklar ıcın index sayfasını sısırmemek adına jobs ıcınde ayrı ındex acıp onu ana indexe import ettm.Basta su geldı aklıma :  mesela farklı bıldırımlerın saatlerı aynı olabılır nasıl olur dıye ? Node.js in asenktron calısma mantıgı bunları single thread olarak sıraya alıp db den once hangı yanıt gelırse onu calıstırıyor.ms farkıyla db den yanıt geldıgı ıcın kodların calısmasında sorun yok ama bd ye atılan sorgular darbogaz olusturmasın dıye bır tanesını 5 dk olacak sekılde tetıkledım.
+- Jobs kısmını normalde server/index içinde cagırıp tetıklemek gerekıyor ama sonrakı tasklar ıcın index sayfasını sısırmemek adına jobs ıcınde ayrı ındex acıp onu ana indexe import ettm.Basta su geldı aklıma : mesela farklı bıldırımlerın saatlerı aynı olabılır nasıl olur dıye ? Node.js in asenktron calısma mantıgı bunları single thread olarak sıraya alıp db den once hangı yanıt gelırse onu calıstırıyor.ms farkıyla db den yanıt geldıgı ıcın kodların calısmasında sorun yok ama bd ye atılan sorgular darbogaz olusturmasın dıye bır tanesını 5 dk olacak sekılde tetıkledım.
 - Bu taskı sonradan ekledıgım ıcın bildirim tipine "organizer_prep_summary", bu kısmı ekledım.
 - Manuel olarak da route sayfasına kod blogu yapıstırp manuel testını yaptım
 - refPath mantıgını kullandıgm ıcın createHelper fonksıyonunu bu sekılde guncellemeyı unuttugm ıcın burda guncelldım bu kısmı da
 
+- Test kodu
 
-- Test kodu 
-``` js
+```js
 router.get("/test-cron", async (req, res) => {
   console.log("🛠️ Manuel cron testi başlatılıyor...");
 
@@ -154,8 +174,81 @@ router.get("/test-cron", async (req, res) => {
     });
   }
 });
-
 ```
 
+## [[KTZ-71-NOT-020] - Notifications / Organizer prep event](https://dygcankurt17.atlassian.net/browse/KTZ-71)
 
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-71`
+- **Mimari Kararlar & Ne Yaptım:**
+
+ Görev Amacı ve Mimari Kararlar
+
+Bu taskın temel amacı; organizatörlerin etkinlik katılım oranları az olduğunda onları platforma tekrar bağlamak, etkileşimi artırmak ve müşteri memnuniyeti sağlamak adına teşvik edici bir hatırlatma ("Kapasiteni doldurmak ister misin?") bildirimi göndermektir.
+
+Bunu kurgularken, geçmişte KTZ-70'te gözden kaçan "Felaket Senaryosu" (Fault Tolerance) ve "Spam Koruması" (Idempotency) konularını merkeze alarak Best Practice  standartlarında bir mimari tasarladım:
+
+1. Esnek Zaman Penceresi (Felaket Senaryosuna Karşı)
+Diyelim ki bir şeyler ters gitti ve sunucu o gece çöktüğü için Cron Job hiç çalışmadı. Eğer kurgumu "Sadece tam 3 gün kalan etkinlikleri bul" şeklinde kesin ve dar bir pencerede yapsaydım, o günkü bildirimler tamamen yanacaktı.
+Bunun yerine zaman penceresini esnettim: Yarından itibaren 3. günün sonuna kadar olanları getir. Böylece sunucu ertesi gün düzelse bile, aradan kaçan (2 gün veya 1 gün kalmış) etkinlikler ağa yakalanarak telafi edilebilecek.
+
+2. Anti-Spam (Idempotency) Kalkanı ve Schema Bloat Önlemi
+Genişleyen bu zaman ağına takılan etkinliklere her gece tekrar tekrar aynı bildirimi atmamak (Spam koruması) için Event şemasına bir "Bayrak" (Flag) sistemi kurmam gerekti.
+Ancak her yeni bildirim senaryosu (3 gün kala, 1 gün kala, etkinlik sonu vb.) için veritabanına yeni bir boolean alan açsaydım veritabanı şişecekti (Schema Bloat). Bunun yerine systemNotificationSent adında tek bir dizi (Array of Strings) tutmaya karar verdim.
+
+    Esnek ve genişleyebilir bir yapı için TypeScript ve Mongoose katmanlarını şu şekilde senkronize ettim:
+
+TypeScript
+
+systemNotificationSent?: (
+    | "organizer_prep_1day"
+    | "low_capacity_3day"
+    | "post_event_summary"
+    | "event_reminder_2hour"
+)[];
+
+-  MongoDB Operatörleri ve İyileştirmeler (Code Review Sonrası)
+
+Bu taskta klasik find() sorgularının ötesine geçerek MongoDB'nin performanslı operatörlerini kullandım:
+
+    $expr (Expression) Operatörü:
+    Normalde MongoDB'de bir arama yaparken bir alanı sabit bir sayıyla kıyaslarız (Örn: capacity.max < 50). Ancak benim senaryomda iki dinamik alanı kendi içinde kıyaslamam gerekiyordu (Mevcut kapasite, maksimum kapasiteden küçük mü?).
+    $expr: { $lt: ["$capacity.current", "$capacity.max"] } yazarak bu karmaşık filtrelemeyi doğrudan veritabanı sunucusunda çözdüm. (Buradaki $ işareti alanı bir metin olarak değil, dokümanın içindeki gerçek bir değer olarak alması gerektiğini belirtir).
+
+    $nin (Not In) Operatörü ($ne yerine):
+    Sorgumun Anti-Spam kısmında "Bu bildirimi daha önce almamış olanları getir" demek için önceden $ne (Eşit Değil) kullanmıştım. Ancak systemNotificationSent alanı bir dizi (Array) olduğu için, dizilerde "İçinde Yok" anlamına gelen ve semantik olarak çok daha doğru olan $nin operatörüne geçiş yaptım:
+    systemNotificationSent: { $nin: ["low_capacity_3day"] }
+
+    $addToSet Operatörü ($push yerine - Çakışma Önleyici):
+    Bildirimi attığım etkinlikleri damgalarken $push kullanmıştım. Ancak olası bir "Race Condition" (Cron job'ın bir hatayla anlık olarak iki kere çalışması) durumunda, $push aynı bayrağı diziye mükerrer olarak iki kere ekleyecekti. Bunu, tıpkı kümeler mantığıyla çalışan ve "Sadece içeride daha önceden yoksa ekle" diyen $addToSet operatörüyle güncelledim.
+
+-  Performans Odaklı Akış (Core Flow)
+
+Core akış şu şekilde tamamen tutarlı hale getirildi: Sorgu → Paket → insertMany → Flag (updateMany)
+
+    Erken Dönüş (Early Return): eventsToNotify.length === 0 kontrolü ile eğer o gün şartlara uyan etkinlik yoksa, sistemi boş yere .map() ve veritabanı yazma süreçlerine sokmadan zarifçe durdurduk.
+
+    Toplu İşlemler (Bulk Operations): Hem bildirimleri fırlatırken insertMany kullandık, hem de spam bayraklarını işlerken (eğer 1000 etkinlik varsa 1000 kere DB'ye gitmek yerine) updateMany ile tek bir seferde işaretleme yaptık.
+
+-  Test Ortamı
+
+Cron job'ı beklemeden sistemi izole bir şekilde test etmek için routes içerisine şu geçici endpoint'i bağladım:
+TypeScript
+
+router.get("/test-low-capacity", async (req, res) => {
+  await sendLowCapacityPrompts();
+  res.status(200).json({ error: false, message: "KTZ-71 job ran" });
+});
+
+
+ Teknik  (Technical Debt - Gelecek Görevler)
+
+Geçmiş tasklardaki mimari eksiklikleri düzenli bir şekilde refactor etmek için şu taskı açmam lazım:
+KTZ-?: Bildirim Motorları İçin İyileştirme ve Standartlaştırma
+
+    [ ] Hatırlatıcı saatlerini 00:00'dan (Gece yarısı UX'i bozduğu için) sabah 10:00'a çekilecek.
+
+    [ ] KTZ-70 ve diğer tüm bildirim tiplerine systemNotificationSent (Anti-Spam Idempotency) bayrağı kalkanı entegre edilecek.
+
+    [ ] Eski zaman pencereleri "kesin gün" (dar pencere) mantığından, sunucu çökmesine karşı "esnek gün" mantığına çevrilecek.
 
