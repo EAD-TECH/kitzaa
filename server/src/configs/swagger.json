@@ -34,7 +34,9 @@
     { "name": "Events", "description": "Event listing, creation, participation" },
     { "name": "Admin - Events", "description": "Event approval/rejection/cancellation in the admin panel" },
     { "name": "Posts", "description": "Social feed posts, likes, soft-delete" },
-    { "name": "Comments", "description": "Post comments with 2-level threading and likes" }
+    { "name": "Comments", "description": "Post comments with 2-level threading and likes" },
+    { "name": "Notifications", "description": "In-app notifications for the logged-in user" },
+    { "name": "Admin - Notifications", "description": "Admin notification queue" }
   ],
   "security": [
     {
