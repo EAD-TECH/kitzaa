@@ -41,11 +41,11 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "username": "elif",
-  "firstName": "elif",
-  "lastName": "ayla",
-  "email": "elifyuzer12@gmail.com",
-  "password": "Password1!.",
+  "username": "TestPerson",
+  "firstName": "person",
+  "lastName": "person",
+  "email": "elifyuzer121@gmail.com",
+  "password": "Password1!",
   "phone": "+491234567890",
   "language": "de",
   "location": {
@@ -62,8 +62,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "login": "elif",
-  "password": "Password1!."
+  "login": "TestPerson",
+  "password": "Password1!"
 }
 
 ### 
@@ -571,8 +571,8 @@ Authorization: Bearer {{accessToken}}
 Content-Type: {{contentType}}
 
 {
-  "postId": "{{postId}}",
-  "text": "Great post, thanks for sharing!"
+  "postId": "6a74b78495bedcf367e07f52",
+  "text": "Great post, thanks for sharingg!"
 }
 
 

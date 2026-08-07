@@ -95,6 +95,36 @@ Mantıgı :
    1.2. Frontende gonderecegım tabagın seklını hangı verilerin gıdecegının template ini olusturdum.
 2. controller sayfasında list ve path fonksiyonlarında DB den cektıgım verıyı notificationDTO ya teslim ettim
 
+## [KTZ-56- create toNotificationDTO helper](https://dygcankurt17.atlassian.net/browse/KTZ-56)
+
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-56`
+- **Mimari Kararlar & Ne Yaptım:**
+  - Model içerinde ve types alanlarında tanımladıgım enum bildirim tiplerinden bu type için gerekli olan organizer_application
+    ve event_review type ları eksik oldugu ıcın onlar eklendı:chore ile commit edildi .
+- [admin.notificationController.ts](./src/controllers/admin/admin.notificationController.ts) olusturuldu.
+  - Bu taskın amacı adminin onune rastgele bildirimlerin değil aksiyon alınması gereken bildirimlerin dusmesı(onay/red)
+  -
+  - Admin kuyruğu için `customFilter` yapısını spesifik olarak adminController sayfasında yazacagım customFilter içerisine
+    mongoose un `$in` key i ile sadece organızator veya etkilnlik incelemesı olanları getır dedim.
+- sonrasında isRead=false olanlarda istenirse bu dinamik kısım da eklenmıs olacak
+
+- Verinin DTO dan gecerek sanitize edilmesi ve onyuze gıtmesı gereken cleanveri formatında gıtmesı ıcın types sayfasına admine ekstra kullanması gereken recipientId yi ekledim. [notification.types.ts](./src/types/notifications.types.ts)
+
+- toNotficationDTO sayfasında ise tekrar fonksıyon tanımlamak yerıne toNotificationDTO yu cagırdım.Temel bilidrim verisini çektim
+- Admin DTO fonksiyonu içinde yeni suslu parantez actım ve içine ...toNotificationDTO(notification) diyerek yaydım
+- hemen yanına ekstra tanımladıgım recipientId yi tanımladım
+
+- Bu noktada populate manatıgını atladıgım ıcın ilk once notification kısmına senderId:object olacak ssekılde tanımladım.
+- [notification.types.ts](./src/types/notifications.types.ts) sayfasına da populate edebilmem için sender ve event detaylarını ekledım
+  -FRONTEND e gıdecek detaylar ıcın eventSummary ve senderData ile hangi verileri gondermek ıstedıgımı tipleriyle belirttm
+- SenderId olmadıgı için admin gelen bildirimlerin kimden geldiğini goremeyecek bu yuzden modele bu fielde- eklemem lazım :senderId ekledim [notificationModel.ts](./src/models/notificationModel.ts)
+
+- Son olarak da veriyi yollarken populate ederek veritabanından cektım
+
+- **Ne Öğrendim:**
+  - toNotificationDTO ve toAdminNotificationDTO helper fonksiyonlarıyla Controller katmanını veri biçimlendirmeyi kavradım.
+  -
 ## [[KTZ-58-NOT-017] - Notifications / Nearby events](https://dygcankurt17.atlassian.net/browse/KTZ-58)
 
 - **Durum:** In Progress
@@ -134,9 +164,8 @@ Mantıgı :
 
   ## [[KTZ-70-NOT-019] - Notifications / Organizer prep event](https://dygcankurt17.atlassian.net/browse/KTZ-70)
 
-- **Durum:** In Progress
-- **Jira Kartı:** `KTZ-70`
-- **Mimari Kararlar & Ne Yaptım:**
+
+
 
 - İlk olarak organizerPrepJob dosyasını actım
 - Bir sonrakı gun olucak olan Eventları çektım
@@ -251,4 +280,28 @@ KTZ-?: Bildirim Motorları İçin İyileştirme ve Standartlaştırma
     [ ] KTZ-70 ve diğer tüm bildirim tiplerine systemNotificationSent (Anti-Spam Idempotency) bayrağı kalkanı entegre edilecek.
 
     [ ] Eski zaman pencereleri "kesin gün" (dar pencere) mantığından, sunucu çökmesine karşı "esnek gün" mantığına çevrilecek.
+
+   ## [[KTZ-59-NOT-018] - Notifications / Post Comment](https://dygcankurt17.atlassian.net/browse/KTZ-59)
+
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-59`
+- **Mimari Kararlar & Ne Yaptım:**
+
+- Service klasorunde yorumlar için dosya actım.Gerekli bilgilleri user Yorumu yapan kişi ;kendi kendinemi yorum yaptı kalkanında gonderı sahıbı ıle karsılastırdıgım kısım bu.ValidatedData bunun ıcınden parentCommentId sini almak ıcın ,post ve newCommentId yi cektim .
+- post.authorId :Gonderinin sahibi Hedefdeki kişi bildirimi alan recipientId
+-validatedData.parentCommentId(Ust yorumun id si ):Burası da benım filtre kalkanım.Eğer bir ID varsa(eger biri yoruma yanıt verıyorsa ) if blogu bısey yapmadan duruck
+- newCommentId (Oluşturulan Yeni Yorumun ID'si) & post._id: Bunlar sadece Frontend ekibi için kullandığımız yönlendirme tabelalarıdır. Uygulamanın o gönderiyi bulup ilgili yoruma kayabilmesi (scroll yapabilmesi) için linkNotification içine yerleştirdiğimiz koordinatlardır.
+- Agacın Govdesi : Gonderim (POST)
+- ANA DALLAR : Gonderiye yapılan ilk yorumlar
+- Yapraklar: Yorumlara verilen yanıtlar(Replies)
+Veritabanında yorum olusturulurken sisteme sunu soruyorm: Bu yorum kımın cocugu. Bir parentı varmı
+Eger birisi benin postuma yorum yapıyorsa (AnaDal) bu yorumun parentı yok.FE bana parentId null atıcak
+- Eğer biri bennim yorumuma "Kesinlikle katılıyorum" diye yanıt veriyorsa (Küçük Yaprak), bu yorumun bir babası vardır. Frontend bana babanın ID'sini parentCommentId: "65b" şeklinde gönderir.
+ !validatedData.parentCommentId = bu bossa yorumun herhangı bır parentı yoksa bunu true dondum
+ sonuc true bıldırım atacak ama FE dolu yollarsa false olucagından bıldırm atmıycm
+- Service katmanında sorgularımı yapıp Helperdakı fonskıyonumu cagırdım bıldırm paketını olusturp db ye kaydetmıs oldum.
+
+
+
+
 
