@@ -1,7 +1,11 @@
+import type { Types, Model, HydratedDocument } from "mongoose";
 
-import type { Types, Model, HydratedDocument } from 'mongoose';
-
-export type EventStatus = 'pending' | 'approved' | 'rejected' | 'cancelled' | 'completed';
+export type EventStatus =
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "cancelled"
+  | "completed";
 
 export interface IAgeRange {
   min: number;
@@ -18,7 +22,7 @@ export interface ISchedule {
   endDate?: Date | null;
   startTime: string; // "14:00"
   endTime: string; // "17:00"
-  isRecurring?: boolean;  // tkrarlanan mi
+  isRecurring?: boolean; // tkrarlanan mi
   recurrenceRule?: string | null; // örn. "weekly", "monthly"
 }
 
@@ -29,8 +33,8 @@ export interface IEventLocation {
   state?: string | null; //eyalet
   zipCode?: string | null;
   country: string;
-   coordinates: {
-    type: 'Point';
+  coordinates: {
+    type: "Point";
     coordinates: [number, number]; // [lng, lat]
   };
 }
@@ -42,10 +46,9 @@ export interface ICapacity {
 
 export interface IParticipant {
   userId: Types.ObjectId;
-  status: 'confirmed' | 'cancelled';
+  status: "confirmed" | "cancelled";
   joinedAt: Date;
 }
-
 
 export interface IEvent {
   _id?: Types.ObjectId;
@@ -71,6 +74,12 @@ export interface IEvent {
   viewCount: number;
   createdAt?: Date;
   updatedAt?: Date;
+  systemNotificationSent?: (
+    | "organizer_prep_1day"
+    | "low_capacity_3day"
+    | "post_event_summary"
+    | "event_reminder_2hour"
+  )[];
 }
 
 export type EventModel = Model<IEvent>;
@@ -112,9 +121,11 @@ export interface EventDTO {
 }
 
 // omit createdBy haric tum alanlari al demek ve yazilanlari ekle
-export interface AdminEventDTO extends Omit<EventDTO, 'createdBy'> {
+export interface AdminEventDTO extends Omit<EventDTO, "createdBy"> {
   // createdBy silinmis bir kullaniciya isaret ediyorsa (dangling ref) sadece id string'i olarak doner.
-  createdBy: (EventCreatedByRef & { role: 'user' | 'organizer' | 'admin' }) | string;
+  createdBy:
+    | (EventCreatedByRef & { role: "user" | "organizer" | "admin" })
+    | string;
   rejectedReason: string | null;
   cancelledReason: string | null;
   approvedAt: Date | null;

@@ -10,6 +10,7 @@ export type NotificationType =
   | "nearby_event"
   | "organizer_approved"
   | "organizer_prep_summary"
+  | "low_capacity_3day"
   | "system";
 
 export interface IBaseDocument {

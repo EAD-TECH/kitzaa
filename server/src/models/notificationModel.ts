@@ -14,6 +14,7 @@ const NOTFICATION_TYPES: NotificationType[] = [
   "nearby_event",
   "organizer_approved",
   "organizer_prep_summary",
+  "low_capacity_3day" ,
   "system",
 ];
 
