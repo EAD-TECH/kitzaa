@@ -10,27 +10,34 @@ import type {
   UpdatePostCommentInput,
 } from "../../validations/postComment.schema.js";
 import type { PostCommentDocument } from "../../types/postComment.types.js";
+import { triggerCommentNotification } from "../../services/socialPostCommentNotification.js";
 
 const socialPostCommentController = {
   list: async (req: Request, res: Response) => {
-      const customFilter = { isDeleted: false };
-  
-      const result = await res.getModelList(PostComment, customFilter, [
-        { path: "authorId", select: "username firstName lastName avatarUrl" }
-      ]);
-  
-      res.status(200).send({
-        error: false,
-        details: await res.getModelListDetails(PostComment, customFilter),
-        comments: toPostCommentDTO(result, req.user._id),
-      });
-    },
+    const customFilter = { isDeleted: false };
 
-  create: async (req: Request<{}, any, CreatePostCommentInput>, res: Response) => {
+    const result = await res.getModelList(PostComment, customFilter, [
+      { path: "authorId", select: "username firstName lastName avatarUrl" },
+    ]);
+
+    res.status(200).send({
+      error: false,
+      details: await res.getModelListDetails(PostComment, customFilter),
+      comments: toPostCommentDTO(result, req.user._id),
+    });
+  },
+
+  create: async (
+    req: Request<{}, any, CreatePostCommentInput>,
+    res: Response,
+  ) => {
     const validatedData = req.body;
     const userId = req.user._id;
 
-    const post = await Post.findOne({ _id: validatedData.postId, isDeleted: false });
+    const post = await Post.findOne({
+      _id: validatedData.postId,
+      isDeleted: false,
+    });
     if (!post) {
       throw new CustomError("Post not found", 404);
     }
@@ -46,7 +53,10 @@ const socialPostCommentController = {
       }
 
       if (!parentComment.postId.equals(validatedData.postId)) {
-        throw new CustomError("Parent comment does not belong to this post", 400);
+        throw new CustomError(
+          "Parent comment does not belong to this post",
+          400,
+        );
       }
 
       // 2-level thread: reply sadece top-level yoruma olabilir
@@ -69,13 +79,27 @@ const socialPostCommentController = {
       { path: "authorId", select: "username firstName lastName avatarUrl" },
     ]);
 
+    const propData = {
+      user:req.user,
+      post,
+      validatedData,
+      newCommentId: newPostCommentData._id,
+    };
+
+    /* yorum olustuktan sonra bıldırımı atıyorm */
+
+    triggerCommentNotification(propData);
+
     res.status(201).send({
       error: false,
       comment: toPostCommentDTO(newPostCommentData, userId),
     });
   },
 
-  update: async (req: Request<{ id: string }, any, UpdatePostCommentInput>, res: Response) => {
+  update: async (
+    req: Request<{ id: string }, any, UpdatePostCommentInput>,
+    res: Response,
+  ) => {
     // isOwnerOrAdmin middleware sahiplik/admin kontrolunu yapip comment'i req.resource'a koyuyor.
     const comment = req.resource as PostCommentDocument;
 
@@ -120,13 +144,17 @@ const socialPostCommentController = {
     const userId = req.user._id;
 
     // Soft-delete edilmis yoruma like basilamaz.
-    const comment = await PostComment.findOne({ _id: commentId, isDeleted: false });
+    const comment = await PostComment.findOne({
+      _id: commentId,
+      isDeleted: false,
+    });
 
     if (!comment) {
       throw new CustomError("Comment not found", 404);
     }
 
-    const alreadyLiked = comment.likes?.some((id) => id.equals(userId)) ?? false;
+    const alreadyLiked =
+      comment.likes?.some((id) => id.equals(userId)) ?? false;
 
     const updatedComment = await PostComment.findOneAndUpdate(
       { _id: commentId, isDeleted: false },

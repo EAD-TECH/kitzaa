@@ -142,11 +142,9 @@ CONTROLLER VE ROUTE tanımlamalarımı gerceklestırmıstım. KTZ-63-feat-create
 
    - Controller Entegrasyonu: Yazılan servis, eventController.ts içerisindeki iptal akışına dahil edildi. State Machine güvenlik duvarı (assertValidTransition) geçilip veri tabanına kayıt (await event.save()) yapıldıktan hemen sonra "Ateşle ve Unut (Fire & Forget)" asenkron mantığıyla konumlandırıldı.
 
-   ## [[KTZ-70-NOT-019] - Notifications / Organizer prep event](https://dygcankurt17.atlassian.net/browse/KTZ-70)
 
-- **Durum:** In Progress
-- **Jira Kartı:** `KTZ-70`
-- **Mimari Kararlar & Ne Yaptım:**
+
+
 
 - İlk olarak organizerPrepJob dosyasını actım
 - Bir sonrakı gun olucak olan Eventları çektım
@@ -186,6 +184,29 @@ router.get("/test-cron", async (req, res) => {
 });
 
 ```
+
+
+
+   ## [[KTZ-59-NOT-018] - Notifications / Post Comment](https://dygcankurt17.atlassian.net/browse/KTZ-59)
+
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-59`
+- **Mimari Kararlar & Ne Yaptım:**
+
+- Service klasorunde yorumlar için dosya actım.Gerekli bilgilleri user Yorumu yapan kişi ;kendi kendinemi yorum yaptı kalkanında gonderı sahıbı ıle karsılastırdıgım kısım bu.ValidatedData bunun ıcınden parentCommentId sini almak ıcın ,post ve newCommentId yi cektim .
+- post.authorId :Gonderinin sahibi Hedefdeki kişi bildirimi alan recipientId
+-validatedData.parentCommentId(Ust yorumun id si ):Burası da benım filtre kalkanım.Eğer bir ID varsa(eger biri yoruma yanıt verıyorsa ) if blogu bısey yapmadan duruck
+- newCommentId (Oluşturulan Yeni Yorumun ID'si) & post._id: Bunlar sadece Frontend ekibi için kullandığımız yönlendirme tabelalarıdır. Uygulamanın o gönderiyi bulup ilgili yoruma kayabilmesi (scroll yapabilmesi) için linkNotification içine yerleştirdiğimiz koordinatlardır.
+- Agacın Govdesi : Gonderim (POST)
+- ANA DALLAR : Gonderiye yapılan ilk yorumlar
+- Yapraklar: Yorumlara verilen yanıtlar(Replies)
+Veritabanında yorum olusturulurken sisteme sunu soruyorm: Bu yorum kımın cocugu. Bir parentı varmı
+Eger birisi benin postuma yorum yapıyorsa (AnaDal) bu yorumun parentı yok.FE bana parentId null atıcak
+- Eğer biri bennim yorumuma "Kesinlikle katılıyorum" diye yanıt veriyorsa (Küçük Yaprak), bu yorumun bir babası vardır. Frontend bana babanın ID'sini parentCommentId: "65b" şeklinde gönderir.
+ !validatedData.parentCommentId = bu bossa yorumun herhangı bır parentı yoksa bunu true dondum
+ sonuc true bıldırım atacak ama FE dolu yollarsa false olucagından bıldırm atmıycm
+- Service katmanında sorgularımı yapıp Helperdakı fonskıyonumu cagırdım bıldırm paketını olusturp db ye kaydetmıs oldum.
+
 
 
 
