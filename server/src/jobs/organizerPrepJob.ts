@@ -6,7 +6,6 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js";
 import { Notification } from "../models/notificationModel.js";
 
-
 dayjs.extend(utc);
 
 export const sendOrganizerPrepSummary = async () => {
@@ -64,5 +63,5 @@ export const sendOrganizerPrepSummary = async () => {
 /* motoru olusturdm simdi onu tetiklemem lazim her gece 00:00 calısması ıcın*/
 export const startEventForOrganizerReminderJob = () => {
   cron.schedule("0 0 * * *", sendOrganizerPrepSummary);
-  console.log("event reminder baslattım");
+  // console.log("event reminder baslattım");
 };
