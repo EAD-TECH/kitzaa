@@ -31,7 +31,7 @@
  *       - in: query
  *         name: sort
  *         type: string
- *         description: "Example: sort[createdAt]=desc"
+ *         description: "Example: "Example: sort[createdAt]=-1"
  *       - in: query
  *         name: filter
  *         type: string
