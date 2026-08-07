@@ -469,6 +469,12 @@ Authorization: Bearer {{accessToken}}
 # 
 
 GET {{baseUrl}}/test-cron
+### ==========================================
+###  KTZ-71 TESTİ: lowcapacity
+### ==========================================
+# authentication zorunlu — once ustteki # @name login (elif) calistir
+GET {{baseUrl}}/notifications/test-low-capacity
+Authorization: Bearer {{accessToken}}
 
 
 
