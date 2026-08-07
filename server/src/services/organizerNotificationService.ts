@@ -29,7 +29,7 @@ export const sendLowCapacityPrompts = async () => {
     },
     /* current degeri max degerinden kucuk olanları getır */
     $expr: { $lt: ["$capacity.current", "$capacity.max"] },
-    /* Anti-Spam Kalkanı: Dizinin içinde 'low_capacity_3day' YOKSA ($ne) getir! */
+    /* Anti-Spam Kalkanı: Dizinin içinde 'low_capacity_3day' YOKSA ($nin) getir! */
     systemNotificationSent: { $nin: ["low_capacity_3day"] },
   });
 
@@ -40,9 +40,10 @@ export const sendLowCapacityPrompts = async () => {
   const notificationToInsert = eventsToNotify.map((event) => {
     /* yuzde yi hesapla */
 
-    const percent = Number(
-      Math.round((event.capacity.current / event.capacity.max) * 100),
-    );
+    /*event.capacity.max=0 olursa sonuc infiniti  */
+   const percent = event.capacity.max > 0
+  ? Math.round((event.capacity.current / event.capacity.max) * 100)
+  : 0;
     /* bildirim paketini hazırla */
 
     const eventDate = dayjs.utc(event.schedule.startDate).startOf("day");
