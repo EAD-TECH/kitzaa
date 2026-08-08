@@ -23,10 +23,10 @@ export const triggerCommentNotification = async (
     !validatedData.parentCommentId &&
     post.authorId.toString() !== user._id.toString()
   ) {
-    
     createNotification(post.authorId, "post_comment", {
       title: "Yeni Yorum",
       message: `${user.firstName || "Birisi"} gönderine yeni bir yorum yaptı.`,
+      senderId: user._id,  /* senderin bilgileri */
 
       /*   Frontend'e sunduğum 1. Seçenek: Sadece ID */
       relatedId: newCommentId,
