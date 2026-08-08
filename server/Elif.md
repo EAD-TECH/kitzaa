@@ -62,7 +62,7 @@ Sorman Gereken "Kriz" Soruları:
 
 ---
 
-## [[NOT-016] - Notifications / Event reminder](https://dygcankurt17.atlassian.net/browse/KTZ-57)
+## [KTZ-57-NOT-016 - Notifications / Event reminder](https://dygcankurt17.atlassian.net/browse/KTZ-57)
 
 - **Durum:** In Progress
 - **Jira Kartı:** `KTZ-57`
@@ -125,6 +125,7 @@ Mantıgı :
 - **Ne Öğrendim:**
   - toNotificationDTO ve toAdminNotificationDTO helper fonksiyonlarıyla Controller katmanını veri biçimlendirmeyi kavradım.
   -
+
 ## [[KTZ-58-NOT-017] - Notifications / Nearby events](https://dygcankurt17.atlassian.net/browse/KTZ-58)
 
 - **Durum:** In Progress
@@ -163,9 +164,6 @@ Mantıgı :
   - Controller Entegrasyonu: Yazılan servis, eventController.ts içerisindeki iptal akışına dahil edildi. State Machine güvenlik duvarı (assertValidTransition) geçilip veri tabanına kayıt (await event.save()) yapıldıktan hemen sonra "Ateşle ve Unut (Fire & Forget)" asenkron mantığıyla konumlandırıldı.
 
   ## [[KTZ-70-NOT-019] - Notifications / Organizer prep event](https://dygcankurt17.atlassian.net/browse/KTZ-70)
-
-
-
 
 - İlk olarak organizerPrepJob dosyasını actım
 - Bir sonrakı gun olucak olan Eventları çektım
@@ -207,36 +205,36 @@ router.get("/test-cron", async (req, res) => {
 
 ## [[KTZ-71-NOT-020] - Notifications / Organizer prep event](https://dygcankurt17.atlassian.net/browse/KTZ-71)
 
-- **Durum:** In Progress
+- **Durum:** Done
 - **Jira Kartı:** `KTZ-71`
 - **Mimari Kararlar & Ne Yaptım:**
 
- Görev Amacı ve Mimari Kararlar
+Görev Amacı ve Mimari Kararlar
 
 Bu taskın temel amacı; organizatörlerin etkinlik katılım oranları az olduğunda onları platforma tekrar bağlamak, etkileşimi artırmak ve müşteri memnuniyeti sağlamak adına teşvik edici bir hatırlatma ("Kapasiteni doldurmak ister misin?") bildirimi göndermektir.
 
-Bunu kurgularken, geçmişte KTZ-70'te gözden kaçan "Felaket Senaryosu" (Fault Tolerance) ve "Spam Koruması" (Idempotency) konularını merkeze alarak Best Practice  standartlarında bir mimari tasarladım:
+Bunu kurgularken, geçmişte KTZ-70'te gözden kaçan "Felaket Senaryosu" (Fault Tolerance) ve "Spam Koruması" (Idempotency) konularını merkeze alarak Best Practice standartlarında bir mimari tasarladım:
 
-1. Esnek Zaman Penceresi (Felaket Senaryosuna Karşı)
-Diyelim ki bir şeyler ters gitti ve sunucu o gece çöktüğü için Cron Job hiç çalışmadı. Eğer kurgumu "Sadece tam 3 gün kalan etkinlikleri bul" şeklinde kesin ve dar bir pencerede yapsaydım, o günkü bildirimler tamamen yanacaktı.
-Bunun yerine zaman penceresini esnettim: Yarından itibaren 3. günün sonuna kadar olanları getir. Böylece sunucu ertesi gün düzelse bile, aradan kaçan (2 gün veya 1 gün kalmış) etkinlikler ağa yakalanarak telafi edilebilecek.
+1.  Esnek Zaman Penceresi (Felaket Senaryosuna Karşı)
+    Diyelim ki bir şeyler ters gitti ve sunucu o gece çöktüğü için Cron Job hiç çalışmadı. Eğer kurgumu "Sadece tam 3 gün kalan etkinlikleri bul" şeklinde kesin ve dar bir pencerede yapsaydım, o günkü bildirimler tamamen yanacaktı.
+    Bunun yerine zaman penceresini esnettim: Yarından itibaren 3. günün sonuna kadar olanları getir. Böylece sunucu ertesi gün düzelse bile, aradan kaçan (2 gün veya 1 gün kalmış) etkinlikler ağa yakalanarak telafi edilebilecek.
 
-2. Anti-Spam (Idempotency) Kalkanı ve Schema Bloat Önlemi
-Genişleyen bu zaman ağına takılan etkinliklere her gece tekrar tekrar aynı bildirimi atmamak (Spam koruması) için Event şemasına bir "Bayrak" (Flag) sistemi kurmam gerekti.
-Ancak her yeni bildirim senaryosu (3 gün kala, 1 gün kala, etkinlik sonu vb.) için veritabanına yeni bir boolean alan açsaydım veritabanı şişecekti (Schema Bloat). Bunun yerine systemNotificationSent adında tek bir dizi (Array of Strings) tutmaya karar verdim.
+2.  Anti-Spam (Idempotency) Kalkanı ve Schema Bloat Önlemi
+    Genişleyen bu zaman ağına takılan etkinliklere her gece tekrar tekrar aynı bildirimi atmamak (Spam koruması) için Event şemasına bir "Bayrak" (Flag) sistemi kurmam gerekti.
+    Ancak her yeni bildirim senaryosu (3 gün kala, 1 gün kala, etkinlik sonu vb.) için veritabanına yeni bir boolean alan açsaydım veritabanı şişecekti (Schema Bloat). Bunun yerine systemNotificationSent adında tek bir dizi (Array of Strings) tutmaya karar verdim.
 
-    Esnek ve genişleyebilir bir yapı için TypeScript ve Mongoose katmanlarını şu şekilde senkronize ettim:
+        Esnek ve genişleyebilir bir yapı için TypeScript ve Mongoose katmanlarını şu şekilde senkronize ettim:
 
 TypeScript
 
 systemNotificationSent?: (
-    | "organizer_prep_1day"
-    | "low_capacity_3day"
-    | "post_event_summary"
-    | "event_reminder_2hour"
+| "organizer_prep_1day"
+| "low_capacity_3day"
+| "post_event_summary"
+| "event_reminder_2hour"
 )[];
 
--  MongoDB Operatörleri ve İyileştirmeler (Code Review Sonrası)
+- MongoDB Operatörleri ve İyileştirmeler (Code Review Sonrası)
 
 Bu taskta klasik find() sorgularının ötesine geçerek MongoDB'nin performanslı operatörlerini kullandım:
 
@@ -251,7 +249,7 @@ Bu taskta klasik find() sorgularının ötesine geçerek MongoDB'nin performansl
     $addToSet Operatörü ($push yerine - Çakışma Önleyici):
     Bildirimi attığım etkinlikleri damgalarken $push kullanmıştım. Ancak olası bir "Race Condition" (Cron job'ın bir hatayla anlık olarak iki kere çalışması) durumunda, $push aynı bayrağı diziye mükerrer olarak iki kere ekleyecekti. Bunu, tıpkı kümeler mantığıyla çalışan ve "Sadece içeride daha önceden yoksa ekle" diyen $addToSet operatörüyle güncelledim.
 
--  Performans Odaklı Akış (Core Flow)
+- Performans Odaklı Akış (Core Flow)
 
 Core akış şu şekilde tamamen tutarlı hale getirildi: Sorgu → Paket → insertMany → Flag (updateMany)
 
@@ -259,18 +257,17 @@ Core akış şu şekilde tamamen tutarlı hale getirildi: Sorgu → Paket → in
 
     Toplu İşlemler (Bulk Operations): Hem bildirimleri fırlatırken insertMany kullandık, hem de spam bayraklarını işlerken (eğer 1000 etkinlik varsa 1000 kere DB'ye gitmek yerine) updateMany ile tek bir seferde işaretleme yaptık.
 
--  Test Ortamı
+- Test Ortamı
 
 Cron job'ı beklemeden sistemi izole bir şekilde test etmek için routes içerisine şu geçici endpoint'i bağladım:
 TypeScript
 
 router.get("/test-low-capacity", async (req, res) => {
-  await sendLowCapacityPrompts();
-  res.status(200).json({ error: false, message: "KTZ-71 job ran" });
+await sendLowCapacityPrompts();
+res.status(200).json({ error: false, message: "KTZ-71 job ran" });
 });
 
-
- Teknik  (Technical Debt - Gelecek Görevler)
+Teknik (Technical Debt - Gelecek Görevler)
 
 Geçmiş tasklardaki mimari eksiklikleri düzenli bir şekilde refactor etmek için şu taskı açmam lazım:
 KTZ-?: Bildirim Motorları İçin İyileştirme ve Standartlaştırma
@@ -281,7 +278,7 @@ KTZ-?: Bildirim Motorları İçin İyileştirme ve Standartlaştırma
 
     [ ] Eski zaman pencereleri "kesin gün" (dar pencere) mantığından, sunucu çökmesine karşı "esnek gün" mantığına çevrilecek.
 
-   ## [[KTZ-59-NOT-018] - Notifications / Post Comment](https://dygcankurt17.atlassian.net/browse/KTZ-59)
+## [[KTZ-59-NOT-018] - Notifications / Post Comment](https://dygcankurt17.atlassian.net/browse/KTZ-59)
 
 - **Durum:** In Progress
 - **Jira Kartı:** `KTZ-59`
@@ -289,19 +286,42 @@ KTZ-?: Bildirim Motorları İçin İyileştirme ve Standartlaştırma
 
 - Service klasorunde yorumlar için dosya actım.Gerekli bilgilleri user Yorumu yapan kişi ;kendi kendinemi yorum yaptı kalkanında gonderı sahıbı ıle karsılastırdıgım kısım bu.ValidatedData bunun ıcınden parentCommentId sini almak ıcın ,post ve newCommentId yi cektim .
 - post.authorId :Gonderinin sahibi Hedefdeki kişi bildirimi alan recipientId
--validatedData.parentCommentId(Ust yorumun id si ):Burası da benım filtre kalkanım.Eğer bir ID varsa(eger biri yoruma yanıt verıyorsa ) if blogu bısey yapmadan duruck
-- newCommentId (Oluşturulan Yeni Yorumun ID'si) & post._id: Bunlar sadece Frontend ekibi için kullandığımız yönlendirme tabelalarıdır. Uygulamanın o gönderiyi bulup ilgili yoruma kayabilmesi (scroll yapabilmesi) için linkNotification içine yerleştirdiğimiz koordinatlardır.
+  -validatedData.parentCommentId(Ust yorumun id si ):Burası da benım filtre kalkanım.Eğer bir ID varsa(eger biri yoruma yanıt verıyorsa ) if blogu bısey yapmadan duruck
+- newCommentId (Oluşturulan Yeni Yorumun ID'si) & post.\_id: Bunlar sadece Frontend ekibi için kullandığımız yönlendirme tabelalarıdır. Uygulamanın o gönderiyi bulup ilgili yoruma kayabilmesi (scroll yapabilmesi) için linkNotification içine yerleştirdiğimiz koordinatlardır.
 - Agacın Govdesi : Gonderim (POST)
 - ANA DALLAR : Gonderiye yapılan ilk yorumlar
 - Yapraklar: Yorumlara verilen yanıtlar(Replies)
-Veritabanında yorum olusturulurken sisteme sunu soruyorm: Bu yorum kımın cocugu. Bir parentı varmı
-Eger birisi benin postuma yorum yapıyorsa (AnaDal) bu yorumun parentı yok.FE bana parentId null atıcak
+  Veritabanında yorum olusturulurken sisteme sunu soruyorm: Bu yorum kımın cocugu. Bir parentı varmı
+  Eger birisi benin postuma yorum yapıyorsa (AnaDal) bu yorumun parentı yok.FE bana parentId null atıcak
 - Eğer biri bennim yorumuma "Kesinlikle katılıyorum" diye yanıt veriyorsa (Küçük Yaprak), bu yorumun bir babası vardır. Frontend bana babanın ID'sini parentCommentId: "65b" şeklinde gönderir.
- !validatedData.parentCommentId = bu bossa yorumun herhangı bır parentı yoksa bunu true dondum
- sonuc true bıldırım atacak ama FE dolu yollarsa false olucagından bıldırm atmıycm
+  !validatedData.parentCommentId = bu bossa yorumun herhangı bır parentı yoksa bunu true dondum
+  sonuc true bıldırım atacak ama FE dolu yollarsa false olucagından bıldırm atmıycm
 - Service katmanında sorgularımı yapıp Helperdakı fonskıyonumu cagırdım bıldırm paketını olusturp db ye kaydetmıs oldum.
 
+## [[KTZ-72-NOT-021] - eVENT SUMMARY](https://dygcankurt17.atlassian.net/browse/KTZ-72)
 
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-72`
+- **Mimari Kararlar & Ne Yaptım:**
 
+Amacım : Bir etkinlik bittikten tam 2 saat sonra organizatöre "Etkinlik nasıldı? Hadi fotoğraf paylaş!" demek.
 
+- Sistemde gece 00:00'da çalışan başka bir motor (eventStatus.job) var. O motor gece uyanıp bitmiş etkinlikleri completed yapıyor.
+  Senaryo: Etkinlik akşam 23:00'te bitti. Bizim motor 2 saat sonra (01:00'de) bildirim atmak için uyanacak. Bu yuzden $in["approved","completed"] olarak arattım
 
+elimde Anti-Spam bayrağı ($nin: ["post_event_summary"]) var, Üzerinden en az 2 saat geçmiş olan ve son 7 gün içinde bitmiş olan herkesi getir Zaten bayrağı alanlar eleneceği için kimseye çift gitmez, sunucu 3 gün kapalı kalsa bile açıldığında geriye dönük herkesi telafi eder.
+
+Bildirimleri insertMany ile veritabanına yazdım (Başarılı). Tam o sırada veritabanı bağlantısı koptu ve bayrakları çakan updateMany kodu çalışamadı.TRY-CATCH uyguladm
+
+endDate Yoksa Ne Olacak?
+
+Eğer organizatör etkinlik oluştururken bir bitiş tarihi girmemişse (null), sistem çöker veya onu pas geçer.
+Çözüm: $or operatörüyle "Bitiş tarihi varsa ona bak, yoksa başlangıç tarihine bak" demeliyiz.
+
+## Test
+```js
+router.get("/test-post-event-summary", async (_req, res) => {
+  await sendPostEventSummaries();
+  res.status(200).json({ error: false, message: "KTZ-72 job ran" });
+});
+```
