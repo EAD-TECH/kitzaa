@@ -50,6 +50,8 @@ export interface NotificationDTO extends IBaseDocument {
   linkNotification?: string | null;
   /* senderın organizatorun bılgileri */
   sender?: {
+    firstName: string;
+    lastName: string;
     username: string;
     email: string;
     avatarUrl: string;
