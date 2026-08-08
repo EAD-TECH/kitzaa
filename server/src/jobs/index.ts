@@ -3,7 +3,7 @@ import { startLowCapacityPromptJob } from "./lowCapacityPromptJob.js";
 import { startEventForOrganizerReminderJob } from "./organizerPrepJob.js";
 
 export const initializeAllJobs = () => {
-  console.log("cron jobs motorumu burdan tetıklıyorm");
+  // console.log("cron jobs motorumu burdan tetıklıyorm");
 
   startEventForOrganizerReminderJob();
 
