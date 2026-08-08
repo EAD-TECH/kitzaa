@@ -16,7 +16,8 @@ const NOTFICATION_TYPES: NotificationType[] = [
   "organizer_application",
   "event_review",
   "organizer_prep_summary",
-  "low_capacity_3day" ,
+  "low_capacity_3day",
+  "post_event_summary",
   "system",
 ];
 
@@ -47,12 +48,17 @@ const notificationSchema = new Schema<INotification>(
       type: Schema.Types.ObjectId,
       default: null,
       trim: true,
-      refPath: "relatedModel", /* tabloyu bu alandan alack */
+      refPath: "relatedModel" /* tabloyu bu alandan alack */,
     },
 
     relatedModel: {
       type: String,
-      enum: ["Event", "OrganizerApplication", "Post", "PostComment"], /* modellerim */
+      enum: [
+        "Event",
+        "OrganizerApplication",
+        "Post",
+        "PostComment",
+      ] /* modellerim */,
       default: null,
     },
     linkNotification: {
@@ -65,11 +71,11 @@ const notificationSchema = new Schema<INotification>(
       required: true,
       trim: true,
     },
-    senderId:{
+    senderId: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      default:null
-    }
+      default: null,
+    },
   },
 
   { timestamps: true },

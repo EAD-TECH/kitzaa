@@ -476,6 +476,13 @@ GET {{baseUrl}}/test-cron
 GET {{baseUrl}}/notifications/test-low-capacity
 Authorization: Bearer {{accessToken}}
 
+### ==========================================
+###  KTZ-72 TESTİ: eventsummary
+### ==========================================
+
+GET {{baseUrl}}/notifications/test-post-event-summary
+Authorization: Bearer {{accessToken}}
+
 
 
 

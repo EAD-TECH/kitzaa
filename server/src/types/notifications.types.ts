@@ -12,6 +12,7 @@ export type NotificationType =
   | "organizer_application"
   | "event_review"
   | "organizer_prep_summary"
+  | "post_event_summary"
   | "low_capacity_3day"
   | "system";
 
