@@ -6,6 +6,7 @@ import type { NotificationType } from "../types/notifications.types.js";
 interface NotificationPayload {
   title: string;
   message: string;
+  senderId?:Types.ObjectId | string | null
   linkNotification?: string | null;
   relatedId: Types.ObjectId | null;
   relatedModel?:
@@ -20,6 +21,7 @@ export const createNotification = async (
   recipientId: Types.ObjectId,
   type: NotificationType,
   payload: NotificationPayload,
+  
 ) => {
   try {
     const data = await Notification.create({
@@ -27,6 +29,7 @@ export const createNotification = async (
       type,
       title: payload.title,
       message: payload.message,
+      senderId:payload.senderId ?? null,
       linkNotification: payload.linkNotification,
       relatedId: payload.relatedId,
       relatedModel: payload.relatedModel,

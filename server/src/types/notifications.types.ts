@@ -6,7 +6,7 @@ export type NotificationType =
   | "new_event"
   | "event_reminder"
   | "event_cancelled"
-  | "forum_reply"
+  | "post_reply"
   | "nearby_event"
   | "organizer_approved"
   | "organizer_application"
@@ -50,6 +50,8 @@ export interface NotificationDTO extends IBaseDocument {
   linkNotification?: string | null;
   /* senderın organizatorun bılgileri */
   sender?: {
+    firstName: string;
+    lastName: string;
     username: string;
     email: string;
     avatarUrl: string;

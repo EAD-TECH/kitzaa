@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { Notification } from "../../models/notificationModel.js";
 import { toNotificationDTO } from "../../helpers/toNotificationDTO.js";
 import CustomError from "../../helpers/customError.js";
+import path from "node:path";
 
 export const listNotificationsById = async (req: Request, res: Response) => {
   // 1. Sadece bu kullanıcıya ait olanları filtrele
@@ -15,7 +16,9 @@ export const listNotificationsById = async (req: Request, res: Response) => {
   console.log("musterinin istediği filtre calısıyormu", customFilter);
 
   // 3. Verileri getir (Kullanıcının filtresiyle)
-  const notifications = await res.getModelList!(Notification, customFilter);
+  const notifications = await res.getModelList!(Notification, customFilter, [
+    { path: "senderId", select: "firstName lastName avatarUrl username email" },
+  ]);
 
   /* burda veritabanından gelen kirli veri olması lazım */
   console.log(
@@ -74,7 +77,7 @@ export const patchNotification = async (req: Request, res: Response) => {
   console.log("veri sanitize edilmeden once", updatedAsREadnotification);
 
   if (!updatedAsREadnotification) {
-    throw new CustomError("Notification not found ",404);
+    throw new CustomError("Notification not found ", 404);
   }
   const result = toNotificationDTO(updatedAsREadnotification);
   console.log("veri sanitize edildimi buna bakmam lazım", result);
@@ -93,15 +96,15 @@ export const patchAllNotificationAsRead = async (
 ) => {
   /* Sadece okunmamış olanları hedefliyorum o yuzden fılterdan gecırıp false ları getırdım */
   const customFilter: any = { recipientId: req.user._id, isRead: false };
-  console.log("toplu guncelleme",customFilter)
+  console.log("toplu guncelleme", customFilter);
 
   const updatedAllnotifications = await Notification.updateMany(customFilter, {
     isRead: true,
   });
-  console.log("guncelleme sonucu",updatedAllnotifications)
+  console.log("guncelleme sonucu", updatedAllnotifications);
 
   return res.status(200).json({
-     error: false,
+    error: false,
     message: "All Notifications are read successfully",
     data: updatedAllnotifications.modifiedCount,
   });
