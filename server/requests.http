@@ -41,12 +41,12 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "username": "TestPerson",
-  "firstName": "person",
-  "lastName": "person",
-  "email": "elifyuzer121@gmail.com",
-  "password": "Password1!",
-  "phone": "+491234567890",
+  "username": "TestCommenter3",
+  "firstName": "testcommenter3",
+  "lastName": "testcommenter3",
+  "email": "testcommenter3@gmail.com",
+  "password": "Password1.",
+  "phone": "+491234567190",
   "language": "de",
   "location": {
     "city": "Berlin",
@@ -140,6 +140,7 @@ Authorization: Bearer {{accessToken}}
 
 ### 
 # @name UpdatePassword
+
 PUT {{baseUrl}}/users/{{userId}}/password
 Authorization: Bearer {{accessToken}}
 Content-Type: {{contentType}}
@@ -572,13 +573,14 @@ Authorization: Bearer {{accessToken}}
 
 
 ### Create top-level comment
+# Once createPost / readPost calistir — {{postId}} ayni olmali
 # @name createComment
 POST {{baseUrl}}/comments
 Authorization: Bearer {{accessToken}}
 Content-Type: {{contentType}}
 
 {
-  "postId": "6a74b78495bedcf367e07f52",
+  "postId": "{{postId}}",
   "text": "Great post, thanks for sharingg!"
 }
 
@@ -619,3 +621,91 @@ Authorization: Bearer {{accessToken}}
 # @name deleteComment
 DELETE {{baseUrl}}/comments/{{commentId}}
 Authorization: Bearer {{accessToken}}
+
+
+### ============================================================
+### KTZ-109 TEST: post_comment + post_reply notifications
+### ONEMLI: A ve B FARKLI kullanici olmali.
+### Ayni hesapla yorum/yanit = self guard → bildirim OLUSMAZ (test "bos" gorunur).
+### Sirayla her istegin uzerindeki Send Request'e bas.
+### ============================================================
+
+### 1) A — Post sahibi login (TestPerson)
+# @name loginPostOwner
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "login": "TestCommenter3",
+  "password": "Password1."
+}
+
+### 2) A — Post olustur
+# @name ktz109CreatePost
+POST {{baseUrl}}/posts
+Authorization: Bearer {{loginPostOwner.response.body.$.accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "text": "KTZ-109 notification test post"
+}
+
+### 3) B — Yorumcu login (AYRI hesap — ayla yoksa kendi 2. user'ini yaz)
+# @name loginCommenter
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "login": "TestCommenter",
+  "password": "Password1."
+}
+
+### 4) B — Top-level yorum → A'ya post_comment gitmeli
+# @name ktz109CreateComment
+POST {{baseUrl}}/comments
+Authorization: Bearer {{loginCommenter.response.body.$.accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "postId": "{{ktz109CreatePost.response.body.$.post._id}}",
+  "text": "KTZ-109 top-level comment from B"
+}
+
+### 5) A — Bildirim listesi → type: "post_comment", sender dolu olmali
+# @name ktz109ListNotifsAsPostOwner
+GET {{baseUrl}}/notifications
+Authorization: Bearer {{loginPostOwner.response.body.$.accessToken}}
+
+### 6) A — B'nin yorumuna yanit → B'ye post_reply gitmeli
+# @name ktz109CreateReply
+POST {{baseUrl}}/comments
+Authorization: Bearer {{loginPostOwner.response.body.$.accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "postId": "{{ktz109CreatePost.response.body.$.post._id}}",
+  "text": "KTZ-109 reply from A to B",
+  "parentCommentId": "{{ktz109CreateComment.response.body.$.comment._id}}"
+}
+
+### 7) B — Bildirim listesi → type: "post_reply", sender = A olmali
+# @name ktz109ListNotifsAsCommenter
+GET {{baseUrl}}/notifications
+Authorization: Bearer {{loginCommenter.response.body.$.accessToken}}
+
+### 8) B — Self-reply → yeni post_reply GELMEMELI
+# @name ktz109SelfReply
+POST {{baseUrl}}/comments
+Authorization: Bearer {{loginCommenter.response.body.$.accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "postId": "{{ktz109CreatePost.response.body.$.post._id}}",
+  "text": "KTZ-109 self reply should not notify",
+  "parentCommentId": "{{ktz109CreateComment.response.body.$.comment._id}}"
+}
+
+### 9) B — Tekrar listele (self-reply sonrasi ekstra post_reply olmamali)
+# @name ktz109ListNotifsAfterSelfReply
+GET {{baseUrl}}/notifications
+Authorization: Bearer {{loginCommenter.response.body.$.accessToken}}

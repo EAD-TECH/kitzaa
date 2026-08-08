@@ -319,9 +319,33 @@ Eğer organizatör etkinlik oluştururken bir bitiş tarihi girmemişse (null), 
 Çözüm: $or operatörüyle "Bitiş tarihi varsa ona bak, yoksa başlangıç tarihine bak" demeliyiz.
 
 ## Test
+
 ```js
 router.get("/test-post-event-summary", async (_req, res) => {
   await sendPostEventSummaries();
   res.status(200).json({ error: false, message: "KTZ-72 job ran" });
 });
 ```
+
+
+## [[KTZ-109] - reply-comment](https://dygcankurt17.atlassian.net/browse/KTZ-109)
+
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-109`
+- **Mimari Kararlar & Ne Yaptım:**
+
+- bu task 59 taskıyla kardestir. 59 taskında posta yapılan bır yorum varsa frontend bana parentId null atıyordu boylelıkle ben bunun poata atılmıs parentı olmayan bır yorum oldugunu anlayaıp bıldırım atıyordm burda ıse mantık akısı su 
+
+POST (SAHİP:A)
+|
+|-- YORUM(B) : BURDA BILDIRIM A YA GIDECEK  KTZ-59
+|
+|--YORUM (C) : BURDA DA BILDIRIM B YE GIDECK  KTZ-109
+
+- Bu nedenle ilk olarak notification model ve types dosyasına bu taskın amaci olan bildirim type ini ekliyorum (post_reply) Ilk baslrken forum_reply demiştim yanlıslıkla bu taskta type guncel ve dogru olarak gırdım .
+- SenderId olarak User tablosundan referans aldıgım object ID nın notification controller kısmında populate ve create fonksiyonunda veritabanına yazılması ıcın gereklı eklemelrı yaptım.Reply oncesi yapılan işlem bu.
+- Swegar dokumanına taskın amacı olan type tuu eklendı
+- post_reply işlemi için ["SocialPostcommentNotification"](../server/src/services/socialPostCommentNotification.ts)
+dosyasında daha top-level için bildirim olusturmustum.Bu dosyayı su yapıya cevirdim DB ye sorgu atıp findOne ile parentId parentCommetnt olarak değişkene atadm yi çektim prop olarak almadım. sonrasında if bloklarıyla kısının parentccommentinde author id varsa bu bir replydir diyip create fonksıyonunu cagırarak bıldırm attım aynı mantıkta zaten oncesınde task 59 ıcın yapmıstm top-level yorum bildirimi için.
+
+- Burda ogrendiğim Mongoose un equal metodu ile karsılastırma yapmanın tıp guvenlıgı acısından daha efektif olması sebebi ile bu yontemle karsılastrıma yaptm
