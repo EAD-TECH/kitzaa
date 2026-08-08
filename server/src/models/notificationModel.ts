@@ -10,7 +10,7 @@ const NOTFICATION_TYPES: NotificationType[] = [
   "new_event",
   "event_reminder",
   "event_cancelled",
-  "forum_reply",
+  "post_reply",
   "nearby_event",
   "organizer_approved",
   "organizer_application",
