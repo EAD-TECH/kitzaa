@@ -7,8 +7,13 @@ import {
   patchAllNotificationAsRead,
   patchNotification,
 } from "../../controllers/user/notificationController.js";
+import { sendPostEventSummaries } from "../../services/eventSummary.js";
 
 const router = Router();
+router.get("/test-post-event-summary", async (_req, res) => {
+  await sendPostEventSummaries();
+  res.status(200).json({ error: false, message: "KTZ-72 job ran" });
+});
 
 /* kullanici giris yaptmi */
 router.use(authentication);
