@@ -327,25 +327,80 @@ router.get("/test-post-event-summary", async (_req, res) => {
 });
 ```
 
-
 ## [[KTZ-109] - reply-comment](https://dygcankurt17.atlassian.net/browse/KTZ-109)
 
 - **Durum:** In Progress
 - **Jira Kartı:** `KTZ-109`
 - **Mimari Kararlar & Ne Yaptım:**
 
-- bu task 59 taskıyla kardestir. 59 taskında posta yapılan bır yorum varsa frontend bana parentId null atıyordu boylelıkle ben bunun poata atılmıs parentı olmayan bır yorum oldugunu anlayaıp bıldırım atıyordm burda ıse mantık akısı su 
+- bu task 59 taskıyla kardestir. 59 taskında posta yapılan bır yorum varsa frontend bana parentId null atıyordu boylelıkle ben bunun poata atılmıs parentı olmayan bır yorum oldugunu anlayaıp bıldırım atıyordm burda ıse mantık akısı su
 
 POST (SAHİP:A)
 |
-|-- YORUM(B) : BURDA BILDIRIM A YA GIDECEK  KTZ-59
+|-- YORUM(B) : BURDA BILDIRIM A YA GIDECEK KTZ-59
 |
-|--YORUM (C) : BURDA DA BILDIRIM B YE GIDECK  KTZ-109
+|--YORUM (C) : BURDA DA BILDIRIM B YE GIDECK KTZ-109
 
 - Bu nedenle ilk olarak notification model ve types dosyasına bu taskın amaci olan bildirim type ini ekliyorum (post_reply) Ilk baslrken forum_reply demiştim yanlıslıkla bu taskta type guncel ve dogru olarak gırdım .
 - SenderId olarak User tablosundan referans aldıgım object ID nın notification controller kısmında populate ve create fonksiyonunda veritabanına yazılması ıcın gereklı eklemelrı yaptım.Reply oncesi yapılan işlem bu.
 - Swegar dokumanına taskın amacı olan type tuu eklendı
 - post_reply işlemi için ["SocialPostcommentNotification"](../server/src/services/socialPostCommentNotification.ts)
-dosyasında daha top-level için bildirim olusturmustum.Bu dosyayı su yapıya cevirdim DB ye sorgu atıp findOne ile parentId parentCommetnt olarak değişkene atadm yi çektim prop olarak almadım. sonrasında if bloklarıyla kısının parentccommentinde author id varsa bu bir replydir diyip create fonksıyonunu cagırarak bıldırm attım aynı mantıkta zaten oncesınde task 59 ıcın yapmıstm top-level yorum bildirimi için.
+  dosyasında daha top-level için bildirim olusturmustum.Bu dosyayı su yapıya cevirdim DB ye sorgu atıp findOne ile parentId parentCommetnt olarak değişkene atadm yi çektim prop olarak almadım. sonrasında if bloklarıyla kısının parentccommentinde author id varsa bu bir replydir diyip create fonksıyonunu cagırarak bıldırm attım aynı mantıkta zaten oncesınde task 59 ıcın yapmıstm top-level yorum bildirimi için.
 
 - Burda ogrendiğim Mongoose un equal metodu ile karsılastırma yapmanın tıp guvenlıgı acısından daha efektif olması sebebi ile bu yontemle karsılastrıma yaptm
+
+## [[KTZ-110] - @mentioned](https://dygcankurt17.atlassian.net/browse/KTZ-110)
+
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-110`
+- **Mimari Kararlar & Ne Yaptım:**
+
+- @mentioned  yaklaşımı
+
+
+[ FRONTEND KATMANI - KULLANICI ARAYÜZÜ ]
+  1. Yorum/Post kutusuna "@" yazılır.
+       │
+  2. UI, Autocomplete (Otomatik Tamamlama) menüsünü açar. (GET /users/search?q=...)
+       |
+  3. Kullanıcı listeden "Duygu"yu seçsin.
+       │
+  4. State Güncellemesi:
+       ├─ Görünür Metin (Text): "Merhaba @duygu"
+       └─ Gizli Hafıza (Array): mentionedUserIds = ["64f..."]
+       │
+  5. Form Gönderilir (Submit):
+       └─ Payload: { text: "...", mentionedUserIds: ["64f..."] }
+
+
+----------------API SINIRI----------------------
+
+[ BACKEND KATMANI - GÜVENLİK VE İŞ MANTIKLARI ]
+  6. Endpoint İsteği Karşılar (Zod Validasyonu)
+       └─ mentionedUserIds dizisi opsiyonel olarak kabul edilir.
+       │
+ 7. Güvenlik Filtreleri (Sanitization):
+       ├─ Benzersiz (Unique) yap: Aynı ID dizide 2 kere varsa tekilleştir.
+       └─ Self-Mention Koruması: İşlemi yapan kişinin ID'sini diziden çıkar.
+       │
+  8. Veritabanı Doğrulaması (DB Validation):
+       └─ Kalan ID'ler gerçekten veritabanında var mı? (Aktif kullanıcılar mı?)
+       │
+  9. Yorum/Post Veritabanına Kaydedilir.
+       │
+ 10. Bildirim Motoru Tetiklenir (Event-Driven):
+       └─ Onaylanmış ID listesi (Mentions) .map() ile dönülür.
+       └─ Her kullanıcı için "mention" tipinde paket hazırlanır.
+       └─ insertMany ile veritabanına tek seferde yazılır.
+
+
+--YAPMAM GEREKEN---
+1. YORUM VE POST OLUSTURMA SEMALARINA mnetionedUserIDs alanını ekle.Bu alan array of string |optional|varsayılan []bos dızı olmalı
+2. fFILTER DUVARI : SERVİCE DOSYAI ICINDE GELEN DIZIYI ONCE SET ICINE ALIP DUPLICATE OLANAIR TEMIZLIYCM
+3. DIZIYI FILTERLAYARAK ISLEM YAPAN KISININ ID SINI TEMIZLEYECM KENDI KENDINI ETIKETLEMESIN.
+3. ELIMDE KALAN CLEANDIZI FİND METODUNU KULLANARAK DB YE SORUCM SADECE OLAN KULLANICILARI HEDEF OLARAK BULUCM
+4. HAZIRLADIGIM BILDIRIM PAKETINI BU KISILERE TYPE."MENTION" OLARAK BILDIRIMI FIRLATICM
+5. BACKEND TARAFINDA ID ILE TARAYIP DIZIDE TUTUP BILDIRM ATMA OLAYINI GERCEKLESTIRDM AMA FRONTENDDE REGEX KISMI DEVREYE GIRECEK(Kullanıcı klavyede @ tuşuna basıp peşine ar... yazdığı anda, Frontend'deki Regex devreye girer. "Kullanıcı şu an birini etiketlemeye çalışıyor!" der ve hemen sana o küçük açılır menüyü (Autocomplete) gösterir.
+
+Sen menüden kişiyi seçtiğinde, Frontend yine Regex sayesinde o metni mavi renge boyar ki kullanıcı etiketlediğini gözüyle görsün.)
+

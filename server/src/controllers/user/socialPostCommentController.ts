@@ -11,6 +11,7 @@ import type {
 } from "../../validations/postComment.schema.js";
 import type { PostCommentDocument } from "../../types/postComment.types.js";
 import { triggerCommentNotification } from "../../services/socialPostCommentNotification.js";
+import { triggerMentionNotifications } from "../../services/mentionNotificationService.js";
 
 const socialPostCommentController = {
   list: async (req: Request, res: Response) => {
@@ -80,15 +81,24 @@ const socialPostCommentController = {
     ]);
 
     const propData = {
-      user:req.user,
+      user: req.user,
       post,
       validatedData,
       newCommentId: newPostCommentData._id,
     };
+    const propDataforMentioned = {
+      mentionedUserIds: validatedData.mentionedUserIds,
+      senderId: req.user._id,
+      senderName: req.user.firstName,
+      relatedId: newPostCommentData._id,
+      relatedModel: "PostComment" as const,
+      linkNotification: `/posts/${post._id}?comment=${newPostCommentData._id}`,
+    };
 
-    /* yorum olustuktan sonra bıldırımı atıyorm */
-
+    /* yorum olustuktan sonra bıldırımı atıyorm  KTZ-59 VE 109*/
     triggerCommentNotification(propData);
+    /* KTZ-110 için */
+    triggerMentionNotifications(propDataforMentioned);
 
     res.status(201).send({
       error: false,
