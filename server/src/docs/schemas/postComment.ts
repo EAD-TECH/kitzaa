@@ -14,6 +14,11 @@
  *       likesCount: { type: integer, example: 0 }
  *       isLikedByMe: { type: boolean, example: false }
  *       parentCommentId: { type: string, nullable: true }
+ *       mentionedUserIds:
+ *         type: array
+ *         items: { type: string }
+ *         description: User ObjectIds mentioned in this comment (from FE autocomplete).
+ *         example: ["60d5ec49f1b2c3d4e5f6a7b2"]
  *       createdAt: { type: string, format: date-time }
  *       updatedAt: { type: string, format: date-time }
  *
@@ -29,6 +34,13 @@
  *         description: |
  *           Omit or null for a top-level comment.
  *           Set to a top-level comment id to reply (2-level thread only; reply-to-reply is rejected).
+ *       mentionedUserIds:
+ *         type: array
+ *         items: { type: string }
+ *         description: |
+ *           Optional list of mentioned user ObjectIds selected via FE autocomplete.
+ *           Backend uses these ids for mention notifications (not text parsing).
+ *         example: ["60d5ec49f1b2c3d4e5f6a7b2"]
  *
  *   UpdatePostCommentInput:
  *     type: object
