@@ -1,0 +1,26 @@
+
+:root {
+  --background: var(--cream-50);
+  --foreground: var(--brown-900);
+
+  --card: var(--cream-100);
+  --card-foreground: var(--brown-900);
+
+  --primary: var(--terracotta-600);
+  --primary-foreground: var(--cream-50);
+
+  --secondary: var(--sage-500);
+  --secondary-foreground: var(--cream-50);
+
+  --muted: var(--cream-200);
+  --muted-foreground: var(--brown-600);
+
+  --destructive: var(--red-500);
+  --destructive-foreground: var(--cream-50);
+
+  --border: var(--cream-200);
+  --input: var(--cream-200);
+  --ring: var(--terracotta-500);
+
+  --radius: 0.625rem;
+}

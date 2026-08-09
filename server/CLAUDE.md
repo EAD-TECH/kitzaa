@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository layout
 
-This is a two-folder repo: `client/` and `server/`. **`client/` currently contains only a README** — there is no frontend code yet. All real work happens in `server/`, a standalone Express + TypeScript + MongoDB backend (its own `package.json`, `node_modules`, `tsconfig.json`). Always `cd server` before running any command.
+This is a two-folder repo: `client/` and `server/`, each a standalone project with its own `package.json`, `node_modules`, and `tsconfig.json` — always `cd server` before running any command described here. `server/` is a fully-built Express + TypeScript + MongoDB backend; `client/` (Next.js) is at an early scaffold stage. See the repo-root `CLAUDE.md` for the split between the two.
 
 ## Commands (run from `server/`)
 
@@ -14,9 +14,9 @@ npm run dev       # tsx watch index.ts — dev server with hot reload
 npm run build     # tsc -> dist/
 npm start         # node dist/index.js (run build first)
 npx tsc --noEmit  # type-check only, no build output — use this to verify changes
+npm test          # jest, runs tests/**/*.test.ts
+npm test -- tests/helpers/slugify.test.ts   # run a single test file
 ```
-
-There is no test suite configured (no test script, no test framework installed) — do not assume one exists.
 
 ### Manual API testing
 

@@ -1,0 +1,24 @@
+
+.dark {
+  --background: var(--brown-900);
+  --foreground: var(--cream-50);
+
+  --card: var(--brown-800);
+  --card-foreground: var(--cream-50);
+
+  --primary: var(--terracotta-400);
+  --primary-foreground: var(--brown-900);
+
+  --secondary: var(--sage-400);
+  --secondary-foreground: var(--brown-900);
+
+  --muted: var(--brown-800);
+  --muted-foreground: oklch(0.75 0.02 60);
+
+  --destructive: var(--red-500);
+  --destructive-foreground: var(--cream-50);
+
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: var(--terracotta-400);
+}
