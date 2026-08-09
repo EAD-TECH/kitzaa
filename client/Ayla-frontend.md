@@ -33,3 +33,14 @@ features/ = işe özel kod (component + state + hook bir arada)
 lib/ = saf mantık, fonksiyon — ne görsel ne de bir işe özel, sadece "yardımcı işlev
 
 ------------
+
+
+# next-themes kütüphanesi
+
+Kullanıcı bir butona tıkladığında, <html>'e class="dark" ekle ya da çıkar.
+Kullanıcı sayfayı yenilediğinde, "az önce dark mode'daydı" bilgisini hatırla, tekrar class="dark" ekle.
+Kullanıcı hiç seçim yapmadıysa, işletim sisteminin (Windows/Mac) "koyu tema" ayarına bak, ona göre başla.
+
+Bunların hepsini elle kendin yazabilirsin (localStorage'a kaydet, useEffect ile oku, document.documentElement.classList.add("dark") gibi kodlarla) ama bu epey tekrar eden, hataya açık bir iş. next-themes, tam olarak bu işi senin yerine yapan bir kütüphane.
+
+--- provider olarak bir yerde tanimliyoruz ve layout,tsx i bununla sarmanliyoruz.

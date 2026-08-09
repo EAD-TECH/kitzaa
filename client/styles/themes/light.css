@@ -15,6 +15,12 @@
   --muted: var(--cream-200);
   --muted-foreground: var(--brown-600);
 
+  --accent: var(--cream-200);
+  --accent-foreground: var(--brown-900);
+
+  --popover: var(--cream-100);
+  --popover-foreground: var(--brown-900);
+
   --destructive: var(--red-500);
   --destructive-foreground: var(--cream-50);
 
@@ -23,4 +29,20 @@
   --ring: var(--terracotta-500);
 
   --radius: 0.625rem;
+
+  --sidebar: var(--cream-100);
+  --sidebar-foreground: var(--brown-900);
+  --sidebar-primary: var(--terracotta-600);
+  --sidebar-primary-foreground: var(--cream-50);
+  --sidebar-accent: var(--cream-200);
+  --sidebar-accent-foreground: var(--brown-900);
+  --sidebar-border: var(--cream-200);
+  --sidebar-ring: var(--terracotta-500);
+
+  /* placeholder categorical set — revisit against the dataviz palette guide once a real chart ships */
+  --chart-1: var(--terracotta-500);
+  --chart-2: var(--sage-500);
+  --chart-3: var(--brown-600);
+  --chart-4: var(--green-500);
+  --chart-5: var(--red-500);
 }

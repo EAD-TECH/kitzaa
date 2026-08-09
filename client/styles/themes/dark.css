@@ -13,7 +13,13 @@
   --secondary-foreground: var(--brown-900);
 
   --muted: var(--brown-800);
-  --muted-foreground: oklch(0.75 0.02 60);
+  --muted-foreground: var(--brown-400);
+
+  --accent: var(--brown-800);
+  --accent-foreground: var(--cream-50);
+
+  --popover: var(--brown-800);
+  --popover-foreground: var(--cream-50);
 
   --destructive: var(--red-500);
   --destructive-foreground: var(--cream-50);
@@ -21,4 +27,19 @@
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 15%);
   --ring: var(--terracotta-400);
+
+  --sidebar: var(--brown-800);
+  --sidebar-foreground: var(--cream-50);
+  --sidebar-primary: var(--terracotta-400);
+  --sidebar-primary-foreground: var(--brown-900);
+  --sidebar-accent: var(--brown-800);
+  --sidebar-accent-foreground: var(--cream-50);
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: var(--terracotta-400);
+
+  --chart-1: var(--terracotta-400);
+  --chart-2: var(--sage-400);
+  --chart-3: var(--brown-400);
+  --chart-4: var(--green-500);
+  --chart-5: var(--red-500);
 }
