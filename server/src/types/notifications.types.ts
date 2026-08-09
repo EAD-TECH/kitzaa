@@ -14,6 +14,7 @@ export type NotificationType =
   | "organizer_prep_summary"
   | "post_event_summary"
   | "low_capacity_3day"
+  | "post_mention"
   | "system";
 
 export interface IBaseDocument {

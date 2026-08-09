@@ -18,6 +18,7 @@ const NOTFICATION_TYPES: NotificationType[] = [
   "organizer_prep_summary",
   "low_capacity_3day",
   "post_event_summary",
+  "post_mention",
   "system",
 ];
 
