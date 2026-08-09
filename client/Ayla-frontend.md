@@ -44,3 +44,7 @@ Kullanıcı hiç seçim yapmadıysa, işletim sisteminin (Windows/Mac) "koyu tem
 Bunların hepsini elle kendin yazabilirsin (localStorage'a kaydet, useEffect ile oku, document.documentElement.classList.add("dark") gibi kodlarla) ama bu epey tekrar eden, hataya açık bir iş. next-themes, tam olarak bu işi senin yerine yapan bir kütüphane.
 
 --- provider olarak bir yerde tanimliyoruz ve layout,tsx i bununla sarmanliyoruz.
+
+"use client" Zorunluluğu: next-themes kütüphanesi kullanıcı tercihlerine (localStorage, system preference) eriştiği için bir Client Component olmak zorundadır.
+
+Mimarinin Korunması: Eğer layout.tsx dosyasının en üstüne "use client" ekleyip NextThemesProvider'ı doğrudan orada kursaydık, tüm layout'u ve altındaki tüm sayfaları Client Component'e dönüştürmüş olurduk.
