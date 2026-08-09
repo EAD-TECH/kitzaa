@@ -23,19 +23,16 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "username": "ayla",
-  "firstName": "ayla",
-  "lastName": "ayla",
-  "email": "aylaataydir@gmail.com",
-  "password": "Ayla123.",
-  "phone": "+491234567890",
+  "username": "sofia.hoffmann",
+  "firstName": "Sofia",
+  "lastName": "Hoffmann",
+  "email": "sofia.hoffmann@kitzaa.test",
+  "password": "Password1.",
+  "phone": "+4915333333333",
   "language": "de",
-  "location": {
-    "city": "Berlin",
-    "zipCode": "10115",
-    "country": "DE"
-  }
+  "location": { "city": "Berlin", "zipCode": "10115", "country": "DE" }
 }
+
 ###
 POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
@@ -371,126 +368,6 @@ Content-Type: application/json
   "rejectedReason": "Unterlagen unvollständig"
 }
 
-
-### ------------------------------------------------------------
-### NOTIFICATIONS (requires Authorization: Bearer {{accessToken}})
-### ------------------------------------------------------------
-
-###
-# @name listNotifications
-GET {{baseUrl}}/notifications
-Authorization: Bearer {{accessToken}}
-
-
-###
-# @name listUnreadNotifications
-GET {{baseUrl}}/notifications?isRead=false
-Authorization: Bearer {{accessToken}}
-
-
-###
-# @name getUnreadCount
-GET {{baseUrl}}/notifications/unread-count
-Authorization: Bearer {{accessToken}}
-
-
-###
-# @name markAsRead
-# 
-
-PATCH {{baseUrl}}/notifications/{{notificationID}}
-Authorization: Bearer {{accessToken}}
-
-
-###
-# @name markAllAsRead
-GET {{baseUrl}}/notifications/mark-all-read
-Authorization: Bearer {{accessToken}}
-
-### ==========================================
-### 1. ORGANİZATÖR OLARAK GİRİŞ YAP
-### ==========================================
-
-### 1. ORGANİZATÖR OLARAK GİRİŞ YAP (Login)
-@name login
-
-
-
-### ==========================================
-### 1. ORGANİZATÖR OLARAK GİRİŞ YAP
-### ==========================================
-# @name login
-POST {{baseUrl}}/auth/login
-Content-Type: application/json
-
-{
-  "login": "organizer@kitzaa.com",
-  "password": "Password123!"
-}
-
-
-
-
-### ==========================================
-### 3. KTZ-61 TESTİ: ETKİNLİĞİ İPTAL ET
-### ==========================================
-# 
-DELETE {{baseUrl}}/events/60d5ec49f1b2c3d4e5f6a7e1
-Content-Type: application/json
-Authorization: Bearer {{accessToken}}
-
-{
-  "cancelledReason": "Eğitmenimizin ani rahatsızlığı sebebiyle iptal edilmiştir."
-  "title": "Hamburg Yazılım Buluşması",
-  "description": "Hamburg'daki yazılımcılarla bir araya geliyoruz.",
-  "categoryId": "60d5ec49f1b2c3d4e5f6a7c1",
-  "isFree": true,
-  "ageRange": { "min": 18, "max": 99 },
-  "schedule": {
-    "startDate": "2027-01-01T10:00:00Z", 
-    "startTime": "10:00",
-    "endTime": "16:00",
-    "isRecurring": false
-  },
-  "location": {
-    "addressLine": "Hamburg Tech Merkez",
-    "city": "Hamburg",
-    "country": "DE"
-  },
-  "capacity": { "max": 50, "current": 0 }
-}
-
-
-
-
-### ==========================================
-###  KTZ-70 TESTİ: ORGANIZATORE BILDIRIM ATMA (bir gun once)
-
-### ==========================================
-# 
-
-GET {{baseUrl}}/test-cron
-### ==========================================
-###  KTZ-71 TESTİ: lowcapacity
-### ==========================================
-# authentication zorunlu — once ustteki # @name login (elif) calistir
-GET {{baseUrl}}/notifications/test-low-capacity
-Authorization: Bearer {{accessToken}}
-
-### ==========================================
-###  KTZ-72 TESTİ: eventsummary
-### ==========================================
-
-GET {{baseUrl}}/notifications/test-post-event-summary
-Authorization: Bearer {{accessToken}}
-
-
-
-
-
-
-
-
 ### ------------------------------------------------------------
 ### SOCIAL POSTS (requires Authorization — run login first)
 ### ------------------------------------------------------------
@@ -622,90 +499,3 @@ Authorization: Bearer {{accessToken}}
 DELETE {{baseUrl}}/comments/{{commentId}}
 Authorization: Bearer {{accessToken}}
 
-
-### ============================================================
-### KTZ-109 TEST: post_comment + post_reply notifications
-### ONEMLI: A ve B FARKLI kullanici olmali.
-### Ayni hesapla yorum/yanit = self guard → bildirim OLUSMAZ (test "bos" gorunur).
-### Sirayla her istegin uzerindeki Send Request'e bas.
-### ============================================================
-
-### 1) A — Post sahibi login (TestPerson)
-# @name loginPostOwner
-POST {{baseUrl}}/auth/login
-Content-Type: {{contentType}}
-
-{
-  "login": "TestCommenter3",
-  "password": "Password1."
-}
-
-### 2) A — Post olustur
-# @name ktz109CreatePost
-POST {{baseUrl}}/posts
-Authorization: Bearer {{loginPostOwner.response.body.$.accessToken}}
-Content-Type: {{contentType}}
-
-{
-  "text": "KTZ-109 notification test post"
-}
-
-### 3) B — Yorumcu login (AYRI hesap — ayla yoksa kendi 2. user'ini yaz)
-# @name loginCommenter
-POST {{baseUrl}}/auth/login
-Content-Type: {{contentType}}
-
-{
-  "login": "TestCommenter",
-  "password": "Password1."
-}
-
-### 4) B — Top-level yorum → A'ya post_comment gitmeli
-# @name ktz109CreateComment
-POST {{baseUrl}}/comments
-Authorization: Bearer {{loginCommenter.response.body.$.accessToken}}
-Content-Type: {{contentType}}
-
-{
-  "postId": "{{ktz109CreatePost.response.body.$.post._id}}",
-  "text": "KTZ-109 top-level comment from B"
-}
-
-### 5) A — Bildirim listesi → type: "post_comment", sender dolu olmali
-# @name ktz109ListNotifsAsPostOwner
-GET {{baseUrl}}/notifications
-Authorization: Bearer {{loginPostOwner.response.body.$.accessToken}}
-
-### 6) A — B'nin yorumuna yanit → B'ye post_reply gitmeli
-# @name ktz109CreateReply
-POST {{baseUrl}}/comments
-Authorization: Bearer {{loginPostOwner.response.body.$.accessToken}}
-Content-Type: {{contentType}}
-
-{
-  "postId": "{{ktz109CreatePost.response.body.$.post._id}}",
-  "text": "KTZ-109 reply from A to B",
-  "parentCommentId": "{{ktz109CreateComment.response.body.$.comment._id}}"
-}
-
-### 7) B — Bildirim listesi → type: "post_reply", sender = A olmali
-# @name ktz109ListNotifsAsCommenter
-GET {{baseUrl}}/notifications
-Authorization: Bearer {{loginCommenter.response.body.$.accessToken}}
-
-### 8) B — Self-reply → yeni post_reply GELMEMELI
-# @name ktz109SelfReply
-POST {{baseUrl}}/comments
-Authorization: Bearer {{loginCommenter.response.body.$.accessToken}}
-Content-Type: {{contentType}}
-
-{
-  "postId": "{{ktz109CreatePost.response.body.$.post._id}}",
-  "text": "KTZ-109 self reply should not notify",
-  "parentCommentId": "{{ktz109CreateComment.response.body.$.comment._id}}"
-}
-
-### 9) B — Tekrar listele (self-reply sonrasi ekstra post_reply olmamali)
-# @name ktz109ListNotifsAfterSelfReply
-GET {{baseUrl}}/notifications
-Authorization: Bearer {{loginCommenter.response.body.$.accessToken}}

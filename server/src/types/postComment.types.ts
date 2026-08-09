@@ -15,6 +15,7 @@ export interface IPostComment {
   text: string;
   likes: Types.ObjectId[]; // ref User[]
   parentCommentId?: Types.ObjectId | null; // ref PostComment — null = top-level
+  mentionedUserIds?:Types.ObjectId[]
   isDeleted: boolean;
   createdAt?: Date;
   updatedAt?: Date;

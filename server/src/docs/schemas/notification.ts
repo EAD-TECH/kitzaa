@@ -15,6 +15,7 @@
  *       - organizer_application
  *       - event_review
  *       - organizer_prep_summary
+ *       - post_mention
  *       - system
  *     example: "post_comment"
  *
