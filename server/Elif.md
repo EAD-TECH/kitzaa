@@ -355,52 +355,141 @@ POST (SAHİP:A)
 - **Jira Kartı:** `KTZ-110`
 - **Mimari Kararlar & Ne Yaptım:**
 
-- @mentioned  yaklaşımı
-
+- @mentioned yaklaşımı
 
 [ FRONTEND KATMANI - KULLANICI ARAYÜZÜ ]
-  1. Yorum/Post kutusuna "@" yazılır.
-       │
-  2. UI, Autocomplete (Otomatik Tamamlama) menüsünü açar. (GET /users/search?q=...)
-       |
-  3. Kullanıcı listeden "Duygu"yu seçsin.
-       │
-  4. State Güncellemesi:
-       ├─ Görünür Metin (Text): "Merhaba @duygu"
-       └─ Gizli Hafıza (Array): mentionedUserIds = ["64f..."]
-       │
-  5. Form Gönderilir (Submit):
-       └─ Payload: { text: "...", mentionedUserIds: ["64f..."] }
 
+1. Yorum/Post kutusuna "@" yazılır.
+   │
+2. UI, Autocomplete (Otomatik Tamamlama) menüsünü açar. (GET /users/search?q=...)
+   |
+3. Kullanıcı listeden "Duygu"yu seçsin.
+   │
+4. State Güncellemesi:
+   ├─ Görünür Metin (Text): "Merhaba @duygu"
+   └─ Gizli Hafıza (Array): mentionedUserIds = ["64f..."]
+   │
+5. Form Gönderilir (Submit):
+   └─ Payload: { text: "...", mentionedUserIds: ["64f..."] }
 
 ----------------API SINIRI----------------------
 
-[ BACKEND KATMANI - GÜVENLİK VE İŞ MANTIKLARI ]
-  6. Endpoint İsteği Karşılar (Zod Validasyonu)
-       └─ mentionedUserIds dizisi opsiyonel olarak kabul edilir.
-       │
- 7. Güvenlik Filtreleri (Sanitization):
-       ├─ Benzersiz (Unique) yap: Aynı ID dizide 2 kere varsa tekilleştir.
-       └─ Self-Mention Koruması: İşlemi yapan kişinin ID'sini diziden çıkar.
-       │
-  8. Veritabanı Doğrulaması (DB Validation):
-       └─ Kalan ID'ler gerçekten veritabanında var mı? (Aktif kullanıcılar mı?)
-       │
-  9. Yorum/Post Veritabanına Kaydedilir.
-       │
- 10. Bildirim Motoru Tetiklenir (Event-Driven):
-       └─ Onaylanmış ID listesi (Mentions) .map() ile dönülür.
-       └─ Her kullanıcı için "mention" tipinde paket hazırlanır.
-       └─ insertMany ile veritabanına tek seferde yazılır.
-
+[ BACKEND KATMANI - GÜVENLİK VE İŞ MANTIKLARI ] 6. Endpoint İsteği Karşılar (Zod Validasyonu)
+└─ mentionedUserIds dizisi opsiyonel olarak kabul edilir.
+│ 7. Güvenlik Filtreleri (Sanitization):
+├─ Benzersiz (Unique) yap: Aynı ID dizide 2 kere varsa tekilleştir.
+└─ Self-Mention Koruması: İşlemi yapan kişinin ID'sini diziden çıkar.
+│ 8. Veritabanı Doğrulaması (DB Validation):
+└─ Kalan ID'ler gerçekten veritabanında var mı? (Aktif kullanıcılar mı?)
+│ 9. Yorum/Post Veritabanına Kaydedilir.
+│ 10. Bildirim Motoru Tetiklenir (Event-Driven):
+└─ Onaylanmış ID listesi (Mentions) .map() ile dönülür.
+└─ Her kullanıcı için "mention" tipinde paket hazırlanır.
+└─ insertMany ile veritabanına tek seferde yazılır.
 
 --YAPMAM GEREKEN---
+
 1. YORUM VE POST OLUSTURMA SEMALARINA mnetionedUserIDs alanını ekle.Bu alan array of string |optional|varsayılan []bos dızı olmalı
 2. fFILTER DUVARI : SERVİCE DOSYAI ICINDE GELEN DIZIYI ONCE SET ICINE ALIP DUPLICATE OLANAIR TEMIZLIYCM
 3. DIZIYI FILTERLAYARAK ISLEM YAPAN KISININ ID SINI TEMIZLEYECM KENDI KENDINI ETIKETLEMESIN.
-3. ELIMDE KALAN CLEANDIZI FİND METODUNU KULLANARAK DB YE SORUCM SADECE OLAN KULLANICILARI HEDEF OLARAK BULUCM
-4. HAZIRLADIGIM BILDIRIM PAKETINI BU KISILERE TYPE."MENTION" OLARAK BILDIRIMI FIRLATICM
-5. BACKEND TARAFINDA ID ILE TARAYIP DIZIDE TUTUP BILDIRM ATMA OLAYINI GERCEKLESTIRDM AMA FRONTENDDE REGEX KISMI DEVREYE GIRECEK(Kullanıcı klavyede @ tuşuna basıp peşine ar... yazdığı anda, Frontend'deki Regex devreye girer. "Kullanıcı şu an birini etiketlemeye çalışıyor!" der ve hemen sana o küçük açılır menüyü (Autocomplete) gösterir.
+4. ELIMDE KALAN CLEANDIZI FİND METODUNU KULLANARAK DB YE SORUCM SADECE OLAN KULLANICILARI HEDEF OLARAK BULUCM
+5. HAZIRLADIGIM BILDIRIM PAKETINI BU KISILERE TYPE."MENTION" OLARAK BILDIRIMI FIRLATICM
+6. BACKEND TARAFINDA ID ILE TARAYIP DIZIDE TUTUP BILDIRM ATMA OLAYINI GERCEKLESTIRDM AMA FRONTENDDE REGEX KISMI DEVREYE GIRECEK(Kullanıcı klavyede @ tuşuna basıp peşine ar... yazdığı anda, Frontend'deki Regex devreye girer. "Kullanıcı şu an birini etiketlemeye çalışıyor!" der ve hemen sana o küçük açılır menüyü (Autocomplete) gösterir.
 
 Sen menüden kişiyi seçtiğinde, Frontend yine Regex sayesinde o metni mavi renge boyar ki kullanıcı etiketlediğini gözüyle görsün.)
 
+
+
+## [[KTZ-65] - SOCKET-IO](https://dygcankurt17.atlassian.net/browse/KTZ-65)
+
+-----------------SOCKET IO --------------------------
+
+
+```JS KAVRAMLAR
+SOCKET.IO= JAVASCRIPT KUTUPHANESI
+WEBSOCKET = HTTP MANTIGINDA CALISAN PROTOKOL
+
+## WEBSOCKET
+
+Tarayıcı ile sunucu arasında TCP bağlantısını sürekli açık tutarak her iki tarafın da dilediği an veri gönderebilmesini sağlayan bir ağ protokolüdür (ws:// veya wss://).
+
+```
+
+
+## Socket.io
+
+WebSocket protokolünü temel alan, ancak üzerine kopan bağlantıları otomatik yeniden deneme (reconnection), oda (room) yönetimi, broadcast (herkese duyuru) ve paket kaybı yönetimi gibi kritik katmanlar ekleyen bir yazılım kütüphanesidir.
+
+- NODE.JS NORMALDE PORTA GELEN VERI ICIN ISLETIM SISTEMINE DIYOR KI BANA BIR PORT NUMARASI VER BEN
+  HTTP İLE BANA GELECEK OLAN ISTEKLERI ORDA TUTAYIM. BIZ NODE JS OGRENIRKEN VERILERIN BYTE HALINDE GELIP OZEL BIR FONKSIYONLA CHUNKLAR HALINDE 0 VE 1 LERDEN OLUSAN BYTE LAR HALINDEKI VERIYI ALIP JSON FORMATINA GETIRIP KODLAMA YAPARKEN REQ RES GIBI METOTLARLA ISLEYIP KULLANIYORDUK.
+- SONRA BU HAM VE KARMASIK ISLERI BIZIM ICIN ARKA TARAFTA YAPAN BİR KUTUPHANE OGRENDIK.EXPRESSI
+  INDIRDIK VE GELEN VERILERI EXPRESS BIZIM ICIN ARKA PLANDA GIDIP NODE.JS IN MOTORUNU CALISTRP KUYRUKTAKI VERİYİ ALIP JSON FORMATINA CEVIRIYORU VE BIZ DE SADECE BIR SATIRLA O KOD YIGINLARINDAN KURTULMUSTUK.
+- NODE JS , EXPRESSI GELEN HTTP ISTEKLERI ICIN TRAFIK POLISI OLARAK KAPIYA DIKIYOR.O AYRILAN OZEL ALANDAKI 3000 PORTU DIYELIM SADECE HTTP FORMATINDA GELEN VERILERI KABUL EDIYOR.BU TEK YONLU BIR ISLEM VERI GELDI EXPRESS ALDI ISLEDIK YANITI DONDUK OLAY BITTI.
+  app.listen(3000) dediğinde, Express.js gizlice Node.js'in http motorunu çalıştırır ve işletim sistemine şu emri verir: "Bana 3000 numaralı kapıyı tut! Oradan gelen sadece HTTP şeklindeki metinleri içeri al."
+
+- REALTIME CIFT YONLU BIR VERI AKISI OLAYI ICIN JAVASCRİPT KUTUPHANESI OLAN SOCKET.IO VE SOCKET IO NUN DA KULLANDIGI WEBSOCKET PROTOKOLU VAR. BURDA TEK SEFERLIK BIR VERI TRANSFERI YOK.PORTA ULASTIKTAN SONRA DUREKLIACIK OLAN BIR KANAL OLUSTURMAK ISTER.
+
+- TAM DA BU NOKTADA NODE.JSIN TEMEL HTTP SUNUCUSUNU EXPRESIN KONTROLUNDEN CIKARIP YINE NODE JS IN KONTROLUNE VERMEK GEREKIYOR. BU SAYEDE NODE.JS GELEN ISTEKLERI KARSILARKEN HANGISININ API HANGSININ IO ISLEMI OLDUGUNU BILIR.BU ISLEME WRAP DENILIYOR
+
+express(): Bizim katı HTTP bekçimiz.
+
+createServer(): Node.js'in çekirdeğindeki saf, ilkel ağ motoru.
+
+createServer(app): Express'i alıp, saf ağ motorunun içine hapsediyoruz. Artık kapıda Express değil, server adını verdiğimiz bu yeni yapı duruyor. Socket.io ancak bu server objesine tutunarak çalışabilir.
+const httpServer = createServer(app);
+// 3. Artık app.listen() yerine, sarmaladığımız httpServer'ı dinliyorum //
+httpServer.listen(PORT, () => {
+console.log(`Server is running on port ${PORT}`);
+});
+
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-110`
+- **Mimari Kararlar & Ne Yaptım:**
+
+- socket.io indirildi
+- index.ts dosyasında En tepeye, Node.js'in çekirdeğinde zaten var olan http modülünü dahil et:
+  import { createServer } from "http";
+- const app = express(); tanımının hemen bir alt satırına geçerek Express uygulamamı yeni ağ motorunun içine hapsettim:
+  const httpServer = createServer(app);
+- app.listen(...) Artık kapıyı dinleyen Express (app) değil, sarmaladığımız yeni sunucu olacak sekılde değiştirdim
+  httpServer.listen(...)
+
+- index dosyasında basit bir test olusturdm :
+
+yazdıgım koddakı metotların ne ıse yaradıkları
+
+## io
+
+Ana Merkez (Server) Bütün Socket.io sistemini, tüm odaları ve bağlı olan herkesi temsil eder. Binanın güvenlik şefidir.
+
+## socket
+
+    Bireysel Hat (Client)	Sadece tek bir kullanıcıyla (örneğin Ahmet'in tarayıcısıyla) sunucu arasındaki o özel, kopmaz "boruyu" temsil eder. Her bağlanan kişinin eşsiz bir socket.id değeri vardır.
+
+.on() vs .emit()
+
+Olay tabanlı (Event-Driven) mimarinin iletişim araçlarıdır. Socket.io'da HTTP'deki gibi GET/POST yoktur, sadece dinlemek ve konuşmak vardır.
+
+    .on('olay_adi', fonksiyon) (Kulak): "Dinle" demektir. Karşı taraftan olay_adi etiketiyle bir veri gelirse uyan ve içindeki fonksiyonu çalıştır.
+
+    .emit('olay_adi', veri) (Ağız): "Fırlat" demektir. Karşı tarafa olay_adi etiketiyle bir paket gönder.
+
+```js io.on
+ io.on("connection", (socket) => { ... })
+
+Burada "Ana Merkez" (io), kapıyı sürekli dinler (on). Biri gelip içeri girdiğinde (yani connection olayı gerçekleştiğinde), o yeni kişiye özel bir iletişim hattı (socket) yaratılır ve bu hat fonksiyonun içine alınır.
+
+*************
+Müşteriyi Dinlemek
+socket.on("ping", (mesaj) => { ... })
+
+******
+Artık io ile değil, sadece o an içeri giren müşteriyle (socket) ilgileniyoruz. Diyoruz ki: "Eğer bu müşteri kendi kanalından bize 'ping' adında bir paket fırlatırsaydı, onu yakala ve içindeki veriyi mesaj olarak oku."
+----********
+Müşteriye Cevap Vermek
+JavaScript
+
+socket.emit("pong", "Backend'den selamlar!");
+Müşteri bize bir şey söyledi, şimdi ona cevap veriyoruz. Yine sadece o müşterinin kanalını (socket) kullanarak, "pong" etiketiyle ona bir metin fırlatıyoruz (emit).
+
+```
