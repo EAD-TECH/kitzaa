@@ -7,7 +7,7 @@ export default function Home() {
         Kitzaa
       </h1>
       <p className="max-w-md font-body text-base text-muted-foreground">
-        Etkinlik keşfetme ve organizasyon platformu — <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-sm text-muted-foreground">app/page.tsx</code> üzerinde geliştirme devam ediyor.
+        Etkinlik keşfetme ve organizasyon platformu — <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-sm text-muted-foreground">app/(site)/page.tsx</code> üzerinde geliştirme devam ediyor.
       </p>
       <Button variant="default">Başla</Button>
     </div>
