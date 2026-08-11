@@ -93,6 +93,6 @@
   }
 
   body {
-    @apply bg-background text-foreground font-body;
+    @apply max-w-400 mx-auto bg-background text-foreground font-body;
   }
 }
