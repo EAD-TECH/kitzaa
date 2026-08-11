@@ -629,3 +629,20 @@ io.on("connection") bloğunun hemen içine müdahale ederek, adam kapıdan (lobb
 
 - test.html dosyama join satırıı ekledım
   -termnalden log la gordum
+
+## [[KTZ-68] - socket-emit](https://dygcankurt17.atlassian.net/browse/KTZ-68)
+
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-68`
+- **Mimari Kararlar & Ne Yaptım:**
+
+- BU TASKTA ONCELIKLE HELPER MANTGINDA BIR EMIT DOSYAASI OLUSTURDUM ANLIK OLARAK BILDIRIMI KULLANICIYA FIRLATMAK ICIN
+- GETIO YU CAGIRDIM EMIT METODUNU KULLANARAK RECIPIENTID OLARAK BELIRLEDIGIM BILDIRIMIN GIDECEGI KULLANICI BILGISINI ALARAK FIRLATMAK ICIN BILDIRIMI ILK KISMI YAZMIS OLDUM
+- HER SERVICE BOYLELIKLE EMIT YAZMAMIS OLUCAM TEKLI BILDIRM MANTIIGNDA OLUSTRDGM CREATENOTIFICATION DOSYAMA EKLIYCEM BIR DE BULKINSERT OLARAK TANIMLADIGIM COKLU GONDERIMLER ICIN YAZCM
+- BIRDE DINMAIK OLARAK DEGISEN BILDIRIM GONDERME DURUMLARI VARDI BU FONKSIYONLARI KULLANMADIGM ONLARI ANALIZ ETMEM GEREKECEK TIME-DRIVEN
+-  for (const doc of result): sendbulknotfication kısmı 
+insertMany bir dizi döner. Her kullanıcıya bir bildirim gittiği için her dokümanı tek tek socket’e basmak lazım → room user:{recipientId} kişiye özel.
+-doc as NotificationDocument
+insertMany’nin dönüş tipi Mongoose’da genelde Document[] / kendi tip çıkarımı; benım toNotificationDTO ise NotificationDocument bekliyor.
+
+!Mantık basit (her kayıt → DTO → emit); as ve !Array.isArray TypeScript’in geniş dönüş tipini NotificationDTO’ya indirmeye yarıyor. Overload’lar düzgün çözülürse !Array.isArray bazen gereksiz kalır; yine de bu union’a karşı pratik bir güvenlik ağı.
