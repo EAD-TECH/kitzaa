@@ -349,7 +349,11 @@ POST (SAHİP:A)
 
 - Burda ogrendiğim Mongoose un equal metodu ile karsılastırma yapmanın tıp guvenlıgı acısından daha efektif olması sebebi ile bu yontemle karsılastrıma yaptm
 
-## [[KTZ-110] - @mentioned](https://dygcankurt17.atlassian.net/browse/KTZ-110)
+
+
+
+
+
 
 - **Durum:** In Progress
 - **Jira Kartı:** `KTZ-110`
@@ -493,3 +497,64 @@ socket.emit("pong", "Backend'den selamlar!");
 Müşteri bize bir şey söyledi, şimdi ona cevap veriyoruz. Yine sadece o müşterinin kanalını (socket) kullanarak, "pong" etiketiyle ona bir metin fırlatıyoruz (emit).
 
 ```
+
+
+## [[KTZ-66] - middleware](https://dygcankurt17.atlassian.net/browse/KTZ-66)
+
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-66`
+- **Mimari Kararlar & Ne Yaptım:**
+
+
+- TASK-65 te yazmıs oldugum test kodları nı index içine eklemiştim ama bu taskta artık  mıddleware kısmını da ekleyecegım ıcın src ıcınde sockets ıslemlerını ızole etme kararı aldım.
+- socket mimarisinde http de oldugu gıbı req.headers.authorizaiton olayı yok.Yanı socket dunyasında req veya res yok
+-socket.handshake.auth.token
+3. State Management (Durum Yönetimi ve Odalar - KTZ-67):
+Sisteme bağlanan herkesi user:{id} adında özel bir odaya (Room) hapsetmek, veri sızıntısını ve yanlış kişiye bildirim gitmesini engellemenin tek ve en güvenli yoludur. Planındaki "Connect sonrası: socket.join(user:${socket.data.userId});" mantığı, hedefe kilitlenen bir füze sistemi kurmak gibidir.
+
+4. Single Point of Truth & Error Boundary (KTZ-68):
+Burası mimarinin kalbidir!
+
+    Single Point of Truth (Tek Doğru Kaynağı): Önce Veritabanına (DB) yaz, başarılıysa Socket'e fırlat. Asla Socket'e güvenerek DB'yi es geçme.
+
+    Error Boundary (Hata Sınırı): Çok kritik bir not düşmüşsün: "try/catch — emit fail REST’i bozmasın." Yani Socket'te bir hata olursa (örneğin kuryenin tekeri patlarsa), restoran durmamalı! Aşçı (REST API) yemeği veritabanına kaydettiyse, istek 201 Created olarak dönmeli. Kullanıcı bildirimi anında ekranda göremese bile, sayfayı yenilediğinde DB'den çekebilmelidir.
+
+MIDDLEWARE YAZMADAN ONCE 
+
+MIDDLEWARE YAZARKEN ONCELIKLI MANTIK KULLANICIN TOKEN IN DECODE EDILEREK DB DE KAYITLI MI DEILMI SORGUSUNUN YAPILMASI . BU NEDENLE SOCKET IO DOKUMAINDA EXTRAHEADERS ICINDE GONDERILME SECENEGI DE VARDI AMA BU KISIMDA VERDIGI BIR UYARI DA VARDI :EGER TOKEN FRONTENDDEN EXTRAHEADERS ICINDEN GONDERILIRSE ISTEMCI DOGRUDAN WEBSOCKETI KULLANMAYA CALISRISSA SISTEM COKECEK.
+- EXPRESTTE YAPTIGIMIZ MANTIGIN AYNISINI BURDA UYGULAYACZ ,ISTER HTTP ISTER SOCKET OLSUN FARKETMIYOR ZATEN FRONTEND BANA TOKENI GONDERIYOR BIR SEKILDE ,BEN SOCKET IO KISMI ICIN BU TOKENI ALIP DECODE ETME ISLEMINI MANUEL YAPICAM.
+- BURDA BILINMESI LAZIM OLAN OLAY SU : EXPRESS MIDDLEWARELARI GIBI (REQ,RES,NEXXT) PARAMETRELERI YOK SOCKET TARAFINDA
+- SADECE (SOCKET,NEXT) PARAMETRELERI VAR.
+
+Önce socket.handshake.auth.token (veya headers) içinden JWT'yi çeker.
+
+Token yoksa veya jwt.verify işleminden geçemezse: next(new Error("Unauthorized")) diyerek adamı kapıdan kovar.
+
+Token geçerliyse, o token'ın içindeki kullanıcı ID'sini alır ve bir sonraki görevlerde kullanmak üzere adamın cebine koyar: socket.data.userId = decodedId.
+
+En son boş bir next() çağırarak adamı içeri alır.
+
+
+HANDSHAKE OBJESI NEDIR : [](https://socket.io/docs/v4/server-api/#sockethandshake)
+
+BU SOCKET.HANDSHAKE OBJESI BIZE SOCKET.IO YA BAGLANAN KISNININ TUM BILGILERINI GETRIYOR(HEADERS,TIME,ADRESS,..)
+BIZE LAZIM KISIM TABLODAKI AUTH KISMI : YANI FE DEN TOKEN GONDERILDIGINDE BUNU URL YE VEYA HEADERSA VERMEK YERINE DOGRUDAN BAGLANTI ANINDA(HANDSHAKE) AUTH OBJESI ICINDE GONDERECEK BANA TOKENI ,EXPRESSTEN FARKLI BU MANTIK BENDE BUNU SOCKET KLASORUMDEKI MIDDLEWARE DOSYAMDA YAKALAYCM BUNU  
+const token = socket.handshake.auth.token;
+[](https://socket.io/docs/v4/middlewares/)
+
+- SIRADA SOYLE BIR ADIM VAR BEN TOKENI ALDIM DOGRILADIM(JWT.VERIFY) HERSEY YASAL CIKTI BEN BU ID YI NERDE SAKLAYCM YA DA TUTUCAM ?
+- BUNUN ICIN DE DOKUMANDAKI SOCKET.DATA OBJESI YOLGOSTERICI
+[](https://socket.io/docs/v4/server-api/#socketdata)
+
+- Token'ı doğruladıktan sonra next() deyip adamı içeri almadan hemen önce, bu ID'yi adamın Socket nesnesine (cebine) yerleştirmelisin.
+Yani: socket.data.userId = decodedId (bunu declare type olarak socket katmanına userId objesını tanıttm)
+
+Böylece KTZ-67'ye geçtiğim bu ID'yi cebinden alıp onu kendi özel odasına (user:12345) sokabileceğiz!
+
+- MIDDLEWARE DOSYASINI YAZDIKTAN SONRA ANA DOSYADA YAZDIGIM TEST KODALRINI REFACTOR ISLEMI OLARAK SOCKET ICINDE TANIMLADIGIM INDEX E TAASIDIM BURDA SOYLE BIR MANTIK OLUSTU:
+EGER TASIMA ISLEMI OLMASAYDI ILERDE YAZACGM BILDIRM SERVISIM GIDIP DOGRUDAN SERVER/INDEXTEKI HTTPSERVERA IHTIYACI OLUCKTI VER ANA INDEX DOSYASINDAN IO YU CEKMEYE CALISISRSA DOSYALAR BIRBIRINI PARALEL OLARAK CAGIRCKTI NODE.JS HATA VERCKTI BU YUZDEN TASIDIM SOCKET ICINDEKI INDEX DOSYASINA VE ANA DOSYADA IMPORT ETMIS OLDUM 
+- TEST KODLAIRNI DA BURAYA TASIDIM
+
+## TEST LOGINDE GERCEK ACCESS TOKENI ALDIM VE KOD ICINDE 
+
+test dosyası olusturuldu mıddleware token test edildi
