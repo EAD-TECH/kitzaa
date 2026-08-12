@@ -1,42 +1,53 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldSeparator,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
+"use client"
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentProps<"form">) {
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { useState } from "react";
+import Link from "next/link";
+
+export function LoginForm({ className, ...props }: React.ComponentProps<"form">) {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <form className={cn("flex flex-col gap-6", className)} {...props}>
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-5xl font-bold">Willkommen zurück</h1>
-          <p className="text-sm text-balance text-muted-foreground">
-            Melde dich an, um neue Abenteuer zu endtdecken
-          </p>
+          <h1 className="text-3xl font-heading font-semibold">Willkommen zurück</h1>
         </div>
         <Field>
           <FieldLabel htmlFor="email">Email oder Benutzername</FieldLabel>
-          <Input id="email" type="email" placeholder="hallo@beispiel.com" required />
+          <div className="relative">
+            <Mail className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input id="email" type="text" className="pl-9" placeholder="hallo@beispiel.com" required />
+          </div>
         </Field>
         <Field>
           <div className="flex items-center">
-            <FieldLabel htmlFor="password">Password</FieldLabel>
-            <a
-              href="#"
-              className="ml-auto text-sm underline-offset-4 hover:underline"
-            >
-              password vergessen?
-            </a>
+            <FieldLabel htmlFor="password">Passwort</FieldLabel>
+            <Link href="/forgot-password" className="ml-auto text-sm underline-offset-4 hover:underline">
+              Passwort vergessen?
+            </Link>
           </div>
-          <Input id="password" type="password" required />
+          <div className="relative">
+            <Lock className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              className="pr-9 pl-9"
+              required
+            />
+            <button
+              type="button"
+              className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? "Passwort verbergen" : "Passwort anzeigen"}
+            >
+              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
+          </div>
         </Field>
         <Field>
           <Button type="submit">Anmelden</Button>
@@ -44,11 +55,7 @@ export function LoginForm({
         <FieldSeparator>Oder weiter mit</FieldSeparator>
         <Field>
           <Button variant="outline" type="button">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
               <path
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                 fill="#4285F4"
@@ -70,12 +77,12 @@ export function LoginForm({
           </Button>
           <FieldDescription className="text-center">
             Neu bei Kitzaa?{" "}
-            <a href="#" className="underline underline-offset-4">
+            <Link href="/register" className="underline underline-offset-4">
               Registrieren
-            </a>
+            </Link>
           </FieldDescription>
         </Field>
       </FieldGroup>
     </form>
-  )
+  );
 }
