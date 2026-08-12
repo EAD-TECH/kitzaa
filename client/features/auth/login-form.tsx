@@ -1,28 +1,57 @@
-"use client"
+"use client";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSeparator,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { LoginFormValues, loginSchema } from "./schemas/login.schema";
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"form">) {
   const [showPassword, setShowPassword] = useState(false);
 
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      login: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = (data: LoginFormValues) => {
+    console.log("Form submitted", data);
+  };
+
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <form className={cn("flex flex-col gap-6", className)} {...props} onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
           <h1 className="text-3xl font-heading font-semibold">Willkommen zurück</h1>
         </div>
         <Field>
-          <FieldLabel htmlFor="email">Email oder Benutzername</FieldLabel>
+          <FieldLabel htmlFor="login">Email oder Benutzername</FieldLabel>
           <div className="relative">
             <Mail className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input id="email" type="text" className="pl-9" placeholder="hallo@beispiel.com" required />
+            <Input
+              id="login"
+              type="text"
+              className="pl-9"
+              placeholder="hallo@beispiel.com"
+              {...form.register("login")}
+            />
           </div>
+          <FieldError>{form.formState.errors.login?.message}</FieldError>
         </Field>
         <Field>
           <div className="flex items-center">
@@ -37,17 +66,20 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
               id="password"
               type={showPassword ? "text" : "password"}
               className="pr-9 pl-9"
-              required
+              {...form.register("password")}
             />
             <button
-              type="button"
-              className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              onClick={() => setShowPassword((prev) => !prev)}
-              aria-label={showPassword ? "Passwort verbergen" : "Passwort anzeigen"}
-            >
-              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-            </button>
+            type="button"
+            className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            onClick={() => setShowPassword((prev) => !prev)}
+            aria-label={showPassword ? "Passwort verbergen" : "Passwort anzeigen"}
+          >
+            {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+          </button>
           </div>
+          
+          <FieldError>{form.formState.errors.password?.message}</FieldError>
+          
         </Field>
         <Field>
           <Button type="submit">Anmelden</Button>
