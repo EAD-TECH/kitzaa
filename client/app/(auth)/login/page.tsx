@@ -1,6 +1,6 @@
 "use client"
 
-import { LoginForm } from "@/features/auth/login-form"
+import { LoginForm } from "@/features/auth/loginForm"
 
 export default function LoginPage() {
   return (
