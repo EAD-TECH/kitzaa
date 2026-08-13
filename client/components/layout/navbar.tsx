@@ -35,6 +35,8 @@ import { MdSunny } from "react-icons/md";
 import { IoMoon, IoShareSocial } from "react-icons/io5";
 import { useTheme } from "next-themes";
 import { useState } from "react";
+import { useAuthStore } from "@/features/auth/store/authStore"
+import { useLogout } from "@/features/auth/hooks/useLogout";
 
 const comfortaa = Comfortaa({
   subsets: ["latin"],
@@ -53,7 +55,15 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const isLight = theme !== "dark";
   const pathname = usePathname();
-  const currentUser = null
+  const currentUser = useAuthStore((state)=> state.user);
+
+  const { logout } = useLogout();
+
+  const handleLogout = async () => {
+    console.log("calisti");
+    await logout();
+    console.log("calisti 2")
+  }
 
 
   return (
@@ -204,7 +214,7 @@ const Navbar = () => {
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="font-semibold text-primary focus:text-primary">
+                <DropdownMenuItem className="font-semibold text-primary focus:text-primary" onClick={handleLogout}>
                   <LogOutIcon />
                   Sign Out
                 </DropdownMenuItem>
