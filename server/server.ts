@@ -17,7 +17,10 @@ import { swaggerSpec } from "./src/docs/swagger.js";
 const app = express()
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: process.env.CLIENT_URL, 
+  credentials: true,
+}));
 app.use('/api/v1/uploads', express.static('uploads')); // Serve uploaded files
 app.use(morgan('dev'));
 
