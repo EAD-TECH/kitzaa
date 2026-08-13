@@ -30,7 +30,7 @@ Content-Type: {{contentType}}
   "password": "Password1.",
   "phone": "+4915333333333",
   "language": "de",
-  "location": { "city": "Berlin", "zipCode": "10115", "country": "DE" }
+  "location": { "state": "Berlin", "city": "Berlin", "zipCode": "10115", "country": "DE" }
 }
 
 ###
@@ -46,6 +46,7 @@ Content-Type: {{contentType}}
   "phone": "+491234567190",
   "language": "de",
   "location": {
+    "state": "Berlin",
     "city": "Berlin",
     "zipCode": "10115",
     "country": "DE"

@@ -22,7 +22,9 @@ const validUser = {
   email: "duygu@gmail.com",
   password: "Sifre123!",
   location: {
+    state: "Berlin",
     city: "Berlin",
+    zipCode: "10115",
   },
 };
 
@@ -181,6 +183,7 @@ describe("createUserSchema", () => {
     const result = createUserSchema.safeParse({
       ...validUser,
       location: {
+        state: "Berlin",
         city: "Berlin",
         zipCode: "10115",
       },
@@ -193,8 +196,33 @@ describe("createUserSchema", () => {
     const result = createUserSchema.safeParse({
       ...validUser,
       location: {
+        state: "Berlin",
         city: "Berlin",
         zipCode: "101",
+      },
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test("location.state yoksa reddedilir", () => {
+    const result = createUserSchema.safeParse({
+      ...validUser,
+      location: {
+        city: "Berlin",
+        zipCode: "10115",
+      },
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test("location.zipCode yoksa reddedilir", () => {
+    const result = createUserSchema.safeParse({
+      ...validUser,
+      location: {
+        state: "Berlin",
+        city: "Berlin",
       },
     });
 
