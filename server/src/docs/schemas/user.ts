@@ -3,12 +3,12 @@
  * definitions:
  *   Location:
  *     type: object
- *     required: [city, country]
+ *     required: [state, city, zipCode, country]
  *     properties:
- *       state: { type: string, nullable: true }
+ *       state: { type: string }
  *       city: { type: string, example: Berlin }
  *       district: { type: string, nullable: true }
- *       zipCode: { type: string, example: "10115", nullable: true }
+ *       zipCode: { type: string, example: "10115" }
  *       country: { type: string, default: DE }
  *
  *   User:
