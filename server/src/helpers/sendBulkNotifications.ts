@@ -1,5 +1,8 @@
 import type { Types } from "mongoose";
 import { Notification } from "../models/notificationModel.js";
+import type { NotificationDocument } from "../types/notifications.types.js";
+import { emitNotificationToUser } from "../sockets/emitNotification.js";
+import { toNotificationDTO } from "./toNotificationDTO.js";
 
 interface sendBulknotificaitonPayload {
   userIdsArray: Types.ObjectId[] | string[];
@@ -44,6 +47,13 @@ export const sendBulknotificaitons = async ({
     console.log(
       `(Toplu Bildirim) ${result.length} adet bildirim başarıyla oluşturuldu.`,
     );
+
+    for (const doc of result) {
+      const dto = toNotificationDTO(doc as NotificationDocument);
+      if (dto && !Array.isArray(dto)) {
+        emitNotificationToUser(String(doc.recipientId), dto);
+      }
+    }
 
     return result;
   } catch (error) {
