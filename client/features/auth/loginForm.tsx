@@ -16,10 +16,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoginFormValues, loginSchema } from "./schemas/login.schema";
+import { LoginFormValues, loginSchema } from "./validations/loginSchema";
+import { useLogin } from "./hooks/useLogin";
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"form">) {
   const [showPassword, setShowPassword] = useState(false);
+  const { login, isLoading, error } = useLogin();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -29,8 +31,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
     },
   });
 
-  const onSubmit = (data: LoginFormValues) => {
-    console.log("Form submitted", data);
+  const onSubmit = async (data: LoginFormValues) => {
+    await login(data);
   };
 
   return (
@@ -69,20 +71,22 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
               {...form.register("password")}
             />
             <button
-            type="button"
-            className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            onClick={() => setShowPassword((prev) => !prev)}
-            aria-label={showPassword ? "Passwort verbergen" : "Passwort anzeigen"}
-          >
-            {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-          </button>
+              type="button"
+              className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? "Passwort verbergen" : "Passwort anzeigen"}
+            >
+              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
           </div>
-          
+
           <FieldError>{form.formState.errors.password?.message}</FieldError>
-          
         </Field>
+        {error ? <FieldError>{error}</FieldError> : null}
         <Field>
-          <Button type="submit">Anmelden</Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Wird angemeldet..." : "Anmelden"}
+          </Button>
         </Field>
         <FieldSeparator>Oder weiter mit</FieldSeparator>
         <Field>
