@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
   <head>
     <meta charset="UTF-8" />
@@ -51,15 +51,24 @@
     <h1>Socket.io Test (KTZ-66)</h1>
     <p>
       Server: <code>http://localhost:8000</code> — Login ile aldığın
-      <strong>accessToken</strong> yapıştır (<code>eyJ...</code>, refresh değil).
+      <strong>accessToken</strong> yapıştır (<code>eyJ...</code>, refresh
+      değil).
     </p>
 
     <label for="token">Access Token</label>
-    <textarea id="token" rows="4" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."></textarea>
+    <textarea
+      id="token"
+      rows="4"
+      placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    ></textarea>
 
     <div>
-      <button type="button" onclick="connectWithToken()">Bağlan (pozitif)</button>
-      <button type="button" onclick="connectInvalid()">Negative: geçersiz token</button>
+      <button type="button" onclick="connectWithToken()">
+        Bağlan (pozitif)
+      </button>
+      <button type="button" onclick="connectInvalid()">
+        Negative: geçersiz token
+      </button>
       <button type="button" onclick="pingAt()" id="pingBtn" disabled>
         Ping at
       </button>
@@ -94,9 +103,13 @@
           log("CONNECT OK — socket.id = " + socket.id, "ok");
           document.getElementById("pingBtn").disabled = false;
         });
+        socket.on("joined", (data) => console.log("Odam:", data.room));
 
         socket.on("connect_error", (err) => {
-          log("CONNECT_ERROR (beklenen negative / auth fail): " + err.message, "err");
+          log(
+            "CONNECT_ERROR (beklenen negative / auth fail): " + err.message,
+            "err",
+          );
           document.getElementById("pingBtn").disabled = true;
         });
 

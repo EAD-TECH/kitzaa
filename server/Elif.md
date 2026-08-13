@@ -349,12 +349,6 @@ POST (SAHİP:A)
 
 - Burda ogrendiğim Mongoose un equal metodu ile karsılastırma yapmanın tıp guvenlıgı acısından daha efektif olması sebebi ile bu yontemle karsılastrıma yaptm
 
-
-
-
-
-
-
 - **Durum:** In Progress
 - **Jira Kartı:** `KTZ-110`
 - **Mimari Kararlar & Ne Yaptım:**
@@ -402,12 +396,9 @@ POST (SAHİP:A)
 
 Sen menüden kişiyi seçtiğinde, Frontend yine Regex sayesinde o metni mavi renge boyar ki kullanıcı etiketlediğini gözüyle görsün.)
 
-
-
 ## [[KTZ-65] - SOCKET-IO](https://dygcankurt17.atlassian.net/browse/KTZ-65)
 
 -----------------SOCKET IO --------------------------
-
 
 ```JS KAVRAMLAR
 SOCKET.IO= JAVASCRIPT KUTUPHANESI
@@ -418,7 +409,6 @@ WEBSOCKET = HTTP MANTIGINDA CALISAN PROTOKOL
 Tarayıcı ile sunucu arasında TCP bağlantısını sürekli açık tutarak her iki tarafın da dilediği an veri gönderebilmesini sağlayan bir ağ protokolüdür (ws:// veya wss://).
 
 ```
-
 
 ## Socket.io
 
@@ -498,30 +488,30 @@ Müşteri bize bir şey söyledi, şimdi ona cevap veriyoruz. Yine sadece o mü�
 
 ```
 
-
 ## [[KTZ-66] - middleware](https://dygcankurt17.atlassian.net/browse/KTZ-66)
 
 - **Durum:** In Progress
 - **Jira Kartı:** `KTZ-66`
 - **Mimari Kararlar & Ne Yaptım:**
 
-
-- TASK-65 te yazmıs oldugum test kodları nı index içine eklemiştim ama bu taskta artık  mıddleware kısmını da ekleyecegım ıcın src ıcınde sockets ıslemlerını ızole etme kararı aldım.
+- TASK-65 te yazmıs oldugum test kodları nı index içine eklemiştim ama bu taskta artık mıddleware kısmını da ekleyecegım ıcın src ıcınde sockets ıslemlerını ızole etme kararı aldım.
 - socket mimarisinde http de oldugu gıbı req.headers.authorizaiton olayı yok.Yanı socket dunyasında req veya res yok
--socket.handshake.auth.token
-3. State Management (Durum Yönetimi ve Odalar - KTZ-67):
-Sisteme bağlanan herkesi user:{id} adında özel bir odaya (Room) hapsetmek, veri sızıntısını ve yanlış kişiye bildirim gitmesini engellemenin tek ve en güvenli yoludur. Planındaki "Connect sonrası: socket.join(user:${socket.data.userId});" mantığı, hedefe kilitlenen bir füze sistemi kurmak gibidir.
+  -socket.handshake.auth.token
 
-4. Single Point of Truth & Error Boundary (KTZ-68):
-Burası mimarinin kalbidir!
+3.  State Management (Durum Yönetimi ve Odalar - KTZ-67):
+    Sisteme bağlanan herkesi user:{id} adında özel bir odaya (Room) hapsetmek, veri sızıntısını ve yanlış kişiye bildirim gitmesini engellemenin tek ve en güvenli yoludur. Planındaki "Connect sonrası: socket.join(user:${socket.data.userId});" mantığı, hedefe kilitlenen bir füze sistemi kurmak gibidir.
 
-    Single Point of Truth (Tek Doğru Kaynağı): Önce Veritabanına (DB) yaz, başarılıysa Socket'e fırlat. Asla Socket'e güvenerek DB'yi es geçme.
+4.  Single Point of Truth & Error Boundary (KTZ-68):
+    Burası mimarinin kalbidir!
 
-    Error Boundary (Hata Sınırı): Çok kritik bir not düşmüşsün: "try/catch — emit fail REST’i bozmasın." Yani Socket'te bir hata olursa (örneğin kuryenin tekeri patlarsa), restoran durmamalı! Aşçı (REST API) yemeği veritabanına kaydettiyse, istek 201 Created olarak dönmeli. Kullanıcı bildirimi anında ekranda göremese bile, sayfayı yenilediğinde DB'den çekebilmelidir.
+        Single Point of Truth (Tek Doğru Kaynağı): Önce Veritabanına (DB) yaz, başarılıysa Socket'e fırlat. Asla Socket'e güvenerek DB'yi es geçme.
 
-MIDDLEWARE YAZMADAN ONCE 
+        Error Boundary (Hata Sınırı): Çok kritik bir not düşmüşsün: "try/catch — emit fail REST’i bozmasın." Yani Socket'te bir hata olursa (örneğin kuryenin tekeri patlarsa), restoran durmamalı! Aşçı (REST API) yemeği veritabanına kaydettiyse, istek 201 Created olarak dönmeli. Kullanıcı bildirimi anında ekranda göremese bile, sayfayı yenilediğinde DB'den çekebilmelidir.
+
+MIDDLEWARE YAZMADAN ONCE
 
 MIDDLEWARE YAZARKEN ONCELIKLI MANTIK KULLANICIN TOKEN IN DECODE EDILEREK DB DE KAYITLI MI DEILMI SORGUSUNUN YAPILMASI . BU NEDENLE SOCKET IO DOKUMAINDA EXTRAHEADERS ICINDE GONDERILME SECENEGI DE VARDI AMA BU KISIMDA VERDIGI BIR UYARI DA VARDI :EGER TOKEN FRONTENDDEN EXTRAHEADERS ICINDEN GONDERILIRSE ISTEMCI DOGRUDAN WEBSOCKETI KULLANMAYA CALISRISSA SISTEM COKECEK.
+
 - EXPRESTTE YAPTIGIMIZ MANTIGIN AYNISINI BURDA UYGULAYACZ ,ISTER HTTP ISTER SOCKET OLSUN FARKETMIYOR ZATEN FRONTEND BANA TOKENI GONDERIYOR BIR SEKILDE ,BEN SOCKET IO KISMI ICIN BU TOKENI ALIP DECODE ETME ISLEMINI MANUEL YAPICAM.
 - BURDA BILINMESI LAZIM OLAN OLAY SU : EXPRESS MIDDLEWARELARI GIBI (REQ,RES,NEXXT) PARAMETRELERI YOK SOCKET TARAFINDA
 - SADECE (SOCKET,NEXT) PARAMETRELERI VAR.
@@ -534,7 +524,6 @@ Token geçerliyse, o token'ın içindeki kullanıcı ID'sini alır ve bir sonrak
 
 En son boş bir next() çağırarak adamı içeri alır.
 
-
 HANDSHAKE OBJESI NEDIR : [](https://socket.io/docs/v4/server-api/#sockethandshake)
 
 BU SOCKET.HANDSHAKE OBJESI BIZE SOCKET.IO YA BAGLANAN KISNININ TUM BILGILERINI GETRIYOR(HEADERS,TIME,ADRESS,..)
@@ -544,17 +533,99 @@ const token = socket.handshake.auth.token;
 
 - SIRADA SOYLE BIR ADIM VAR BEN TOKENI ALDIM DOGRILADIM(JWT.VERIFY) HERSEY YASAL CIKTI BEN BU ID YI NERDE SAKLAYCM YA DA TUTUCAM ?
 - BUNUN ICIN DE DOKUMANDAKI SOCKET.DATA OBJESI YOLGOSTERICI
-[](https://socket.io/docs/v4/server-api/#socketdata)
+  [](https://socket.io/docs/v4/server-api/#socketdata)
 
 - Token'ı doğruladıktan sonra next() deyip adamı içeri almadan hemen önce, bu ID'yi adamın Socket nesnesine (cebine) yerleştirmelisin.
-Yani: socket.data.userId = decodedId (bunu declare type olarak socket katmanına userId objesını tanıttm)
+  Yani: socket.data.userId = decodedId (bunu declare type olarak socket katmanına userId objesını tanıttm)
 
 Böylece KTZ-67'ye geçtiğim bu ID'yi cebinden alıp onu kendi özel odasına (user:12345) sokabileceğiz!
 
 - MIDDLEWARE DOSYASINI YAZDIKTAN SONRA ANA DOSYADA YAZDIGIM TEST KODALRINI REFACTOR ISLEMI OLARAK SOCKET ICINDE TANIMLADIGIM INDEX E TAASIDIM BURDA SOYLE BIR MANTIK OLUSTU:
-EGER TASIMA ISLEMI OLMASAYDI ILERDE YAZACGM BILDIRM SERVISIM GIDIP DOGRUDAN SERVER/INDEXTEKI HTTPSERVERA IHTIYACI OLUCKTI VER ANA INDEX DOSYASINDAN IO YU CEKMEYE CALISISRSA DOSYALAR BIRBIRINI PARALEL OLARAK CAGIRCKTI NODE.JS HATA VERCKTI BU YUZDEN TASIDIM SOCKET ICINDEKI INDEX DOSYASINA VE ANA DOSYADA IMPORT ETMIS OLDUM 
+  EGER TASIMA ISLEMI OLMASAYDI ILERDE YAZACGM BILDIRM SERVISIM GIDIP DOGRUDAN SERVER/INDEXTEKI HTTPSERVERA IHTIYACI OLUCKTI VER ANA INDEX DOSYASINDAN IO YU CEKMEYE CALISISRSA DOSYALAR BIRBIRINI PARALEL OLARAK CAGIRCKTI NODE.JS HATA VERCKTI BU YUZDEN TASIDIM SOCKET ICINDEKI INDEX DOSYASINA VE ANA DOSYADA IMPORT ETMIS OLDUM
 - TEST KODLAIRNI DA BURAYA TASIDIM
 
-## TEST LOGINDE GERCEK ACCESS TOKENI ALDIM VE KOD ICINDE 
+## TEST LOGINDE GERCEK ACCESS TOKENI ALDIM VE KOD ICINDE
 
-test dosyası olusturuldu mıddleware token test edildi
+test dosyası olusturuldu mıddleware token test edildi.
+
+## [[KTZ-67] - socketManger](https://dygcankurt17.atlassian.net/browse/KTZ-67)
+
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-67`
+- **Mimari Kararlar & Ne Yaptım:**
+
+- ONCEKI TASK-66 TA IO YU GLOBAL OLARAK SAKLADM
+- BU IO YU NEDEN INDEX ICINDE DEGILDE SOCKETMANGER GIBI BIR DEPO DOSYASINDA TUTUYORUZ ; EGER BEN IO YU INDEXTE YARATIRSAM BILDIRIMLERI ATARKEN HERSEFERINDE INDEXI IMPORT ETMEK ZOERUNDA KALICM CUNKU O DOSYALAR YARATTIGM IO DEGISKENINI GOREMIYCK.
+  YANI HER SERVISE IO YU PARAMETRE OLARAK GECMEK YORUCU OLABILCEGI ICIN MANTIK SU:GENELDE SETIO VE GETIO ADINDA IKI TANE FONKSIYON OLUSTURULU IO PARAMETRESI BUNLARA TESLIM EDILIR.
+  SOCKETMANAGER BENIM BINAMDAKI ANA ANAHTARLIK
+  INITSOCKETCALISTIGIANDA ------>>SETIO(io) ANAHTARI RAFA KOYCK
+  BASKA DOSYA EMIT EDILIRSE------>> GETIO(io)RAFTAN ANAHTARI ALICK
+
+YANI SONUC OLARAK AYNI INSTANCE AMA IKI KERE NEW SERVER YARATMAMAMA GEREK YOK
+
+````md GORSEL AKIS
+```
+1) Sunucu açılıyor
+   initSocket(httpServer)
+       │
+       ├─ const io = new Server(...)
+       └─ setIO(io)          ← "Bu io'yu hatırla"
+
+2) Kullanıcı bağlanıyor (auth + connection) — io zaten var
+
+3) Birisi yorum/mention atıyor
+   createNotification(...)
+       │
+       ├─ DB'ye yaz
+       └─ getIO().to("user:123").emit("notification:new", ...)
+              ▲
+              └── raftaki aynı io
+
+              Fonksiyon	Ne der?
+setIO(io)
+“Socket sunucusunu buraya kaydet.” Bir kez, init’te.
+getIO()
+“Kayıtlı sunucuyu ver.” Service’lerde emit için.
+
+```
+````
+
+SOCKET MANAGER DAN ONCE NESNE YONELIMLI PROGRAMLAMADA KULLANILAN SINGLETON PATTERN YAPISINI BILMEK GEREKIR
+
+- ASLINDA KABACA YAZILIM PROJESINDE BU NESNEDEN SISTEM BOYUNCA TEK INSTANCE TURET DEMEK BIZM IO
+- VE SISTEM BOYUNCA HERKES ONU KULLANICK
+- BEN NEDEN BU YAPIYI TERCIH ETTIM ETTIM SOCKET IO MANTIGINI OLUSTURURKEN ;
+
+1.  (FOR SHARING STATEFUL INFORMATINO) : EGER 3 FARKLI SOCKET INSTANCE I YARATIRSAM 1.SUNUCUDAKI ADAMIN YOLLADIGI MESAJI 2.SUNUCUDAKI ADAM GOREMEZ CUNKU OLUSTURULAN INSTANCELAR RAM DE FARKLI ADRESTE YASIYOR
+2.  For optimizing resource usage (Kaynak kullanımını optimize etmek için):
+
+    Mantığı: new Server() diyerek bir Socket veya Veritabanı başlatmak çok ağır ve maliyetli bir işlemdir. Her dosya (Notification, User, Comment) kendi io nesnesini yaratmaya kalkarsa Node.js'in belleği (RAM) şişer ve sistem çöker. Bir kere yarat, bin kere kullan.
+
+3.  To synchronize access to a resource (Bir kaynağa erişimi senkronize etmek için):
+
+    Mantığı: Veritabanına veya Socket portuna aynı anda iki farklı yerden bağlantı açmaya çalışırsan sistem "Bu port zaten kullanılıyor (EADDRINUSE)" hatası verir. Tek bir yönetici (Manager) olursa, trafik karışmaz.
+
+- HER BILDIRIMDE NEW SERVER DERSEM ESKI SUNUCUDAKI BAGLI KULLANICI VS UCUP GIDECEK
+  -SOCKET MANAGER ICINDE IKI TANE FONKSIYON OLUSTTURDM VE INSTANCE OLARAK ATADIKTAN SONRA TEK MERKEZDEN KULLANACAGIM IO NESNESINI PARAMETRE OLARAK TANITTIM BU FONKSIYONLARA VE SETIO FONKSIYONUNU İNDEXTE CAGIRDIM KI TANIMLI OLMASI ICIN YOKSA RAFIM HEP BOS KALACAK
+
+SIMDI BU TASKIN ANA MANTIGI OLAN ROOM JOIN MANTIGINDA SIRA :
+
+- Amacım, gürültülü lobiye giren kullanıcıyı alıp sadece ona özel olan VIP odasına yerleştirmek.
+
+- CUNKU BUNU YAPMAZSAM EGER DIYELIM KULLANICI FARKLI DEVICELARDAN GIRIS YAPARSA ELINDE FARKLI ID LER OLACAK VE BILDIRIM ATILMAK ISTENDIGINDE SOCKET.IO HANGI ID YE ILETECEGINI ARAR BU DA SISTEMI YAVASLATIR.BU NOKTADA SOCKET IO NUN METODU OLAN SOCKET.JOIN(ROOM) METODU COZER.ROOM TOTALDE BIR ETIKET ADI STRING ,ONCEDEN OLUSTURULMASINA GEREK YOK ,BIRISI KAPIYI CALDIGI AN O ROOM VAR OLUR
+
+- MESELA ARYA GIRIS YAPTI DIYELIM ;
+  KTZ-66 DA YAZDIGM KOD SAYESINDE JARYANIN GERCEK KIMLIGINI BILIYOR OLACGIZ VE BU TASKTA ARYAYA DICEM KI AL BU SENIN YAKA KARTIN :ARYANN GERCEK ID SI
+  BU NE SAGLAYAAK ?
+
+1. Arya telefondan girerse o odaya geçecek
+2. Aynı anda laptoptan da gırse aynı odaya gıdecek
+
+[](https://socket.io/docs/v4/server-api/#socketinroom)
+socket.join(`user:${socket.data.userId}`);
+io.on("connection") bloğunun hemen içine müdahale ederek, adam kapıdan (lobby) girer girmez onu otomatik olarak kendi odasına yönlendirdim
+
+## TEST :
+
+- test.html dosyama join satırıı ekledım
+  -termnalden log la gordum
