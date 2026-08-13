@@ -48,3 +48,12 @@ Bunların hepsini elle kendin yazabilirsin (localStorage'a kaydet, useEffect ile
 "use client" Zorunluluğu: next-themes kütüphanesi kullanıcı tercihlerine (localStorage, system preference) eriştiği için bir Client Component olmak zorundadır.
 
 Mimarinin Korunması: Eğer layout.tsx dosyasının en üstüne "use client" ekleyip NextThemesProvider'ı doğrudan orada kursaydık, tüm layout'u ve altındaki tüm sayfaları Client Component'e dönüştürmüş olurduk.
+
+
+# Register
+
+- zip kodundan sehir ve eyaleti otomatik getirmesi icin **Zippopotam.us API** kullandim.
+- sehir zip kodu ve eyalet girmesi zorunlu.
+- stepper kullandim **reui.io** kutuphanesinden
+
+
