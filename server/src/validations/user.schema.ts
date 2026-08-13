@@ -54,7 +54,10 @@ export const createUserSchema = z.object({
     language: z.enum(['de', 'en']).optional(),
 
     location: z.object({
-        state: z.string().trim().nullable().optional(),
+        state: z
+            .string()
+            .trim()
+            .min(2, 'State is required'),
 
         city: z
             .string()
@@ -65,9 +68,7 @@ export const createUserSchema = z.object({
 
         zipCode: z
             .string()
-            .regex(/^\d{5}$/, 'Please enter a valid German postal code')
-            .nullable()
-            .optional(),
+            .regex(/^\d{5}$/, 'Please enter a valid German postal code'),
 
         country: z.string().default('DE').optional(),
     }),

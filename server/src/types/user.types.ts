@@ -1,10 +1,10 @@
 import type { Types, Model, HydratedDocument } from "mongoose";
 
 export interface ILocation {
-    state?: string | null;
+    state: string;
     city: string;
     district?: string | null;
-    zipCode?: string | null;
+    zipCode: string;
     country: string;
 }
 

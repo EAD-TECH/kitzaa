@@ -19,7 +19,7 @@ const locationSchema = new mongoose.Schema<ILocation>(
     state: {
       type: String,
       trim: true,
-      default: null, // State: Bavaria, NRW, etc.
+      required: [true, 'State is required'], // State: Bavaria, NRW, etc.
     },
     city: {
       type: String,
@@ -35,7 +35,7 @@ const locationSchema = new mongoose.Schema<ILocation>(
       type: String,
       trim: true,
       match: [/^\d{5}$/, 'Please enter a valid German postal code (5 digits)'],
-      default: null,
+      required: [true, 'Zip code is required'],
     },
     country: {
       type: String,
