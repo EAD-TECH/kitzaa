@@ -1,0 +1,55 @@
+
+
+import { Model, PopulateOptions } from "mongoose";
+import type { UserDocument } from "./user.types.ts";
+
+declare global {
+  namespace Express {
+    interface Response {
+      getModelList<T>(
+        model: Model<T>,
+        customFilter?: object,
+        populate?: string | PopulateOptions | (string | PopulateOptions)[] | null
+      ): Promise<any[]>;
+
+      getModelListDetails<T>(
+        model: Model<T>,
+        customFilter?: object
+      ): Promise<{
+        count: number;
+        filter: object;
+        search: object;
+        page: number;
+        skip: number;
+        limit: number;
+        sort: object;
+        pages:
+          | false
+          | {
+              previous: number | false;
+              current: number;
+              next: number | false;
+              total: number;
+            };
+      }>;
+    }
+  }
+}
+
+
+declare global {
+    namespace Express {
+        interface Request {
+            user: UserDocument;
+            // isOwnerOrAdmin gibi middleware'lerin bulup birakti bir dokuman (Event, Forum, ...).
+            // Model'e ozel oldugu icin controller'da ilgili Document tipine  eklenerek kullanilir.
+            resource?: unknown
+            // validateQuery middleware'inin dogrulayip donusturdugu query verisi.
+            // req.query Express 5'te salt-okunur oldugu icin buraya yaziliyor;
+            // route'a ozel oldugu icin controller'da ilgili Input tipine cast edilerek kullanilir.
+            validatedQuery?: unknown
+        }
+    }
+}
+
+export {};

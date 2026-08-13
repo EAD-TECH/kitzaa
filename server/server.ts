@@ -1,0 +1,89 @@
+import express from 'express';
+import cors from 'cors';
+import { rateLimit } from 'express-rate-limit';
+import helmet from 'helmet';
+import compression from 'compression';
+import queryHandler from './src/middlewares/queryHandler.js';
+import logger from './src/middlewares/logger.js';
+import indexRoute from './src/routes/index.js';
+import cookieParser from 'cookie-parser';
+import morgan from 'morgan';
+import { createRouteHandler } from "uploadthing/express";
+import { uploadRouter } from "./src/configs/uploadthing.js";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./src/docs/swagger.js";
+
+
+const app = express()
+
+app.use(express.json());
+app.use(cors({
+  origin: process.env.CLIENT_URL, 
+  credentials: true,
+}));
+app.use('/api/v1/uploads', express.static('uploads')); // Serve uploaded files
+app.use(morgan('dev'));
+
+
+//Swagger
+
+const swaggerCustomCss = `
+  .swagger-ui .model-title, .swagger-ui .model-title__text { font-size: 13px !important; }
+  .swagger-ui .markdown li { line-height: 1.8 !important; margin: 8px 0 !important; }
+  .swagger-ui .renderedMarkdown code { line-height: 1.6 !important; }
+`;
+
+app.use('/api-docs',
+     swaggerUi.serve,
+     swaggerUi.setup(swaggerSpec, { customCss: swaggerCustomCss })
+    );
+
+app.use(helmet());
+app.use('/api/v1', rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    message: 'Too many requests, please try again later.'
+}));
+
+
+// Uploadthing
+app.use(
+  "/api/uploadthing",
+  createRouteHandler({
+    router: uploadRouter,
+    config: { token: process.env.UPLOADTHING_TOKEN },
+  })
+);
+
+app.use(logger);
+app.use(compression({
+    threshold: 1024,
+    level: 6,
+    filter: (req, res) => {
+        if (req.headers['x-no-compression'] || req.query.nozip) {
+            return false;
+        } return compression.filter(req, res);
+    }
+}))
+
+
+
+// cookie parser
+app.use(cookieParser());
+
+// Nested Query
+app.set("query parser", "extended");
+
+// Query Handler:
+app.use(queryHandler);
+
+// Routes:
+app.use('/api/v1', indexRoute);
+
+
+// Auhentication:
+// app.use(require('./src/middlewares/authentication'));
+
+
+
+export default app;

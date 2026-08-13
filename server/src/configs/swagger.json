@@ -1,0 +1,46 @@
+
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Kitzaa API",
+    "description": "Kitzaa - REST API for a children's event discovery and organization platform."
+  },
+  "host": "127.0.0.1:8000",
+  "basePath": "/api/v1",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "Authorization",
+      "description": "JWT Authentication * Example: <b>Bearer ...accessToken...</b>"
+    }
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {},
+  "tags": [
+    { "name": "Auth", "description": "Registration, login, password operations" },
+    { "name": "Users", "description": "The logged-in user's own profile" },
+    { "name": "Admin - Users", "description": "User management in the admin panel" },
+    { "name": "Events", "description": "Event listing, creation, participation" },
+    { "name": "Admin - Events", "description": "Event approval/rejection/cancellation in the admin panel" },
+    { "name": "Posts", "description": "Social feed posts, likes, soft-delete" },
+    { "name": "Comments", "description": "Post comments with 2-level threading and likes" },
+    { "name": "Notifications", "description": "In-app notifications for the logged-in user" },
+    { "name": "Admin - Notifications", "description": "Admin notification queue" }
+  ],
+  "security": [
+    {
+      "Bearer": []
+    }
+  ]
+}

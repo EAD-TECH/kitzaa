@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Socket.io Auth + Ping-Pong Test</title>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 640px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        line-height: 1.45;
+      }
+      label {
+        display: block;
+        font-weight: 600;
+        margin-top: 1rem;
+      }
+      input,
+      textarea {
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: 0.35rem;
+        padding: 0.5rem;
+      }
+      button {
+        margin: 0.5rem 0.5rem 0 0;
+        padding: 0.5rem 0.9rem;
+        cursor: pointer;
+      }
+      #log {
+        margin-top: 1.25rem;
+        padding: 0.75rem;
+        background: #f4f4f5;
+        border-radius: 8px;
+        white-space: pre-wrap;
+        font-family: ui-monospace, monospace;
+        font-size: 0.85rem;
+        min-height: 8rem;
+      }
+      .ok {
+        color: #15803d;
+      }
+      .err {
+        color: #b91c1c;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Socket.io Test (KTZ-66)</h1>
+    <p>
+      Server: <code>http://localhost:8000</code> — Login ile aldığın
+      <strong>accessToken</strong> yapıştır (<code>eyJ...</code>, refresh
+      değil).
+    </p>
+
+    <label for="token">Access Token</label>
+    <textarea
+      id="token"
+      rows="4"
+      placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    ></textarea>
+
+    <div>
+      <button type="button" onclick="connectWithToken()">
+        Bağlan (pozitif)
+      </button>
+      <button type="button" onclick="connectInvalid()">
+        Negative: geçersiz token
+      </button>
+      <button type="button" onclick="pingAt()" id="pingBtn" disabled>
+        Ping at
+      </button>
+      <button type="button" onclick="disconnectSocket()">Disconnect</button>
+    </div>
+
+    <div id="log"></div>
+
+    <script>
+      const SERVER_URL = "http://localhost:8000";
+      let socket = null;
+
+      function log(message, type) {
+        const el = document.getElementById("log");
+        const line = document.createElement("div");
+        if (type) line.className = type;
+        line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        el.prepend(line);
+      }
+
+      function cleanupSocket() {
+        if (socket) {
+          socket.removeAllListeners();
+          socket.disconnect();
+          socket = null;
+        }
+        document.getElementById("pingBtn").disabled = true;
+      }
+
+      function bindSocketEvents() {
+        socket.on("connect", () => {
+          log("CONNECT OK — socket.id = " + socket.id, "ok");
+          document.getElementById("pingBtn").disabled = false;
+        });
+        socket.on("joined", (data) => console.log("Odam:", data.room));
+
+        socket.on("connect_error", (err) => {
+          log(
+            "CONNECT_ERROR (beklenen negative / auth fail): " + err.message,
+            "err",
+          );
+          document.getElementById("pingBtn").disabled = true;
+        });
+
+        socket.on("pong", (cevap) => {
+          log("PONG: " + cevap, "ok");
+        });
+
+        socket.on("disconnect", (reason) => {
+          log("DISCONNECT: " + reason);
+          document.getElementById("pingBtn").disabled = true;
+        });
+      }
+
+      function connectWithToken() {
+        cleanupSocket();
+        const token = document.getElementById("token").value.trim();
+        if (!token) {
+          log("Token boş — login accessToken yapıştır.", "err");
+          return;
+        }
+        if (token.startsWith("12")) {
+          log("Uyarı: token '12' ile başlıyor; bozulmuş olabilir.", "err");
+        }
+
+        log("Bağlanılıyor (auth.token = accessToken)...");
+        socket = io(SERVER_URL, { auth: { token } });
+        bindSocketEvents();
+      }
+
+      function connectInvalid() {
+        cleanupSocket();
+        log("Negative test: geçersiz token ile bağlanılıyor...");
+        socket = io(SERVER_URL, {
+          auth: { token: "GECERSIZ_TOKEN_NEGATIVE_TEST" },
+        });
+        bindSocketEvents();
+      }
+
+      function pingAt() {
+        if (!socket || !socket.connected) {
+          log("Önce başarılı bağlan.", "err");
+          return;
+        }
+        socket.emit("ping", "Merhaba, orda mısın?");
+        log("PING gönderildi.");
+      }
+
+      function disconnectSocket() {
+        cleanupSocket();
+        log("Manuel disconnect.");
+      }
+    </script>
+  </body>
+</html>

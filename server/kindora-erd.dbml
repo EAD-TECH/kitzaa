@@ -1,0 +1,408 @@
+// ============================================================
+//  Kitzaa / Kindora - ERD (dbdiagram.io icin DBML)
+//  Kullanim: https://dbdiagram.io -> Import / yapistir
+//
+//  NOT: Proje MongoDB (Mongoose). DBML tablo-tabanli oldugu icin
+//  gomulu (embedded) alt-dokumanlar ayri tablo gibi gosterildi.
+//  Gercekte ana dokuman icinde saklanirlar.
+//
+//  [MEVCUT]    = kodda var (src/models/*)
+//  [PLANLANAN] = henuz model yok (SOC / NOT backlog)
+//
+//  RENK:
+//    YESIL  (#1E8449) = gercek koleksiyon (MEVCUT)
+//    TURUNCU(#CA6F1E) = gomulu / embedded (ayri koleksiyon DEGIL)
+//    GRI    (#839192) = PLANLANAN
+// ============================================================
+
+
+// ---------- Enum'lar ----------
+Enum user_role {
+  user
+  organizer
+  admin
+}
+
+Enum language {
+  de
+  en
+}
+
+Enum application_status {
+  pending
+  under_review
+  approved
+  rejected
+  needs_more_info
+}
+
+Enum reviewer_type {
+  admin
+  ai
+  system
+}
+
+Enum institution_status {
+  active
+  suspended
+}
+
+Enum event_status {
+  pending
+  approved
+  rejected
+  cancelled
+  completed
+}
+
+Enum participant_status {
+  confirmed
+  cancelled
+}
+
+Enum notification_type {
+  forum_reply
+  event_new
+  event_reminder
+  organizer_application
+  event_approved
+  event_rejected
+  post_comment
+  post_like
+}
+
+
+// ============================================================
+//  MEVCUT MODELLER
+// ============================================================
+
+// [MEVCUT] users  —  src/models/userModel.ts
+Table users [headercolor: #1E8449] {
+  _id                 objectid   [pk]
+  username            string     [not null, unique]
+  firstName           string     [not null]
+  lastName            string     [not null]
+  email               string     [not null, unique]
+  password            string     [not null, note: 'select:false']
+  institutionId       objectid   [ref: > institutions._id, null, note: 'ref Institution']
+  emailVerifyToken    string     [null, note: 'select:false']
+  passwordResetToken  string     [null, note: 'select:false']
+  passwordResetExp    datetime   [null, note: 'select:false']
+  phone               string     [null]
+  avatarUrl           string     [null]
+  role                user_role  [not null, default: 'user']
+  isActive            boolean    [not null, default: true]
+  isEmailVerified     boolean    [not null, default: false]
+  language            language   [not null, default: 'de']
+  refreshToken        string     [null, note: 'select:false']
+  createdAt           datetime
+  updatedAt           datetime
+
+  Note: 'Kullanici. location + notifications gomulu; savedEvents/savedActivities ObjectId[]'
+}
+
+// [MEVCUT] users.location (embedded)
+Table "user_location (embedded)" [headercolor: #CA6F1E] {
+  user_id   objectid [ref: - users._id]
+  state     string   [null]
+  city      string   [not null]
+  district  string   [null]
+  zipCode   string   [null]
+  country   string   [not null, default: 'DE']
+
+  Note: 'EMBEDDED: users.location'
+}
+
+// [MEVCUT] users.notifications (embedded)
+Table "user_notifications (embedded)" [headercolor: #CA6F1E] {
+  user_id                  objectid [ref: - users._id]
+  email_newEvents          boolean  [default: true]
+  email_eventReminders     boolean  [default: true]
+  email_forumReplies       boolean  [default: true]
+  email_newsletter         boolean  [default: false]
+  push_enabled             boolean  [default: false]
+  push_token               string   [null, note: 'select:false']
+
+  Note: 'EMBEDDED: users.notifications'
+}
+
+// [MEVCUT] users.savedEvents / savedActivities (ObjectId dizileri)
+Table "user_saved_items (embedded)" [headercolor: #CA6F1E] {
+  user_id      objectid [ref: > users._id]
+  event_id     objectid [ref: > events._id, null]
+  activity_id  objectid [ref: > activities._id, null, note: 'Activity modeli henuz yok']
+
+  Note: 'EMBEDDED diziler: users.savedEvents[] + users.savedActivities[]'
+}
+
+
+// [MEVCUT] organizerApplications  —  src/models/organizerApplicationModel.ts
+Table organizerApplications [headercolor: #1E8449] {
+  _id             objectid            [pk]
+  userId          objectid            [ref: > users._id, not null]
+  message         string              [null]
+  status          application_status  [not null, default: 'pending']
+  reviewedBy      objectid            [ref: > users._id, null]
+  reviewerType    reviewer_type       [null]
+  rejectedReason  string              [null]
+  reviewedAt      datetime            [null]
+  createdAt       datetime
+  updatedAt       datetime
+
+  Note: 'Organizator basvurusu. institutionData + statusHistory gomulu.'
+}
+
+Table "application_institutionData (embedded)" [headercolor: #CA6F1E] {
+  application_id  objectid [ref: - organizerApplications._id]
+  name            string   [not null]
+  description     string   [null]
+  address         string   [null]
+  phone           string   [null]
+  website         string   [null]
+  category        string   [null]
+
+  Note: 'EMBEDDED: organizerApplications.institutionData'
+}
+
+Table "application_statusHistory (embedded)" [headercolor: #CA6F1E] {
+  application_id  objectid            [ref: > organizerApplications._id]
+  status          application_status  [not null]
+  changedBy       objectid            [ref: > users._id, null]
+  changedAt       datetime
+  note            string              [null]
+
+  Note: 'EMBEDDED dizi: organizerApplications.statusHistory[]'
+}
+
+
+// [MEVCUT] institutions  —  src/models/institutionModel.ts
+Table institutions [headercolor: #1E8449] {
+  _id            objectid            [pk]
+  ownerId        objectid            [ref: > users._id, not null, unique]
+  applicationId  objectid            [ref: > organizerApplications._id, not null]
+  name           string              [not null]
+  slug           string              [not null, unique]
+  description    string              [null]
+  address        string              [null]
+  phone          string              [null]
+  website        string              [null]
+  category       string              [null]
+  logoUrl        string              [null]
+  status         institution_status  [not null, default: 'active']
+  createdAt      datetime
+  updatedAt      datetime
+
+  Note: 'Basvuru onayinda olusur. users.institutionId buraya bakar.'
+}
+
+
+// [MEVCUT] event_categories  —  src/models/eventCategoryModel.ts
+Table event_categories [headercolor: #1E8449] {
+  _id          objectid [pk]
+  name         string   [not null, unique]
+  slug         string   [not null, unique]
+  description  string   [null]
+  icon         string   [not null]
+  isActive     boolean  [not null, default: true]
+  createdAt    datetime
+  updatedAt    datetime
+
+  Note: 'Etkinlik kategorileri (koleksiyon adi: event_categories)'
+}
+
+
+// [MEVCUT] events  —  src/models/eventModel.ts
+Table events [headercolor: #1E8449] {
+  _id             objectid      [pk]
+  title           string        [not null]
+  slug            string        [not null, unique]
+  description     string        [not null]
+  coverImage      string        [null]
+  categoryId      objectid      [ref: > event_categories._id, not null]
+  createdBy       objectid      [ref: > users._id, not null, note: 'onayli organizer']
+  status          event_status  [not null, default: 'pending']
+  rejectedReason  string        [null]
+  approvedAt      datetime      [null]
+  isFree          boolean       [not null, default: true]
+  viewCount       number        [not null, default: 0]
+  createdAt       datetime
+  updatedAt       datetime
+
+  Note: 'Etkinlik. ageRange/price/schedule/location/capacity/participants/likes/images gomulu veya dizi.'
+}
+
+Table "event_images (embedded)" [headercolor: #CA6F1E] {
+  event_id  objectid [ref: > events._id]
+  url       string   [not null]
+
+  Note: 'EMBEDDED dizi: events.images[]'
+}
+
+Table "event_ageRange (embedded)" [headercolor: #CA6F1E] {
+  event_id  objectid [ref: - events._id]
+  min       number   [not null]
+  max       number   [not null]
+
+  Note: 'EMBEDDED: events.ageRange'
+}
+
+Table "event_price (embedded)" [headercolor: #CA6F1E] {
+  event_id  objectid [ref: - events._id]
+  amount    number   [not null]
+  currency  string   [not null, default: 'EUR']
+
+  Note: 'EMBEDDED: events.price (isFree=true ise null)'
+}
+
+Table "event_schedule (embedded)" [headercolor: #CA6F1E] {
+  event_id         objectid [ref: - events._id]
+  startDate        datetime [not null]
+  endDate          datetime [null]
+  startTime        string   [not null, note: 'HH:mm']
+  endTime          string   [not null]
+  isRecurring      boolean  [default: false]
+  recurrenceRule   string   [null]
+
+  Note: 'EMBEDDED: events.schedule'
+}
+
+Table "event_location (embedded)" [headercolor: #CA6F1E] {
+  event_id     objectid [ref: - events._id]
+  venueName    string   [null]
+  addressLine  string   [not null]
+  city         string   [not null]
+  state        string   [null]
+  zipCode      string   [null]
+  country      string   [not null, default: 'DE']
+  lat          number   [null]
+  lng          number   [null]
+
+  Note: 'EMBEDDED: events.location (+ coordinates.lat/lng)'
+}
+
+Table "event_capacity (embedded)" [headercolor: #CA6F1E] {
+  event_id  objectid [ref: - events._id]
+  max       number   [not null]
+  current   number   [not null, default: 0]
+
+  Note: 'EMBEDDED: events.capacity'
+}
+
+Table "event_participants (embedded)" [headercolor: #CA6F1E] {
+  event_id  objectid            [ref: > events._id]
+  userId    objectid            [ref: > users._id]
+  status    participant_status  [not null, default: 'confirmed']
+  joinedAt  datetime
+
+  Note: 'EMBEDDED dizi: events.participants[]'
+}
+
+Table "event_likes (embedded)" [headercolor: #CA6F1E] {
+  event_id  objectid [ref: > events._id]
+  user_id   objectid [ref: > users._id]
+
+  Note: 'EMBEDDED dizi: events.likes[]'
+}
+
+
+// ============================================================
+//  PLANLANAN — Social / Event Posts (SOC backlog)
+// ============================================================
+
+// [PLANLANAN] posts  —  KITZAA / SOC-001..SOC-018
+Table posts [headercolor: #839192] {
+  _id            objectid [pk]
+  authorId       objectid [ref: > users._id, not null]
+  text           string   [not null]
+  imageUrl       string   [null]
+  commentsCount  number   [not null, default: 0, note: 'denormalize sayac']
+  eventId        objectid [ref: > events._id, null, note: 'opsiyonel etiket; join zorunlu DEGIL']
+  placeName      string   [null, note: 'serbest mekan adi']
+  city           string   [null]
+  isDeleted      boolean  [not null, default: false, note: 'soft delete']
+  createdAt      datetime
+  updatedAt      datetime
+
+  Note: 'Social feed (newest first). eventId varsa Event detayinda listelenir. Index: authorId, createdAt, eventId.'
+}
+
+// [PLANLANAN] posts.likes[]
+Table "post_likes (embedded)" [headercolor: #CA6F1E] {
+  post_id  objectid [ref: > posts._id]
+  user_id  objectid [ref: > users._id]
+
+  Note: 'EMBEDDED dizi: posts.likes[] — toggle; cift begeni yok'
+}
+
+// [PLANLANAN] posts.location (embedded) — serbest mekan koordinati
+// placeName/city ust alanda; burada sadece coordinates tut (tek kaynak).
+Table "post_location (embedded)" [headercolor: #CA6F1E] {
+  post_id  objectid [ref: - posts._id]
+  lat      number   [null]
+  lng      number   [null]
+
+  Note: 'EMBEDDED: posts.location.coordinates (placeName/city posts ustunde)'
+}
+
+
+// [PLANLANAN] postComments  —  SOC-003..SOC-004, SOC-020..SOC-027
+Table postComments [headercolor: #839192] {
+  _id        objectid [pk]
+  postId     objectid [ref: > posts._id, not null]
+  authorId   objectid [ref: > users._id, not null]
+  text       string   [not null]
+  isDeleted  boolean  [not null, default: false]
+  createdAt  datetime
+  updatedAt  datetime
+
+  Note: 'Post yorumlari. Index: postId + createdAt. Silinince posts.commentsCount azalir.'
+}
+
+// [PLANLANAN] postComments.likes[] — SOC-024 (MVP sonrasi opsiyonel)
+Table "post_comment_likes (embedded)" [headercolor: #CA6F1E] {
+  comment_id  objectid [ref: > postComments._id]
+  user_id     objectid [ref: > users._id]
+
+  Note: 'EMBEDDED dizi: postComments.likes[] (opsiyonel / MVP+)'
+}
+
+
+// ============================================================
+//  PLANLANAN — Notifications (NOT backlog)
+// ============================================================
+
+Table notifications [headercolor: #839192] {
+  _id          objectid           [pk]
+  recipientId  objectid           [ref: > users._id, not null]
+  type         notification_type  [not null]
+  title        string             [not null]
+  message      string             [not null]
+  link         string             [null]
+  relatedId    objectid           [null, note: 'post/event/application vb.']
+  isRead       boolean            [not null, default: false]
+  createdAt    datetime
+  updatedAt    datetime
+
+  Note: 'In-app bildirim. Index: recipientId + isRead + createdAt. Tercihler users.notifications ile gate.'
+}
+
+
+// ============================================================
+//  PLANLANAN — Activity (users.savedActivities ref; model henuz yok)
+//  FRM forum On Hold — social posts ile degistirildi, forum tablosu yok.
+// ============================================================
+
+Table activities [headercolor: #839192] {
+  _id        objectid [pk]
+  eventId    objectid [ref: > events._id, null, note: 'eski planda evente bagliydi; netlestirilecek']
+  title      string   [not null]
+  description string  [null]
+  startTime  string   [null]
+  endTime    string   [null]
+  speaker    string   [null]
+  location   string   [null]
+  createdAt  datetime
+  updatedAt  datetime
+
+  Note: 'PLANLANAN / belirsiz. users.savedActivities buna ref veriyor; SOC oncelikli.'
+}
