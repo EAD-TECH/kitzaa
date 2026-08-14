@@ -37,7 +37,7 @@ import { ArrowLeftIcon, Check, Eye, EyeOff, Loader2 } from 'lucide-react'
 import logo from "../../public/images/logo.png"
 import Image from "next/image"
 import Link from "next/link"
-import { registerSchema, type RegisterSchema } from "./schemas/register.schema"
+import { registerSchema, toRegisterPayload, type RegisterFormValues } from "./validations/register.schema"
 
 const steps = [1, 2]
 
@@ -60,7 +60,7 @@ export function RegisterForm() {
   const [isLookingUpZip, setIsLookingUpZip] = useState(false)
 
 
-  const form = useForm<RegisterSchema>({
+  const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     mode: "onSubmit",
     defaultValues: {
@@ -72,15 +72,17 @@ export function RegisterForm() {
       confirmPassword: "",
       countryCode: "+49",
       phone: "",
-      state: "",
-      city: "",
-      district: "",
-      zipCode: "",
+      location: {
+        state: "",
+        city: "",
+        district: "",
+        zipCode: "",
+      },
       language: "de",
     },
   })
 
-  const zipCode = form.watch("zipCode")
+  const zipCode = form.watch("location.zipCode")
 
 
   const goToNextStep = async () => {
@@ -89,40 +91,41 @@ export function RegisterForm() {
   }
 
 
-  const onSubmit = async (data: RegisterSchema) => {
-    console.log(data)
+  const onSubmit = async (data: RegisterFormValues) => {
+    const payload = toRegisterPayload(data)
+    console.log(payload)
   }
 
 
   useEffect(() => {
 
     if (!/^\d{5}$/.test(zipCode)) {
-      form.clearErrors("zipCode")
+      form.clearErrors("location.zipCode")
       return
     }
 
     const controller = new AbortController()  // bir "iptal kumandası" oluşturuyor. İçinde bir .signal (bağlı bir "iptal sinyali") var.
     const timeoutId = setTimeout(async () => {
       setIsLookingUpZip(true)
-      form.clearErrors("zipCode")
+      form.clearErrors("location.zipCode")
       try {
         const res = await fetch(`https://api.zippopotam.us/de/${zipCode}`, {
           signal: controller.signal,
         })
         if (!res.ok) {
-          form.setError("zipCode", { type: "manual", message: "Diese Postleitzahl ist ungültig" })
+          form.setError("location.zipCode", { type: "manual", message: "Diese Postleitzahl ist ungültig" })
           return
         }
 
         const data = await res.json()
         const place = data.places?.[0]
         if (!place) {
-          form.setError("zipCode", { type: "manual", message: "Diese Postleitzahl ist ungültig" })
+          form.setError("location.zipCode", { type: "manual", message: "Diese Postleitzahl ist ungültig" })
           return
         }
 
-        form.setValue("city", place["place name"], { shouldValidate: true })
-        form.setValue("state", place["state"], { shouldValidate: true })
+        form.setValue("location.city", place["place name"], { shouldValidate: true })
+        form.setValue("location.state", place["state"], { shouldValidate: true })
       } catch {
         // istek iptal edildi (kullanıcı yazmaya devam etti) — sessizce geç.
       } finally {
@@ -366,7 +369,7 @@ export function RegisterForm() {
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="zipCode"
+                  name="location.zipCode"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Postleitzahl</FormLabel>
@@ -385,7 +388,7 @@ export function RegisterForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="city"
+                  name="location.city"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Stadt</FormLabel>
@@ -400,7 +403,7 @@ export function RegisterForm() {
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="state"
+                  name="location.state"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Bundesland</FormLabel>
@@ -413,7 +416,7 @@ export function RegisterForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="district"
+                  name="location.district"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Bezirk (Optional)</FormLabel>

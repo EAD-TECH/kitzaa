@@ -172,6 +172,7 @@ const authController = {
       res.status(200).send({
         error: false,
         accessToken,
+        user: toUserDTO(user),
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);

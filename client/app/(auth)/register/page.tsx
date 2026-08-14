@@ -4,7 +4,7 @@ import { SignupForm } from "@/components/signup-form"
 import registerImage from "../../../public/images/register-image.png"
 import Image from "next/image"
 import Link from "next/link"
-import { RegisterForm } from "@/features/auth/register-form"
+import { RegisterForm } from "@/features/auth/registerForm"
 
 
 export default function RegisterPage() {

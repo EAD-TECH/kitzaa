@@ -52,27 +52,49 @@ export const registerSchema = z
         message: "Bitte gib eine gültige Telefonnummer ein",
       }),
 
-    state: z
-      .string()
-      .trim()
-      .min(2, "Bundesland ist erforderlich"),
-
-    city: z
-      .string()
-      .trim()
-      .min(2, "Stadt ist erforderlich"),
-
-    district: z.string().trim().optional(),
-
-    zipCode: z
-      .string()
-      .regex(ZIP_CODE_REGEX, "Bitte gib eine gültige Postleitzahl ein"),
-
     language: z.enum(["de", "en"]),
+
+    location: z.object({
+      state: z
+        .string()
+        .trim()
+        .min(2, "Bundesland ist erforderlich"),
+
+      city: z
+        .string()
+        .trim()
+        .min(2, "Stadt ist erforderlich"),
+
+      district: z.string().trim().optional(),
+
+      zipCode: z
+        .string()
+        .regex(ZIP_CODE_REGEX, "Bitte gib eine gültige Postleitzahl ein"),
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwörter stimmen nicht überein",
     path: ["confirmPassword"],
   })
 
-export type RegisterSchema = z.infer<typeof registerSchema>
+// Form alanlarının şekli (RHF bunu kullanır)
+export type RegisterFormValues = z.infer<typeof registerSchema>
+
+// confirmPassword sadece frontend doğrulaması için var, backend'e gitmiyor;
+// countryCode + phone tek bir alanda birleşiyor. location zaten backend'in
+// createUserSchema'sıyla birebir aynı şekilde olduğu için dokunmuyoruz.
+// (Not: bunu .transform() olarak şemanın içine koymadık — zodResolver'ın
+// .transform()'lu bir şemadan ürettiği Resolver tipi, react-hook-form'un
+// beklediği Resolver<RegisterFormValues> tipiyle uyuşmuyor ve "iki farklı
+// Resolver tipi var" hatası veriyordu. Ayrı bir fonksiyon olarak daha
+// sağlam.)
+export function toRegisterPayload(data: RegisterFormValues) {
+  const { confirmPassword, countryCode, phone, ...rest } = data
+  return {
+    ...rest,
+    phone: phone ? `${countryCode}${phone}` : undefined,
+  }
+}
+
+// Backend'e gönderilecek, dönüştürülmüş payload şekli
+export type RegisterPayload = ReturnType<typeof toRegisterPayload>

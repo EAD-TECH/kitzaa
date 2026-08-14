@@ -1,4 +1,4 @@
-import type { LoginFormValues } from "../validations/loginSchema";
+import type { LoginFormValues } from "../validations/login.schema";
 
 export interface AuthUser {
   _id: string;
