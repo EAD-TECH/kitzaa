@@ -18,7 +18,9 @@ export function useLogin() {
     try {
       const data = await loginApi(values);
       setSession({ accessToken: data.accessToken, user: data.user });
-      router.push("/");
+
+      router.push(data.user.role === "admin" ? "/admin" : "/");
+      /* router.push("/"); */
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.status === 401 || err.status === 404) {
