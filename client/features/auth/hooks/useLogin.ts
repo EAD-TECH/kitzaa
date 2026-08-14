@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { login as loginApi } from "../api";
 import { useAuthStore } from "../store/authStore";
 import { ApiError } from "@/lib/api/client";
-import type { LoginFormValues } from "../validations/loginSchema";
+import type { LoginFormValues } from "../validations/login.schema";
 
 export function useLogin() {
   const router = useRouter();
@@ -36,3 +36,25 @@ export function useLogin() {
 
   return { login, isLoading, error };
 }
+
+
+// import { useMutation } from "@tanstack/react-query"
+
+// export function useLogin() {
+//   const router = useRouter()
+//   const setSession = useAuthStore((state) => state.setSession)
+
+//   const mutation = useMutation({
+//     mutationFn: loginApi,
+//     onSuccess: (data) => {
+//       setSession({ accessToken: data.accessToken, user: data.user })
+//       router.push("/")
+//     },
+//   })
+
+//   return {
+//     login: mutation.mutate,
+//     isLoading: mutation.isPending,
+//     error: mutation.error ? mapLoginError(mutation.error) : null,
+//   }
+// }
