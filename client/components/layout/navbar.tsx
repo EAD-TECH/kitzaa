@@ -1,4 +1,3 @@
-
 "use client"
 
 import {
@@ -56,14 +55,15 @@ const Navbar = () => {
   const isLight = theme !== "dark";
   const pathname = usePathname();
   const currentUser = useAuthStore((state)=> state.user);
+  const hasHydrated = useAuthStore((state) => state.hasHydrated);
 
   const { logout } = useLogout();
 
   const handleLogout = async () => {
-    console.log("calisti");
     await logout();
-    console.log("calisti 2")
   }
+
+  if(!hasHydrated) return null;
 
 
   return (

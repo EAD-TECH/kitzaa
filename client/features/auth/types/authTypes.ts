@@ -28,4 +28,6 @@ export interface AuthState {
   accessToken: string | null;
   setSession: (session: { accessToken: string; user: AuthUser }) => void;
   clearSession: () => void;
+  hasHydrated: boolean; // persist edilmis state tamamen yüklendi mi cunku user ilk basta bos gelebilir sonra dolabilir.
+  setHasHydrated: (value: boolean) => void;
 }
