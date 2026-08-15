@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Fraunces, Manrope } from "next/font/google";
 import { ThemeProvider } from "@/providers/theme-provider";
 import "./globals.css";
-import Navbar from "@/components/layout/navbar";
 import QueryProvider from "@/providers/query-provider";
+import { Toaster } from "@/components/ui/sonner"
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -29,6 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <QueryProvider>
             {children}
+            <Toaster />
           </QueryProvider>
         </ThemeProvider>
       </body>

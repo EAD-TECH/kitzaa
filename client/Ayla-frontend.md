@@ -57,3 +57,14 @@ Mimarinin Korunması: Eğer layout.tsx dosyasının en üstüne "use client" ekl
 - stepper kullandim **reui.io** kutuphanesinden
 
 
+
+***********************
+
+nextjs in loading yapisi sadece server komponentlerde calisiyor. fech islemi serverda yapiliyor. ordaki hatalari yakaliyor
+
+Bir Server Component async function Page() { const data = await fetch(...); ... } şeklinde yazılabiliyor — React bu await'i "suspend" olarak görüyor, loading.tsx devreye giriyor.
+Fetch/DB sorgusu throw ederse, bu render'ı kırıyor, error.tsx yakalıyor.
+Client Component'lerde ise normal useState/useEffect/useQuery ile veri çekmek bu mekanizmayı tetiklemiyor — çünkü veri component mount olduktan sonra, render bittikten sonra geliyor; hiçbir şey "suspend" olmuyor, sadece state güncelleniyor ve component yeniden render oluyor. Senin useMutation/useQuery kullanımın (register, login) tam olarak bu — render'ı hiç suspend etmiyor, o yüzden loading.tsx/error.tsx'in haberi bile olmuyor.
+
+***********************
+
