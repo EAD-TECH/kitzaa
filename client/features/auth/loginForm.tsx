@@ -17,11 +17,11 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginFormValues, loginSchema } from "./validations/login.schema";
-import { useLogin } from "./hooks/useLogin";
+import { mapLoginError, useLogin } from "./hooks/useLogin";
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"form">) {
   const [showPassword, setShowPassword] = useState(false);
-  const { login, isLoading, error } = useLogin();
+  const { mutate: submitLogin, isPending, error } = useLogin();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -31,8 +31,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
     },
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
-    await login(data);
+  const onSubmit = (data: LoginFormValues) => {
+    submitLogin(data);
   };
 
   return (
@@ -82,10 +82,10 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
 
           <FieldError>{form.formState.errors.password?.message}</FieldError>
         </Field>
-        {error ? <FieldError>{error}</FieldError> : null}
+        {error ? <FieldError>{mapLoginError(error)}</FieldError> : null}
         <Field>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Wird angemeldet..." : "Anmelden"}
+          <Button type="submit" disabled={isPending}>
+            {isPending ? "Wird angemeldet..." : "Anmelden"}
           </Button>
         </Field>
         <FieldSeparator>Oder weiter mit</FieldSeparator>

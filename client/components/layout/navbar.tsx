@@ -34,7 +34,6 @@ import { MdSunny } from "react-icons/md";
 import { IoMoon, IoShareSocial } from "react-icons/io5";
 import { useTheme } from "next-themes";
 import { useState } from "react";
-import { useAuthStore } from "@/features/auth/store/authStore"
 import { useLogout } from "@/features/auth/hooks/useLogout";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser"
 
@@ -55,9 +54,6 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const isLight = theme !== "dark";
   const pathname = usePathname();
-  const currentUser = useAuthStore((state)=> state.user);
-  const hasHydrated = useAuthStore((state) => state.hasHydrated);
-
   const { data: currentUser } = useCurrentUser()
 
   const { logout } = useLogout();
@@ -65,8 +61,6 @@ const Navbar = () => {
   const handleLogout = async () => {
     await logout();
   }
-
-  if(!hasHydrated) return null;
 
 
   return (

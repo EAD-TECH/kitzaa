@@ -3,6 +3,7 @@
 import { useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "../store/authStore";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 import type { AuthUser } from "../types/authTypes";
 
 type RequireAuthProps = {
@@ -12,11 +13,11 @@ type RequireAuthProps = {
 
 export default function RequireAuth({ children, roles }: RequireAuthProps) {
   const router = useRouter();
-  const user = useAuthStore((state) => state.user);
-  const hasHydrated = useAuthStore((state) => state.hasHydrated);
+  const isReady = useAuthStore((state) => state.isReady);
+  const { data: user } = useCurrentUser();
 
   useEffect(() => {
-    if (!hasHydrated) return;
+    if (!isReady) return;
 
     if (!user) {
       router.replace("/login");
@@ -26,9 +27,9 @@ export default function RequireAuth({ children, roles }: RequireAuthProps) {
     if (user.role !== roles) {
       router.replace("/");
     }
-  }, [hasHydrated, user, roles, router]);
+  }, [isReady, user, roles, router]);
 
-  if (!hasHydrated || !user || user.role !== roles) {
+  if (!isReady || !user || user.role !== roles) {
     return null;
   }
 
