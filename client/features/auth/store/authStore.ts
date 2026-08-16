@@ -1,22 +1,18 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { AuthState } from "../types/authTypes";
+import { create } from 'zustand'
+import { AuthTokenState } from '../types/authTypes'
 
-export const useAuthStore = create<AuthState>()(
-  persist(
+export const useAuthStore = create<AuthTokenState>()(
     (set) => ({
-      user: null,
-      accessToken: null,
-      setSession: ({ accessToken, user }) => set({ accessToken, user }),
-      clearSession: () => set({ accessToken: null, user: null }),
+        accessToken: null,
+        setAccessToken: (accessToken) => set({ accessToken }),
       hasHydrated: false,
       setHasHydrated: (value: boolean) => set({ hasHydrated: value }),
     }),
-    {
+   {
       name: "auth-storage",
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
       },
-    },
-  ),
-);
+
+
+) 

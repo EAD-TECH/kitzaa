@@ -36,6 +36,7 @@ import { useTheme } from "next-themes";
 import { useState } from "react";
 import { useAuthStore } from "@/features/auth/store/authStore"
 import { useLogout } from "@/features/auth/hooks/useLogout";
+import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser"
 
 const comfortaa = Comfortaa({
   subsets: ["latin"],
@@ -56,6 +57,8 @@ const Navbar = () => {
   const pathname = usePathname();
   const currentUser = useAuthStore((state)=> state.user);
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
+
+  const { data: currentUser } = useCurrentUser()
 
   const { logout } = useLogout();
 

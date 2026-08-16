@@ -22,6 +22,7 @@ app.use(cors({
   credentials: true,
 }));
 app.use('/api/v1/uploads', express.static('uploads')); // Serve uploaded files
+app.use('/images', express.static('public/images')); // Serve mail template assets (logo, etc.)
 app.use(morgan('dev'));
 
 
