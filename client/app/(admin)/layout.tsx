@@ -1,7 +1,9 @@
+import RequireAuth from "@/features/auth/components/RequireAuth";
+
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return <RequireAuth roles="admin">{children}</RequireAuth>;
 }

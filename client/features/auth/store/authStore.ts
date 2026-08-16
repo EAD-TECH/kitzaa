@@ -5,7 +5,14 @@ export const useAuthStore = create<AuthTokenState>()(
     (set) => ({
         accessToken: null,
         setAccessToken: (accessToken) => set({ accessToken }),
+      hasHydrated: false,
+      setHasHydrated: (value: boolean) => set({ hasHydrated: value }),
     }),
+   {
+      name: "auth-storage",
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
 
 
 ) 
