@@ -68,3 +68,19 @@ Client Component'lerde ise normal useState/useEffect/useQuery ile veri çekmek b
 
 ***********************
 
+**********************
+
+```javascript
+
+<form onSubmit= {form.handleSubmit(onSubmit)}></form>
+
+```
+Kullanıcı submit'e basar
+   ↓
+form.handleSubmit(onSubmit) devreye girer
+   ↓
+preventDefault() otomatik çağrılır + validation çalışır
+   ↓
+Validation geçerse → senin onSubmit(data) fonksiyonun, doğrulanmış data ile çağrılır
+
+**********************

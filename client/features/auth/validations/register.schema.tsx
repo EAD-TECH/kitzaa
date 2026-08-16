@@ -80,14 +80,7 @@ export const registerSchema = z
 // Form alanlarının şekli (RHF bunu kullanır)
 export type RegisterFormValues = z.infer<typeof registerSchema>
 
-// confirmPassword sadece frontend doğrulaması için var, backend'e gitmiyor;
-// countryCode + phone tek bir alanda birleşiyor. location zaten backend'in
-// createUserSchema'sıyla birebir aynı şekilde olduğu için dokunmuyoruz.
-// (Not: bunu .transform() olarak şemanın içine koymadık — zodResolver'ın
-// .transform()'lu bir şemadan ürettiği Resolver tipi, react-hook-form'un
-// beklediği Resolver<RegisterFormValues> tipiyle uyuşmuyor ve "iki farklı
-// Resolver tipi var" hatası veriyordu. Ayrı bir fonksiyon olarak daha
-// sağlam.)
+
 export function toRegisterPayload(data: RegisterFormValues) {
   const { confirmPassword, countryCode, phone, ...rest } = data
   return {
@@ -97,4 +90,4 @@ export function toRegisterPayload(data: RegisterFormValues) {
 }
 
 // Backend'e gönderilecek, dönüştürülmüş payload şekli
-export type RegisterPayload = ReturnType<typeof toRegisterPayload>
+export type RegisterPayload = ReturnType<typeof toRegisterPayload>  // returnTyoe bu fonksiyonun otomatik tipin al demek.

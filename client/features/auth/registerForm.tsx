@@ -38,6 +38,7 @@ import logo from "../../public/images/logo.png"
 import Image from "next/image"
 import Link from "next/link"
 import { registerSchema, toRegisterPayload, type RegisterFormValues } from "./validations/register.schema"
+import { useRegister } from "./hooks/useRegister"
 
 const steps = [1, 2]
 
@@ -58,6 +59,8 @@ export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLookingUpZip, setIsLookingUpZip] = useState(false)
+
+  const { mutate: submitRegister, isPending, isSuccess, error } = useRegister()
 
 
   const form = useForm<RegisterFormValues>({
@@ -92,8 +95,11 @@ export function RegisterForm() {
 
 
   const onSubmit = async (data: RegisterFormValues) => {
+    console.log("geldi onsubmite")
     const payload = toRegisterPayload(data)
-    console.log(payload)
+    submitRegister(payload)
+
+    console.log("kullanici olustu", payload)
   }
 
 
@@ -140,6 +146,17 @@ export function RegisterForm() {
   }, [zipCode, form])
 
 
+
+  if (isSuccess) {
+    return (
+      <div className="flex flex-col items-center gap-3 text-center">
+        <h2 className="font-heading text-xl">E-Mail-Adresse bestätigen</h2>
+        <p className="font-body text-sm text-muted-foreground">
+          Wir haben dir einen Bestätigungslink geschickt. Bitte überprüfe dein Postfach.
+        </p>
+      </div>
+    )
+  }
 
 
   return (
@@ -468,9 +485,9 @@ export function RegisterForm() {
                 <Button
                   type="submit"
                   className="cursor-pointer mt-6"
-                  disabled={form.formState.isSubmitting}
+                  disabled={isPending}
                 >
-                  {form.formState.isSubmitting ? (
+                  {isPending ? (
                     <>
                       <Loader2 className="size-4 animate-spin" />
                       Wird erstellt...
@@ -481,6 +498,9 @@ export function RegisterForm() {
                 </Button>
               </Field>
               <FieldSeparator className="my-1">Oder weiter mit</FieldSeparator>
+
+              {error && <p style={{ color: "red" }}>{error.message}</p>}
+
               <Field>
                 <Button variant="outline" type="button" className="cursor-pointer mb-2">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">

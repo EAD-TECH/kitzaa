@@ -1,16 +1,11 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import { AuthState } from '../types/authTypes'
+import { AuthTokenState } from '../types/authTypes'
 
-export const useAuthStore = create<AuthState>()(
-    persist(
-        (set) => ({
-            user: null,
-            accessToken: null,
-            setSession: ( {accessToken, user}) => set({ accessToken, user }),
+export const useAuthStore = create<AuthTokenState>()(
+    (set) => ({
+        accessToken: null,
+        setAccessToken: (accessToken) => set({ accessToken }),
+    }),
 
-            clearSession: () => set({ accessToken: null, user: null }), 
-        }),
-        { name: "auth-storage" }
-    )
-)
+
+) 

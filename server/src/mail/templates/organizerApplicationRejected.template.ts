@@ -25,13 +25,7 @@ export const organizerApplicationRejectedTemplate = ({
           <!-- Header -->
           <tr>
             <td bgcolor="#C26D4D" style="background-color:#C26D4D; background-image:linear-gradient(135deg, #E8C16C 0%, #C26D4D 100%); padding:44px 32px; text-align:center;">
-              <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 16px;">
-                <tr>
-                  <td width="72" height="72" align="center" valign="middle" style="width:72px; height:72px; background-color:rgba(255,255,255,0.22); border-radius:50%; font-size:34px; line-height:1;">
-                    📄
-                  </td>
-                </tr>
-              </table>
+              <img src="${process.env.CLIENT_URL}/images/logo.png" alt="Kitzaa" width="130" style="display:block; width:130px; height:auto; margin:0 auto 16px; border:0;" />
               <h1 style="margin:0; color:#FFFFFF; font-size:24px; font-weight:700; letter-spacing:-0.3px;">
                 Antrag abgelehnt
               </h1>

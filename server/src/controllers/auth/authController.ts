@@ -84,11 +84,6 @@ const authController = {
 
     // console.log('newUser', newUser)
 
-    //token create
-    const accessToken = generateAccessToken(newUser);
-    const refreshToken = generateRefreshToken(newUser);
-
-    newUser.refreshToken = refreshToken;
 
     const { rawToken, hashedToken, expires } = generateSecureToken(24 * 60 * 60 * 1000);
     newUser.emailVerifyToken = hashedToken;
@@ -96,33 +91,24 @@ const authController = {
 
     await newUser.save();
 
-    const verifyUrl = `${process.env.API_URL || "http://localhost:8000"}/api/v1/auth/verify-email/${rawToken}`;
+    const verifyUrl = `${process.env.API_URL}/api/v1/auth/verify-email/${rawToken}`;
 
     //mail
     try {
-      const mail = await sendMail({
+      await sendMail({
         to: newUser.email,
         subject: "Willkommen bei Kitzaa",
-        html: welcomeTemplate({ username: newUser.username, verifyUrl}),
+        html: welcomeTemplate({ username: newUser.username, verifyUrl }),
       });
 
-      // console.log("mail", mail);
     } catch (error) {
       console.log("Failed to send email.", error);
     }
 
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
 
     res.status(201).send({
       error: false,
-      new: true,
-      accessToken,
-      user: toUserDTO(newUser),
+      message: "Ihr Konto wurde erstellt. Bitte bestätigen Sie Ihre E-Mail-Adresse."
     });
   },
 
@@ -263,12 +249,21 @@ const authController = {
     user.isEmailVerified = true;
     user.emailVerifyToken = null;
     user.emailVerifyExp = null;
+
+    const refreshToken = generateRefreshToken(user);
+    user.refreshToken = refreshToken;
     await user.save();
 
-    res.status(200).json({
-      error: false,
-      message: "E-Mail erfolgreich bestätigt.",
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+
+    // tarayıcı navigasyonu bu — JSON değil, frontend'e redirect ediyoruz.
+    // accessToken'ı frontend orada mount olunca /refresh çağrısıyla alacak.
+    res.redirect(302, `${process.env.CLIENT_URL}/`);
   },
 };
 
