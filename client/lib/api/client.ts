@@ -20,6 +20,7 @@ export async function apiFetch<T>(
   path: string,
   options: ApiFetchOptions = {}
 ): Promise<T> {
+  
   if (!API_URL) {
     throw new Error("NEXT_PUBLIC_API_URL is not set.");
   }
@@ -43,6 +44,11 @@ export async function apiFetch<T>(
 
   if (!res.ok) {
     throw new ApiError("Request failed", res.status);
+  }
+
+  // 204 No Content'te body yok — res.json() boş string'i parse edemeyip hata fırlatır
+  if (res.status === 204) {
+    return undefined as T;
   }
 
   return res.json() as Promise<T>;

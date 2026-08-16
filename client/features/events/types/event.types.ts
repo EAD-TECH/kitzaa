@@ -77,3 +77,58 @@ export interface EventDTO {
   createdAt: string;
   updatedAt: string;
 }
+
+// res.getModelListDetails'in döndüğü sayfalama bilgisi (server/src/middlewares/queryHandler.ts)
+export interface ListDetails {
+  count: number;
+  filter: Record<string, unknown>;
+  search: Record<string, unknown>;
+  page: number;
+  skip: number;
+  limit: number;
+  sort: Record<string, unknown>;
+  pages:
+    | false
+    | {
+        previous: number | false;
+        current: number;
+        next: number | false;
+        total: number;
+      };
+}
+
+// Backend'in tüm event endpoint'leri response'u bir zarfın içinde döner — apiFetch<EventDTO>
+// diye çıplak DTO beklemek yanlış, her endpoint kendi zarf şeklini kullanmalı.
+export interface EventListResponse {
+  error: false;
+  details: ListDetails;
+  events: EventDTO[];
+}
+
+export interface NearbyEventsResponse {
+  error: false;
+  events: EventDTO[];
+}
+
+export interface EventResponse {
+  error: false;
+  event: EventDTO;
+}
+
+export interface EventLikeResponse {
+  error: false;
+  liked: boolean;
+  event: EventDTO;
+}
+
+// GET /:id/participants -> participants.userId populate edilmişse zengin obje, edilmemişse id string'i
+export interface EventParticipant {
+  userId: string | { _id: string; username: string; avatarUrl: string | null };
+  status: "confirmed" | "cancelled";
+  joinedAt: string;
+}
+
+export interface EventParticipantsResponse {
+  error: false;
+  participants: EventParticipant[];
+}
