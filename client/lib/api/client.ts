@@ -34,15 +34,31 @@ export async function apiFetch<T>(
     headers.set("Authorization", `Bearer ${accessToken}`);
   }
 
-  const res = await fetch(`${API_URL}${path}`, {
-    ...rest,
-    credentials: "include",
-    headers,
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
+  let res: Response;
+  
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      ...rest,
+      credentials: "include",
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+  } catch (err) {
+    // sunucuya hiç ulaşılamadı (internet yok, backend ayakta değil vs.) — kullanıcının hatası değil
+    console.error(`Network error on ${path}`, err);
+    throw new ApiError("Server konnte nicht erreicht werden. Bitte überprüfe deine Verbindung.", 0);
+  }
 
   if (!res.ok) {
-    throw new ApiError("Request failed", res.status);
+    // 5xx: backend'in ham mesajını kullanıcıya sızdırma, sadece logla
+    if (res.status >= 500) {
+      console.error(`API ${res.status} error on ${path}`);
+      throw new ApiError("Ein Fehler ist aufgetreten. Bitte versuche es später erneut.", res.status);
+    }
+
+    // 4xx: backend'in ürettiği anlamlı mesajı kullan
+    const errorBody = await res.json().catch(() => null);
+    throw new ApiError(errorBody?.message ?? "Request failed", res.status);
   }
 
   return res.json() as Promise<T>;
