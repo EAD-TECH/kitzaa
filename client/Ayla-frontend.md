@@ -57,3 +57,19 @@ Mimarinin Korunması: Eğer layout.tsx dosyasının en üstüne "use client" ekl
 - stepper kullandim **reui.io** kutuphanesinden
 
 
+**********************
+
+```javascript
+
+<form onSubmit= {form.handleSubmit(onSubmit)}></form>
+
+```
+Kullanıcı submit'e basar
+   ↓
+form.handleSubmit(onSubmit) devreye girer
+   ↓
+preventDefault() otomatik çağrılır + validation çalışır
+   ↓
+Validation geçerse → senin onSubmit(data) fonksiyonun, doğrulanmış data ile çağrılır
+
+**********************

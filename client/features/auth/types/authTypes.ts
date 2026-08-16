@@ -23,9 +23,13 @@ export interface LoginResponse {
 // backend'e ne gönderiyoruz: zod'dan gelen tip, tekrar yazmıyoruz
 export type LoginPayload = LoginFormValues;
 
-export interface AuthState {
-  user: AuthUser | null;
+export interface AuthTokenState {
   accessToken: string | null;
-  setSession: (session: { accessToken: string; user: AuthUser }) => void;
-  clearSession: () => void;
+  setAccessToken: (accessToken: string | null) => void;
+}
+
+
+export interface RegisterResponse {
+  error:false;
+  message: string;
 }
