@@ -1,26 +1,31 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { logout as logoutApi } from "../api";
 import { useAuthStore } from "../store/authStore";
 import { ApiError } from "@/lib/api/client";
 
 export function useLogout() {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const clearSession = useAuthStore((state) => state.clearSession);
+  const clearClientSession = () => {
+    setAccessToken(null);
+    queryClient.setQueryData(["currentUser"], null);
+  };
 
   const logout = async () => {
     setIsLoading(true);
     setError(null);
     try {
       await logoutApi();
-      clearSession();
+      clearClientSession();
       router.push("/");
     } catch (err) {
-      // Kullanıcı çıkış istedi. Backend düşse bile yerelde oturumu kapat.
-      clearSession();
+      clearClientSession();
       router.push("/");
 
       if (err instanceof ApiError) {

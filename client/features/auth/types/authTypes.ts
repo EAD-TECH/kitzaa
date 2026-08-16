@@ -20,21 +20,16 @@ export interface LoginResponse {
   user: AuthUser;
 }
 
-// backend'e ne gönderiyoruz: zod'dan gelen tip, tekrar yazmıyoruz
 export type LoginPayload = LoginFormValues;
 
 export interface AuthTokenState {
   accessToken: string | null;
-  setSession: (session: { accessToken: string; user: AuthUser }) => void;
-  clearSession: () => void;
-  hasHydrated: boolean; // persist edilmis state tamamen yüklendi mi cunku user ilk basta bos gelebilir sonra dolabilir.
-  setHasHydrated: (value: boolean) => void;
-}
   setAccessToken: (accessToken: string | null) => void;
+  isReady: boolean;
+  setIsReady: (value: boolean) => void;
 }
-
 
 export interface RegisterResponse {
-  error:false;
+  error: false;
   message: string;
 }
