@@ -33,3 +33,7 @@ export interface RegisterResponse {
   error: false;
   message: string;
 }
+
+export interface ForgotPasswordResponse{
+  message: string;
+}
