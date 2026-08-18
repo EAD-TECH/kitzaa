@@ -23,8 +23,8 @@ export default function EventsPage() {
       </button>
       <p className="text-sm text-muted-foreground">
         Detail:{" "}
-        <Link className="underline" href="/admin/events/REPLACE_WITH_ID">
-          /admin/events/[id]
+        <Link className="underline" href="/events/REPLACE_WITH_ID">
+          /events/[id]
         </Link>
       </p>
     </main>

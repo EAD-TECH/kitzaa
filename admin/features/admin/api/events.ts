@@ -3,8 +3,6 @@ import type { CancelEventBody, RejectEventBody } from "../types";
 
 const BASE = "/api/v1/admin/events";
 
-/** Placeholder — admin events module */
-
 export async function listAdminEvents() {
   return apiFetch(BASE, { method: "GET" });
 }

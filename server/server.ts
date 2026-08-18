@@ -17,8 +17,20 @@ import { swaggerSpec } from "./src/docs/swagger.js";
 const app = express()
 
 app.use(express.json());
+app.use(helmet());
+
+const allowedOrigins = [process.env.CLIENT_URL, process.env.ADMIN_URL].filter(
+  (origin): origin is string => Boolean(origin),
+);
+
 app.use(cors({
-  origin: process.env.CLIENT_URL, 
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(null, false);
+  },
   credentials: true,
 }));
 app.use('/api/v1/uploads', express.static('uploads')); // Serve uploaded files
@@ -39,7 +51,7 @@ app.use('/api-docs',
      swaggerUi.setup(swaggerSpec, { customCss: swaggerCustomCss })
     );
 
-app.use(helmet());
+
 app.use('/api/v1', rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // limit each IP to 100 requests per windowMs
