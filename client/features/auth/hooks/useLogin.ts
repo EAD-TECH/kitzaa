@@ -15,7 +15,15 @@ export function useLogin() {
     onSuccess: (data) => {
       setAccessToken(data.accessToken);
       queryClient.setQueryData(["currentUser"], data.user);
-      router.push(data.user.role === "admin" ? "/admin" : "/");
+
+      if (data.user.role === "admin") {
+        window.location.assign(
+          process.env.NEXT_PUBLIC_ADMIN_URL ?? "http://localhost:3001",
+        );
+        return;
+      }
+
+      router.push("/");
     },
   });
 }
