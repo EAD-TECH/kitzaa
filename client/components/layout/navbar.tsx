@@ -21,7 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import logo from "../../public/images/logo2.png"
+import logo from "../../public/images/kitzaa-terracotta-transparent.png"
 import userImage from "../../public/images/user-image.png"
 import Image from "next/image"
 import { Comfortaa } from "next/font/google"
