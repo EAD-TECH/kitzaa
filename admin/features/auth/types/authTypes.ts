@@ -1,0 +1,26 @@
+export interface AuthUser {
+  _id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  avatar: string | null;
+  role: "user" | "organizer" | "admin";
+  language: string;
+  isEmailVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LoginResponse {
+  error: false;
+  accessToken: string;
+  user: AuthUser;
+}
+
+export interface AuthTokenState {
+  accessToken: string | null;
+  setAccessToken: (accessToken: string | null) => void;
+  isReady: boolean;
+  setIsReady: (value: boolean) => void;
+}
