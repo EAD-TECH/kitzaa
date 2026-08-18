@@ -1,0 +1,502 @@
+
+
+@baseUrl = http://localhost:8000/api/v1
+@contentType = application/json
+@accessToken = {{login.response.body.$.accessToken}}
+@notificationID={{listNotifications.response.body.$.data[0].id}}
+
+
+
+GET http://localhost:8000/health
+
+
+
+### UploadThing route config kontrolu (sunucu ayakta mi, router dogru mount edilmis mi)
+# @name uploadthingConfig
+GET http://localhost:8000/api/uploadthing
+
+
+
+### Register
+# @name register
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "sofia.hoffmann",
+  "firstName": "Sofia",
+  "lastName": "Hoffmann",
+  "email": "sofia.hoffmann@kitzaa.test",
+  "password": "Password1.",
+  "phone": "+4915333333333",
+  "language": "de",
+  "location": { "state": "Berlin", "city": "Berlin", "zipCode": "10115", "country": "DE" }
+}
+
+###
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "TestCommenter3",
+  "firstName": "testcommenter3",
+  "lastName": "testcommenter3",
+  "email": "testcommenter3@gmail.com",
+  "password": "Password1.",
+  "phone": "+491234567190",
+  "language": "de",
+  "location": {
+    "state": "Berlin",
+    "city": "Berlin",
+    "zipCode": "10115",
+    "country": "DE"
+  }
+}
+
+
+### 
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "login": "TestPerson",
+  "password": "Password1!"
+}
+
+### 
+# @name refresh
+POST {{baseUrl}}/auth/refresh
+
+
+### 
+# @name logout
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{accessToken}}
+
+
+### 
+# @name forgotPassword
+POST {{baseUrl}}/auth/forgot-password
+Content-Type: {{contentType}}
+
+{
+  "email": "dyg.cankurt17@gmail.com"
+}
+
+
+###
+# @name resetPassword
+POST {{baseUrl}}/auth/reset-password/29155b09a8d7642e4900bbc0388d23d56ecf5c5912243e4e5aea02a4d651ee60
+Content-Type: {{contentType}}
+
+{
+  "newPassword": "Almanca12.",
+  "confirmPassword":"Almanca12."
+}
+
+
+### ------------------------------------------------------------
+### USERS (all require Authorization: Bearer {{accessToken}})
+### ------------------------------------------------------------
+
+### 
+# @name UserList
+GET {{baseUrl}}/users
+Authorization: Bearer {{accessToken}}
+
+
+
+###
+# @name UserRead
+@userId = REPLACE_WITH_USER_ID
+GET {{baseUrl}}/users/6a673a11162d3c07099e3b48
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name UserUpdate
+PUT {{baseUrl}}/users/6a673a11162d3c07099e3b48
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "firstName": "test",
+  "location": {
+    "city": "Munich"
+  }
+}
+
+
+### 
+# @name DeleteUser
+DELETE {{baseUrl}}/users/6a673a11162d3c07099e3b48
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name UpdatePassword
+
+PUT {{baseUrl}}/users/{{userId}}/password
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "currentPassword": "Passw0rd!",
+  "newPassword": "NewPassw0rd!1",
+  "confirmPassword": "NewPassw0rd!1"
+}
+
+
+
+### ------------------------------------------------------------
+### CATEGORY
+### ------------------------------------------------------------
+
+
+
+###
+# @name listCategories
+GET {{baseUrl}}/category
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name readCategories
+GET {{baseUrl}}/category/6a6739f1162d3c07099e3b47
+Authorization: Bearer {{accessToken}}
+
+
+
+### ------------------------------------------------------------
+### EVENT
+### ------------------------------------------------------------
+
+
+
+### 
+# @name createEvent
+POST {{baseUrl}}/events
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "title": "Kinderfest im Park",
+  "description": "Ein spassiges Kinderfest mit Spielen und Musik.",
+  "categoryId": "6a65d605593cc260697d7f53",
+  "ageRange": { "min": 3, "max": 12 },
+  "isFree": true,
+  "schedule": {
+    "startDate": "2026-07-31",
+    "startTime": "10:00",
+    "endTime": "16:00"
+  },
+  "location": {
+    "addressLine": "Parkstrasse 1",
+    "city": "Berlin",
+    "zipCode": "10115",
+    "country": "DE"
+  },
+  "capacity": { "max": 6 }
+}
+
+
+
+
+### 
+# @name listEvent
+GET {{baseUrl}}/events
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name readEvent
+GET {{baseUrl}}/events/kinderfest-im-park-11
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name updateEvent
+PUT {{baseUrl}}/events/6a65e210593cc260697d7f5d
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "title": "Kinderfest im Parkkk",
+  "capacity": { "max": 10 }
+}
+
+
+
+### Join event
+# @name joinEvent
+POST {{baseUrl}}/events/6a674100175ec34cf6c7250f/join
+Authorization: Bearer {{accessToken}}
+
+
+
+### Leave event
+# @name leaveEvent
+POST {{baseUrl}}/events/6a674100175ec34cf6c7250f/leave
+Authorization: Bearer {{accessToken}}
+
+
+
+### Toggle like on event
+# @name likeEvent
+POST {{baseUrl}}/events/6a65e128593cc260697d7f5c/like
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name listParticipants
+GET {{baseUrl}}/events/6a65e128593cc260697d7f5c/participants
+Authorization: Bearer {{accessToken}}
+
+
+
+### 
+# @name listMyEvents
+GET {{baseUrl}}/events/my-events
+Authorization: Bearer {{accessToken}}
+
+
+
+###
+# @name MyParticipationsEvent
+GET {{baseUrl}}/events/my-participations
+Authorization: Bearer {{accessToken}}
+
+
+
+### Nearby events (5km icinde, Berlin Parkstrasse civari koordinatlar)
+# @name nearbyEvents
+GET {{baseUrl}}/events/nearby?lat=52.5321&lng=13.3845&radius=5000
+Authorization: Bearer {{accessToken}}
+
+
+
+### Delete
+# @name deleteEvent
+DELETE {{baseUrl}}/events/6a65e128593cc260697d7f5c
+Authorization: Bearer {{accessToken}}
+
+
+### ------------------------------------------------------------
+### ORGANIZER APPLICATION (requires Authorization)
+### ------------------------------------------------------------
+
+### Apply as organizer
+POST {{baseUrl}}/organizer-applications
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "institutionData": {
+    "name": "Hüpftag Niefern",
+    "description": "Kinder Aktivitäten",
+    "address": "Niefern, Germany",
+    "phone": "+491234567890",
+    "website": "https://malhaus-niefern.de",
+    "category": "Kinder"
+  },
+  "message": "Ich organisiere seit 3 Jahren Veranstaltungen für Kinder."
+}
+
+
+### Get my organizer applications
+GET {{baseUrl}}/organizer-applications/me
+Authorization: Bearer {{accessToken}}
+
+
+### ------------------------------------------------------------
+### INSTITUTION (requires Authorization + role: organizer)
+### ------------------------------------------------------------
+
+### Get my institution
+GET {{baseUrl}}/institutions/me
+Authorization: Bearer {{accessToken}}
+
+
+### Update my institution
+PUT {{baseUrl}}/institutions/me
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Hüpftag Niefern",
+  "description": "Aktualisierte Beschreibung",
+  "address": "Niefern, Germany",
+  "phone": "+491234567890",
+  "website": "https://malhaus-niefern.de",
+  "category": "Kinder"
+}
+
+
+### ------------------------------------------------------------
+### ORGANIZER APPLICATIONS (admin) - requires role: admin
+### Login above must be an admin user so {{accessToken}} works here
+### ------------------------------------------------------------
+
+### List organizer applications (e.g. ?page=1&limit=10 or ?filter[status]=pending)
+GET {{baseUrl}}/admin/organizer-applications
+Authorization: Bearer {{accessToken}}
+
+
+### Get single organizer application by id
+@organizerApplicationId = 6a666e09104a80874e01e9dd
+GET {{baseUrl}}/admin/organizer-applications/{{organizerApplicationId}}
+Authorization: Bearer {{accessToken}}
+
+
+### Approve organizer application (creates Institution + sets user role to organizer)
+PUT {{baseUrl}}/admin/organizer-applications/{{organizerApplicationId}}/approve
+Authorization: Bearer {{accessToken}}
+
+
+### Reject organizer application (rejectedReason required, min 3 chars)
+PUT {{baseUrl}}/admin/organizer-applications/{{organizerApplicationId}}/reject
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "rejectedReason": "Unterlagen unvollständig"
+}
+
+### ------------------------------------------------------------
+### SOCIAL POSTS (requires Authorization — run login first)
+### ------------------------------------------------------------
+
+### Create post (minimal)
+# @name createPost
+POST {{baseUrl}}/posts
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "text": "Today's park event was amazing!"
+}
+
+
+### Create post (with optional fields)
+# @name createPostFull
+POST {{baseUrl}}/posts
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "text": "A short note after yoga.",
+  "city": "Berlin",
+  "placeName": "Tiergarten",
+  "location": {
+    "lat": 52.5145,
+    "lng": 13.3501
+  },
+  "eventId": "6a674100175ec34cf6c7250f",
+  "imageUrl": "https://example.com/post-image.jpg"
+}
+
+
+### List posts (feed — newest first)
+# @name listPosts
+GET {{baseUrl}}/posts
+Authorization: Bearer {{accessToken}}
+
+
+### Read post by id (increments viewCount)
+# @name readPost
+@postId = 6a6f2daa0e713a567279f84c
+GET {{baseUrl}}/posts/{{postId}}
+Authorization: Bearer {{accessToken}}
+
+
+### Update post (owner or admin)
+# @name updatePost
+PUT {{baseUrl}}/posts/{{postId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "text": "Updated post text after the event."
+}
+
+
+### Toggle like on post
+# @name likePost
+POST {{baseUrl}}/posts/{{postId}}/like
+Authorization: Bearer {{accessToken}}
+
+
+### Delete post (soft delete — owner or admin)
+# @name deletePost
+DELETE {{baseUrl}}/posts/{{postId}}
+Authorization: Bearer {{accessToken}}
+
+
+### ------------------------------------------------------------
+### SOCIAL POST COMMENTS (requires Authorization — run login first)
+### 1) Login  2) Create/read post (sets {{postId}})  3) List / create comment
+### ------------------------------------------------------------
+
+### List comments for a post
+# @name listComments
+GET {{baseUrl}}/comments
+Authorization: Bearer {{accessToken}}
+
+
+### Create top-level comment
+# Once createPost / readPost calistir — {{postId}} ayni olmali
+# @name createComment
+POST {{baseUrl}}/comments
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "postId": "{{postId}}",
+  "text": "Great post, thanks for sharingg!"
+}
+
+
+### Create reply to a top-level comment
+# @name createCommentReply
+@parentCommentId = {{createComment.response.body.$.comment._id}}
+POST {{baseUrl}}/comments
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "postId": "{{postId}}",
+  "text": "Totally agree!",
+  "parentCommentId": "{{parentCommentId}}"
+}
+
+
+### Update comment (owner or admin)
+# @name updateComment
+@commentId = {{createComment.response.body.$.comment._id}}
+PUT {{baseUrl}}/comments/{{commentId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "text": "Edited: Great post, thanks for sharing!"
+}
+
+
+### Toggle like on comment
+# @name likeComment
+POST {{baseUrl}}/comments/{{commentId}}/like
+Authorization: Bearer {{accessToken}}
+
+
+### Delete comment (soft delete — owner or admin)
+# @name deleteComment
+DELETE {{baseUrl}}/comments/{{commentId}}
+Authorization: Bearer {{accessToken}}
+
