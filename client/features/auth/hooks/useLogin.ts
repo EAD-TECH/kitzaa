@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { login as loginApi } from "../api";
 import { useAuthStore } from "../store/authStore";
@@ -7,56 +7,34 @@ import type { LoginFormValues } from "../validations/login.schema";
 
 export function useLogin() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const setAccessToken = useAuthStore((state) => state.setAccessToken);
 
-  const setSession = useAuthStore((state) => state.setSession);
+  return useMutation({
+    mutationFn: (values: LoginFormValues) => loginApi(values),
+    onSuccess: (data) => {
+      setAccessToken(data.accessToken);
+      queryClient.setQueryData(["currentUser"], data.user);
 
-  const login = async (values: LoginFormValues) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await loginApi(values);
-      setSession({ accessToken: data.accessToken, user: data.user });
-
-      router.push(data.user.role === "admin" ? "/admin" : "/");
-      /* router.push("/"); */
-    } catch (err) {
-      if (err instanceof ApiError) {
-        if (err.status === 401 || err.status === 404) {
-          setError("Invalid email/username or password.");
-        } else {
-          setError("Login failed. Please try again.");
-        }
-      } else {
-        setError("Unable to reach the server. Please try again.");
+      if (data.user.role === "admin") {
+        window.location.assign(
+          process.env.NEXT_PUBLIC_ADMIN_URL ?? "http://localhost:3001",
+        );
+        return;
       }
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  return { login, isLoading, error };
+      router.push("/");
+    },
+  });
 }
 
+export function mapLoginError(error: unknown): string {
+  if (error instanceof ApiError) {
+    if (error.status === 401 || error.status === 404) {
+      return "Invalid email/username or password.";
+    }
+    return "Login failed. Please try again.";
+  }
 
-// import { useMutation } from "@tanstack/react-query"
-
-// export function useLogin() {
-//   const router = useRouter()
-//   const setSession = useAuthStore((state) => state.setSession)
-
-//   const mutation = useMutation({
-//     mutationFn: loginApi,
-//     onSuccess: (data) => {
-//       setSession({ accessToken: data.accessToken, user: data.user })
-//       router.push("/")
-//     },
-//   })
-
-//   return {
-//     login: mutation.mutate,
-//     isLoading: mutation.isPending,
-//     error: mutation.error ? mapLoginError(mutation.error) : null,
-//   }
-// }
+  return "Unable to reach the server. Please try again.";
+}

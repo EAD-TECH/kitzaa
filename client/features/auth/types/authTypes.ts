@@ -20,16 +20,27 @@ export interface LoginResponse {
   user: AuthUser;
 }
 
-// backend'e ne gönderiyoruz: zod'dan gelen tip, tekrar yazmıyoruz
 export type LoginPayload = LoginFormValues;
 
 export interface AuthTokenState {
   accessToken: string | null;
   setAccessToken: (accessToken: string | null) => void;
+  isReady: boolean;
+  setIsReady: (value: boolean) => void;
 }
-
 
 export interface RegisterResponse {
-  error:false;
+  error: false;
   message: string;
 }
+
+export interface ForgotPasswordResponse{
+  message: string;
+}
+
+export interface ResetPasswordResponse{
+  message: string;
+}
+
+
+
