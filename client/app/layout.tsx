@@ -24,8 +24,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="tr" className={`${fraunces.variable} ${manrope.variable}`} suppressHydrationWarning>
-      <body>
+    <html lang="de" className={`${fraunces.variable} ${manrope.variable}`} suppressHydrationWarning>
+      <body className="flex min-h-screen flex-col">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <QueryProvider>
             {children}

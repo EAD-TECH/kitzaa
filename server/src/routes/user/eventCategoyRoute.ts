@@ -1,9 +1,7 @@
 import { Router } from "express";
 import eventCategoryController from "../../controllers/user/eventCategoryController.js";
-import authentication from "../../middlewares/authentication.js";
 
 const router = Router();
-router.use(authentication);
 
 const { list, read } = eventCategoryController;
 
