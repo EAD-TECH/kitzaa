@@ -69,7 +69,7 @@ const Navbar = () => {
 
 
   return (
-    <div className="flex items-center justify-between px-3 tablet:px-5 desktop:px-8 bg-card border-b border-border sticky backdrop-blur-sm">
+    <div className="flex items-center justify-between px-3 tablet:px-5 desktop:px-8 bg-card/40 border-b border-border sticky backdrop-blur-sm">
 
       {/* logo  */}
 

@@ -97,6 +97,7 @@ export interface EventCreatedByRef {
   _id: string;
   username: string;
   avatarUrl: string | null;
+  role: "user" | "organizer" | "admin";
 }
 
 export interface EventDTO {
@@ -123,9 +124,7 @@ export interface EventDTO {
 // omit createdBy haric tum alanlari al demek ve yazilanlari ekle
 export interface AdminEventDTO extends Omit<EventDTO, "createdBy"> {
   // createdBy silinmis bir kullaniciya isaret ediyorsa (dangling ref) sadece id string'i olarak doner.
-  createdBy:
-    | (EventCreatedByRef & { role: "user" | "organizer" | "admin" })
-    | string;
+  createdBy: EventCreatedByRef | string;
   rejectedReason: string | null;
   cancelledReason: string | null;
   approvedAt: Date | null;

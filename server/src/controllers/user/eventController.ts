@@ -18,7 +18,7 @@ const eventController = {
 
     const result = await res.getModelList(Event, customFilter, [
       { path: "categoryId", select: "name slug icon" },
-      { path: "createdBy", select: "username avatarUrl" },
+      { path: "createdBy", select: "username avatarUrl role" },
     ]);
 
     console.log("result", result);
@@ -43,7 +43,7 @@ const eventController = {
       },
     }).populate([
       { path: 'categoryId', select: 'name slug icon' },
-      { path: 'createdBy', select: 'username avatarUrl' },
+      { path: 'createdBy', select: 'username avatarUrl role' },
     ]);
 
     res.status(200).send({
@@ -60,7 +60,7 @@ const eventController = {
       { new: true },
     ).populate([
       { path: "categoryId", select: "name slug icon" },
-      { path: "createdBy", select: "username avatarUrl" },
+      { path: "createdBy", select: "username avatarUrl role" },
     ]);
 
     if (!result) {
