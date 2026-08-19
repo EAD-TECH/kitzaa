@@ -11,7 +11,7 @@ export const useNotifications = () => {
 
   return useQuery({
     queryKey: ["notifications", "list"],
-    queryFn: () => listNotifications({ isRead: false }),
+    queryFn: () => listNotifications(),
     enabled: isReady && !!accessToken,
   });
 };
