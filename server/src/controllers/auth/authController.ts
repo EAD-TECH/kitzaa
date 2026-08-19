@@ -233,6 +233,7 @@ const authController = {
   },
 
   verifyEmail: async (req: Request<{ token: string }>, res: Response) => {
+    
     const { token } = req.params;
 
     const hashedToken = hashToken(token);

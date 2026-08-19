@@ -45,6 +45,7 @@ function toCreatedByRef(event: EventDocument): string | EventCreatedByRef {
     _id: user._id!.toString(),
     username: user.username,
     avatarUrl: user.avatarUrl ?? null,
+    role: user.role,
   };
 }
 

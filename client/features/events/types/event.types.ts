@@ -55,6 +55,7 @@ export interface EventCreatedByRef {
   _id: string;
   username: string;
   avatarUrl: string | null;
+  role: "user" | "organizer" | "admin";
 }
 
 export interface EventDTO {
