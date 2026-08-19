@@ -1,13 +1,11 @@
-import { ArrowLeftIcon, GalleryVerticalEnd } from "lucide-react"
+import { ArrowLeftIcon } from "lucide-react";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+import { RegisterForm } from "@/features/auth/registerForm";
 
-import { SignupForm } from "@/components/signup-form"
-import registerImage from "../../../public/images/register-image.png"
-import Image from "next/image"
-import Link from "next/link"
-import { RegisterForm } from "@/features/auth/registerForm"
+export default async function RegisterPage() {
+  const t = await getTranslations("Register");
 
-
-export default function RegisterPage() {
   return (
     <div className="grid h-svh lg:grid-cols-2">
       <div className="scrollbar-subtle flex flex-col gap-4 overflow-y-auto p-6 md:px-10">
@@ -17,22 +15,22 @@ export default function RegisterPage() {
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeftIcon className="size-4" />
-            Startseite
+            {t("backToHome")}
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-center mb-20">
           <div className="w-full max-w-md">
-            <RegisterForm/>
+            <RegisterForm />
           </div>
         </div>
       </div>
       <div className="relative hidden bg-muted lg:block">
-        <Image
-          src={registerImage}
-          alt="Image"
+        <img
+          src="/images/register-image.png"
+          alt={t("imageAlt")}
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
       </div>
     </div>
-  )
+  );
 }

@@ -1,15 +1,19 @@
+"use client";
+
 import Image from "next/image";
 import logo from "../../public/images/kitzaa-terracotta-transparent.png";
-import Link from "next/link";
-
-const footerLinks = [
-  { title: "FAQ", href: "#" },
-  { title: "Kontakt", href: "#" },
-  { title: "Datenschutzpolitik", href: "#" },
-  { title: "Zustellungsbedingungen", href: "#" },
-];
+import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 const Footer = () => {
+  const t = useTranslations("Footer");
+
+  const footerLinks = [
+    { title: t("faq"), href: "#" },
+    { title: t("contact"), href: "#" },
+    { title: t("privacy"), href: "#" },
+    { title: t("terms"), href: "#" },
+  ];
   return (
     <footer className="border-t bg-card">
       <div className="flex flex-col items-center px-3 py-8 tablet:px-5 desktop:px-8">
@@ -20,10 +24,7 @@ const Footer = () => {
         <ul className="mt-4 flex flex-wrap items-center justify-center gap-4">
           {footerLinks.map(({ title, href }) => (
             <li key={title}>
-              <Link
-                className="text-muted-foreground hover:text-foreground"
-                href={href}
-              >
+              <Link className="text-muted-foreground hover:text-foreground" href={href}>
                 {title}
               </Link>
             </li>
@@ -31,7 +32,7 @@ const Footer = () => {
         </ul>
 
         <span className="mt-5 text-muted-foreground">
-          &copy; {new Date().getFullYear()} Kitzaa. Alle Rechte vorbehalten.
+          &copy; {new Date().getFullYear()} Kitzaa. {t("rights")}
         </span>
       </div>
     </footer>
