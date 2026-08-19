@@ -28,7 +28,7 @@ export async function register(payload: RegisterPayload) {
 }
 
 export async function verifyEmail(token: string) {
-  return apiFetch<LoginResponse>("api/v1/auth/verify-email/${token}", { method: "GET" });
+  return apiFetch<LoginResponse>(`/api/v1/auth/verify-email/${token}`, { method: "GET" });
 }
 
 export async function refresh() {
