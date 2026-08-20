@@ -17,7 +17,6 @@ import {
 import logo from "../../public/images/kitzaa-terracotta-transparent.png";
 import userImage from "../../public/images/user-image.png";
 import Image from "next/image";
-import { Comfortaa } from "next/font/google";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 
 import { AiFillHome, AiFillCalendar } from "react-icons/ai";
@@ -31,11 +30,6 @@ import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { useTranslations, useLocale } from "next-intl";
 import { useUnreadCount } from "@/features/notifications/hooks/useUnReadCount";
 import { NotificationBellMenu } from "@/features/notifications/components/NotificationBellMenu";
-
-const comfortaa = Comfortaa({
-  subsets: ["latin"],
-  weight: ["400"],
-});
 
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
@@ -56,9 +50,7 @@ const Navbar = () => {
 
   const { logout } = useLogout();
   const { data } = useUnreadCount();
-  console.log(data);
   const unreadCount = data?.data?.count || 0;
-  console.log(unreadCount);
 
   const handleLogout = async () => {
     await logout();
@@ -117,7 +109,22 @@ const Navbar = () => {
       <div className="my-auto flex items-center gap-3">
         {/* Theme and notification buttons  */}
         <div className="flex items-center gap-1 mt-2 tablet:mt-0">
-          {currentUser && <NotificationBellMenu />}
+
+         
+          <Button
+            variant="ghost"
+            size="icon"
+            type="button"
+            onClick={handleLanguageToggle}
+            disabled={isLanguagePending}
+            aria-label={t("language")}
+            className="rounded-full text-muted-foreground hover:text-foreground cursor-pointer"
+          >
+            <span className="text-xs font-semibold tracking-wide">
+              {locale.toUpperCase()}
+            </span>
+          </Button>
+        {currentUser && <NotificationBellMenu />
 
           <Button
             variant="ghost"
