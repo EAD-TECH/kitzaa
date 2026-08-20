@@ -33,11 +33,12 @@ import { Label } from "@/components/ui/label"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { ArrowLeftIcon, Check, Eye, EyeOff, Loader2 } from 'lucide-react'
+import { ArrowLeftIcon, Eye, EyeOff, Loader2 } from 'lucide-react'
 import logo from "../../public/images/logo.png"
 import Image from "next/image"
-import Link from "next/link"
-import { registerSchema, toRegisterPayload, type RegisterFormValues } from "./validations/register.schema"
+import { Link } from "@/i18n/navigation"
+import { useTranslations } from "next-intl"
+import { createRegisterSchema, toRegisterPayload, type RegisterFormValues } from "./validations/register.schema"
 import { useRegister } from "./hooks/useRegister"
 
 const steps = [1, 2]
@@ -54,7 +55,8 @@ const STEP_1_FIELDS = [
 
 
 export function RegisterForm() {
-
+  const t = useTranslations("Register")
+  const registerSchema = createRegisterSchema(t)
   const [currentStep, setCurrentStep] = useState(1)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -119,14 +121,14 @@ export function RegisterForm() {
           signal: controller.signal,
         })
         if (!res.ok) {
-          form.setError("location.zipCode", { type: "manual", message: "Diese Postleitzahl ist ungültig" })
+          form.setError("location.zipCode", { type: "manual", message: t("invalidZip") })
           return
         }
 
         const data = await res.json()
         const place = data.places?.[0]
         if (!place) {
-          form.setError("location.zipCode", { type: "manual", message: "Diese Postleitzahl ist ungültig" })
+          form.setError("location.zipCode", { type: "manual", message: t("invalidZip") })
           return
         }
 
@@ -143,16 +145,16 @@ export function RegisterForm() {
       clearTimeout(timeoutId)
       controller.abort()
     }
-  }, [zipCode, form])
+  }, [zipCode, form, t])
 
 
 
   if (isSuccess) {
     return (
       <div className="flex flex-col items-center gap-3 text-center">
-        <h2 className="font-heading text-xl">E-Mail-Adresse bestätigen</h2>
+        <h2 className="font-heading text-xl">{t("successTitle")}</h2>
         <p className="font-body text-sm text-muted-foreground">
-          Wir haben dir einen Bestätigungslink geschickt. Bitte überprüfe dein Postfach.
+          {t("successBody")}
         </p>
       </div>
     )
@@ -164,12 +166,12 @@ export function RegisterForm() {
       <form className="flex flex-col gap-6" autoComplete="off" onSubmit={form.handleSubmit(onSubmit)}>
         <FieldGroup className="gap-6">
           <div className="flex flex-col items-center gap-1 text-center">
-            <Link href="/" aria-label="Zur Startseite" className="cursor-pointer">
+            <Link href="/" aria-label={t("logoAria")} className="cursor-pointer">
               <Image className="w-50 tablet:w-70 desktop:w-50" src={logo} alt="Kitzaa Logo" />
             </Link>
             <div>
-              <h2 className="font-heading text-2xl">Neues Konto erstellen</h2>
-              <p className="font-body text-xs mt-2 ">Schließe dich unserer Gemeinschaft an und finde die besten Events in deiner Nähe.</p>
+              <h2 className="font-heading text-2xl">{t("title")}</h2>
+              <p className="font-body text-xs mt-2 ">{t("subtitle")}</p>
             </div>
           </div>
           <div className="w-full max-w-md">
@@ -203,7 +205,7 @@ export function RegisterForm() {
                   )}
                 >
                   <ArrowLeftIcon className="size-4" />
-                  Zurück
+                  {t("back")}
                 </Button>
 
                 <div className="text-sm font-medium">
@@ -218,11 +220,11 @@ export function RegisterForm() {
 
           {currentStep === 1 ? (
             <div>
-              <h2 className="font-heading text-xl mb-4">Persönliche Daten & Zugangsdaten</h2>
+              <h2 className="font-heading text-xl mb-4">{t("stepPersonal")}</h2>
             </div>
           ) : (
             <div>
-              <h2 className="font-heading text-xl mb-4">Standort & Präferenzen</h2>
+              <h2 className="font-heading text-xl mb-4">{t("stepLocation")}</h2>
             </div>
           )}
 
@@ -238,9 +240,9 @@ export function RegisterForm() {
                   name="firstName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Vorname</FormLabel>
+                      <FormLabel>{t("firstName")}</FormLabel>
                       <FormControl>
-                        <Input type="text" placeholder="Max" {...field} />
+                        <Input type="text" placeholder={t("firstNamePlaceholder")} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -251,9 +253,9 @@ export function RegisterForm() {
                   name="lastName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nachname</FormLabel>
+                      <FormLabel>{t("lastName")}</FormLabel>
                       <FormControl>
-                        <Input type="text" placeholder="Mustermann" {...field} />
+                        <Input type="text" placeholder={t("lastNamePlaceholder")} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -265,9 +267,9 @@ export function RegisterForm() {
                 name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nutzername</FormLabel>
+                    <FormLabel>{t("username")}</FormLabel>
                     <FormControl>
-                      <Input type="text" placeholder="familien_held" {...field} />
+                      <Input type="text" placeholder={t("usernamePlaceholder")} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -278,9 +280,9 @@ export function RegisterForm() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>E-Mail Adresse</FormLabel>
+                    <FormLabel>{t("email")}</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="hallo@beispiel.de" {...field} />
+                      <Input type="email" placeholder={t("emailPlaceholder")} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -291,7 +293,7 @@ export function RegisterForm() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Passwort</FormLabel>
+                    <FormLabel>{t("password")}</FormLabel>
                     <div className="relative">
                       <FormControl>
                         <Input
@@ -305,7 +307,7 @@ export function RegisterForm() {
                         type="button"
                         className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
                         onClick={() => setShowPassword((prev) => !prev)}
-                        aria-label={showPassword ? "Passwort verbergen" : "Passwort anzeigen"}
+                        aria-label={showPassword ? t("hidePassword") : t("showPassword")}
                       >
                         {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                       </button>
@@ -319,7 +321,7 @@ export function RegisterForm() {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Passwort bestätigen</FormLabel>
+                    <FormLabel>{t("confirmPassword")}</FormLabel>
                     <div className="relative">
                       <FormControl>
                         <Input
@@ -333,7 +335,7 @@ export function RegisterForm() {
                         type="button"
                         className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
                         onClick={() => setShowConfirmPassword((prev) => !prev)}
-                        aria-label={showConfirmPassword ? "Passwort verbergen" : "Passwort anzeigen"}
+                        aria-label={showConfirmPassword ? t("hidePassword") : t("showPassword")}
                       >
                         {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                       </button>
@@ -343,10 +345,10 @@ export function RegisterForm() {
                 )}
               />
               <div className="flex flex-col gap-2">
-                <Label htmlFor="phone">Telefonnummer (Optional)</Label>
+                <Label htmlFor="phone">{t("phone")}</Label>
                 <div className="flex gap-2">
                   <div
-                    aria-label="Ländervorwahl"
+                    aria-label={t("countryCodeAria")}
                     className="flex h-9 w-20 items-center justify-center rounded-xl border border-input bg-input/30 text-base text-muted-foreground md:text-sm"
                   >
                     +49
@@ -372,7 +374,7 @@ export function RegisterForm() {
                   onClick={goToNextStep}
                   disabled={currentStep === steps.length}
                 >
-                  Weiter
+                  {t("next")}
                 </Button>
               </div>
             </>
@@ -389,14 +391,14 @@ export function RegisterForm() {
                   name="location.zipCode"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Postleitzahl</FormLabel>
+                      <FormLabel>{t("zipCode")}</FormLabel>
                       <FormControl>
                         <Input type="text" placeholder="12345" {...field} />
                       </FormControl>
                       {isLookingUpZip && (
                         <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                           <Loader2 className="size-3 animate-spin" />
-                          Stadt wird gesucht...
+                          {t("zipLookup")}
                         </p>
                       )}
                       <FormMessage />
@@ -408,7 +410,7 @@ export function RegisterForm() {
                   name="location.city"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Stadt</FormLabel>
+                      <FormLabel>{t("city")}</FormLabel>
                       <FormControl>
                         <Input type="text" placeholder="Berlin" {...field} />
                       </FormControl>
@@ -423,7 +425,7 @@ export function RegisterForm() {
                   name="location.state"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Bundesland</FormLabel>
+                      <FormLabel>{t("state")}</FormLabel>
                       <FormControl>
                         <Input type="text" placeholder="Baden-Württemberg" {...field} />
                       </FormControl>
@@ -436,7 +438,7 @@ export function RegisterForm() {
                   name="location.district"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Bezirk (Optional)</FormLabel>
+                      <FormLabel>{t("district")}</FormLabel>
                       <FormControl>
                         <Input type="text" placeholder="Mitte" {...field} />
                       </FormControl>
@@ -450,7 +452,7 @@ export function RegisterForm() {
                 name="language"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Sprache</FormLabel>
+                    <FormLabel>{t("language")}</FormLabel>
                     <div className="grid grid-cols-2 gap-2 rounded-xl bg-muted p-1">
                       <button
                         type="button"
@@ -462,7 +464,7 @@ export function RegisterForm() {
                             : "text-muted-foreground"
                         )}
                       >
-                        Deutsch
+                        {t("german")}
                       </button>
                       <button
                         type="button"
@@ -474,7 +476,7 @@ export function RegisterForm() {
                             : "text-muted-foreground"
                         )}
                       >
-                        Englisch
+                        {t("english")}
                       </button>
                     </div>
                   </FormItem>
@@ -490,14 +492,14 @@ export function RegisterForm() {
                   {isPending ? (
                     <>
                       <Loader2 className="size-4 animate-spin" />
-                      Wird erstellt...
+                      {t("submitting")}
                     </>
                   ) : (
-                    "Konto erstellen"
+                    t("submit")
                   )}
                 </Button>
               </Field>
-              <FieldSeparator className="my-1">Oder weiter mit</FieldSeparator>
+              <FieldSeparator className="my-1">{t("continueWith")}</FieldSeparator>
 
               {error && <p style={{ color: "red" }}>{error.message}</p>}
 
@@ -521,10 +523,13 @@ export function RegisterForm() {
                       fill="#EA4335"
                     />
                   </svg>
-                  Mit Google registrieren
+                  {t("google")}
                 </Button>
                 <FieldDescription className="px-6 text-center">
-                  Du hast bereits ein Konto? <a href="#" className="cursor-pointer">Anmelden</a>
+                  {t("hasAccount")}{" "}
+                  <Link href="/login" className="cursor-pointer underline underline-offset-4">
+                    {t("login")}
+                  </Link>
                 </FieldDescription>
               </Field>
             </>

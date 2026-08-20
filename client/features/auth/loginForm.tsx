@@ -13,15 +13,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoginFormValues, loginSchema } from "./validations/login.schema";
+import { LoginFormValues, createLoginSchema } from "./validations/login.schema";
 import { mapLoginError, useLogin } from "./hooks/useLogin";
+import { useTranslations } from "next-intl";
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"form">) {
   const [showPassword, setShowPassword] = useState(false);
   const { mutate: submitLogin, isPending, error } = useLogin();
+
+  const t = useTranslations("Login");
+  const loginSchema = createLoginSchema(t);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -39,17 +43,17 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
     <form className={cn("flex flex-col gap-6", className)} {...props} onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-3xl font-heading font-semibold">Willkommen zurück</h1>
+          <h1 className="text-3xl font-heading font-semibold">{t("title")}</h1>
         </div>
         <Field>
-          <FieldLabel htmlFor="login">Email oder Benutzername</FieldLabel>
+          <FieldLabel htmlFor="login">{t("loginLabel")}</FieldLabel>
           <div className="relative">
             <Mail className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="login"
               type="text"
               className="pl-9"
-              placeholder="hallo@beispiel.com"
+              placeholder={t("loginPlaceholder")}
               {...form.register("login")}
             />
           </div>
@@ -57,9 +61,9 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
         </Field>
         <Field>
           <div className="flex items-center">
-            <FieldLabel htmlFor="password">Passwort</FieldLabel>
+            <FieldLabel htmlFor="password">{t("password")}</FieldLabel>
             <Link href="/forgot-password" className="ml-auto text-sm underline-offset-4 hover:underline">
-              Passwort vergessen?
+              {t("forgotPassword")}
             </Link>
           </div>
           <div className="relative">
@@ -74,7 +78,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
               type="button"
               className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               onClick={() => setShowPassword((prev) => !prev)}
-              aria-label={showPassword ? "Passwort verbergen" : "Passwort anzeigen"}
+              aria-label={showPassword ? t("hidePassword") : t("showPassword")}
             >
               {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
             </button>
@@ -85,10 +89,10 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
         {error ? <FieldError>{mapLoginError(error)}</FieldError> : null}
         <Field>
           <Button type="submit" disabled={isPending}>
-            {isPending ? "Wird angemeldet..." : "Anmelden"}
+            {isPending ? t("submitting") : t("submit")}
           </Button>
         </Field>
-        <FieldSeparator>Oder weiter mit</FieldSeparator>
+        <FieldSeparator>{t("continueWith")}</FieldSeparator>
         <Field>
           <Button variant="outline" type="button">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
@@ -109,12 +113,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
                 fill="#EA4335"
               />
             </svg>
-            Anmelden mit Google
+            {t("google")}
           </Button>
           <FieldDescription className="text-center">
-            Neu bei Kitzaa?{" "}
+            {t("newHere")}{" "}
             <Link href="/register" className="underline underline-offset-4">
-              Registrieren
+              {t("register")}
             </Link>
           </FieldDescription>
         </Field>

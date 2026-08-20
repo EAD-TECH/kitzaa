@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api/client";
 import { resetPassword } from "../api";
 import type { ResetPasswordValues } from "../validations/resetpassword.schema";
@@ -15,15 +15,15 @@ export function useResetPassword(token: string) {
   });
 }
 
-export function mapResetPasswordError(error: unknown): string {
+export function mapResetPasswordError(
+  error: unknown,
+  t: (key: string) => string,
+): string {
   if (error instanceof ApiError) {
     if (error.status === 400) {
-      return "Der Link ist ungültig oder abgelaufen.";
+      return t("errors.invalidLink");
     }
-    if (error.status === 0 || error.status >= 500) {
-      return "Das Passwort konnte nicht gespeichert werden. Bitte versuche es später erneut.";
-    }
-    return "Das Passwort konnte nicht gespeichert werden. Bitte versuche es später erneut.";
+    return t("errors.saveFailed");
   }
-  return "Der Server konnte nicht erreicht werden. Bitte überprüfe deine Verbindung.";
+  return t("errors.network");
 }

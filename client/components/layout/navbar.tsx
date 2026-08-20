@@ -1,9 +1,12 @@
+
 "use client";
 
 import { BellIcon, CreditCardIcon, LogOutIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,41 +16,45 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+
 import logo from "../../public/images/kitzaa-terracotta-transparent.png";
 import userImage from "../../public/images/user-image.png";
 import Image from "next/image";
 import { Comfortaa } from "next/font/google";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 
 import { AiFillHome, AiFillCalendar } from "react-icons/ai";
 import { FaUser } from "react-icons/fa";
 import { MdSunny } from "react-icons/md";
 import { IoMoon, IoShareSocial } from "react-icons/io5";
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useLogout } from "@/features/auth/hooks/useLogout";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import { useTranslations, useLocale } from "next-intl";
 import { useUnreadCount } from "@/features/notifications/hooks/useUnReadCount";
-import { NotificationBellMenu } from "@/features/notifications/components/NotificationBellMenu";
 
 const comfortaa = Comfortaa({
   subsets: ["latin"],
   weight: ["400"],
 });
 
-const navLinks = [
-  { href: "/home", label: "Home" },
-  { href: "/events", label: "Events" },
-  { href: "/social", label: "Social" },
-];
-
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
   const isLight = theme !== "dark";
   const pathname = usePathname();
+  const router = useRouter();
+  const [isLanguagePending, startLanguageTransition] = useTransition();
   const { data: currentUser } = useCurrentUser();
+  const t = useTranslations("Nav");
+  const locale = useLocale();
+
+  const navLinks = [
+  { href: "/home", label: t("home")  },
+  { href: "/events", label: t("events")  },
+  { href: "/social", label: t("social") },
+];
 
   const { logout } = useLogout();
   const { data } = useUnreadCount();
@@ -57,6 +64,13 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     await logout();
+  };
+
+  const handleLanguageToggle = () => {
+    const nextLocale = locale === "de" ? "en" : "de";
+    startLanguageTransition(() => {
+      router.replace(pathname, { locale: nextLocale });
+    });
   };
 
   return (
@@ -77,37 +91,50 @@ const Navbar = () => {
       <div className="hidden tablet:flex items-center tablet:gap-12 desktop:gap-20 font-heading text-lg">
         {navLinks.map((link) => {
           const isActive = pathname === link.href;
+         
           return (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
                 "group relative py-1 transition-colors duration-300",
-                isActive
-                  ? "text-primary"
-                  : "text-foreground/70 hover:text-foreground",
+                isActive ? "text-primary" : "text-foreground/70 hover:text-foreground",
               )}
             >
               {link.label}
               <span
                 className={cn(
                   "absolute -bottom-1 left-0 h-0.5 w-full origin-left scale-x-0 rounded-full bg-primary transition-transform duration-300 ease-spring",
-                  isActive
-                    ? "scale-x-100"
-                    : "group-hover:scale-x-100 group-hover:bg-primary/40",
+                  isActive ? "scale-x-100" : "group-hover:scale-x-100 group-hover:bg-primary/40",
                 )}
               />
             </Link>
           );
+          
         })}
       </div>
 
       <div className="my-auto flex items-center gap-3">
         {/* Theme and notification buttons  */}
         <div className="flex items-center gap-1 mt-2 tablet:mt-0">
-          
-          {/* overlay bılesenı */}
-          {currentUser && <NotificationBellMenu />}
+          {currentUser && (
+            <Link
+              href="/notifications"
+              aria-label={
+                unreadCount > 0
+                  ? `${unreadCount} okunmamış bildirim`
+                  : "Bildirimler"
+              }
+              className="relative inline-flex size-10 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              <BellIcon className="size-5" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[12px] font-medium leading-none text-primary-foreground">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </Link>
+          )}
 
           <Button
             variant="ghost"
@@ -119,17 +146,13 @@ const Navbar = () => {
             <MdSunny
               className={cn(
                 "absolute inset-0 m-auto size-5 text-primary transition-all duration-500 ease-spring",
-                isLight
-                  ? "scale-100 rotate-0 opacity-100"
-                  : "scale-50 -rotate-90 opacity-0",
+                isLight ? "scale-100 rotate-0 opacity-100" : "scale-50 -rotate-90 opacity-0",
               )}
             />
             <IoMoon
               className={cn(
                 "absolute inset-0 m-auto size-5 text-primary transition-all duration-500 ease-spring",
-                !isLight
-                  ? "scale-100 rotate-0 opacity-100"
-                  : "scale-50 rotate-90 opacity-0",
+                !isLight ? "scale-100 rotate-0 opacity-100" : "scale-50 rotate-90 opacity-0",
               )}
             />
           </Button>
@@ -187,15 +210,15 @@ const Navbar = () => {
                 <DropdownMenuGroup className="tablet:hidden">
                   <DropdownMenuItem>
                     <AiFillHome />
-                    <Link href="/home">Home</Link>
+                    <Link href="/home">{t("home")}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <AiFillCalendar />
-                    <Link href="/events">Events</Link>
+                    <Link href="/events">{t("events")}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <IoShareSocial />
-                    <Link href="/social">Social</Link>
+                    <Link href="/social">{t("social")}</Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
@@ -220,6 +243,9 @@ const Navbar = () => {
       </div>
     </div>
   );
+
 };
+ 
 
 export default Navbar;
+
