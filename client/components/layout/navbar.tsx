@@ -29,6 +29,7 @@ import { useState } from "react";
 import { useLogout } from "@/features/auth/hooks/useLogout";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { useUnreadCount } from "@/features/notifications/hooks/useUnReadCount";
+import { NotificationBellMenu } from "@/features/notifications/components/NotificationBellMenu";
 
 const comfortaa = Comfortaa({
   subsets: ["latin"],
@@ -104,24 +105,9 @@ const Navbar = () => {
       <div className="my-auto flex items-center gap-3">
         {/* Theme and notification buttons  */}
         <div className="flex items-center gap-1 mt-2 tablet:mt-0">
-          {currentUser && (
-            <Link
-              href="/notifications"
-              aria-label={
-                unreadCount > 0
-                  ? `${unreadCount} okunmamış bildirim`
-                  : "Bildirimler"
-              }
-              className="relative inline-flex size-10 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              <BellIcon className="size-5" />
-              {unreadCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[12px] font-medium leading-none text-primary-foreground">
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </span>
-              )}
-            </Link>
-          )}
+          
+          {/* overlay bılesenı */}
+          {currentUser && <NotificationBellMenu />}
 
           <Button
             variant="ghost"

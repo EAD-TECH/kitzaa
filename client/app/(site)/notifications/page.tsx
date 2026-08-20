@@ -1,9 +1,10 @@
-import NotificationBellMenu from "@/features/notifications/components/NotificationBellMenu";
+import NotificationList from "@/features/notifications/components/NotificationList";
 
-export default function page() {
+
+export default function () {
   return (
     <div>
-      <NotificationBellMenu />
+     <NotificationList/>
     </div>
   );
 }
