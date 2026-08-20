@@ -1,9 +1,10 @@
 "use client";
 
-import { BellIcon, LogOutIcon } from "lucide-react";
+import { BellIcon, CreditCardIcon, LogOutIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +29,7 @@ import { useLogout } from "@/features/auth/hooks/useLogout";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { useTranslations, useLocale } from "next-intl";
 import { useUnreadCount } from "@/features/notifications/hooks/useUnReadCount";
+import { NotificationBellMenu } from "@/features/notifications/components/NotificationBellMenu";
 
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
@@ -78,20 +80,25 @@ const Navbar = () => {
       <div className="hidden tablet:flex items-center tablet:gap-12 desktop:gap-20 font-heading text-lg">
         {navLinks.map((link) => {
           const isActive = pathname === link.href;
+
           return (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
                 "group relative py-1 transition-colors duration-300",
-                isActive ? "text-primary" : "text-foreground/70 hover:text-foreground",
+                isActive
+                  ? "text-primary"
+                  : "text-foreground/70 hover:text-foreground",
               )}
             >
               {link.label}
               <span
                 className={cn(
                   "absolute -bottom-1 left-0 h-0.5 w-full origin-left scale-x-0 rounded-full bg-primary transition-transform duration-300 ease-spring",
-                  isActive ? "scale-x-100" : "group-hover:scale-x-100 group-hover:bg-primary/40",
+                  isActive
+                    ? "scale-x-100"
+                    : "group-hover:scale-x-100 group-hover:bg-primary/40",
                 )}
               />
             </Link>
@@ -102,6 +109,8 @@ const Navbar = () => {
       <div className="my-auto flex items-center gap-3">
         {/* Theme and notification buttons  */}
         <div className="flex items-center gap-1 mt-2 tablet:mt-0">
+
+         
           <Button
             variant="ghost"
             size="icon"
@@ -115,23 +124,7 @@ const Navbar = () => {
               {locale.toUpperCase()}
             </span>
           </Button>
-
-          <Link
-            href="/notifications"
-            aria-label={
-              unreadCount > 0
-                ? `${unreadCount} okunmamış bildirim`
-                : "Bildirimler"
-            }
-            className="relative inline-flex size-10 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
-          >
-            <BellIcon className="size-5" />
-            {currentUser && unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[12px] font-medium leading-none text-primary-foreground">
-                {unreadCount > 9 ? "9+" : unreadCount}
-              </span>
-            )}
-          </Link>
+        {currentUser && <NotificationBellMenu />
 
           <Button
             variant="ghost"
@@ -143,13 +136,17 @@ const Navbar = () => {
             <MdSunny
               className={cn(
                 "absolute inset-0 m-auto size-5 text-primary transition-all duration-500 ease-spring",
-                isLight ? "scale-100 rotate-0 opacity-100" : "scale-50 -rotate-90 opacity-0",
+                isLight
+                  ? "scale-100 rotate-0 opacity-100"
+                  : "scale-50 -rotate-90 opacity-0",
               )}
             />
             <IoMoon
               className={cn(
                 "absolute inset-0 m-auto size-5 text-primary transition-all duration-500 ease-spring",
-                !isLight ? "scale-100 rotate-0 opacity-100" : "scale-50 rotate-90 opacity-0",
+                !isLight
+                  ? "scale-100 rotate-0 opacity-100"
+                  : "scale-50 rotate-90 opacity-0",
               )}
             />
           </Button>
