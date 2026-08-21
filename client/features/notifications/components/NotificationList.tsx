@@ -22,7 +22,7 @@ function formatNotificationTime(createdAt: string) {
   });
 }
 
-export default function NotificationsPage() {
+export default function NotificationList() {
   const { data, isPending, isError } = useNotifications();
 
   const notifications = Array.isArray(data?.result) ? data.result : [];

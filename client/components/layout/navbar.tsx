@@ -4,6 +4,7 @@ import { BellIcon, CreditCardIcon, LogOutIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,54 +17,57 @@ import {
 import logo from "../../public/images/kitzaa-terracotta-transparent.png";
 import userImage from "../../public/images/user-image.png";
 import Image from "next/image";
-import { Comfortaa } from "next/font/google";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 
 import { AiFillHome, AiFillCalendar } from "react-icons/ai";
 import { FaUser } from "react-icons/fa";
 import { MdSunny } from "react-icons/md";
 import { IoMoon, IoShareSocial } from "react-icons/io5";
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useLogout } from "@/features/auth/hooks/useLogout";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import { useTranslations, useLocale } from "next-intl";
 import { useUnreadCount } from "@/features/notifications/hooks/useUnReadCount";
-
-const comfortaa = Comfortaa({
-  subsets: ["latin"],
-  weight: ["400"],
-});
-
-const navLinks = [
-  { href: "/home", label: "Home" },
-  { href: "/events", label: "Events" },
-  { href: "/social", label: "Social" },
-];
+import { NotificationBellMenu } from "@/features/notifications/components/NotificationBellMenu";
 
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
   const isLight = theme !== "dark";
   const pathname = usePathname();
+  const router = useRouter();
+  const [isLanguagePending, startLanguageTransition] = useTransition();
   const { data: currentUser } = useCurrentUser();
+  const t = useTranslations("Nav");
+  const locale = useLocale();
+
+  const navLinks = [
+    { href: "/", label: t("home") },
+    { href: "/events", label: t("events") },
+    { href: "/social", label: t("social") },
+  ];
 
   const { logout } = useLogout();
   const { data } = useUnreadCount();
-  console.log(data);
   const unreadCount = data?.data?.count || 0;
-  console.log(unreadCount);
 
   const handleLogout = async () => {
     await logout();
   };
 
+  const handleLanguageToggle = () => {
+    const nextLocale = locale === "de" ? "en" : "de";
+    startLanguageTransition(() => {
+      router.replace(pathname, { locale: nextLocale });
+    });
+  };
+
   return (
     <div className="flex items-center justify-between px-3 tablet:px-5 desktop:px-8 bg-card/40 border-b border-border sticky backdrop-blur-sm">
-
       {/* logo  */}
 
-      <Link href="/home" className="flex items-center">
+      <Link href="/" className="flex items-center">
         <Image
           className="w-34 py-2 tablet:py-1 "
           src={logo}
@@ -76,6 +80,7 @@ const Navbar = () => {
       <div className="hidden tablet:flex items-center tablet:gap-12 desktop:gap-20 font-heading text-lg">
         {navLinks.map((link) => {
           const isActive = pathname === link.href;
+
           return (
             <Link
               key={link.href}
@@ -104,24 +109,22 @@ const Navbar = () => {
       <div className="my-auto flex items-center gap-3">
         {/* Theme and notification buttons  */}
         <div className="flex items-center gap-1 mt-2 tablet:mt-0">
-          {currentUser && (
-            <Link
-              href="/notifications"
-              aria-label={
-                unreadCount > 0
-                  ? `${unreadCount} okunmamış bildirim`
-                  : "Bildirimler"
-              }
-              className="relative inline-flex size-10 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              <BellIcon className="size-5" />
-              {unreadCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[12px] font-medium leading-none text-primary-foreground">
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </span>
-              )}
-            </Link>
-          )}
+
+         
+          <Button
+            variant="ghost"
+            size="icon"
+            type="button"
+            onClick={handleLanguageToggle}
+            disabled={isLanguagePending}
+            aria-label={t("language")}
+            className="rounded-full text-muted-foreground hover:text-foreground cursor-pointer"
+          >
+            <span className="text-xs font-semibold tracking-wide">
+              {locale.toUpperCase()}
+            </span>
+          </Button>
+        {currentUser && <NotificationBellMenu />
 
           <Button
             variant="ghost"
@@ -201,15 +204,15 @@ const Navbar = () => {
                 <DropdownMenuGroup className="tablet:hidden">
                   <DropdownMenuItem>
                     <AiFillHome />
-                    <Link href="/home">Home</Link>
+                    <Link href="/">{t("home")}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <AiFillCalendar />
-                    <Link href="/events">Events</Link>
+                    <Link href="/events">{t("events")}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <IoShareSocial />
-                    <Link href="/social">Social</Link>
+                    <Link href="/social">{t("social")}</Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />

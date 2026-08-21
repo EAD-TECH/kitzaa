@@ -1,0 +1,156 @@
+{
+  "HomePage": {
+    "title": "Welcome to Kitzaa",
+    "heroTitle": "Discover family-friendly events near you",
+    "heroSubtitle": "We curate the loveliest experiences for you and your children – from forest adventures to creative workshops in your neighbourhood.",
+    "discoverEvents": "Discover events",
+    "learnMore": "Learn more",
+    "heroImageAlt": "Family playing together in the park"
+  },
+  "Nav": {
+    "home": "Home",
+    "events": "Events",
+    "social": "Social",
+    "language": "Language"
+  },
+  "Footer": {
+    "faq": "FAQ",
+    "contact": "Contact",
+    "privacy": "Privacy Policy",
+    "terms": "Terms and Conditions",
+    "rights": "All rights reserved."
+  },
+  "Login": {
+    "title": "Welcome back",
+    "loginLabel": "Email or username",
+    "loginPlaceholder": "hello@example.com",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "hidePassword": "Hide password",
+    "showPassword": "Show password",
+    "submitting": "Signing in...",
+    "submit": "Sign in",
+    "continueWith": "Or continue with",
+    "google": "Sign in with Google",
+    "newHere": "New to Kitzaa?",
+    "register": "Register",
+    "validation": {
+      "loginRequired": "Email or username is required.",
+      "passwordRequired": "Password is required."
+    }
+  },
+  "Register": {
+    "backToHome": "Home",
+    "logoAria": "Back to home",
+    "title": "Create a new account",
+    "subtitle": "Join our community and find the best events near you.",
+    "back": "Back",
+    "stepPersonal": "Personal details & credentials",
+    "stepLocation": "Location & preferences",
+    "firstName": "First name",
+    "firstNamePlaceholder": "Max",
+    "lastName": "Last name",
+    "lastNamePlaceholder": "Mustermann",
+    "username": "Username",
+    "usernamePlaceholder": "family_hero",
+    "email": "Email address",
+    "emailPlaceholder": "hello@example.com",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "hidePassword": "Hide password",
+    "showPassword": "Show password",
+    "phone": "Phone number (optional)",
+    "countryCodeAria": "Country code",
+    "next": "Continue",
+    "zipCode": "Postal code",
+    "zipLookup": "Looking up city...",
+    "invalidZip": "This postal code is invalid",
+    "city": "City",
+    "state": "State",
+    "district": "District (optional)",
+    "language": "Language",
+    "german": "German",
+    "english": "English",
+    "submitting": "Creating account...",
+    "submit": "Create account",
+    "continueWith": "Or continue with",
+    "google": "Register with Google",
+    "hasAccount": "Already have an account?",
+    "login": "Sign in",
+    "successTitle": "Confirm your email address",
+    "successBody": "We sent you a confirmation link. Please check your inbox.",
+    "imageAlt": "Family at a shared event",
+    "validation": {
+      "firstNameRequired": "First name is required",
+      "firstNameMax": "First name must be at most 50 characters",
+      "lastNameRequired": "Last name is required",
+      "lastNameMax": "Last name must be at most 50 characters",
+      "usernameRequired": "Username is required",
+      "usernameMax": "Username must be at most 50 characters",
+      "emailInvalid": "Please enter a valid email address",
+      "passwordRules": "Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character",
+      "confirmPasswordRequired": "Please confirm your password",
+      "phoneInvalid": "Please enter a valid phone number",
+      "stateRequired": "State is required",
+      "cityRequired": "City is required",
+      "zipInvalid": "Please enter a valid postal code",
+      "passwordMismatch": "Passwords do not match"
+    }
+  },
+  "ForgotPassword": {
+    "title": "Forgot password?",
+    "subtitle": "No problem. Enter your email address. If an account exists, we will send you a reset link.",
+    "email": "Email address",
+    "emailPlaceholder": "hello@example.com",
+    "submitting": "Sending...",
+    "submit": "Send link",
+    "backToLogin": "Back to sign in",
+    "successTitle": "Check your email",
+    "successBody": "If the email address exists, we have sent you a link to reset your password.",
+    "validation": {
+      "emailInvalid": "Please enter a valid email address"
+    },
+    "errors": {
+      "sendFailed": "The link could not be sent. Please try again later.",
+      "network": "The server could not be reached. Please check your connection."
+    }
+  },
+  "ResetPassword": {
+    "title": "New password",
+    "subtitle": "Enter your new password and confirm it.",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "hidePassword": "Hide password",
+    "showPassword": "Show password",
+    "submitting": "Saving...",
+    "submit": "Save password",
+    "backToLogin": "Back to sign in",
+    "requestNewLink": "Request a new link",
+    "validation": {
+      "passwordRules": "Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character",
+      "confirmPasswordRequired": "Please confirm your password",
+      "passwordMismatch": "Passwords do not match"
+    },
+    "errors": {
+      "invalidLink": "The link is invalid or has expired.",
+      "saveFailed": "The password could not be saved. Please try again later.",
+      "network": "The server could not be reached. Please check your connection."
+    }
+  },
+  "VerifyEmail": {
+    "pendingTitle": "Confirm your email address",
+    "pendingBody": "We sent you a confirmation link. Please check your inbox.",
+    "loadingTitle": "Confirming your email...",
+    "loadingBody": "Please wait a moment while we check your confirmation link.",
+    "successTitle": "Email confirmed",
+    "successBody": "Your account is confirmed. You can sign in now.",
+    "errorTitle": "Confirmation failed",
+    "expiredTitle": "Link invalid or expired",
+    "backToLogin": "Back to sign in",
+    "errors": {
+      "expired": "The link is invalid or has expired.",
+      "failed": "The email address could not be confirmed. Please try again later.",
+      "network": "The server could not be reached. Please check your connection."
+    }
+  }
+}
