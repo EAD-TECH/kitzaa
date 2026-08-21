@@ -124,7 +124,7 @@ const Navbar = () => {
               {locale.toUpperCase()}
             </span>
           </Button>
-        {currentUser && <NotificationBellMenu />
+        {currentUser && <NotificationBellMenu />}
 
           <Button
             variant="ghost"
