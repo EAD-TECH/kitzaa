@@ -37,8 +37,9 @@ import { ArrowLeftIcon, Check, Eye, EyeOff, Loader2 } from 'lucide-react'
 import logo from "../../public/images/logo.png"
 import Image from "next/image"
 import Link from "next/link"
-import { registerSchema, toRegisterPayload, type RegisterFormValues } from "./validations/register.schema"
-import { useRegister } from "./hooks/useRegister"
+import { useRegister } from "../hooks/useRegister"
+import { registerSchema, type RegisterFormValues } from "../validations/register.schema"
+
 
 const steps = [1, 2]
 

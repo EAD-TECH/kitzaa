@@ -76,6 +76,7 @@ const baseEventSchema = z.object({
     coverImage: z.string().url().optional().nullable(),
     images: z.array(z.string().url()).optional().default([]),
     categoryId: z.string().min(1, 'Category is required'),
+    locationType: z.enum(['indoor', 'outdoor', 'online']),
     ageRange: ageRangeSchema,
     isFree: z.boolean(),
     price: priceSchema.optional().nullable(),

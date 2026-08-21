@@ -7,6 +7,8 @@ export type EventStatus =
   | "cancelled"
   | "completed";
 
+export type EventLocationType = "indoor" | "outdoor" | "online";
+
 export interface IAgeRange {
   min: number;
   max: number;
@@ -58,6 +60,7 @@ export interface IEvent {
   coverImage?: string | null;
   images?: string[];
   categoryId: Types.ObjectId;
+  locationType: EventLocationType;
   ageRange: IAgeRange;
   createdBy: Types.ObjectId;
   status: EventStatus;
@@ -108,6 +111,7 @@ export interface EventDTO {
   coverImage: string | null;
   images: string[];
   categoryId: string | EventCategoryRef;
+  locationType: EventLocationType;
   ageRange: IAgeRange;
   createdBy: string | EventCreatedByRef;
   status: EventStatus;

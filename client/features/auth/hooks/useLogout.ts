@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { logout as logoutApi } from "../api";
+import { logout as logoutApi } from "../AuthApi";
 import { useAuthStore } from "../store/authStore";
 import { ApiError } from "@/lib/api/client";
 

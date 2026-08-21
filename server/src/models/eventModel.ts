@@ -114,6 +114,12 @@ const eventSchema = new mongoose.Schema<IEvent, EventModel>(
       required: [true, "Category is required"],
       index: true,
     },
+    locationType: {
+      type: String,
+      enum: ["indoor", "outdoor", "online"],
+      required: [true, "Location type is required"],
+      index: true,
+    },
     ageRange: { type: ageRangeSchema, required: true },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

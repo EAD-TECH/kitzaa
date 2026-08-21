@@ -1,4 +1,5 @@
 
+import { cn } from "@/lib/utils"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
     Field,
@@ -16,7 +17,8 @@ export interface FilterCheckBoxGroupProps {
     icon?: React.ReactNode,
     options: string[],
     selected: string[],
-    onChange: (selected: string[]) => void
+    onChange: (selected: string[]) => void,
+    columns?: 1 | 2
 }
 
 
@@ -28,7 +30,8 @@ export function FilterCheckboxGroup({
     icon,
     options,
     selected,
-    onChange
+    onChange,
+    columns = 1
 }: FilterCheckBoxGroupProps) {
 
 
@@ -51,7 +54,7 @@ export function FilterCheckboxGroup({
                 {icon}
                 {title}
             </FieldLegend>
-            <FieldGroup className="gap-3">
+            <FieldGroup className={cn("gap-3", columns === 2 && "grid grid-cols-2 gap-x-4")}>
                 {options.map((option) => {
                     const id = `${name}-${option}`
                     return (
