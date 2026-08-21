@@ -17,7 +17,7 @@ const Footer = () => {
   return (
     <footer className="border-t bg-card">
       <div className="flex flex-col items-center px-3 py-8 tablet:px-5 desktop:px-8">
-        <Link href="/home" className="flex items-center">
+        <Link href="/" className="flex items-center">
           <Image className="w-34 py-1" src={logo} alt="Kitzaa" />
         </Link>
 
