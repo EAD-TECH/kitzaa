@@ -7,10 +7,7 @@ export type EventStatus =
 
 export type EventLocationType = "indoor" | "outdoor" | "online";
 
-export interface AgeRange {
-  min: number;
-  max: number;
-}
+export type AgeRange = "0-3" | "4-6" | "7-10" | "10-14" | "parents" | "all-ages";
 
 export interface Price {
   amount: number;

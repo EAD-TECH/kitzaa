@@ -8,9 +8,14 @@ import AgeFilter from '@/features/events/components/AgeFilter'
 import EventSheet from '@/features/events/components/filterSidebar/EventSheet'
 import EventList from '@/features/events/components/EventList'
 
+interface EventsPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}
 
+const EventsPage = async ({searchParams}: EventsPageProps) => {
 
-const EventsPage = () => {
+  const params = await searchParams
+
   return (
     <div className='grid desktop:grid-cols-[320px_1fr] gap-16 px-6 tablet:px-20 desktop:px-10 mt-10 mx-auto'>
       <div className='hidden desktop:flex flex-col gap-10 '>
@@ -23,7 +28,7 @@ const EventsPage = () => {
           <EventSheet />
         </div>
         <AgeFilter />
-        <EventList />
+        <EventList searchParams={params} />
 
         <div className='mt-25 desktop:mt-10 desktop:hidden'>
           <div className='mb-6 flex items-center gap-3 text-muted-foreground '>

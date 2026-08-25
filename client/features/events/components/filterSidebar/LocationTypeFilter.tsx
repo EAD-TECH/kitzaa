@@ -3,12 +3,20 @@
 import React, { useState } from 'react'
 import { MapPin } from 'lucide-react'
 import { FilterCheckboxGroup } from './FilterCheckBoxGroup'
+import { useQueryParams } from '../../hooks/useQueryParams'
+
+const LOCATION_TYPES = [
+  { label: 'Drinnen', value: 'indoor' },
+  { label: 'Draußen', value: 'outdoor' },
+  { label: 'Online', value: 'online' },
+]
+
 
 const LocationTypeFilter = () => {
 
-  const [selectedLocationTypes, setSelectedLocationTypes] = useState<string[]>([])
+  const { getAll, setParam } = useQueryParams()
+  const selected = getAll('locationType')
 
-  const locationTypes: string[] = ["Drinnen", "Draußen", "Online"]
 
   return (
     <div>
@@ -16,9 +24,9 @@ const LocationTypeFilter = () => {
         name='locationType'
         title='ORT'
         icon={<MapPin className="size-3.5" />}
-        options={locationTypes}
-        selected={selectedLocationTypes}
-        onChange={setSelectedLocationTypes}
+        options={LOCATION_TYPES}
+        selected={selected}
+        onChange={(values => setParam("locationType", values))}
       />
     </div>
   )

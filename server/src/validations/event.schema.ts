@@ -1,15 +1,7 @@
 
 import { z } from 'zod';
 
-const ageRangeSchema = z
-    .object({
-        min: z.number().int().min(0),
-        max: z.number().int().min(0),
-    })
-    .refine((data) => data.min <= data.max, {
-        message: 'ageRange.min cannot be greater than ageRange.max',
-        path: ['max'],
-    });
+const ageRangeSchema = z.enum(['0-3', '4-6', '7-10', '10-14', 'parents', 'all-ages']);
 
 const priceSchema = z.object({
     amount: z.number().min(0),

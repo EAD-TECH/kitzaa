@@ -4,7 +4,7 @@ import { dbConnection, mongoose } from "../src/configs/dbConnection.js";
 import Event from "../src/models/eventModel.js";
 import EventCategory from "../src/models/eventCategoryModel.js";
 import User from "../src/models/userModel.js";
-import type { EventLocationType } from "../src/types/event.types.js";
+import type { AgeRange, EventLocationType } from "../src/types/event.types.js";
 
 const PLACES = [
   { state: "Berlin", city: "Berlin", zipCode: "10115", lng: 13.405, lat: 52.52 },
@@ -24,7 +24,7 @@ type EventSeed = {
   description: string;
   category: string;
   locationType: EventLocationType;
-  ageRange: { min: number; max: number };
+  ageRange: AgeRange;
   isFree: boolean;
   price?: number;
   imageKeyword: string;
@@ -32,50 +32,50 @@ type EventSeed = {
 
 const EVENTS: EventSeed[] = [
   // Natur
-  { title: "Waldspaziergang für Familien", description: "Gemeinsame Wanderung durch den Wald mit spannenden Naturentdeckungen für Groß und Klein.", category: "Natur", locationType: "outdoor", ageRange: { min: 0, max: 99 }, isFree: true, imageKeyword: "forest,hiking" },
-  { title: "Vogelbeobachtung am See", description: "Mit dem Fernglas auf Entdeckungstour: heimische Vogelarten am Stadtsee beobachten.", category: "Natur", locationType: "outdoor", ageRange: { min: 6, max: 99 }, isFree: true, imageKeyword: "birdwatching,lake" },
-  { title: "Kräuterworkshop im Stadtpark", description: "Essbare Wildkräuter erkennen, sammeln und gemeinsam verarbeiten.", category: "Natur", locationType: "outdoor", ageRange: { min: 8, max: 99 }, isFree: false, price: 12, imageKeyword: "herbs,garden" },
-  { title: "Nachtwanderung mit Taschenlampen", description: "Abenteuerliche Wanderung bei Dunkelheit mit spannenden Geschichten über nachtaktive Tiere.", category: "Natur", locationType: "outdoor", ageRange: { min: 5, max: 99 }, isFree: true, imageKeyword: "flashlight,night,forest" },
+  { title: "Waldspaziergang für Familien", description: "Gemeinsame Wanderung durch den Wald mit spannenden Naturentdeckungen für Groß und Klein.", category: "Natur", locationType: "outdoor", ageRange: "all-ages", isFree: true, imageKeyword: "forest,hiking" },
+  { title: "Vogelbeobachtung am See", description: "Mit dem Fernglas auf Entdeckungstour: heimische Vogelarten am Stadtsee beobachten.", category: "Natur", locationType: "outdoor", ageRange: "all-ages", isFree: true, imageKeyword: "birdwatching,lake" },
+  { title: "Kräuterworkshop im Stadtpark", description: "Essbare Wildkräuter erkennen, sammeln und gemeinsam verarbeiten.", category: "Natur", locationType: "outdoor", ageRange: "all-ages", isFree: false, price: 12, imageKeyword: "herbs,garden" },
+  { title: "Nachtwanderung mit Taschenlampen", description: "Abenteuerliche Wanderung bei Dunkelheit mit spannenden Geschichten über nachtaktive Tiere.", category: "Natur", locationType: "outdoor", ageRange: "all-ages", isFree: true, imageKeyword: "flashlight,night,forest" },
 
   // Sport
-  { title: "Fußballturnier für Kinder", description: "Kleine Teams, große Freude: Fußballturnier für Kinder von 6 bis 12 Jahren.", category: "Sport", locationType: "outdoor", ageRange: { min: 6, max: 12 }, isFree: true, imageKeyword: "soccer,kids" },
-  { title: "Yoga im Park", description: "Entspanntes Familien-Yoga an der frischen Luft, für alle Levels geeignet.", category: "Sport", locationType: "outdoor", ageRange: { min: 0, max: 99 }, isFree: true, imageKeyword: "yoga,park" },
-  { title: "Fahrradtour durch die Stadt", description: "Geführte Fahrradtour entlang der schönsten Ecken der Stadt.", category: "Sport", locationType: "outdoor", ageRange: { min: 8, max: 99 }, isFree: false, price: 5, imageKeyword: "cycling,city" },
-  { title: "Schwimmkurs für Anfänger", description: "Erste Schwimmzüge im Hallenbad, betreut von erfahrenen Trainern.", category: "Sport", locationType: "indoor", ageRange: { min: 5, max: 10 }, isFree: false, price: 25, imageKeyword: "swimming,pool" },
+  { title: "Fußballturnier für Kinder", description: "Kleine Teams, große Freude: Fußballturnier für Kinder von 6 bis 12 Jahren.", category: "Sport", locationType: "outdoor", ageRange: "7-10", isFree: true, imageKeyword: "soccer,kids" },
+  { title: "Yoga im Park", description: "Entspanntes Familien-Yoga an der frischen Luft, für alle Levels geeignet.", category: "Sport", locationType: "outdoor", ageRange: "all-ages", isFree: true, imageKeyword: "yoga,park" },
+  { title: "Fahrradtour durch die Stadt", description: "Geführte Fahrradtour entlang der schönsten Ecken der Stadt.", category: "Sport", locationType: "outdoor", ageRange: "all-ages", isFree: false, price: 5, imageKeyword: "cycling,city" },
+  { title: "Schwimmkurs für Anfänger", description: "Erste Schwimmzüge im Hallenbad, betreut von erfahrenen Trainern.", category: "Sport", locationType: "indoor", ageRange: "7-10", isFree: false, price: 25, imageKeyword: "swimming,pool" },
 
   // Kreativität
-  { title: "Töpferworkshop für Einsteiger", description: "Erste Schritte an der Töpferscheibe, Material und Brand inklusive.", category: "Kreativität", locationType: "indoor", ageRange: { min: 10, max: 99 }, isFree: false, price: 18, imageKeyword: "pottery,ceramics" },
-  { title: "Malkurs für Kinder", description: "Farben, Formen und Fantasie: freies Malen und Gestalten für Kinder.", category: "Kreativität", locationType: "indoor", ageRange: { min: 4, max: 10 }, isFree: false, price: 8, imageKeyword: "painting,kids" },
-  { title: "DIY-Schmuckwerkstatt", description: "Eigenen Schmuck aus Perlen und Naturmaterialien gestalten.", category: "Kreativität", locationType: "indoor", ageRange: { min: 8, max: 99 }, isFree: false, price: 15, imageKeyword: "handmade,jewelry" },
-  { title: "Origami-Nachmittag", description: "Papier falten leicht gemacht: von einfachen Kranichen bis zu kniffligen Figuren.", category: "Kreativität", locationType: "indoor", ageRange: { min: 6, max: 99 }, isFree: true, imageKeyword: "origami,paper" },
+  { title: "Töpferworkshop für Einsteiger", description: "Erste Schritte an der Töpferscheibe, Material und Brand inklusive.", category: "Kreativität", locationType: "indoor", ageRange: "all-ages", isFree: false, price: 18, imageKeyword: "pottery,ceramics" },
+  { title: "Malkurs für Kinder", description: "Farben, Formen und Fantasie: freies Malen und Gestalten für Kinder.", category: "Kreativität", locationType: "indoor", ageRange: "7-10", isFree: false, price: 8, imageKeyword: "painting,kids" },
+  { title: "DIY-Schmuckwerkstatt", description: "Eigenen Schmuck aus Perlen und Naturmaterialien gestalten.", category: "Kreativität", locationType: "indoor", ageRange: "all-ages", isFree: false, price: 15, imageKeyword: "handmade,jewelry" },
+  { title: "Origami-Nachmittag", description: "Papier falten leicht gemacht: von einfachen Kranichen bis zu kniffligen Figuren.", category: "Kreativität", locationType: "indoor", ageRange: "all-ages", isFree: true, imageKeyword: "origami,paper" },
 
   // Musik & Kultur
-  { title: "Open-Air-Konzert im Park", description: "Live-Musik unter freiem Himmel mit lokalen Bands.", category: "Musik & Kultur", locationType: "outdoor", ageRange: { min: 0, max: 99 }, isFree: true, imageKeyword: "concert,outdoor" },
-  { title: "Kindertheater: Die kleine Hexe", description: "Zauberhafte Theateraufführung für die ganze Familie.", category: "Musik & Kultur", locationType: "indoor", ageRange: { min: 4, max: 99 }, isFree: false, price: 10, imageKeyword: "theater,stage" },
-  { title: "Museumsführung für Familien", description: "Interaktive Führung durch das Stadtmuseum, extra für kleine Entdecker aufbereitet.", category: "Musik & Kultur", locationType: "indoor", ageRange: { min: 6, max: 99 }, isFree: false, price: 6, imageKeyword: "museum,exhibit" },
-  { title: "Trommelworkshop", description: "Gemeinsam trommeln und den eigenen Rhythmus finden, keine Vorkenntnisse nötig.", category: "Musik & Kultur", locationType: "indoor", ageRange: { min: 6, max: 99 }, isFree: true, imageKeyword: "drums,music" },
+  { title: "Open-Air-Konzert im Park", description: "Live-Musik unter freiem Himmel mit lokalen Bands.", category: "Musik & Kultur", locationType: "outdoor", ageRange: "all-ages", isFree: true, imageKeyword: "concert,outdoor" },
+  { title: "Kindertheater: Die kleine Hexe", description: "Zauberhafte Theateraufführung für die ganze Familie.", category: "Musik & Kultur", locationType: "indoor", ageRange: "all-ages", isFree: false, price: 10, imageKeyword: "theater,stage" },
+  { title: "Museumsführung für Familien", description: "Interaktive Führung durch das Stadtmuseum, extra für kleine Entdecker aufbereitet.", category: "Musik & Kultur", locationType: "indoor", ageRange: "all-ages", isFree: false, price: 6, imageKeyword: "museum,exhibit" },
+  { title: "Trommelworkshop", description: "Gemeinsam trommeln und den eigenen Rhythmus finden, keine Vorkenntnisse nötig.", category: "Musik & Kultur", locationType: "indoor", ageRange: "all-ages", isFree: true, imageKeyword: "drums,music" },
 
   // Essen & Trinken
-  { title: "Kochkurs: Pasta selbst gemacht", description: "Frische Pasta von Grund auf selbst herstellen, gemeinsames Essen inklusive.", category: "Essen & Trinken", locationType: "indoor", ageRange: { min: 10, max: 99 }, isFree: false, price: 20, imageKeyword: "pasta,cooking" },
-  { title: "Backworkshop für Kinder", description: "Kekse und kleine Kuchen backen und verzieren.", category: "Essen & Trinken", locationType: "indoor", ageRange: { min: 5, max: 12 }, isFree: false, price: 10, imageKeyword: "baking,cookies" },
-  { title: "Streetfood-Festival", description: "Kulinarische Weltreise mit Foodtrucks und Live-Musik.", category: "Essen & Trinken", locationType: "outdoor", ageRange: { min: 0, max: 99 }, isFree: true, imageKeyword: "streetfood,foodtruck" },
-  { title: "Picknick im Grünen", description: "Gemeinsames Picknick mit Spielen für die ganze Familie, jeder bringt etwas mit.", category: "Essen & Trinken", locationType: "outdoor", ageRange: { min: 0, max: 99 }, isFree: true, imageKeyword: "picnic,family" },
+  { title: "Kochkurs: Pasta selbst gemacht", description: "Frische Pasta von Grund auf selbst herstellen, gemeinsames Essen inklusive.", category: "Essen & Trinken", locationType: "indoor", ageRange: "all-ages", isFree: false, price: 20, imageKeyword: "pasta,cooking" },
+  { title: "Backworkshop für Kinder", description: "Kekse und kleine Kuchen backen und verzieren.", category: "Essen & Trinken", locationType: "indoor", ageRange: "7-10", isFree: false, price: 10, imageKeyword: "baking,cookies" },
+  { title: "Streetfood-Festival", description: "Kulinarische Weltreise mit Foodtrucks und Live-Musik.", category: "Essen & Trinken", locationType: "outdoor", ageRange: "all-ages", isFree: true, imageKeyword: "streetfood,foodtruck" },
+  { title: "Picknick im Grünen", description: "Gemeinsames Picknick mit Spielen für die ganze Familie, jeder bringt etwas mit.", category: "Essen & Trinken", locationType: "outdoor", ageRange: "all-ages", isFree: true, imageKeyword: "picnic,family" },
 
   // Bildung
-  { title: "Kinderuni: Warum ist der Himmel blau?", description: "Spannende Experimente und einfache Erklärungen für neugierige Kinder.", category: "Bildung", locationType: "indoor", ageRange: { min: 6, max: 12 }, isFree: true, imageKeyword: "science,kids" },
-  { title: "Coding-Workshop für Teenager", description: "Erste Schritte in der Programmierung mit einem eigenen kleinen Spielprojekt.", category: "Bildung", locationType: "indoor", ageRange: { min: 12, max: 17 }, isFree: false, price: 15, imageKeyword: "coding,laptop" },
-  { title: "Sprachkurs Englisch für Kids", description: "Spielerisch Englisch lernen mit Liedern, Spielen und kleinen Geschichten.", category: "Bildung", locationType: "indoor", ageRange: { min: 5, max: 10 }, isFree: false, price: 12, imageKeyword: "classroom,kids" },
-  { title: "Lese-Nachmittag in der Bibliothek", description: "Vorlesestunde und Buchempfehlungen für kleine und große Leseratten.", category: "Bildung", locationType: "indoor", ageRange: { min: 3, max: 99 }, isFree: true, imageKeyword: "library,reading" },
+  { title: "Kinderuni: Warum ist der Himmel blau?", description: "Spannende Experimente und einfache Erklärungen für neugierige Kinder.", category: "Bildung", locationType: "indoor", ageRange: "7-10", isFree: true, imageKeyword: "science,kids" },
+  { title: "Coding-Workshop für Teenager", description: "Erste Schritte in der Programmierung mit einem eigenen kleinen Spielprojekt.", category: "Bildung", locationType: "indoor", ageRange: "10-14", isFree: false, price: 15, imageKeyword: "coding,laptop" },
+  { title: "Sprachkurs Englisch für Kids", description: "Spielerisch Englisch lernen mit Liedern, Spielen und kleinen Geschichten.", category: "Bildung", locationType: "indoor", ageRange: "7-10", isFree: false, price: 12, imageKeyword: "classroom,kids" },
+  { title: "Lese-Nachmittag in der Bibliothek", description: "Vorlesestunde und Buchempfehlungen für kleine und große Leseratten.", category: "Bildung", locationType: "indoor", ageRange: "all-ages", isFree: true, imageKeyword: "library,reading" },
 
   // Familie
-  { title: "Familienfrühstück im Park", description: "Gemütliches Frühstück im Grünen mit Spielangeboten für Kinder.", category: "Familie", locationType: "outdoor", ageRange: { min: 0, max: 99 }, isFree: true, imageKeyword: "breakfast,family" },
-  { title: "Spieletag für die ganze Familie", description: "Brett- und Kartenspiele für jedes Alter, Anfänger willkommen.", category: "Familie", locationType: "indoor", ageRange: { min: 0, max: 99 }, isFree: true, imageKeyword: "boardgame,family" },
-  { title: "Familien-Flohmarkt", description: "Kinderkleidung, Spielzeug und mehr: Flohmarkt rund ums Familienleben.", category: "Familie", locationType: "outdoor", ageRange: { min: 0, max: 99 }, isFree: true, imageKeyword: "fleamarket" },
+  { title: "Familienfrühstück im Park", description: "Gemütliches Frühstück im Grünen mit Spielangeboten für Kinder.", category: "Familie", locationType: "outdoor", ageRange: "all-ages", isFree: true, imageKeyword: "breakfast,family" },
+  { title: "Spieletag für die ganze Familie", description: "Brett- und Kartenspiele für jedes Alter, Anfänger willkommen.", category: "Familie", locationType: "indoor", ageRange: "all-ages", isFree: true, imageKeyword: "boardgame,family" },
+  { title: "Familien-Flohmarkt", description: "Kinderkleidung, Spielzeug und mehr: Flohmarkt rund ums Familienleben.", category: "Familie", locationType: "outdoor", ageRange: "all-ages", isFree: true, imageKeyword: "fleamarket" },
 
   // Feste & Feiern
-  { title: "Sommerfest im Stadtpark", description: "Musik, Essen und Spiele: das große Sommerfest für die ganze Nachbarschaft.", category: "Feste & Feiern", locationType: "outdoor", ageRange: { min: 0, max: 99 }, isFree: true, imageKeyword: "summerfestival" },
-  { title: "Laternenfest für Kinder", description: "Laternenumzug mit Musik, im Anschluss gibt es Punsch und Gebäck.", category: "Feste & Feiern", locationType: "outdoor", ageRange: { min: 0, max: 99 }, isFree: true, imageKeyword: "lantern,kids" },
-  { title: "Weihnachtsmarkt-Bummel", description: "Gemeinsamer Bummel über den Weihnachtsmarkt mit Glühwein und Kinderpunsch.", category: "Feste & Feiern", locationType: "outdoor", ageRange: { min: 0, max: 99 }, isFree: true, imageKeyword: "christmasmarket" },
+  { title: "Sommerfest im Stadtpark", description: "Musik, Essen und Spiele: das große Sommerfest für die ganze Nachbarschaft.", category: "Feste & Feiern", locationType: "outdoor", ageRange: "all-ages", isFree: true, imageKeyword: "summerfestival" },
+  { title: "Laternenfest für Kinder", description: "Laternenumzug mit Musik, im Anschluss gibt es Punsch und Gebäck.", category: "Feste & Feiern", locationType: "outdoor", ageRange: "all-ages", isFree: true, imageKeyword: "lantern,kids" },
+  { title: "Weihnachtsmarkt-Bummel", description: "Gemeinsamer Bummel über den Weihnachtsmarkt mit Glühwein und Kinderpunsch.", category: "Feste & Feiern", locationType: "outdoor", ageRange: "all-ages", isFree: true, imageKeyword: "christmasmarket" },
 ];
 
 function coverImageFor(keyword: string, lock: number) {
