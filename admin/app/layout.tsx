@@ -3,6 +3,9 @@ import { Fraunces, Manrope } from "next/font/google";
 import QueryProvider from "@/providers/query-provider";
 import "./globals.css";
 import RequireAuth from "@/features/auth/components/RequireAuth";
+import SideBar from "@/components/layout/sidebar";
+import Header from "@/components/layout/header";
+import { ThemeProvider } from "@/providers/theme-provider";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -34,9 +37,25 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body>
-        <QueryProvider>
-          <RequireAuth roles="admin">{children}</RequireAuth>
-        </QueryProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <QueryProvider>
+            <RequireAuth roles="admin">
+              <div className="min-h-dvh">
+                <SideBar />
+                <div className="min-h-dvh pl-28">
+                  <Header />
+
+                  {children}
+                </div>
+              </div>
+            </RequireAuth>
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
