@@ -250,3 +250,14 @@ Normalde bir component her render olduğunda, içindeki her fonksiyon yeniden ol
 
 useCallback şunu der: "Bu fonksiyonu sadece bağımlılıklar değiştiğinde yeniden oluştur, gereksiz yere tekrar oluşturma."
 
+
+
+
+
+
+# Loading.tsx
+
+loading.tsx yokken hiç boundary yok → tamamen "all-or-nothing", hiçbir şey/boş ekran
+loading.tsx varken ama lokal <Suspense> yokken → "hepsi ya da hiçbiri" değil ama tek parça — tüm sayfa aynı anda tek bir skeleton'a dönüşüyor (senin yaşadığın)
+Lokal <Suspense>'ler eklenince → her parça bağımsız, granular
+loading.tsx bu yüzden zaten faydalı bir "güvenlik ağı" (fallback için varsayılan) — ama her component'e özel boundary koymadıkça hepsini tek potada eritiyor.
