@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { ApiError } from "@/lib/api/client";
-import { verifyEmail } from "../api";
+import { verifyEmail } from "../AuthApi";
 
 export function useVerifyEmail() {
   return useMutation({

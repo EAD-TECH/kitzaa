@@ -16,8 +16,8 @@ import { useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoginFormValues, createLoginSchema } from "./validations/login.schema";
-import { mapLoginError, useLogin } from "./hooks/useLogin";
+import { LoginFormValues, createLoginSchema } from "../validations/login.schema";
+import { mapLoginError, useLogin } from "../hooks/useLogin";
 import { useTranslations } from "next-intl";
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"form">) {
