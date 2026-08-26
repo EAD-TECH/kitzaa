@@ -1,7 +1,7 @@
 import { ArrowLeftIcon } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { RegisterForm } from "@/features/auth/registerForm";
+import { RegisterForm } from "@/features/auth/components/registerForm";
 
 export default async function RegisterPage() {
   const t = await getTranslations("Register");

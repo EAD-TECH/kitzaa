@@ -11,8 +11,8 @@ import { useTranslations } from "next-intl";
 import {
   ForgotPasswordValues,
   createForgotPasswordSchema,
-} from "./validations/forgotpassword.schema";
-import { mapForgotPasswordError, useForgotPassword } from "./hooks/useForgotPassword";
+} from "../validations/forgotpassword.schema";
+import { mapForgotPasswordError, useForgotPassword } from "../hooks/useForgotPassword";
 
 export function ForgotPasswordForm({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("ForgotPassword");

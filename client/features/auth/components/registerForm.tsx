@@ -34,12 +34,12 @@ import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ArrowLeftIcon, Eye, EyeOff, Loader2 } from 'lucide-react'
-import logo from "../../public/images/logo.png"
+import logo from "../../../public/images/logo.png"
 import Image from "next/image"
 import { Link } from "@/i18n/navigation"
 import { useTranslations } from "next-intl"
-import { createRegisterSchema, toRegisterPayload, type RegisterFormValues } from "./validations/register.schema"
-import { useRegister } from "./hooks/useRegister"
+import { createRegisterSchema, toRegisterPayload, type RegisterFormValues } from "../validations/register.schema"
+import { useRegister } from "../hooks/useRegister"
 
 const steps = [1, 2]
 

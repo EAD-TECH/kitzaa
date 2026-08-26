@@ -1,6 +1,6 @@
 "use client";
 
-import { LoginForm } from "@/features/auth/loginForm";
+import { LoginForm } from "@/features/auth/components/loginForm";
 import { Link } from "@/i18n/navigation";
 
 export default function LoginPage() {
