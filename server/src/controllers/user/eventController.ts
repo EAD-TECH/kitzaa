@@ -5,16 +5,63 @@ import CustomError from "../../helpers/customError.js";
 import { toEventDTO } from "../../helpers/toEventDTO.js";
 import Event from "../../models/eventModel.js";
 import type { EventDocument } from "../../types/event.types.js";
+import EventCategory from "../../models/eventCategoryModel.js";
 import type { CancelEventInput, CreateEventInput, NearbyQueryInput, UpdateEventInput } from "../../validations/event.schema.js";
 import { assertValidTransition } from "../../helpers/eventStateMachine.js";
 import {
   notifyUsersForNearbyEvent,
   notifyUsersForCancelledEvent,
 } from "../../services/notificationService.js";
+import User from "../../models/userModel.js";
 
 const eventController = {
   list: async (req: Request, res: Response) => {
-    const customFilter = { status: "approved" };
+
+    const customFilter: Record<string, unknown> = { status: "approved" };
+
+    const category = req.query.category
+    const organisator = req.query.organisator
+
+    // console.log("category", category) // familie,bildung,sport
+
+    if (typeof category === "string" && category.length > 0) {
+      const slugs = category.split(",");
+      const categories = await EventCategory.find({ slug: { $in: slugs } }).select("_id");
+      customFilter.categoryId = { $in: categories.map((c) => c._id) };
+    }
+
+    if (typeof organisator === "string" && organisator.length > 0) {
+      const validRoles = ["organizer", "user"] as const;
+      const roles = organisator.split(",").filter((r): r is "organizer" | "user" =>
+        (validRoles as readonly string[]).includes(r)
+      );
+      const organisators = await User.find({ role: { $in: roles } }).select("_id");
+      customFilter.createdBy = { $in: organisators.map((o) => o._id) };
+    }
+
+    const lat = req.query.lat;
+    const lng = req.query.lng;
+    const radius = req.query.radius;
+
+    if (typeof lat === "string" && typeof lng === "string" && typeof radius === "string") {
+      const latNum = Number(lat);
+      const lngNum = Number(lng);
+      const radiusKm = Number(radius);
+
+      const isValid =
+        Number.isFinite(latNum) && latNum >= -90 && latNum <= 90 &&
+        Number.isFinite(lngNum) && lngNum >= -180 && lngNum <= 180 &&
+        Number.isFinite(radiusKm) && radiusKm > 0 && radiusKm <= 50;
+
+      if (isValid) {
+        const EARTH_RADIUS_KM = 6378.1;
+        customFilter["location.coordinates"] = {
+          $geoWithin: {
+            $centerSphere: [[lngNum, latNum], radiusKm / EARTH_RADIUS_KM],
+          },
+        };
+      }
+    }
 
     const result = await res.getModelList(Event, customFilter, [
       { path: "categoryId", select: "name slug icon" },
@@ -131,7 +178,7 @@ const eventController = {
       "API Yanıtı dönüyor, arka planda KTZ-61 motoru ateşleniyor",
     );
     notifyUsersForCancelledEvent(event);
-    
+
 
     res.sendStatus(204);
   },
