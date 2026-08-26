@@ -261,3 +261,35 @@ loading.tsx yokken hiç boundary yok → tamamen "all-or-nothing", hiçbir şey/
 loading.tsx varken ama lokal <Suspense> yokken → "hepsi ya da hiçbiri" değil ama tek parça — tüm sayfa aynı anda tek bir skeleton'a dönüşüyor (senin yaşadığın)
 Lokal <Suspense>'ler eklenince → her parça bağımsız, granular
 loading.tsx bu yüzden zaten faydalı bir "güvenlik ağı" (fallback için varsayılan) — ama her component'e özel boundary koymadıkça hepsini tek potada eritiyor.
+
+
+
+
+# Event pagination
+
+**neden hybrid sistem kullandim?**
+
+Hybrid daha mantıklı : EventsPage zaten sayfa 1 için ISR (revalidate: 60, tags: ["events"]) + Suspense/ErrorBoundary altyapısına yatırım yapmış durumda, ve bu event listeleme sayfası muhtemelen public/SEO'nun önemli olduğu bir keşif sayfası — insanlar "yakınımdaki etkinlikler" gibi aramalarla gelebilir. Full client'a çevirirseniz ilk sayfa içeriği artık HTML'de gelmez, JS yüklenip fetch bitene kadar boş/skeleton görünür; hem SEO hem ilk açılış hızı kaybeder, hem de her ziyaretçi ilk yüklemede backend'e taze istek atar çünkü react-query cache'i tarayıcıya özel, Next'in paylaşılan ISR cache'i gibi değil.
+
+Tek gerçek avantajı full client'ın: kod olarak daha basit — tek component, filtre mantığını server/client arasında paylaştırmanıza gerek kalmaz. Ama bu, elinizde zaten çalışan SSR+cache altyapısını atmaya değecek bir kazanç değil. Event detay sayfası (/events/[slug]) gibi tek bir kaydı gösteren, SEO'nun daha az kritik olduğu ya da girişin genelde login sonrası olduğu bir yer olsaydı full client'ı tercih ederdim — ama liste sayfası için hybrid'de kalın.
+
+
+SSR (server-side rendering) ve react-query, aynı anda çalışan iki alternatif değil. İkisi farklı anlarda, farklı yerlerde çalışan iki ayrı iş yapıyor:
+
+SSR → sadece sayfa ilk açılırken, sunucuda çalışıyor.
+react-query → sadece kullanıcı scroll ettikten sonra, tarayıcıda (kullanıcının bilgisayarında) çalışıyor.
+Yani "normalde SSR ile geliyordu, şimdi neden tanstack de var" sorusunun cevabı: SSR hâlâ var ve hâlâ ilk gelen event'leri o getiriyor. Tanstack sadece SSR'ın yapamayacağı kısmı, yani "kullanıcı scroll ettikçe yeni veri getir" kısmını yapıyor. Çünkü SSR sadece bir kere, sayfa ilk açılırken çalışır — kullanıcı scroll ettiğinde sunucu tekrar devreye giremez, artık tamamen tarayıcıdayız.
+
+--------------------------------
+
+**Infinite Scroll Algoritması:**
+
+1.İlk sayfa Server Component tarafından getirilir.
+2.useInfiniteQuery sonraki sayfaları yönetir.
+3.Listenin sonuna sentinel adında boş bir <div> koyulur.
+4.useRef ile bu div'e referans alınır.
+5.IntersectionObserver, sentinel ekranda görünmeye yaklaştığında bunu algılar.
+6.Göründüğünde fetchNextPage() ile sonraki sayfa getirilir.
+7.hasNextPage ile daha fazla sayfa olup olmadığı kontrol edilir.
+8.isFetchingNextPage ile aynı anda birden fazla istek gönderilmesi engellenir.
+9.URL'deki filtreler queryKey içinde tutulduğu için filtre değişince yeni liste baştan başlar.

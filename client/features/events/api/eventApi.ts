@@ -84,3 +84,9 @@ export const nearbyEvents = async (lat: number, lng: number, radius?: number) =>
 
     return apiFetch<NearbyEventsResponse>(`/api/v1/events/nearby?${params}`, { method: "GET" })
 }
+
+
+export const getEvents = async (params: URLSearchParams) => {
+
+    return apiFetch<EventListResponse>(`/api/v1/events?${params.toString()}`, { method: "GET" })
+}

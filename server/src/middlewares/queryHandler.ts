@@ -28,7 +28,7 @@ const queryHandler = async (
 
   const page = Number(query.page) > 0 ? Number(query.page) : 1;
 
-  const limit = Number(query.limit) > 0 ? Number(query.limit) : 20;
+  const limit = Number(query.limit) > 0 ? Number(query.limit) : 6;
 
   //* Skip:
 
