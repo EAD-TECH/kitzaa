@@ -15,6 +15,7 @@ import {
 import User from "../../models/userModel.js";
 
 const eventController = {
+
   list: async (req: Request, res: Response) => {
 
     const customFilter: Record<string, unknown> = { status: "approved" };
@@ -302,6 +303,36 @@ const eventController = {
       liked: !alreadyLiked,
       event: toEventDTO(updatedEvent),
     });
+  },
+
+  toggleSave: async (req: Request<{ id: string }>, res: Response) => {
+
+    const eventId = req.params.id
+    const userId = req.user._id
+
+    const event = await Event.findById(eventId)
+
+    if (!event) {
+      throw new CustomError("Event not found", 404);
+    }
+
+    const user = await User.findById(userId)
+
+    const alreadySaved = user?.savedEvents?.some((id) => id.equals(eventId) ?? false)
+
+    await User.findByIdAndUpdate(
+      userId,
+      alreadySaved
+        ? { $pull: { savedEvents: eventId } }
+        : { $addToSet: { savedEvents: eventId } }
+    )
+
+
+    res.status(200).json({
+      error: false,
+      saved: !alreadySaved,
+    });
+
   },
 
   participants: async (req: Request<{ id: string }>, res: Response) => {

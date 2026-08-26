@@ -11,7 +11,7 @@ import { validateQuery } from "../../middlewares/validateQuery.js";
 const router = Router();
 router.param('id', validateObjectIdParam);
 
-const { list, read, create, update, deletee, join, leave, toggleLike, myEvents, myParticipations, participants, nearby } = eventController;
+const { list, read, create, update, deletee, join, leave, toggleLike, myEvents, myParticipations, participants, nearby, toggleSave } = eventController;
 
 // ---- Authentication istemeyen route'lar (public — sadece status:"approved" event döner) ----
 router.route("/").get(list);
@@ -32,5 +32,6 @@ router.route("/:id/participants").get(isOwnerOrAdmin(Event), participants);
 router.route("/:id/join").post(join);
 router.route("/:id/leave").post(leave);
 router.route("/:id/like").post(toggleLike);
+router.route("/:id/Save").post(toggleSave);
 
 export default router;
