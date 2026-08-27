@@ -10,6 +10,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import type { EventDTO } from "../types/event.types"
+import { useEventsStore } from "../store/EventStore"
+import useToggleSaveEvent from "../hooks/useToggleSaveEvent"
+import { toast } from "sonner"
+import { useAuthStore } from "@/features/auth/store/authStore"
 
 function formatEventDate(startDate: string, startTime: string) {
   const date = new Date(startDate)
@@ -54,23 +58,29 @@ function getOrganizer(createdBy: EventDTO["createdBy"]) {
 
 interface EventCardProps {
   event: EventDTO
-  saved?: boolean
-  onSaveChange?: (id: string, saved: boolean) => void
   className?: string
 }
 
-const EventCard = ({ event, saved, onSaveChange, className }: EventCardProps) => {
-  const [internalSaved, setInternalSaved] = useState(false)
-  const isSaved = saved ?? internalSaved
-  const organizer = getOrganizer(event.createdBy)
+const EventCard = ({ event, className }: EventCardProps) => {
+
+  const accessToken = useAuthStore((state) => state.accessToken)
+
+  const isSaved = useEventsStore(state => state.savedEventIds.has(event._id))
+  const { mutate: toggleSave } = useToggleSaveEvent()
+
   const categoryName = getCategoryName(event.categoryId)
   const freeSpots = Math.max(event.capacity.max - event.capacity.current, 0)
+
+  const organizer = getOrganizer(event.createdBy)
   const isOrganizer = organizer.role === "organizer"
 
   const toggleSaved = () => {
-    const next = !isSaved
-    if (saved === undefined) setInternalSaved(next)
-    onSaveChange?.(event._id, next)
+
+    if(!accessToken) {
+      toast.error("Bitte melde dich an, um Events zu speichern.")
+      return
+    }
+    toggleSave(event._id)
   }
 
   const avatar = (
