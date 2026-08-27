@@ -3,23 +3,34 @@
 import React, { useState } from 'react'
 import { Tag } from 'lucide-react'
 import { FilterCheckboxGroup } from './FilterCheckBoxGroup'
+import type { EventCategoryDTO } from '../../types/eventCategory.types'
+import { useQueryParams } from '../../hooks/useQueryParams'
 
-const CategoryFilter = () => {
+interface CategoryFilterProps {
+  categories: EventCategoryDTO[]
+}
 
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+const CategoryFilter = ({ categories }: CategoryFilterProps) => {
 
- const categories : string[] = ["Natur", "Outdoor", "Musik", "Sport", "Bildung"]
+  const options = categories.map((c) => ({ label: c.name, value: c.slug }))
+
+  const { getAll, setParam } = useQueryParams()
+
+  const selected = getAll("category")
+
+
 
   return (
     <div>
-          <FilterCheckboxGroup
-             name='category'
-             title='KATEGORIEN'
-             icon={<Tag className="size-3.5" />}
-             options={categories}
-             selected={selectedCategories}
-             onChange={setSelectedCategories}
-             />
+      <FilterCheckboxGroup
+        name='category'
+        title='KATEGORIEN'
+        icon={<Tag className="size-3.5" />}
+        options={options}
+        selected={selected}
+        onChange={(slugs) => setParam("category", slugs)}
+        columns={1}
+      />
     </div>
   )
 }

@@ -28,9 +28,17 @@ function formatEventDate(startDate: string, startTime: string) {
   return `${day}, ${startTime} Uhr`
 }
 
+const AGE_RANGE_LABELS: Record<EventDTO["ageRange"], string> = {
+  "0-3": "0-3 Jahre",
+  "4-6": "4-6 Jahre",
+  "7-10": "7-10 Jahre",
+  "10-14": "10-14 Jahre",
+  parents: "Für Eltern",
+  "all-ages": "Alle Alter",
+}
+
 function formatAgeRange(ageRange: EventDTO["ageRange"]) {
-  if (ageRange.min <= 0 && ageRange.max >= 18) return "Alle Alter"
-  return `${ageRange.min}-${ageRange.max} Jahre`
+  return AGE_RANGE_LABELS[ageRange]
 }
 
 function getCategoryName(categoryId: EventDTO["categoryId"]) {

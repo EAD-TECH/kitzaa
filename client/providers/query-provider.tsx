@@ -1,7 +1,7 @@
 
 "use client";
 
-import { refresh } from "@/features/auth/api";
+import { refresh } from "@/features/auth/AuthApi";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { ApiError } from "@/lib/api/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

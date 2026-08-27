@@ -1,6 +1,11 @@
 {
   "HomePage": {
-    "title": "Willkommen bei Kitzaa"
+    "title": "Willkommen bei Kitzaa",
+    "heroTitle": "Entdecke familienfreundliche Events in deiner Nähe",
+    "heroSubtitle": "Wir kuratieren die schönsten Erlebnisse für dich und deine Kinder – von Waldabenteuern bis hin zu kreativen Workshops in deiner Nachbarschaft.",
+    "discoverEvents": "Events entdecken",
+    "learnMore": "Mehr erfahren",
+    "heroImageAlt": "Familie spielt gemeinsam im Park"
   },
   "Nav": {
     "home": "Startseite",

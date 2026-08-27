@@ -70,6 +70,7 @@ export function toEventDTO(event: EventDocument | EventDocument[] | null): Event
     coverImage: event.coverImage ?? null,
     images: event.images ?? [],
     categoryId: toCategoryRef(event),
+    locationType: event.locationType,
     ageRange: event.ageRange,
     createdBy: toCreatedByRef(event),
     status: event.status,
@@ -108,6 +109,7 @@ export function toAdminEventDTO(event: EventDocument | EventDocument[] | null): 
     coverImage: event.coverImage ?? null,
     images: event.images ?? [],
     categoryId: toCategoryRef(event),
+    locationType: event.locationType,
     ageRange: event.ageRange,
     createdBy: createdBy
       ? {

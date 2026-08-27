@@ -187,7 +187,7 @@ Content-Type: {{contentType}}
   "title": "Kinderfest im Park",
   "description": "Ein spassiges Kinderfest mit Spielen und Musik.",
   "categoryId": "6a65d605593cc260697d7f53",
-  "ageRange": { "min": 3, "max": 12 },
+  "ageRange": "7-10",
   "isFree": true,
   "schedule": {
     "startDate": "2026-07-31",

@@ -13,8 +13,8 @@ import { useTranslations } from "next-intl";
 import {
   ResetPasswordValues,
   createResetPasswordSchema,
-} from "./validations/resetpassword.schema";
-import { mapResetPasswordError, useResetPassword } from "./hooks/useResetPassword";
+} from "../validations/resetpassword.schema";
+import { mapResetPasswordError, useResetPassword } from "../hooks/useResetPassword";
 import { ApiError } from "@/lib/api/client";
 
 export function ResetPasswordForm({

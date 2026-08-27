@@ -7,10 +7,9 @@ export type EventStatus =
   | "cancelled"
   | "completed";
 
-export interface IAgeRange {
-  min: number;
-  max: number;
-}
+export type EventLocationType = "indoor" | "outdoor" | "online";
+
+export type AgeRange = "0-3" | "4-6" | "7-10" | "10-14" | "parents" | "all-ages";
 
 export interface IPrice {
   amount: number;
@@ -58,7 +57,8 @@ export interface IEvent {
   coverImage?: string | null;
   images?: string[];
   categoryId: Types.ObjectId;
-  ageRange: IAgeRange;
+  locationType: EventLocationType;
+  ageRange: AgeRange;
   createdBy: Types.ObjectId;
   status: EventStatus;
   rejectedReason?: string | null;
@@ -108,7 +108,8 @@ export interface EventDTO {
   coverImage: string | null;
   images: string[];
   categoryId: string | EventCategoryRef;
-  ageRange: IAgeRange;
+  locationType: EventLocationType;
+  ageRange: AgeRange;
   createdBy: string | EventCreatedByRef;
   status: EventStatus;
   isFree: boolean;

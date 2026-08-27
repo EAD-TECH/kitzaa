@@ -43,7 +43,7 @@ const Navbar = () => {
   const locale = useLocale();
 
   const navLinks = [
-    { href: "/home", label: t("home") },
+    { href: "/", label: t("home") },
     { href: "/events", label: t("events") },
     { href: "/social", label: t("social") },
   ];
@@ -67,7 +67,7 @@ const Navbar = () => {
     <div className="flex items-center justify-between px-3 tablet:px-5 desktop:px-8 bg-card/40 border-b border-border sticky backdrop-blur-sm">
       {/* logo  */}
 
-      <Link href="/home" className="flex items-center">
+      <Link href="/" className="flex items-center">
         <Image
           className="w-34 py-2 tablet:py-1 "
           src={logo}
@@ -124,7 +124,7 @@ const Navbar = () => {
               {locale.toUpperCase()}
             </span>
           </Button>
-        {currentUser && <NotificationBellMenu />
+        {currentUser && <NotificationBellMenu />}
 
           <Button
             variant="ghost"
@@ -204,7 +204,7 @@ const Navbar = () => {
                 <DropdownMenuGroup className="tablet:hidden">
                   <DropdownMenuItem>
                     <AiFillHome />
-                    <Link href="/home">{t("home")}</Link>
+                    <Link href="/">{t("home")}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <AiFillCalendar />

@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { ApiError } from "@/lib/api/client";
-import { forgotPassword } from "../api";
+import { forgotPassword } from "../AuthApi";
 import type { ForgotPasswordValues } from "../validations/forgotpassword.schema";
 
 export function useForgotPassword() {

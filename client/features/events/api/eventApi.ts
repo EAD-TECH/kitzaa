@@ -5,20 +5,9 @@ import type {
     EventResponse,
     EventLikeResponse,
     EventParticipantsResponse,
-} from "./types/event.types"
-import type { CreateEventFormValues, UpdateEventFormValues } from "./validations/event.schema"
+} from "../types/event.types"
+import type { CreateEventFormValues, UpdateEventFormValues } from "../validations/event.schema"
 
-
-export const getEvents = async () => {
-
-    return apiFetch<EventListResponse>("/api/v1/events", { method: "GET" })
-}
-
-
-export const readEvent = async (slug: string) => {
-
-    return apiFetch<EventResponse>(`/api/v1/events/${slug}`, { method: "GET" })
-}
 
 
 export const createEvent = async (payload: CreateEventFormValues) => {
@@ -56,11 +45,13 @@ export const joinEvent = async (id: string) => {
 
 }
 
+
 export const leaveEvent = async (id: string) => {
 
 
     return apiFetch<EventResponse>(`/api/v1/events/${id}/leave`, { method: "POST" })
 }
+
 
 export const likeEvent = async (id: string) => {
 
@@ -73,15 +64,18 @@ export const myEvents = async () => {
     return apiFetch<EventListResponse>(`/api/v1/events/my-events`, { method: "GET" })
 }
 
+
 export const myParticipations = async () => {
 
     return apiFetch<EventListResponse>(`/api/v1/events/my-participations`, { method: "GET" })
 }
 
+
 export const participants = async (id: string) => {
 
     return apiFetch<EventParticipantsResponse>(`/api/v1/events/${id}/participants`, { method: "GET" })
 }
+
 
 export const nearbyEvents = async (lat: number, lng: number, radius?: number) => {
 
@@ -89,4 +83,10 @@ export const nearbyEvents = async (lat: number, lng: number, radius?: number) =>
     if (radius !== undefined) params.set("radius", String(radius))
 
     return apiFetch<NearbyEventsResponse>(`/api/v1/events/nearby?${params}`, { method: "GET" })
+}
+
+
+export const getEvents = async (params: URLSearchParams) => {
+
+    return apiFetch<EventListResponse>(`/api/v1/events?${params.toString()}`, { method: "GET" })
 }

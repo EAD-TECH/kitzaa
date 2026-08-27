@@ -5,10 +5,9 @@ export type EventStatus =
   | "cancelled"
   | "completed";
 
-export interface AgeRange {
-  min: number;
-  max: number;
-}
+export type EventLocationType = "indoor" | "outdoor" | "online";
+
+export type AgeRange = "0-3" | "4-6" | "7-10" | "10-14" | "parents" | "all-ages";
 
 export interface Price {
   amount: number;
@@ -66,6 +65,7 @@ export interface EventDTO {
   coverImage: string | null;
   images: string[];
   categoryId: string | EventCategoryRef;
+  locationType: EventLocationType;
   ageRange: AgeRange;
   createdBy: string | EventCreatedByRef;
   status: EventStatus;

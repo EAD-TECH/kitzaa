@@ -7,13 +7,7 @@ import type {
 } from "../types/event.types.js";
 import Event from "./eventModel.js";
 
-const ageRangeSchema = new mongoose.Schema(
-  {
-    min: { type: Number, required: true, min: 0 },
-    max: { type: Number, required: true, min: 0 },
-  },
-  { _id: false },
-);
+const AGE_RANGES = ["0-3", "4-6", "7-10", "10-14", "parents", "all-ages"] as const;
 
 const priceSchema = new mongoose.Schema(
   {
@@ -114,7 +108,18 @@ const eventSchema = new mongoose.Schema<IEvent, EventModel>(
       required: [true, "Category is required"],
       index: true,
     },
-    ageRange: { type: ageRangeSchema, required: true },
+    locationType: {
+      type: String,
+      enum: ["indoor", "outdoor", "online"],
+      required: [true, "Location type is required"],
+      index: true,
+    },
+    ageRange: {
+      type: String,
+      enum: AGE_RANGES,
+      required: [true, "Age range is required"],
+      index: true,
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -174,13 +179,6 @@ eventSchema.pre("save", function (this: EventDocument) {
     this.price = null;
   } else if (!this.price) {
     throw new Error("Price is required for paid events");
-  }
-});
-
-// ── ageRange.min <= ageRange.max kontrolü ──────────────
-eventSchema.pre("save", function (this: EventDocument) {
-  if (this.ageRange.min > this.ageRange.max) {
-    throw new Error("ageRange.min cannot be greater than ageRange.max");
   }
 });
 

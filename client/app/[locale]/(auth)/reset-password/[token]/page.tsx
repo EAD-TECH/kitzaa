@@ -1,4 +1,4 @@
-import { ResetPasswordForm } from "@/features/auth/reset-password-form";
+import { ResetPasswordForm } from "@/features/auth/components/reset-password-form";
 
 type ResetPasswordPageProps = {
   params: Promise<{ token: string }>;

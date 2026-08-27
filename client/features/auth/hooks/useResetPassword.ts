@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError } from "@/lib/api/client";
-import { resetPassword } from "../api";
+import { resetPassword } from "../AuthApi";
 import type { ResetPasswordValues } from "../validations/resetpassword.schema";
 
 export function useResetPassword(token: string) {

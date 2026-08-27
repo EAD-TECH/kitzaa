@@ -28,7 +28,6 @@ const eventCategorySchema = new mongoose.Schema<IEventCategory, EventCategoryMod
     },
     icon: {
       type: String,
-      required: [true, 'Icon is required'],
       trim: true,
     },
     isActive: {

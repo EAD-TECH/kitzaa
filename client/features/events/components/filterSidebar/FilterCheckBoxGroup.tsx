@@ -1,4 +1,5 @@
 
+import { cn } from "@/lib/utils"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
     Field,
@@ -10,13 +11,19 @@ import {
 } from "@/components/ui/field"
 
 
+export interface FilterCheckBoxOption {
+    label: string
+    value: string
+}
+
 export interface FilterCheckBoxGroupProps {
     name: string,
     title: string,
     icon?: React.ReactNode,
-    options: string[],
+    options: FilterCheckBoxOption[],
     selected: string[],
-    onChange: (selected: string[]) => void
+    onChange: (selected: string[]) => void,
+    columns?: 1 | 2
 }
 
 
@@ -28,7 +35,8 @@ export function FilterCheckboxGroup({
     icon,
     options,
     selected,
-    onChange
+    onChange,
+    columns = 1
 }: FilterCheckBoxGroupProps) {
 
 
@@ -51,22 +59,22 @@ export function FilterCheckboxGroup({
                 {icon}
                 {title}
             </FieldLegend>
-            <FieldGroup className="gap-3">
+            <FieldGroup className={cn("gap-3", columns === 2 && "grid grid-cols-2 gap-x-4")}>
                 {options.map((option) => {
-                    const id = `${name}-${option}`
+                    const id = `${name}-${option.value}`
                     return (
                         <Field
-                            key={option}
+                            key={option.value}
                             orientation="horizontal"
                             className="-mx-2 rounded-lg px-2 py-1 transition-colors hover:bg-muted/60"
                         >
                             <Checkbox
                                 id={id}
-                                checked={selected.includes(option)}
-                                onCheckedChange={() => toggle(option)}
+                                checked={selected.includes(option.value)}
+                                onCheckedChange={() => toggle(option.value)}
                             />
                             <FieldLabel htmlFor={id} className="cursor-pointer font-normal">
-                                {option}
+                                {option.label}
                             </FieldLabel>
                         </Field>
                     )
