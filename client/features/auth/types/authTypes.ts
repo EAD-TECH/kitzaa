@@ -10,6 +10,7 @@ export interface AuthUser {
   role: "user" | "organizer" | "admin";
   language: string;
   isEmailVerified: boolean;
+  savedEvents: string[];
   createdAt: string;
   updatedAt: string;
 }

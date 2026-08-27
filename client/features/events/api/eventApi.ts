@@ -90,3 +90,9 @@ export const getEvents = async (params: URLSearchParams) => {
 
     return apiFetch<EventListResponse>(`/api/v1/events?${params.toString()}`, { method: "GET" })
 }
+
+
+export const toggleSaveEvent = async (id: string) => {
+
+    return apiFetch<{ error: false; saved: boolean }>(`/api/v1/events/${id}/save`, { method: "POST" })
+}

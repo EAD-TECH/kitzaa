@@ -89,13 +89,13 @@ export interface ListDetails {
   limit: number;
   sort: Record<string, unknown>;
   pages:
-    | false
-    | {
-        previous: number | false;
-        current: number;
-        next: number | false;
-        total: number;
-      };
+  | false
+  | {
+    previous: number | false;
+    current: number;
+    next: number | false;
+    total: number;
+  };
 }
 
 // Backend'in tüm event endpoint'leri response'u bir zarfın içinde döner — apiFetch<EventDTO>
@@ -132,4 +132,13 @@ export interface EventParticipant {
 export interface EventParticipantsResponse {
   error: false;
   participants: EventParticipant[];
+}
+
+
+export interface savedEventsState {
+  savedEventIds: Set<string>
+  setSavedEventIds: (ids: string[]) => void
+  addSavedEventId: (id: string) => void
+  removeSavedEventId: (id: string) => void
+
 }

@@ -293,3 +293,36 @@ Yani "normalde SSR ile geliyordu, şimdi neden tanstack de var" sorusunun cevab�
 7.hasNextPage ile daha fazla sayfa olup olmadığı kontrol edilir.
 8.isFetchingNextPage ile aynı anda birden fazla istek gönderilmesi engellenir.
 9.URL'deki filtreler queryKey içinde tutulduğu için filtre değişince yeni liste baştan başlar.
+
+
+
+# save Event
+
+1.Bu veri nerede yaşayacak, karar ver:
+Çok sayıda küçük component tarafından sık sık, ucuza okunacaksa (liste elemanlarının her biri "bu bende var mı" diye soracaksa) → zustand store.
+Tek bir yerde çekilip gösterilecek bir liste/kaynaksa → tanstack useQuery, ayrı store'a gerek yok.
+2.(Zustand seçildiyse) store'u yaz. Veriyi tutan state + onu güncelleyen fonksiyonlar (set, add, remove) — güncelleme fonksiyonlarında her zaman yeni bir referans döndür (var olanı yerinde değiştirme), yoksa component'ler re-render olmaz.
+3.Mutation hook'unu yaz. useMutation + mutationFn (asıl API çağrısı) + onMutate (isteği göndermeden önce store'u iyimser/optimistic güncelle) + onError (istek başarısız olursa geri al).
+4.Store'u ilk veriyle nereden dolduracağını belirle. Kullanıcı oturum açtığında/sayfa yenilendiğinde zaten çekilen bir veri var mı (bizde: login/refresh response'undaki user objesi)? Varsa oraya, o response geldiği anda store'u da doldur — ayrı bir istek atmana gerek kalmaz.
+Oturum kapanınca store'u temizle. Yoksa bir sonraki kullanıcı öncekinin verisini görür.
+UI component'ini store + mutation hook'a bağla. Component'te: store'dan oku (isSaved), butona tıklanınca mutate(id) çağır. Varsa eski/geçici local state'i (useState) kaldır.
+
+
+
+# new Set (zustanda da kullandim)
+
+React/zustand, state değişti mi diye içeriğe değil, objenin referansına (adresine) bakar. s.add(3) aynı objeyi değiştirir, referans aynı kalır → React "değişmemiş" sanır, ekran güncellenmez. new Set(eski) ise yeni bir obje üretir → referans değişir → React "değişmiş" der, yeniden render eder.
+
+Evet, tam olarak aynı işi görüyor — array.indexOf(id) !== -1 (ya da .includes(id)) dediğiniz kontrolün karşılığı burada set.has(id). İkisi de "bu id listede/kümede var mı" sorusuna cevap veriyor, sadece Set bunu daha hızlı yapıyor (array'de her kontrolde baştan sona taranır, Set'te taranmaz).
+
+
+
+
+
+# tanstack optimistic update
+
+Kullanıcı bookmark'a basar
+   → onMutate hemen çalışır → UI anında değişir (Set güncellenir)
+   → arka planda API isteği gider
+       → başarılı olursa: hiçbir şey yapılmaz (zaten doğru)
+       → başarısız olursa: onError çalışır → değişiklik geri alınır
