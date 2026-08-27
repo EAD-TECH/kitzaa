@@ -116,16 +116,11 @@ export interface EventResponse {
   event: EventDTO;
 }
 
-export interface EventLikeResponse {
-  error: false;
-  liked: boolean;
-  event: EventDTO;
-}
-
 // GET /:id/participants -> participants.userId populate edilmişse zengin obje, edilmemişse id string'i
 export interface EventParticipant {
   userId: string | { _id: string; username: string; avatarUrl: string | null };
   status: "confirmed" | "cancelled";
+  participantCount: number;
   joinedAt: string;
 }
 

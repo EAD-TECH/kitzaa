@@ -125,8 +125,17 @@ export const cancelEventSchema = z
     })
     .strict();
 
+// JOIN SCHEMA
+
+export const joinEventSchema = z
+    .object({
+        participantCount: z.number().int().min(1, 'participantCount must be at least 1'),
+    })
+    .strict();
+
 export type CreateEventInput = z.infer<typeof createEventSchema>;
 export type UpdateEventInput = z.infer<typeof updateEventSchema>;
 export type EventStatusInput = z.infer<typeof eventStatusSchema>;
 export type RejectEventInput = z.infer<typeof rejectEventSchema>;
 export type CancelEventInput = z.infer<typeof cancelEventSchema>;
+export type JoinEventInput = z.infer<typeof joinEventSchema>;

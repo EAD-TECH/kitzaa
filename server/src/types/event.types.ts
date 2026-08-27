@@ -46,6 +46,7 @@ export interface ICapacity {
 export interface IParticipant {
   userId: Types.ObjectId;
   status: "confirmed" | "cancelled";
+  participantCount: number;
   joinedAt: Date;
 }
 

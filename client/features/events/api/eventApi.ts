@@ -39,9 +39,12 @@ export const deleteEvent = async (id: string, cancelledReason: string) => {
 
 
 
-export const joinEvent = async (id: string) => {
+export const joinEvent = async (id: string, participantCount: number) => {
 
-    return apiFetch<EventResponse>(`/api/v1/events/${id}/join`, { method: "POST" })
+    return apiFetch<EventResponse>(`/api/v1/events/${id}/join`, {
+        method: "POST",
+        body: { participantCount }
+    })
 
 }
 

@@ -128,7 +128,6 @@ const EventCard = ({ event, className }: EventCardProps) => {
         </button>
       </div>
 
-      {/* Inhalt: zwei symmetrische Metazeilen (wann/für wen, wo/frei), Titel dazwischen, Footer mit Organisator + CTA */}
       <CardContent className="flex flex-col gap-2 p-3">
         <div className="flex items-center justify-between gap-2 text-[11px] font-medium text-muted-foreground">
           <span className="flex min-w-0 items-center gap-1">
