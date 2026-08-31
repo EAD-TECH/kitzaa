@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
+
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { Bell, ChevronDown, Moon, Sun, UserRound } from "lucide-react";
+import { Bell, ChevronDown, Moon,  Sun, UserRound } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +16,9 @@ import {
 } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import DynamicBreadCrumb from "./dynamic.breadcrumb";
+
+import { Separator } from "../ui/separator";
 
 export default function Header() {
   const { data: user } = useCurrentUser();
@@ -32,15 +35,12 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-border bg-background/90 backdrop-blur">
-      <Link href="/" aria-label="Kitzaa Admin ana sayfası">
-        <Image
-          src="/images/kitzaa_logo_yeni_transparent.png"
-          alt="Kitzaa Admin"
-          width={136}
-          height={40}
-          priority
-        />
-      </Link>
+     <div className="flex items-center gap-2">
+      <Link href="/"  className="font-heading h-8 w-8 bg-primary rounded-xl flex items-center justify-center text-sidebar-accent">k</Link>
+      
+      <Separator orientation="vertical" className="h-8 bg-accent " />
+        <DynamicBreadCrumb/>
+      </div> 
 
       <div className="flex items-center gap-2">
         <Button

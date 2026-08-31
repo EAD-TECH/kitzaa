@@ -33,7 +33,7 @@ export default function SideBar() {
     { icon: Settings, label: "Ayarlar", href: "/settings" },
   ];
   return (
-    <aside className="fixed z-40 left-4 top-1/2 -translate-y-1/2 flex flex-col items-center justify-center gap-6 rounded-full py-8 px-3 shadow-xl  border border-sidebar-border  bg-sidebar">
+    <aside className="fixed z-40 left-4 top-1/2 -translate-y-1/2 flex flex-col items-center justify-center gap-6 rounded-full py-2 px-1.5 shadow-xl  border border-sidebar-border  bg-sidebar">
       <TooltipProvider>
         {menuItems.map((item) => {
           const isActive =
