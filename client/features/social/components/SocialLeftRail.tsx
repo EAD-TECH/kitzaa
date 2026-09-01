@@ -1,41 +1,67 @@
+"use client";
+
 import { Camera, Images, MapPin } from "lucide-react";
 import Image from "next/image";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import backgroundPattern from "../../../public/images/event-pattern.png";
 
-const mockProfile = {
-  name: "Lena Hofmann",
-  username: "lena.hofmann",
-  city: "Berlin",
-  initials: "LH",
-  avatar: "/images/user-image.png",
-};
+interface SocialLeftRailProps {
+  children?: React.ReactNode;
+}
 
-function SocialLeftRail() {
+function SocialLeftRail({ children }: SocialLeftRailProps) {
+  const { data: currentUser } = useCurrentUser();
+  const fullName = currentUser
+    ? [currentUser.firstName, currentUser.lastName].filter(Boolean).join(" ")
+    : "";
+  const displayName = fullName || currentUser?.username || "";
+  const initials = currentUser
+    ? `${currentUser.firstName?.[0] ?? ""}${currentUser.lastName?.[0] ?? ""}` ||
+      currentUser.username.slice(0, 2)
+    : "";
+  const roleLabel = currentUser
+    ? {
+        user: "Familie",
+        organizer: "Organisator",
+        admin: "Admin",
+      }[currentUser.role]
+    : null;
+
   return (
     <div className="flex flex-col gap-4">
-      <section className="rounded-2xl border bg-card p-5 shadow-sm">
-        <div className="flex items-center gap-3">
-          <Avatar size="lg">
-            <AvatarImage src={mockProfile.avatar} alt={mockProfile.name} />
-            <AvatarFallback>{mockProfile.initials}</AvatarFallback>
-          </Avatar>
-          <div className="min-w-0">
-            <p className="truncate font-heading text-base font-semibold">{mockProfile.name}</p>
-            <p className="truncate text-sm text-muted-foreground">@{mockProfile.username}</p>
+      {currentUser ? (
+        <section className="hidden rounded-2xl border bg-card p-5 shadow-sm desktop:block">
+          <div className="flex items-center gap-3">
+            <Avatar size="lg">
+              {currentUser.avatar ? (
+                <AvatarImage src={currentUser.avatar} alt={displayName} />
+              ) : null}
+              <AvatarFallback>{initials.toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <p className="truncate font-heading text-base font-semibold">{displayName}</p>
+              <p className="truncate text-sm text-muted-foreground">@{currentUser.username}</p>
+            </div>
           </div>
-        </div>
 
-        <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
-          <MapPin className="size-3.5" />
-          {mockProfile.city}
-          <Badge variant="secondary">Familie</Badge>
-        </div>
-      </section>
+          <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+            {currentUser.location?.city ? (
+              <>
+                <MapPin className="size-3.5" />
+                <span className="truncate">{currentUser.location.city}</span>
+              </>
+            ) : null}
+            {roleLabel ? <Badge variant="secondary">{roleLabel}</Badge> : null}
+          </div>
+        </section>
+      ) : null}
 
-      <section className="relative isolate overflow-hidden rounded-2xl bg-primary p-5 text-primary-foreground shadow-sm">
+      {children}
+
+      <section className="relative isolate hidden overflow-hidden rounded-2xl bg-primary p-5 text-primary-foreground shadow-sm desktop:block">
         <Image
           src={backgroundPattern}
           alt=""

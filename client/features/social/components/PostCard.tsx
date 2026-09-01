@@ -5,7 +5,7 @@ import { de, enUS } from "date-fns/locale";
 import { Heart, MessageCircle, MoreHorizontal, Share2, Trees } from "lucide-react";
 import Image from "next/image";
 import { useLocale } from "next-intl";
-
+import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +20,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import type { PostDTO } from "../types/post.types";
+import { useTogglePostLike } from "../hooks/useTooglePostLike";
+import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import { useRouter } from "next/navigation";
 
 function PostCard({ post }: { post: PostDTO }) {
   const locale = useLocale();
@@ -32,23 +35,37 @@ function PostCard({ post }: { post: PostDTO }) {
         locale: locale.startsWith("de") ? de : enUS,
       });
 
+  const { mutate, isPending } = useTogglePostLike();
+
+  const { data: currentUser } = useCurrentUser();
+  const router = useRouter();
+
+  const handleLikeClick = () => {
+    if (!currentUser) {
+      toast("Bitte melde dich an, um Beiträge zu liken.", {
+        action: {
+          label: "Anmelden",
+          onClick: () => router.push("/login"),
+        },
+      });
+      return;
+    }
+    mutate(post._id);
+  };
+
   return (
     <Card className="mx-auto w-full max-w-xl gap-0 overflow-hidden py-0">
       <CardHeader className="bg-card px-4 py-3">
         <div className="flex min-w-0 items-center gap-3">
           <Avatar>
-            {post.author.avatarUrl ? (
-              <AvatarImage src={post.author.avatarUrl} alt={name} />
-            ) : null}
+            {post.author.avatarUrl ? <AvatarImage src={post.author.avatarUrl} alt={name} /> : null}
             <AvatarFallback>
               {post.author.firstName?.[0]}
               {post.author.lastName?.[0]}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
-            <CardTitle>
-              {name}
-            </CardTitle>
+            <CardTitle>{name}</CardTitle>
             {relativeDate ? (
               <CardDescription>
                 <time
@@ -95,15 +112,24 @@ function PostCard({ post }: { post: PostDTO }) {
 
       <CardFooter className="justify-between px-4 py-3">
         <div className="flex gap-4">
-          <span className="flex items-center gap-1.5 text-sm">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-auto gap-1.5 px-0 text-sm hover:bg-transparent"
+            disabled={isPending}
+            onClick={handleLikeClick}
+            aria-label={post.isLikedByMe ? "Gefällt mir entfernen" : "Gefällt mir"}
+          >
             <Heart className={cn("size-5", post.isLikedByMe && "fill-primary text-primary")} />
             {post.likesCount}
-          </span>
+          </Button>
+
           <span className="flex items-center gap-1.5 text-sm">
             <MessageCircle className="size-5" />
             {post.commentsCount}
           </span>
         </div>
+
         <Button variant="ghost" size="icon" aria-label="Teilen">
           <Share2 />
         </Button>
@@ -111,9 +137,7 @@ function PostCard({ post }: { post: PostDTO }) {
 
       <CardContent className="px-4 pt-0 pb-4">
         <p className="text-sm leading-relaxed">
-          <span className="font-bold">
-            {name}{" "}
-          </span>
+          <span className="font-bold">{name} </span>
           {post.text}
         </p>
       </CardContent>
