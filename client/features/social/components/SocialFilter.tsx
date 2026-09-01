@@ -53,119 +53,113 @@ const SocialFilter = ({ city, setCity, eventId, setEventId, sort, setSort, searc
   const [inputValue, setInputValue] = useState(search);
 
   useEffect(() => {
-  const timeout = setTimeout(() => {
-    setSearch(inputValue);
-  }, 400);
+    const timeout = setTimeout(() => {
+      setSearch(inputValue);
+    }, 400);
 
-  return () => clearTimeout(timeout);
-}, [inputValue, setSearch]);
+    return () => clearTimeout(timeout);
+  }, [inputValue, setSearch]);
 
   return (
-    <div className="w-full pb-4">
-      <div className="rounded-2xl border bg-background/70 p-5 shadow-sm backdrop-blur-sm">
+    <div className="rounded-2xl border bg-background/70 p-4 shadow-sm backdrop-blur-sm">
+      <Field>
+        <FieldLabel htmlFor="social-search">Suche</FieldLabel>
+
+        <InputGroup>
+          <InputGroupInput
+            id="social-search"
+            placeholder="Beiträge, Orte, Aktivitäten..."
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+          />
+
+          <InputGroupAddon align="inline-start">
+            <SearchIcon className="text-muted-foreground" />
+          </InputGroupAddon>
+        </InputGroup>
+      </Field>
+
+      <div className="mt-4 grid grid-cols-1 gap-4">
         <Field>
-          <FieldLabel htmlFor="social-search">Suche</FieldLabel>
+          <FieldLabel>Stadt</FieldLabel>
 
-          <InputGroup>
-            <InputGroupInput
-              id="social-search"
-              placeholder="Suche nach Beiträgen, Orten, Aktivitäten..."
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-            />
+          <Select
+            value={city || "all"}
+            onValueChange={(value) => setCity(!value || value === "all" ? "" : value)}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Stadt wählen" />
+            </SelectTrigger>
 
-            <InputGroupAddon align="inline-start">
-              <SearchIcon className="text-muted-foreground" />
-            </InputGroupAddon>
-          </InputGroup>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="all">Alle Städte</SelectItem>
+                {cityItems.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </Field>
 
-        <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
-          <Field>
-            <FieldLabel>Stadt</FieldLabel>
+        <Field>
+          <FieldLabel>Event</FieldLabel>
 
-            <Select
-              value={city || "all"}
-              onValueChange={(value) => setCity(!value || value === "all" ? "" : value)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Stadt wählen" />
-              </SelectTrigger>
+          <Select
+            value={eventId || "all"}
+            onValueChange={(value) => setEventId(!value || value === "all" ? "" : value)}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue>{selectedEvent?.title ?? "Alle Events"}</SelectValue>
+            </SelectTrigger>
 
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="all">Alle Städte</SelectItem>
-                  {cityItems.map((item) => (
-                    <SelectItem key={item.value} value={item.value}>
-                      {item.label}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </Field>
+            <SelectContent align="start" className="max-w-[calc(100vw-2rem)]">
+              <SelectGroup>
+                <SelectItem value="all">Alle Events</SelectItem>
+                {events.map((event) => (
+                  <SelectItem key={event._id} value={event._id}>
+                    <span className="whitespace-normal wrap-break-word">
+                      {event.title}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </Field>
 
-          <Field>
-            <FieldLabel>Event</FieldLabel>
+        <Field>
+          <FieldLabel>Sortierung</FieldLabel>
 
-            <Select
-              value={eventId || "all"}
-              onValueChange={(value) => setEventId(!value || value === "all" ? "" : value)}
-            >
-              {}
-              <SelectTrigger className="w-full">
-                <SelectValue>{selectedEvent?.title ?? "Alle Events"}</SelectValue>
-              </SelectTrigger>
+          <Select
+            value={sortValue}
+            onValueChange={(value) => {
+              if (value === "newest") {
+                setSort({ createdAt: -1 });
+              } else if (value === "oldest") {
+                setSort({ createdAt: 1 });
+              } else if (value === "popular") {
+                setSort({});
+              }
+            }}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
 
-              <SelectContent
-                align="start"
-                className="w-80 max-w-[calc(100vw-2rem)]"
-              >
-                <SelectGroup>
-                  <SelectItem value="all">Alle Events</SelectItem>
-                  {events.map((event) => (
-                    <SelectItem key={event._id} value={event._id}>
-                      <span className="whitespace-normal wrap-break-word">
-                        {event.title}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </Field>
-
-          <Field>
-            <FieldLabel>Sortierung</FieldLabel>
-
-            <Select
-              value={sortValue}
-              onValueChange={(value) => {
-                if (value === "newest") {
-                  setSort({ createdAt: -1 });
-                } else if (value === "oldest") {
-                  setSort({ createdAt: 1 });
-                } else if (value === "popular") {
-                  setSort({});
-                }
-              }}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-
-              <SelectContent>
-                <SelectGroup>
-                  {sortItems.map((item) => (
-                    <SelectItem key={item.value} value={item.value}>
-                      {item.label}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </Field>
-        </div>
+            <SelectContent>
+              <SelectGroup>
+                {sortItems.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </Field>
       </div>
     </div>
   );

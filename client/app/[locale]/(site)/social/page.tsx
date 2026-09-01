@@ -85,22 +85,22 @@ function SocialPage() {
 
   return (
     <div className="mx-auto grid w-full max-w-290 grid-cols-1 gap-6 px-4 py-6 desktop:grid-cols-[16.25rem_minmax(0,36rem)_16.25rem] desktop:items-start desktop:gap-8 desktop:px-6">
-      <aside className="sticky top-20 hidden desktop:block">
-        <SocialLeftRail />
+      <aside className="desktop:sticky desktop:top-20 desktop:max-h-[calc(100vh-5.5rem)] desktop:overflow-y-auto">
+        <SocialLeftRail>
+          <SocialFilter
+            city={city}
+            setCity={setCity}
+            eventId={eventId}
+            setEventId={setEventId}
+            sort={sort}
+            setSort={setSort}
+            search={search}
+            setSearch={setSearch}
+          />
+        </SocialLeftRail>
       </aside>
 
       <div className="min-w-0">
-        <SocialFilter
-          city={city}
-          setCity={setCity}
-          eventId={eventId}
-          setEventId={setEventId}
-          sort={sort}
-          setSort={setSort}
-          search={search}
-          setSearch={setSearch}
-        />
-
         {isLoading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="size-5 animate-spin text-muted-foreground" />
