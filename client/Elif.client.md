@@ -76,4 +76,37 @@
 bu taskın amacı client tarafında socket baglantısını login ile token ı dogrulayıp baglantıyı kurmak ve logout ıle koparmak tı deilmi socket baglantısını projenın tum sayfaları haberdar olsun dıye provıder context yapısını kullanarak socket baglantımı kurdum ve bunu app altında layout a bıldırdm kı socketten herkes haberdar olsun bu task aslında gelecektıkı realtıme bıldırımlerın kullanıcıya f5 yaomadan gıtmesi için bır altyapımı olusturmaktı .
 
 
+## [KTZ-181](## [KTZ-180](https://dygcankurt17.atlassian.net/browse/KTZ-181)
+
+- **Durum:** In Progress
+- **Jira:** `KTZ-182`
+- **Puan:** 3
+- **Amaç:**)
+
+### Start / End
+- Start / End→src/providers/AuthSocketProvider.tsx acqurylientı cagır
+#### src/providers/AuthSocketProvider.tsx ac
+qurylientı cagır
+- src/providers/AuthSocketProvider.tsx acqurylientı cagır→telsiz her zaman acık burda useeffct içinde socket.on(“notification:new”,{data})
+##### telsiz her zaman acık burda useeffct içinde socket.on(“notification:new”,{data})
+- telsiz her zaman acık burda useeffct içinde socket.on("notification:new", (yeniBildirim) => { ... })→telsizden gelen sesle birlikte tanstack te notifikasyon rafını guncellemesı gerekıyor querClient cagırıp al bu yenı bıldırımı listeye ve sayaca ekle dicem iki rafı guncellemek lazım
+###### A Rafı (Liste):
+['notifications'] rafındaki listenin en tepesine yeni bildirimi koyacağız.
+###### telsizden gelen sesle birlikte tanstack te notifikasyon rafını guncellemesı gerekıyor
+querClient cagırıp al bu yenı bıldırımı listeye ve sayaca ekle dicem 
+iki rafı guncellemek lazım
+- telsizden gelen sesle birlikte tanstack te notifikasyon rafını guncellemesı gerekıyorquerClient cagırıp al bu yenı bıldırımı listeye ve sayaca ekle dicem iki rafı guncellemek lazım→A Rafı (Liste):['notifications'] rafındaki listenin en tepesine yeni bildirimi koyacağız.
+- telsizden gelen sesle birlikte tanstack te notifikasyon rafını guncellemesı gerekıyorquerClient cagırıp al bu yenı bıldırımı listeye ve sayaca ekle dicem iki rafı guncellemek lazım→B Rafı (Sayaç): Örneğin ['unread-count'] rafındaki sayıyı alıp +1 yapacağız.
+###### B Rafı (Sayaç): Örneğin ['unread-count'] rafındaki sayıyı alıp +1 yapacağız.
+"""
+
+| NIHAI KARARIM |
+|----------|
+| Burda setqueryclient yontemını kullanıcm cunku ,cunku neden olmasın :)
+Soyle ki invalidate yontemındde her kullanıcı aynı anda backende ıstek atar bu ıstenmeyen bısey ,ama setqueryde ben bildirimin tum detaylarını socket telsızıme koyup yollucm boylelıkle react query ekstra ıstek atmıyck.Gelen bu paketı socketın getırdıgı , havada yakalr ve setquerys kullanarak o an ekranda acık olan 20 elemanlık bır lıstenın en basına ekler(Buna optimistic ui ya da cache injection dıyoruz) |
+| https://tanstack.com/query/latest/docs/reference/QueryClient#queryclient-setquerydata |
+
+setQueryData kullanırken, içeriye enjekte edeceğimiz yeni veri, Backend API'nin döndüğü JSON formatı ile BİREBİR aynı yapıda olmalıdır. Eğer Backend { error: false, data: { count: 5 } } dönüyorsa, biz de sadece içindeki count'u artırıp objenin dış yapısını korumalıyız (...eskiData). Aksi takdirde React UI bozulur ve TanStack veriyi arkadan gizlice yeniden çeker (Sayı gelir ve gider).
+"""
+
 
