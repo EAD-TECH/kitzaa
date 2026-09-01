@@ -640,9 +640,28 @@ io.on("connection") bloğunun hemen içine müdahale ederek, adam kapıdan (lobb
 - GETIO YU CAGIRDIM EMIT METODUNU KULLANARAK RECIPIENTID OLARAK BELIRLEDIGIM BILDIRIMIN GIDECEGI KULLANICI BILGISINI ALARAK FIRLATMAK ICIN BILDIRIMI ILK KISMI YAZMIS OLDUM
 - HER SERVICE BOYLELIKLE EMIT YAZMAMIS OLUCAM TEKLI BILDIRM MANTIIGNDA OLUSTRDGM CREATENOTIFICATION DOSYAMA EKLIYCEM BIR DE BULKINSERT OLARAK TANIMLADIGIM COKLU GONDERIMLER ICIN YAZCM
 - BIRDE DINMAIK OLARAK DEGISEN BILDIRIM GONDERME DURUMLARI VARDI BU FONKSIYONLARI KULLANMADIGM ONLARI ANALIZ ETMEM GEREKECEK TIME-DRIVEN
--  for (const doc of result): sendbulknotfication kısmı 
-insertMany bir dizi döner. Her kullanıcıya bir bildirim gittiği için her dokümanı tek tek socket’e basmak lazım → room user:{recipientId} kişiye özel.
--doc as NotificationDocument
-insertMany’nin dönüş tipi Mongoose’da genelde Document[] / kendi tip çıkarımı; benım toNotificationDTO ise NotificationDocument bekliyor.
+- for (const doc of result): sendbulknotfication kısmı
+  insertMany bir dizi döner. Her kullanıcıya bir bildirim gittiği için her dokümanı tek tek socket’e basmak lazım → room user:{recipientId} kişiye özel.
+  -doc as NotificationDocument
+  insertMany’nin dönüş tipi Mongoose’da genelde Document[] / kendi tip çıkarımı; benım toNotificationDTO ise NotificationDocument bekliyor.
 
 !Mantık basit (her kayıt → DTO → emit); as ve !Array.isArray TypeScript’in geniş dönüş tipini NotificationDTO’ya indirmeye yarıyor. Overload’lar düzgün çözülürse !Array.isArray bazen gereksiz kalır; yine de bu union’a karşı pratik bir güvenlik ağı.
+
+## [[KTZ-179] - socket-emit](https://dygcankurt17.atlassian.net/browse/KTZ-179)
+
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-179`
+- **Mimari Kararlar & Ne Yaptım:**
+- Çözülen Hata (Bug Fix):
+- Socket.io bağlantısında oluşan çift prefix hatası (user:user:<id>) giderdim. Kullanıcıların, bildirim fırlatılan (emit) odayla birebir aynı isme sahip olan doğru user:<id> odasına katılması sağladim.
+  -socket/index.ts sayfasında join ederken user:${room} demiştim emit ile join aynı olması gerekıyordu.
+
+Test Adımları
+
+- Sunucu lokalde (npm run dev) ayağa kaldırdım-
+- - Birinci kullanıcı (Örn: Marco) için /auth/login endpoint'i üzerinden giriş yapıp accessToken aldm
+- İstemci (Client) simülasyonu için socket-test.html dosyası üzerinden bu token ile soket bağlantısı kurdum
+- Kontrol 1 (Backend): Terminal loglarında Joined room: user:<userId> çıktısı gördüm. Çift user: hatasının ortadan kalktığı doğruladım
+- İkinci bir kullanıcı (Örn: Sofia) hesabı üzerinden sisteme giriş yaptım
+- REST Client kullanılarak, birinci kullanıcıyı (Marco) hedef alan bir etiketleme (post_mention) API isteği fırlattım
+- Kontrol 2 (Frontend/Client): Birinci kullanıcının açık olan socket-test.html sayfasında, sayfa yenilenmeden anlık olarak notification:new event'inin yakalandığı ve bildirim detaylarının (payload) başarıyla ekrana (Alert olarak) düştüğü gördüm
