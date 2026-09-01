@@ -62,3 +62,18 @@
 5. CSS Kısmını yazdıktan sonra veri manipulasyonu ıcın react table ile hooklarımı yazdım.burda bildirim i client tarafta react query ile cachleyip cagırmak next js e gore daha mantıklı cunku anlık olarak degısen bır olay oldugu ıcın clıent tarafında bıldırm olayı tetıklendı dıyelım o sıra next js server tarafta ıslem yapıyosa db guncellenmemıs halını cekebılir bu yuzden tercihm tanstack query.
 6. hookkları olustururken queryKey:["notifications","unread-count"], bu sekılde tanımlamıstm daha sonra patch ıslemını yaparken mutation ıslemınde tekrar zil ikonunu guncellemek ıcın tekrar unread-coun tu cagırıp guncellememe gerek kalmadı cunku bu olay soyle : queryKey olarak tanımladıgm sey aslında notifikasyon dolabı ve bu dolabın bır rafını da unread-count olarak ayırmıstm .bu sayede mutation işleminde tanstack notification ı gordugunde otomatık olarak dolabın unread rafını da kendısı guncelleıyor
 7. son olarak son 1 aylık veriler için queryfilterdan cekmeden once helperdan bır fonksıyon olusturdm ıslem yapılack tarıhten 1 ay oncesını kapayack zamanı cagırıyor.Sonrasında controllerda createdAt: { $gte: getOneMonthAgo( } bu sekılde yazarak fıltre etmıs oldum
+
+
+## [KTZ-180](https://dygcankurt17.atlassian.net/browse/KTZ-180)
+
+- **Durum:** In Progress
+- **Jira:** `KTZ-180`
+- **Puan:** 3
+- **Amaç:**
+
+1. Bu taskta amacım 
+
+bu taskın amacı client tarafında socket baglantısını login ile token ı dogrulayıp baglantıyı kurmak ve logout ıle koparmak tı deilmi socket baglantısını projenın tum sayfaları haberdar olsun dıye provıder context yapısını kullanarak socket baglantımı kurdum ve bunu app altında layout a bıldırdm kı socketten herkes haberdar olsun bu task aslında gelecektıkı realtıme bıldırımlerın kullanıcıya f5 yaomadan gıtmesi için bır altyapımı olusturmaktı .
+
+
+
