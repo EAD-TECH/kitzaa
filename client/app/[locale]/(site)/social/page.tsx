@@ -11,8 +11,10 @@ import SocialFilter from "@/features/social/components/SocialFilter";
 import SocialLeftRail from "@/features/social/components/SocialLeftRail";
 import SocialRightRail from "@/features/social/components/SocialRightRail";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import { useTranslations } from "next-intl";
 
 function SocialPage() {
+  const t = useTranslations("Social");
   const currentUser = useCurrentUser();
   const currentUserCity = currentUser?.data?.location?.city;
 
@@ -70,13 +72,13 @@ function SocialPage() {
           <AlertCircle />
           <div className="space-y-4">
             <div>
-              <AlertTitle>Beiträge konnten nicht geladen werden</AlertTitle>
-              <AlertDescription>Bitte versuche es in wenigen Augenblicken erneut.</AlertDescription>
+              <AlertTitle>{t("errorTitle")}</AlertTitle>
+              <AlertDescription>{t("errorDescription")}</AlertDescription>
             </div>
 
             <Button variant="outline" size="sm" onClick={() => refetch()}>
               <RefreshCw />
-              Erneut versuchen
+              {t("retry")}
             </Button>
           </div>
         </Alert>
@@ -109,9 +111,7 @@ function SocialPage() {
         ) : (
           <FeedList
             posts={posts}
-            emptyMessage={
-              eventId ? "Zu diesem Event gibt es noch keine Fotos." : "Noch keine Beiträge."
-            }
+            emptyMessage={eventId ? t("emptyEventPhotos") : t("emptyPosts")}
           />
         )}
 

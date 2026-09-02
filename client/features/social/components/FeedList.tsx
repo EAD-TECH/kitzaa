@@ -1,3 +1,7 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+
 import PostCard from "./PostCard";
 import type { PostDTO } from "../types/post.types";
 
@@ -6,11 +10,13 @@ interface FeedListProps {
   emptyMessage?: string;
 }
 
-function FeedList({ posts, emptyMessage = "Noch keine Beiträge." }: FeedListProps) {
+function FeedList({ posts, emptyMessage }: FeedListProps) {
+  const t = useTranslations("Social");
+  const message = emptyMessage ?? t("emptyPosts");
   if (posts.length === 0) {
     return (
       <div className="mx-auto w-full max-w-xl">
-        <p className="text-center text-sm text-muted-foreground">{emptyMessage}</p>
+        <p className="text-center text-sm text-muted-foreground">{message}</p>
       </div>
     );
   }
