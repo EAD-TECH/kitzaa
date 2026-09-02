@@ -48,7 +48,6 @@ export const joinEvent = async (id: string, participantCount: number) => {
 
 }
 
-
 export const leaveEvent = async (id: string) => {
 
 

@@ -28,7 +28,7 @@ router.use(authentication);
 
 router.route("/").post(validateBody(createEventSchema), create);
 router.route("/:id").put(isOwnerOrAdmin(Event), validateBody(updateEventSchema), update).delete(isOwnerOrAdmin(Event), validateBody(cancelEventSchema), deletee);
-router.route("/:id/participants").get(isOwnerOrAdmin(Event), participants);
+router.route("/:id/participants").get(participants);
 router.route("/:id/join").post(validateBody(joinEventSchema), join);
 router.route("/:id/leave").post(leave);
 router.route("/:id/like").post(toggleLike);

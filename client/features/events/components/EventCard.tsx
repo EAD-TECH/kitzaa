@@ -14,6 +14,7 @@ import { useEventsStore } from "../store/EventStore"
 import useToggleSaveEvent from "../hooks/useToggleSaveEvent"
 import { toast } from "sonner"
 import { useAuthStore } from "@/features/auth/store/authStore"
+import Link from "next/link"
 
 function formatEventDate(startDate: string, startTime: string) {
   const date = new Date(startDate)
@@ -76,7 +77,7 @@ const EventCard = ({ event, className }: EventCardProps) => {
 
   const toggleSaved = () => {
 
-    if(!accessToken) {
+    if (!accessToken) {
       toast.error("Bitte melde dich an, um Events zu speichern.")
       return
     }
@@ -178,10 +179,12 @@ const EventCard = ({ event, className }: EventCardProps) => {
               </span>
             </span>
           )}
+          <Link href={`/events/${event.slug}`}>
+            <Button size="xs" className="shrink-0 rounded-full">
+              Details
+            </Button>
+          </Link>
 
-          <Button size="xs" className="shrink-0 rounded-full">
-            Details
-          </Button>
         </div>
       </CardContent>
     </Card>

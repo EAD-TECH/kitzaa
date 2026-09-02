@@ -57,6 +57,12 @@ export interface EventCreatedByRef {
   role: "user" | "organizer" | "admin";
 }
 
+export interface EventParticipantRef {
+  _id: string;
+  username: string;
+  avatarUrl: string | null;
+}
+
 export interface EventDTO {
   _id: string;
   title: string;
@@ -75,6 +81,7 @@ export interface EventDTO {
   location: EventLocation;
   capacity: Capacity;
   viewCount: number;
+  participantsPreview: EventParticipantRef[]
   createdAt: string;
   updatedAt: string;
 }

@@ -109,6 +109,7 @@ const eventController = {
     ).populate([
       { path: "categoryId", select: "name slug icon" },
       { path: "createdBy", select: "username avatarUrl role" },
+      { path: "participants.userId", select: "username avatarUrl" },
     ]);
 
     if (!result) {
@@ -229,7 +230,7 @@ const eventController = {
         $inc: { "capacity.current": participantCount },
       },
       { new: true },
-    );
+    ).populate("participants.userId", "username avatarUrl");
 
     if (!updatedEvent) {
       throw new CustomError(
@@ -269,7 +270,7 @@ const eventController = {
         $inc: { "capacity.current": -participant.participantCount },
       },
       { new: true },
-    );
+    ).populate("participants.userId", "username avatarUrl");
 
     if (!updatedEvent) {
       throw new CustomError("You have not joined this event.", 400);
@@ -339,17 +340,23 @@ const eventController = {
   },
 
   participants: async (req: Request<{ id: string }>, res: Response) => {
-    // isOwnerOrAdmin middleware'i sahiplik/admin kontrolunu yapip event'i req.resource'a koyuyor.
-    const event = await (req.resource as EventDocument).populate(
+    // Artik owner/admin'e ozel degil — herhangi bir giris yapmis kullanici cagirabilir,
+    // bu yuzden event'i (isOwnerOrAdmin'in yaptigi gibi) kendimiz cekiyoruz.
+    const event = await Event.findById(req.params.id).populate(
       "participants.userId",
       "username avatarUrl",
     );
+
+    if (!event) {
+      throw new CustomError("Event not found", 404);
+    }
 
     res.status(200).send({
       error: false,
       participants: event.participants ?? [],
     });
   },
+  
 
   myEvents: async (req: Request, res: Response) => {
     const customFilter = { createdBy: req.user._id };
