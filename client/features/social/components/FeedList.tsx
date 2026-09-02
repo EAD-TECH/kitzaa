@@ -9,16 +9,14 @@ interface FeedListProps {
 function FeedList({ posts, emptyMessage = "Noch keine Beiträge." }: FeedListProps) {
   if (posts.length === 0) {
     return (
-      <div className="mx-auto max-w-xl px-4 py-8">
+      <div className="mx-auto w-full max-w-xl">
         <p className="text-center text-sm text-muted-foreground">{emptyMessage}</p>
       </div>
     );
   }
 
-  
-
   return (
-    <div className="mx-auto flex max-w-xl flex-col gap-6 px-4 py-8">
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-6">
       {posts.map((post) => (
         <PostCard key={post._id} post={post} />
       ))}
