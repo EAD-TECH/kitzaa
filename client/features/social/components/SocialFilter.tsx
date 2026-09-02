@@ -1,7 +1,4 @@
-import { SearchIcon } from "lucide-react";
-
 import { Field, FieldLabel } from "@/components/ui/field";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 
 import {
   Select,
@@ -12,7 +9,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEvents } from "../hooks/useEvents";
-import { useEffect, useState } from "react";
 
 const cityItems = [
   { label: "Berlin", value: "Berlin" },
@@ -38,11 +34,9 @@ interface SocialFilterProps {
   setEventId: React.Dispatch<React.SetStateAction<string>>;
   sort: PostSort;
   setSort: React.Dispatch<React.SetStateAction<PostSort>>;
-  search: string;
-  setSearch: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const SocialFilter = ({ city, setCity, eventId, setEventId, sort, setSort, search, setSearch }: SocialFilterProps) => {
+const SocialFilter = ({ city, setCity, eventId, setEventId, sort, setSort }: SocialFilterProps) => {
   const { data } = useEvents();
   const events = data?.events ?? [];
 
@@ -50,36 +44,9 @@ const SocialFilter = ({ city, setCity, eventId, setEventId, sort, setSort, searc
 
   const sortValue = sort.createdAt === 1 ? "oldest" : sort.createdAt === -1 ? "newest" : "popular";
 
-  const [inputValue, setInputValue] = useState(search);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setSearch(inputValue);
-    }, 400);
-
-    return () => clearTimeout(timeout);
-  }, [inputValue, setSearch]);
-
   return (
     <div className="rounded-2xl border bg-background/70 p-4 shadow-sm backdrop-blur-sm">
-      <Field>
-        <FieldLabel htmlFor="social-search">Suche</FieldLabel>
-
-        <InputGroup>
-          <InputGroupInput
-            id="social-search"
-            placeholder="Beiträge, Orte, Aktivitäten..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-          />
-
-          <InputGroupAddon align="inline-start">
-            <SearchIcon className="text-muted-foreground" />
-          </InputGroupAddon>
-        </InputGroup>
-      </Field>
-
-      <div className="mt-4 grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <Field>
           <FieldLabel>Stadt</FieldLabel>
 

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import SocialFeedHeader from "@/features/social/components/SocialFeedHeader";
 import SocialFilter from "@/features/social/components/SocialFilter";
 import SocialLeftRail from "@/features/social/components/SocialLeftRail";
 import SocialRightRail from "@/features/social/components/SocialRightRail";
@@ -84,7 +85,7 @@ function SocialPage() {
   }
 
   return (
-    <div className="mx-auto grid w-full max-w-290 grid-cols-1 gap-6 px-4 py-6 desktop:grid-cols-[16.25rem_minmax(0,36rem)_16.25rem] desktop:items-start desktop:gap-8 desktop:px-6">
+    <div className="mx-auto mt-10 grid w-full grid-cols-1 gap-6 px-6 tablet:px-20 desktop:grid-cols-[320px_minmax(0,1fr)_280px] desktop:items-start desktop:gap-16 desktop:px-10">
       <aside className="desktop:sticky desktop:top-20 desktop:max-h-[calc(100vh-5.5rem)] desktop:overflow-y-auto">
         <SocialLeftRail>
           <SocialFilter
@@ -94,13 +95,13 @@ function SocialPage() {
             setEventId={setEventId}
             sort={sort}
             setSort={setSort}
-            search={search}
-            setSearch={setSearch}
           />
         </SocialLeftRail>
       </aside>
 
       <div className="min-w-0">
+        <SocialFeedHeader search={search} setSearch={setSearch} />
+
         {isLoading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="size-5 animate-spin text-muted-foreground" />
