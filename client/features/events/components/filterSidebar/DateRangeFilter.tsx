@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { CalendarIcon, CalendarRange } from "lucide-react"
+import { CalendarIcon, CalendarRange, X } from "lucide-react"
 
 import { Calendar } from "@/components/ui/calendar"
 import { Field, FieldLabel, FieldLegend, FieldSet } from "@/components/ui/field"
@@ -16,6 +16,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useQueryParams } from "../../hooks/useQueryParams"
 
 function formatDate(date: Date | undefined) {
   if (!date) {
@@ -36,20 +37,42 @@ function isValidDate(date: Date | undefined) {
   return !isNaN(date.getTime())
 }
 
+// URL'deki "YYYY-MM-DD" formatını Date'e çevirir.
+function parseISODate(value: string | null): Date | undefined {
+  if (!value) return undefined
+  const [year, month, day] = value.split("-").map(Number)
+  if (!year || !month || !day) return undefined
+  const date = new Date(year, month - 1, day)
+  return isValidDate(date) ? date : undefined
+}
 
-
+// Date'i "YYYY-MM-DD"ye çevirir — toISOString() kullanmıyoruz çünkü UTC'ye çevirirken
+// yerel saat dilimine göre günü bir öncekine/sonrakine kaydırabilir.
+function toISODateString(date: Date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
+  return `${year}-${month}-${day}`
+}
 
 function DatePickerField({
   id,
   label,
+  date,
+  onSelect,
 }: {
   id: string
   label: string
+  date: Date | undefined
+  onSelect: (date: Date | undefined) => void
 }) {
   const [open, setOpen] = React.useState(false)
-  const [date, setDate] = React.useState<Date | undefined>(undefined)
   const [month, setMonth] = React.useState<Date | undefined>(date)
-  const [value, setValue] = React.useState(formatDate(date))
+
+  // URL parametresi dışarıdan değişirse (örn. geri/ileri gitme) takvimin ayını senkronize et
+  React.useEffect(() => {
+    setMonth(date)
+  }, [date])
 
   return (
     <Field className="min-w-0 flex-1">
@@ -59,67 +82,72 @@ function DatePickerField({
       <InputGroup>
         <InputGroupInput
           id={id}
-          value={value}
+          value={formatDate(date)}
           placeholder="TT.MM.JJJJ"
-          onChange={(e) => {
-            const nextDate = new Date(e.target.value)
-            setValue(e.target.value)
-            if (isValidDate(nextDate)) {
-              setDate(nextDate)
-              setMonth(nextDate)
-            }
-          }}
+          readOnly
+          onClick={() => setOpen(true)}
           onKeyDown={(e) => {
-            if (e.key === "ArrowDown") {
+            if (e.key === "ArrowDown" || e.key === "Enter") {
               e.preventDefault()
               setOpen(true)
             }
           }}
         />
         <InputGroupAddon align="inline-end">
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger
-              render={
-                <InputGroupButton
-                  variant="ghost"
-                  size="icon-xs"
-                  aria-label="Datum auswählen"
-                >
-                  <CalendarIcon />
-                </InputGroupButton>
-              }
-            />
-            <PopoverContent
-              className="w-auto overflow-hidden p-0"
-              align="end"
-              alignOffset={-8}
-              sideOffset={10}
+          {date ? (
+            <InputGroupButton
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              aria-label="Datum entfernen"
+              onClick={() => onSelect(undefined)}
             >
-              <Calendar
-                // className="[--cell-size:--spacing(7)]"
-                mode="single"
-                selected={date}
-                month={month}
-                onMonthChange={setMonth}
-                onSelect={(nextDate) => {
-                  setDate(nextDate)
-                  setValue(formatDate(nextDate))
-                  setOpen(false)
-                }}
+              <X />
+            </InputGroupButton>
+          ) : (
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger
+                render={
+                  <InputGroupButton
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label="Datum auswählen"
+                  >
+                    <CalendarIcon />
+                  </InputGroupButton>
+                }
               />
-            </PopoverContent>
-          </Popover>
+              <PopoverContent
+                className="w-auto overflow-hidden p-0"
+                align="end"
+                alignOffset={-8}
+                sideOffset={10}
+              >
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  month={month}
+                  onMonthChange={setMonth}
+                  onSelect={(nextDate) => {
+                    onSelect(nextDate)
+                    setOpen(false)
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
+          )}
         </InputGroupAddon>
       </InputGroup>
     </Field>
   )
 }
 
-
-
-
-
 export function DateRangeFilter() {
+  const { getParam, setParams } = useQueryParams()
+
+  const dateFrom = parseISODate(getParam("dateFrom"))
+  const dateTo = parseISODate(getParam("dateTo"))
+
   return (
     <FieldSet>
       <FieldLegend
@@ -130,8 +158,18 @@ export function DateRangeFilter() {
         ZEITRAUM
       </FieldLegend>
       <div className="flex gap-3">
-        <DatePickerField id="date-from" label="Von" />
-        <DatePickerField id="date-to" label="Bis" />
+        <DatePickerField
+          id="date-from"
+          label="Von"
+          date={dateFrom}
+          onSelect={(date) => setParams({ dateFrom: date ? toISODateString(date) : null })}
+        />
+        <DatePickerField
+          id="date-to"
+          label="Bis"
+          date={dateTo}
+          onSelect={(date) => setParams({ dateTo: date ? toISODateString(date) : null })}
+        />
       </div>
     </FieldSet>
   )
