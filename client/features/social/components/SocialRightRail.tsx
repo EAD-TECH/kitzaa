@@ -1,5 +1,8 @@
+"use client";
+
 import { Heart, MessageSquare, PartyPopper } from "lucide-react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
 import { cn } from "@/lib/utils";
@@ -20,6 +23,7 @@ interface SocialRightRailProps {
 }
 
 function SocialRightRail({ selectedEventId, onSelectEvent }: SocialRightRailProps) {
+  const t = useTranslations("Social");
   const { data, isLoading } = useEventPostHighlights();
 
   const events = useMemo<EventPostHighlight[]>(() => {
@@ -68,16 +72,14 @@ function SocialRightRail({ selectedEventId, onSelectEvent }: SocialRightRailProp
   return (
     <section className="rounded-2xl border bg-card p-4 shadow-sm">
       <div className="mb-4">
-        <h2 className="font-heading text-lg font-semibold">Events mit Beiträgen</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Events, über die in der Community berichtet wird.
-        </p>
+        <h2 className="font-heading text-lg font-semibold">{t("eventsWithPosts")}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{t("eventsWithPostsSubtitle")}</p>
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Beiträge werden geladen...</p>
+        <p className="text-sm text-muted-foreground">{t("loadingPosts")}</p>
       ) : events.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Noch keine Event-Beiträge vorhanden.</p>
+        <p className="text-sm text-muted-foreground">{t("emptyEventPosts")}</p>
       ) : (
         <ul className="flex flex-col gap-2">
           {events.map((event) => {
@@ -113,14 +115,16 @@ function SocialRightRail({ selectedEventId, onSelectEvent }: SocialRightRailProp
                     <span className="line-clamp-2 text-sm font-medium leading-5">{event.title}</span>
                     <span className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
                       <MessageSquare className="size-3 shrink-0" />
-                      {event.postCount} {event.postCount === 1 ? "Beitrag" : "Beiträge"}
+                      {t("postCount", { count: event.postCount })}
                     </span>
                     <span className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
                       <Heart className="size-3 shrink-0" />
-                      {event.likesCount} Likes
+                      {t("likeCount", { count: event.likesCount })}
                     </span>
                     {selected ? (
-                      <span className="mt-1 inline-flex text-[11px] font-medium text-primary">Im Feed</span>
+                      <span className="mt-1 inline-flex text-[11px] font-medium text-primary">
+                        {t("inFeed")}
+                      </span>
                     ) : null}
                   </span>
                 </button>

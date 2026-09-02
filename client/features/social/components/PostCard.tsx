@@ -4,7 +4,7 @@ import { formatDistanceToNow } from "date-fns";
 import { de, enUS } from "date-fns/locale";
 import { Heart, MessageCircle, MoreHorizontal, Share2, Trees } from "lucide-react";
 import Image from "next/image";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -26,6 +26,7 @@ import { useRouter } from "next/navigation";
 
 function PostCard({ post }: { post: PostDTO }) {
   const locale = useLocale();
+  const t = useTranslations("Social");
   const name = [post.author.firstName, post.author.lastName].filter(Boolean).join(" ");
   const createdAt = new Date(post.createdAt);
   const relativeDate = Number.isNaN(createdAt.getTime())
@@ -42,9 +43,9 @@ function PostCard({ post }: { post: PostDTO }) {
 
   const handleLikeClick = () => {
     if (!currentUser) {
-      toast("Bitte melde dich an, um Beiträge zu liken.", {
+      toast(t("likeLoginPrompt"), {
         action: {
-          label: "Anmelden",
+          label: t("signIn"),
           onClick: () => router.push("/login"),
         },
       });
@@ -80,7 +81,7 @@ function PostCard({ post }: { post: PostDTO }) {
           </div>
         </div>
         <CardAction>
-          <Button variant="ghost" size="icon" aria-label="Mehr">
+          <Button variant="ghost" size="icon" aria-label={t("more")}>
             <MoreHorizontal />
           </Button>
         </CardAction>
@@ -118,7 +119,7 @@ function PostCard({ post }: { post: PostDTO }) {
             className="h-auto gap-1.5 px-0 text-sm hover:bg-transparent"
             disabled={isPending}
             onClick={handleLikeClick}
-            aria-label={post.isLikedByMe ? "Gefällt mir entfernen" : "Gefällt mir"}
+            aria-label={post.isLikedByMe ? t("unlike") : t("like")}
           >
             <Heart className={cn("size-5", post.isLikedByMe && "fill-primary text-primary")} />
             {post.likesCount}
@@ -130,7 +131,7 @@ function PostCard({ post }: { post: PostDTO }) {
           </span>
         </div>
 
-        <Button variant="ghost" size="icon" aria-label="Teilen">
+        <Button variant="ghost" size="icon" aria-label={t("share")}>
           <Share2 />
         </Button>
       </CardFooter>

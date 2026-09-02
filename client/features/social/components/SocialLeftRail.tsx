@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import { useTranslations } from "next-intl";
 import backgroundPattern from "../../../public/images/event-pattern.png";
 
 interface SocialLeftRailProps {
@@ -13,6 +14,7 @@ interface SocialLeftRailProps {
 }
 
 function SocialLeftRail({ children }: SocialLeftRailProps) {
+  const t = useTranslations("Social");
   const { data: currentUser } = useCurrentUser();
   const fullName = currentUser
     ? [currentUser.firstName, currentUser.lastName].filter(Boolean).join(" ")
@@ -24,9 +26,9 @@ function SocialLeftRail({ children }: SocialLeftRailProps) {
     : "";
   const roleLabel = currentUser
     ? {
-        user: "Familie",
-        organizer: "Organisator",
-        admin: "Admin",
+        user: t("roleFamily"),
+        organizer: t("roleOrganizer"),
+        admin: t("roleAdmin"),
       }[currentUser.role]
     : null;
 
@@ -73,14 +75,12 @@ function SocialLeftRail({ children }: SocialLeftRailProps) {
           <Camera className="size-5" />
         </div>
 
-        <p className="mt-3 font-heading text-xl font-semibold">Moment teilen</p>
-        <p className="mt-2 text-sm text-primary-foreground/85">
-          Fotos von euren Events gehören hierher – von Waldabenteuern bis zum Workshop.
-        </p>
+        <p className="mt-3 font-heading text-xl font-semibold">{t("shareTitle")}</p>
+        <p className="mt-2 text-sm text-primary-foreground/85">{t("shareBody")}</p>
 
         <p className="mt-4 flex items-center gap-2 rounded-full bg-primary-foreground/12 px-3 py-2 text-sm text-primary-foreground/80">
           <Images className="size-4 shrink-0" />
-          <span className="truncate">Was möchtest du heute teilen?</span>
+          <span className="truncate">{t("sharePrompt")}</span>
         </p>
       </section>
     </div>
