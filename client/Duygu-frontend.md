@@ -37,3 +37,38 @@ Bu doğru ve gerekli bir yaklaşım. Yoksa kullanıcı aslında giriş yapmış 
 
 ### Sifremi unuttum ###
 ![alt text](image.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+**************************************
+## ⚛️ React Hook Sırası Hatası
+> [!CAUTION]
+> **Hata mesajı**
+> `React has detected a change in the order of Hooks called by SocialPage.`
+
+> [!NOTE]
+> **Neden oluşur?**
+> `useRef`, `useEffect` ve `useState` gibi hook’lar her render sırasında aynı sırayla çalışmalıdır.
+> Bir hook koşul içerisinde veya erken `return` işleminden sonra kullanılırsa hook sırası değişir ve React bu hatayı verir.
+> **Çözüm**
+> Bütün hook’ları component’in en üst seviyesinde çağır:
+> - `if` koşullarının dışında
+> - Döngülerin dışında
+> - Erken `return` işlemlerinden önce
+### ❌ Yanlış kullanım
+```tsx
+if (isLoading) {
+  return <p>Yükleniyor...</p>;
+}
+const loadMoreRef = useRef<HTMLDivElement | null>(null);
+**************************************
