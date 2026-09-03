@@ -19,6 +19,16 @@ export const buildEventQuery = (searchParams: EventSearchParams) => {
         params.set("filter[ageRange]", ageRange)
     }
 
+    const dateFrom = searchParams.dateFrom
+    if (typeof dateFrom === "string" && dateFrom) {
+        params.set("filter[schedule.startDate][$gte]", dateFrom)
+    }
+
+    const dateTo = searchParams.dateTo
+    if (typeof dateTo === "string" && dateTo) {
+        params.set("filter[schedule.startDate][$lte]", dateTo)
+    }
+
     const category = searchParams.category
     if (category) {
         const slugs = Array.isArray(category) ? category : [category]

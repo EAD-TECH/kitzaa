@@ -6,6 +6,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { ThemeProvider } from "@/providers/theme-provider";
 import QueryProvider from "@/providers/query-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { routing } from "@/i18n/routing";
 import AuthSocketProvider from "@/providers/auth.socket.provider";
 
@@ -49,11 +50,14 @@ export default async function LocaleLayout({ children, params }: Props) {
         <NextIntlClientProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
             <QueryProvider>
-              <AuthSocketProvider>
-                 {children}
-              </AuthSocketProvider>
+               <AuthSocketProvider>
+              <TooltipProvider>
+                {children}
+                <Toaster />
+              </TooltipProvider>
+                 </AuthSocketProvider>
              
-              <Toaster />
+          
             </QueryProvider>
           </ThemeProvider>
         </NextIntlClientProvider>

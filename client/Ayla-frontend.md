@@ -254,7 +254,6 @@ useCallback şunu der: "Bu fonksiyonu sadece bağımlılıklar değiştiğinde y
 
 
 
-
 # Loading.tsx
 
 loading.tsx yokken hiç boundary yok → tamamen "all-or-nothing", hiçbir şey/boş ekran
@@ -318,7 +317,6 @@ Evet, tam olarak aynı işi görüyor — array.indexOf(id) !== -1 (ya da .inclu
 
 
 
-
 # tanstack optimistic update
 
 Kullanıcı bookmark'a basar
@@ -326,3 +324,85 @@ Kullanıcı bookmark'a basar
    → arka planda API isteği gider
        → başarılı olursa: hiçbir şey yapılmaz (zaten doğru)
        → başarısız olursa: onError çalışır → değişiklik geri alınır
+
+
+
+
+# window - share butonu
+
+
+Tarayıcıda çalışan her JavaScript kodu, window adında global bir nesnenin içinde yaşar. Sekmede açık olan sayfayla ilgili her şey (adres çubuğundaki URL, ekran boyutu, geçmiş, vs.) bu nesnenin altında bulunur.
+
+window.location
+Sayfanın şu anki adresiyle ilgili bilgileri tutan alt nesne.
+
+
+window.location.href     // "https://kitzaa.com/events/123" gibi tam URL
+window.location.pathname // "/events/123"
+window.location.hostname // "kitzaa.com"
+
+
+navigator nedir?
+navigator, tarayıcının kendisi ve cihaz hakkında bilgi/özellik sunan başka bir global nesne. "Bu tarayıcı/cihaz şunu yapabiliyor mu?" sorularının cevabı burada.
+
+navigator.share
+Mobil cihazlarda (ve bazı masaüstü tarayıcılarda) işletim sisteminin native paylaşım menüsünü açan API'dir (telefonda "Paylaş" dediğinde WhatsApp, Mail, Mesajlar vs. çıkan o pencere).
+
+if (navigator.share) { ... }
+Bu satır şunu kontrol ediyor: "Bu tarayıcı share özelliğini destekliyor mu?" Çünkü her tarayıcı bunu desteklemez (örneğin bazı masaüstü tarayıcılarda bu özellik yoktur). Destekliyorsa native paylaşım penceresi açılır:
+
+navigator.clipboard
+Tarayıcının pano (clipboard) erişimini sağlayan API. navigator.share desteklenmiyorsa (örn. çoğu masaüstü tarayıcı), kod alternatif olarak linki doğrudan panoya kopyalıyor:
+
+
+await navigator.clipboard.writeText(window.location.href)
+
+
+
+#  event join - event leave
+
+**useClientQuery, mutation ve useQuery farki**
+
+Akış şöyle:
+
+Kullanıcı "Katıl" butonuna basar → mutate() çağrılır (useMutation devrede)
+İstek backend'e gider, POST /:id/join çalışır
+İstek başarılı dönünce, onSuccess içinde queryClient kullanılarak katılımcı listesi cache'i geçersiz kılınır (useQueryClient devrede)
+Bu geçersiz kılma sayesinde, useEventParticipation içindeki useQuery otomatik olarak yeniden çalışır ve güncel "katıldım" durumunu getirir
+Yani useMutation "işlemi yapan" taraf, useQueryClient ise o işlem bittikten sonra "başka yerdeki verilerin artık geçersiz olduğunu bildiren" taraf. Biri olmadan diğeri bu senaryoda eksik kalır — useQueryClient olmasa, join başarılı olsa bile useEventParticipation hook'u hâlâ eski (katılmamış) veriyi göstermeye devam ederdi.
+
+--------
+
+useMutation'ın sana verdiği şeyler
+
+const joinMutation = useMutation({
+  mutationFn: (participantCount: number) => joinEvent(eventId, participantCount),
+  onSuccess: (data) => { /* istek başarılı olunca */ },
+  onError: (err) => { /* istek başarısız olunca */ },
+})
+
+joinMutation.mutate(2)        // isteği tetikle
+joinMutation.isPending        // istek şu an devam ediyor mu (buton disable etmek için)
+joinMutation.isError          // hata oldu mu
+joinMutation.isSuccess        // başarılı mı
+joinMutation.data             // (varsa) son başarılı cevabın verisi
+
+--------
+
+
+                           useQuery	                  useMutation
+Ne zaman çalışır -	  mount olunca otomatik   	sadece mutate() çağrılınca
+Sonucu cache'ler mi -	evet, queryKey ile	     hayır, kendiliğinden cache'lemez
+Tekrar mount olunca -	cache'den okuyabilir	   her mutate() çağrısı yeni bir istektir
+Kullanım amacı -	    veri getirme (GET)	      veri değiştirme (POST/PUT/DELETE)
+
+-----
+
+page.tsx — sayfa açılır, readEventServer(slug) ile event bir kere çekilir, EventRegistration'a prop olarak verilir.
+EventRegistration.tsx — bu event'i useState'e koyar, AnmeldenCard'a hem event'i hem setEvent'i (onEventChange adıyla) verir.
+AnmeldenCard.tsx — kullanıcı butona tıklar → handleJoin (ya da handleLeave) çalışır → joinMutation.mutate(...) tetiklenir.
+useJoinEvent.ts — mutationFn çalışır, joinEvent(id, participantCount) ile backend'e POST isteği gider.
+Backend — katılımcıyı ekler, güncel event'i (yeni capacity + participantsPreview) geri döner.
+AnmeldenCard.tsx — cevap gelince mutate()'e verdiğin onSuccess çalışır → onEventChange(data.event) çağrılır.
+EventRegistration.tsx — onEventChange aslında setEvent, state güncellenir.
+React yeniden render eder → güncel event, hem AnmeldenCard'a hem ParticipantAvatars'a yeniden gider → ekran (kapasite + avatar listesi) güncellenir.
