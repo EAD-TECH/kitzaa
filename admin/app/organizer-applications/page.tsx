@@ -1,11 +1,11 @@
 "use client";
 
-import OrganizerApplicationCard from "@/features/admin/components/organizer-applications/OrganizerApplicationCard";
+import OrganizerApplicationBoard from "@/features/admin/components/organizer-applications/OrganizerApplicationBoard";
 
 export default function OrganizerApplicationsPage() {
   return (
-    <div>
-      <OrganizerApplicationCard />
-    </div>
+    <main className="p-8">
+      <OrganizerApplicationBoard />
+    </main>
   );
 }

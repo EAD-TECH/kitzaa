@@ -35,20 +35,18 @@ export default function DynamicBreadCrumb() {
     <Breadcrumb>
       <BreadcrumbList>
         {crumbs.map((crumb) => (
-          <>
-            <BreadcrumbItem key={crumb.href}>
-              {crumb.isLast ? (
-                <BreadcrumbPage>{crumb.segment}</BreadcrumbPage>
-              ) : (
-                <>
-                  <BreadcrumbLink href={crumb.href}>
-                    {crumb.segment}
-                  </BreadcrumbLink>
-                  <BreadcrumbSeparator />
-                </>
-              )}
-            </BreadcrumbItem>
-          </>
+          <BreadcrumbItem key={crumb.href}>
+            {crumb.isLast ? (
+              <BreadcrumbPage>{crumb.segment}</BreadcrumbPage>
+            ) : (
+              <>
+                <BreadcrumbLink href={crumb.href}>
+                  {crumb.segment}
+                </BreadcrumbLink>
+                <BreadcrumbSeparator />
+              </>
+            )}
+          </BreadcrumbItem>
         ))}
       </BreadcrumbList>
     </Breadcrumb>

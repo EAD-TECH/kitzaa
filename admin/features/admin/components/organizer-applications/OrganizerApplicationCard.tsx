@@ -1,23 +1,22 @@
-"use client";
+import type { KanbanCardProps } from "@/components/shared/types";
+import { OrganizerApplicationDTO } from "../../types";
+import { KanbanCard } from "@/components/shared/KanbanCard";
 
-import { useOrganizerApplications } from "../../hooks/useOrganizerApplications";
-
-export default function OrganizerApplicationCard() {
-  const { data, isLoading, isError } = useOrganizerApplications();
-
-  if (isLoading) return <p>Yükleniyor...</p>;
-  if (isError) return <p>Başvurular alınamadı.</p>;
+export default function OrganizerApplicationCard(application: {
+  application: OrganizerApplicationDTO;
+}) {
+  const cardData = {
+    id: application.application._id,
+    title: application.application.institutionData.name,
+    category: application.application.institutionData.category,
+    description: application.application.message,
+    status: application.application.status,
+    time: application.application.createdAt.toString(),
+  } as KanbanCardProps;
 
   return (
-    <div>
-      <p>{data?.applications.length ?? 0} başvuru bulundu.</p>
-
-      {data?.applications.map((item) => (
-        <div key={item._id}>
-          <p>{item.institutionData.name}</p>
-          <p>{item.status}</p>
-        </div>
-      ))}
-    </div>
+    <>
+      <KanbanCard data={cardData} />
+    </>
   );
 }
