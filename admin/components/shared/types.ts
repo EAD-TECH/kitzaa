@@ -16,7 +16,7 @@ export interface KanbanColumnProps {
   title: string;
   count: number;
   dotColor?: string;
-  children?: ReactNode;
+  children?: ReactNode;   /* {children} diyerek, "Bana ne verirsen onu bu boşluğa dizeceğim" diyor. */
 }
 
 export interface PageHeaderProps {
@@ -61,6 +61,8 @@ export interface FilterAndSearchProps {
   selectedValues: string[];
   onFilterSelect: (val: string) => void;
 }
+
+
 
 export interface KanbanErrorStateProps {
   onRetry: () => void;

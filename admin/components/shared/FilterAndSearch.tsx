@@ -36,8 +36,8 @@ export default function FilterAndSearch({
       <InputGroup>
         <InputGroupInput
           placeholder="Search..."
-          value={searchValue}
-          onChange={(e) => onSearchChange(e.target.value)}
+          value={searchValue}  /* dinamik deger */
+          onChange={(e) => onSearchChange(e.target.value)}  /* arama calıstıgında Panoya haber vereck */
         />
         <InputGroupAddon>
           <SearchIcon />
@@ -89,6 +89,7 @@ export default function FilterAndSearch({
                     onSelect={() => onFilterSelect(option.value)}
                   >
                     {/*   <CircleDot className="text-(--brown-500)" /> */}
+                    
 
                     {option.icon && <span className="mr-2">{option.icon}</span>}
 

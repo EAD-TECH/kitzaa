@@ -23,10 +23,10 @@ export const useOrganizerApplications = ({
       const applications = lastPage.applications || [];
 
       if (applications.length < limit) {
-        return undefined; 
+        return undefined;  /* Veri bitti, daha fazla yükleme yapma */
       }
 
-      return allPages.length + 1;  
+      return allPages.length + 1;   /* Sıradaki sayfa numarası */
     },
   });
 };
