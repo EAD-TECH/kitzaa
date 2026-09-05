@@ -6,7 +6,7 @@ import { toEventDTO } from "../../helpers/toEventDTO.js";
 import Event from "../../models/eventModel.js";
 import type { EventDocument } from "../../types/event.types.js";
 import EventCategory from "../../models/eventCategoryModel.js";
-import type { CancelEventInput, CreateEventInput, NearbyQueryInput, UpdateEventInput } from "../../validations/event.schema.js";
+import type { CancelEventInput, CreateEventInput, JoinEventInput, NearbyQueryInput, UpdateEventInput } from "../../validations/event.schema.js";
 import { assertValidTransition } from "../../helpers/eventStateMachine.js";
 import {
   notifyUsersForNearbyEvent,
@@ -15,6 +15,7 @@ import {
 import User from "../../models/userModel.js";
 
 const eventController = {
+
   list: async (req: Request, res: Response) => {
 
     const customFilter: Record<string, unknown> = { status: "approved" };
@@ -108,6 +109,7 @@ const eventController = {
     ).populate([
       { path: "categoryId", select: "name slug icon" },
       { path: "createdBy", select: "username avatarUrl role" },
+      { path: "participants.userId", select: "username avatarUrl" },
     ]);
 
     if (!result) {
@@ -183,7 +185,9 @@ const eventController = {
     res.sendStatus(204);
   },
 
-  join: async (req: Request<{ id: string }>, res: Response) => {
+  join: async (req: Request<{ id: string }, any, JoinEventInput>, res: Response) => {
+
+    const { participantCount } = req.body;
 
     const event = await Event.findById(req.params.id);
 
@@ -203,7 +207,7 @@ const eventController = {
       throw new CustomError("You have already joined this event.", 409);
     }
 
-    if (event.capacity.current >= event.capacity.max) {
+    if (event.capacity.current + participantCount > event.capacity.max) {
       throw new CustomError("This event is full.", 409);
     }
 
@@ -212,20 +216,21 @@ const eventController = {
         _id: event._id,
         status: "approved",
         "participants.userId": { $ne: req.user._id },
-        $expr: { $lt: ["$capacity.current", "$capacity.max"] },
+        $expr: { $lte: [{ $add: ["$capacity.current", participantCount] }, "$capacity.max"] },
       },
       {
         $push: {
           participants: {
             userId: req.user._id,
             status: "confirmed",
+            participantCount,
             joinedAt: new Date(),
           },
         },
-        $inc: { "capacity.current": 1 },
+        $inc: { "capacity.current": participantCount },
       },
       { new: true },
-    );
+    ).populate("participants.userId", "username avatarUrl");
 
     if (!updatedEvent) {
       throw new CustomError(
@@ -247,11 +252,11 @@ const eventController = {
       throw new CustomError("Event not found", 404);
     }
 
-    const alreadyJoined = event.participants?.some((p) =>
+    const participant = event.participants?.find((p) =>
       p.userId.equals(req.user._id),
     );
 
-    if (!alreadyJoined) {
+    if (!participant) {
       throw new CustomError("You have not joined this event.", 400);
     }
 
@@ -262,10 +267,10 @@ const eventController = {
       },
       {
         $pull: { participants: { userId: req.user._id } },
-        $inc: { "capacity.current": -1 },
+        $inc: { "capacity.current": -participant.participantCount },
       },
       { new: true },
-    );
+    ).populate("participants.userId", "username avatarUrl");
 
     if (!updatedEvent) {
       throw new CustomError("You have not joined this event.", 400);
@@ -304,18 +309,54 @@ const eventController = {
     });
   },
 
+  toggleSave: async (req: Request<{ id: string }>, res: Response) => {
+
+    const eventId = req.params.id
+    const userId = req.user._id
+
+    const event = await Event.findById(eventId)
+
+    if (!event) {
+      throw new CustomError("Event not found", 404);
+    }
+
+    const user = await User.findById(userId)
+
+    const alreadySaved = user?.savedEvents?.some((id) => id.equals(eventId) ?? false)
+
+    await User.findByIdAndUpdate(
+      userId,
+      alreadySaved
+        ? { $pull: { savedEvents: eventId } }
+        : { $addToSet: { savedEvents: eventId } }
+    )
+
+
+    res.status(200).json({
+      error: false,
+      saved: !alreadySaved,
+    });
+
+  },
+
   participants: async (req: Request<{ id: string }>, res: Response) => {
-    // isOwnerOrAdmin middleware'i sahiplik/admin kontrolunu yapip event'i req.resource'a koyuyor.
-    const event = await (req.resource as EventDocument).populate(
+    // Artik owner/admin'e ozel degil — herhangi bir giris yapmis kullanici cagirabilir,
+    // bu yuzden event'i (isOwnerOrAdmin'in yaptigi gibi) kendimiz cekiyoruz.
+    const event = await Event.findById(req.params.id).populate(
       "participants.userId",
       "username avatarUrl",
     );
+
+    if (!event) {
+      throw new CustomError("Event not found", 404);
+    }
 
     res.status(200).send({
       error: false,
       participants: event.participants ?? [],
     });
   },
+  
 
   myEvents: async (req: Request, res: Response) => {
     const customFilter = { createdBy: req.user._id };

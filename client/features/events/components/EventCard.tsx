@@ -10,6 +10,11 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import type { EventDTO } from "../types/event.types"
+import { useEventsStore } from "../store/EventStore"
+import useToggleSaveEvent from "../hooks/useToggleSaveEvent"
+import { toast } from "sonner"
+import { useAuthStore } from "@/features/auth/store/authStore"
+import Link from "next/link"
 
 function formatEventDate(startDate: string, startTime: string) {
   const date = new Date(startDate)
@@ -54,23 +59,29 @@ function getOrganizer(createdBy: EventDTO["createdBy"]) {
 
 interface EventCardProps {
   event: EventDTO
-  saved?: boolean
-  onSaveChange?: (id: string, saved: boolean) => void
   className?: string
 }
 
-const EventCard = ({ event, saved, onSaveChange, className }: EventCardProps) => {
-  const [internalSaved, setInternalSaved] = useState(false)
-  const isSaved = saved ?? internalSaved
-  const organizer = getOrganizer(event.createdBy)
+const EventCard = ({ event, className }: EventCardProps) => {
+
+  const accessToken = useAuthStore((state) => state.accessToken)
+
+  const isSaved = useEventsStore(state => state.savedEventIds.has(event._id))
+  const { mutate: toggleSave } = useToggleSaveEvent()
+
   const categoryName = getCategoryName(event.categoryId)
   const freeSpots = Math.max(event.capacity.max - event.capacity.current, 0)
+
+  const organizer = getOrganizer(event.createdBy)
   const isOrganizer = organizer.role === "organizer"
 
   const toggleSaved = () => {
-    const next = !isSaved
-    if (saved === undefined) setInternalSaved(next)
-    onSaveChange?.(event._id, next)
+
+    if (!accessToken) {
+      toast.error("Bitte melde dich an, um Events zu speichern.")
+      return
+    }
+    toggleSave(event._id)
   }
 
   const avatar = (
@@ -118,7 +129,6 @@ const EventCard = ({ event, saved, onSaveChange, className }: EventCardProps) =>
         </button>
       </div>
 
-      {/* Inhalt: zwei symmetrische Metazeilen (wann/für wen, wo/frei), Titel dazwischen, Footer mit Organisator + CTA */}
       <CardContent className="flex flex-col gap-2 p-3">
         <div className="flex items-center justify-between gap-2 text-[11px] font-medium text-muted-foreground">
           <span className="flex min-w-0 items-center gap-1">
@@ -169,10 +179,12 @@ const EventCard = ({ event, saved, onSaveChange, className }: EventCardProps) =>
               </span>
             </span>
           )}
+          <Link href={`/events/${event.slug}`}>
+            <Button size="xs" className="shrink-0 rounded-full">
+              Details
+            </Button>
+          </Link>
 
-          <Button size="xs" className="shrink-0 rounded-full">
-            Details
-          </Button>
         </div>
       </CardContent>
     </Card>

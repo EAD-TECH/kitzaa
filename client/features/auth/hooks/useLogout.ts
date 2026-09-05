@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { logout as logoutApi } from "../AuthApi";
 import { useAuthStore } from "../store/authStore";
 import { ApiError } from "@/lib/api/client";
+import { useEventsStore } from "@/features/events/store/EventStore";
 
 export function useLogout() {
   const router = useRouter();
@@ -12,9 +13,12 @@ export function useLogout() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const setSavedEventIds = useEventsStore((state) => state.setSavedEventIds);
+
   const clearClientSession = () => {
     setAccessToken(null);
     queryClient.setQueryData(["currentUser"], null);
+    setSavedEventIds([])
   };
 
   const logout = async () => {

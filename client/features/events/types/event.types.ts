@@ -57,6 +57,12 @@ export interface EventCreatedByRef {
   role: "user" | "organizer" | "admin";
 }
 
+export interface EventParticipantRef {
+  _id: string;
+  username: string;
+  avatarUrl: string | null;
+}
+
 export interface EventDTO {
   _id: string;
   title: string;
@@ -75,6 +81,7 @@ export interface EventDTO {
   location: EventLocation;
   capacity: Capacity;
   viewCount: number;
+  participantsPreview: EventParticipantRef[]
   createdAt: string;
   updatedAt: string;
 }
@@ -89,13 +96,13 @@ export interface ListDetails {
   limit: number;
   sort: Record<string, unknown>;
   pages:
-    | false
-    | {
-        previous: number | false;
-        current: number;
-        next: number | false;
-        total: number;
-      };
+  | false
+  | {
+    previous: number | false;
+    current: number;
+    next: number | false;
+    total: number;
+  };
 }
 
 // Backend'in tüm event endpoint'leri response'u bir zarfın içinde döner — apiFetch<EventDTO>
@@ -116,20 +123,24 @@ export interface EventResponse {
   event: EventDTO;
 }
 
-export interface EventLikeResponse {
-  error: false;
-  liked: boolean;
-  event: EventDTO;
-}
-
 // GET /:id/participants -> participants.userId populate edilmişse zengin obje, edilmemişse id string'i
 export interface EventParticipant {
   userId: string | { _id: string; username: string; avatarUrl: string | null };
   status: "confirmed" | "cancelled";
+  participantCount: number;
   joinedAt: string;
 }
 
 export interface EventParticipantsResponse {
   error: false;
   participants: EventParticipant[];
+}
+
+
+export interface savedEventsState {
+  savedEventIds: Set<string>
+  setSavedEventIds: (ids: string[]) => void
+  addSavedEventId: (id: string) => void
+  removeSavedEventId: (id: string) => void
+
 }

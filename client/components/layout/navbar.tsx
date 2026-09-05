@@ -30,6 +30,7 @@ import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { useTranslations, useLocale } from "next-intl";
 import { useUnreadCount } from "@/features/notifications/hooks/useUnReadCount";
 import { NotificationBellMenu } from "@/features/notifications/components/NotificationBellMenu";
+import { useAuthStore } from "@/features/auth/store/authStore";
 
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
@@ -41,6 +42,7 @@ const Navbar = () => {
   const { data: currentUser } = useCurrentUser();
   const t = useTranslations("Nav");
   const locale = useLocale();
+  const { isReady } = useAuthStore();
 
   const navLinks = [
     { href: "/", label: t("home") },
@@ -152,7 +154,18 @@ const Navbar = () => {
           </Button>
         </div>
         {/* login button  */} {/* dropdown menu  */}
-        {!currentUser ? (
+
+        {!isReady ? (
+          <div className="flex size-10 items-center justify-center" aria-hidden="true">
+            <Avatar className="hidden size-9 tablet:block">
+              <AvatarImage src={userImage.src} alt="user Image" />
+              <AvatarFallback className="bg-[#e4e7e9] text-[#adb5b9]">
+                <FaUser className="size-5" />
+              </AvatarFallback>
+            </Avatar>
+            <div className="size-10 animate-pulse rounded-sm bg-muted tablet:hidden" />
+          </div>
+        ) : !currentUser ? (
           <div>
             <Button nativeButton={false} render={<Link href="/login" />}>
               Login
@@ -170,7 +183,9 @@ const Navbar = () => {
                   >
                     <Avatar className="hidden tablet:block size-9">
                       <AvatarImage src={userImage.src} alt="user Image" />
-                      <AvatarFallback>LR</AvatarFallback>
+                      <AvatarFallback className="bg-[#e4e7e9] text-[#adb5b9]">
+                        <FaUser className="size-5" />
+                      </AvatarFallback>
                     </Avatar>
 
                     {/* hamburger menu  */}
@@ -219,7 +234,7 @@ const Navbar = () => {
                 <DropdownMenuGroup>
                   <DropdownMenuItem>
                     <FaUser />
-                    Profile
+                    <Link href="/profile">Profil</Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
@@ -234,6 +249,7 @@ const Navbar = () => {
             </DropdownMenu>
           </div>
         )}
+        
       </div>
     </div>
   );

@@ -39,12 +39,14 @@ export const deleteEvent = async (id: string, cancelledReason: string) => {
 
 
 
-export const joinEvent = async (id: string) => {
+export const joinEvent = async (id: string, participantCount: number) => {
 
-    return apiFetch<EventResponse>(`/api/v1/events/${id}/join`, { method: "POST" })
+    return apiFetch<EventResponse>(`/api/v1/events/${id}/join`, {
+        method: "POST",
+        body: { participantCount }
+    })
 
 }
-
 
 export const leaveEvent = async (id: string) => {
 
@@ -89,4 +91,10 @@ export const nearbyEvents = async (lat: number, lng: number, radius?: number) =>
 export const getEvents = async (params: URLSearchParams) => {
 
     return apiFetch<EventListResponse>(`/api/v1/events?${params.toString()}`, { method: "GET" })
+}
+
+
+export const toggleSaveEvent = async (id: string) => {
+
+    return apiFetch<{ error: false; saved: boolean }>(`/api/v1/events/${id}/save`, { method: "POST" })
 }

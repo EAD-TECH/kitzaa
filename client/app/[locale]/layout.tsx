@@ -6,7 +6,10 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { ThemeProvider } from "@/providers/theme-provider";
 import QueryProvider from "@/providers/query-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { routing } from "@/i18n/routing";
+import AuthSocketProvider from "@/providers/auth.socket.provider";
+
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -47,8 +50,14 @@ export default async function LocaleLayout({ children, params }: Props) {
         <NextIntlClientProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
             <QueryProvider>
-              {children}
-              <Toaster />
+               <AuthSocketProvider>
+              <TooltipProvider>
+                {children}
+                <Toaster />
+              </TooltipProvider>
+                 </AuthSocketProvider>
+             
+          
             </QueryProvider>
           </ThemeProvider>
         </NextIntlClientProvider>

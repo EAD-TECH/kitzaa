@@ -21,7 +21,16 @@ const queryHandler = async (
   for (let key in search) search[key] = { $regex: search[key], $options: "i" };
 
   //* Sorting:
-  const sort = query.sort ?? {};
+  // Query string'den gelen sort değerleri string olur ("-1"); MongoDB 1 | -1 ister.
+  const rawSort = query.sort ?? {};
+  const sort: Record<string, 1 | -1> = {};
+
+  for (const [key, value] of Object.entries(rawSort)) {
+    const direction = Number(value);
+    if (direction === 1 || direction === -1) {
+      sort[key] = direction;
+    }
+  }
 
   //? PAGINATION:
   // URL?page=3&limit=10&skip=20

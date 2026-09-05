@@ -9,7 +9,15 @@ export interface AuthUser {
   avatar: string | null;
   role: "user" | "organizer" | "admin";
   language: string;
+  location: {
+    state: string;
+    city: string;
+    district: string;
+    zipCode: string;
+    country: string;
+  };
   isEmailVerified: boolean;
+  savedEvents: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -34,13 +42,10 @@ export interface RegisterResponse {
   message: string;
 }
 
-export interface ForgotPasswordResponse{
+export interface ForgotPasswordResponse {
   message: string;
 }
 
-export interface ResetPasswordResponse{
+export interface ResetPasswordResponse {
   message: string;
 }
-
-
-

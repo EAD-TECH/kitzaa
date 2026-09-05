@@ -46,6 +46,7 @@ export interface ICapacity {
 export interface IParticipant {
   userId: Types.ObjectId;
   status: "confirmed" | "cancelled";
+  participantCount: number;
   joinedAt: Date;
 }
 
@@ -100,6 +101,14 @@ export interface EventCreatedByRef {
   role: "user" | "organizer" | "admin";
 }
 
+// Herkese açık DTO'da gösterilen katılımcı önizlemesi — status/participantCount/joinedAt gibi
+// organizatöre özel bilgiler kasıtlı olarak dışarıda bırakılır (bkz. /:id/participants, owner/admin'e özel).
+export interface EventParticipantRef {
+  _id: string;
+  username: string;
+  avatarUrl: string | null;
+}
+
 export interface EventDTO {
   _id: string;
   title: string;
@@ -117,6 +126,7 @@ export interface EventDTO {
   schedule: ISchedule;
   location: IEventLocation;
   capacity: ICapacity;
+  participantsPreview: EventParticipantRef[];
   viewCount: number;
   createdAt: Date;
   updatedAt: Date;

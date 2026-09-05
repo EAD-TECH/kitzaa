@@ -60,8 +60,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "login": "TestPerson",
-  "password": "Password1!"
+  "login": "marco.klein",
+  "password": "Password1."
 }
 
 ### 

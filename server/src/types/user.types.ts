@@ -71,6 +71,7 @@ export interface UserDTO {
     language: string;
     location?: ILocation;
     isEmailVerified: boolean;
+    savedEvents: string[];
     createdAt: Date;
     updatedAt: Date;
 }

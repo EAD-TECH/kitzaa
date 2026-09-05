@@ -77,6 +77,7 @@ const participantSchema = new mongoose.Schema(
       enum: ["confirmed", "cancelled"],
       default: "confirmed",
     },
+    participantCount: { type: Number, required: true, min: 1, default: 1 },
     joinedAt: { type: Date, default: Date.now },
   },
   { _id: false },
