@@ -1,7 +1,10 @@
 "use client";
 
-import { Field, FieldLabel } from "@/components/ui/field";
+import { SlidersHorizontal } from "lucide-react";
+import { useTranslations } from "next-intl";
 
+import { Button } from "@/components/ui/button";
+import { Field, FieldLabel } from "@/components/ui/field";
 import {
   Select,
   SelectContent,
@@ -10,8 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { useEvents } from "../hooks/useEvents";
-import { useTranslations } from "next-intl";
 
 const cityItems = [
   { label: "Berlin", value: "Berlin" },
@@ -24,6 +27,39 @@ export type PostSort = {
   createdAt?: 1 | -1;
 };
 
+interface SocialFilterTriggerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  panelId: string;
+  className?: string;
+}
+
+export function SocialFilterTrigger({
+  open,
+  onOpenChange,
+  panelId,
+  className,
+}: SocialFilterTriggerProps) {
+  const t = useTranslations("Social");
+
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      aria-expanded={open}
+      aria-controls={panelId}
+      onClick={() => onOpenChange(!open)}
+      className={cn(
+        "h-9 shrink-0 gap-2 rounded-xl border-border bg-background px-3 text-foreground shadow-xs",
+        className,
+      )}
+    >
+      <SlidersHorizontal className="size-4" />
+      {t("filter")}
+    </Button>
+  );
+}
+
 interface SocialFilterProps {
   city: string;
   setCity: React.Dispatch<React.SetStateAction<string>>;
@@ -31,9 +67,20 @@ interface SocialFilterProps {
   setEventId: React.Dispatch<React.SetStateAction<string>>;
   sort: PostSort;
   setSort: React.Dispatch<React.SetStateAction<PostSort>>;
+  id?: string;
+  className?: string;
 }
 
-const SocialFilter = ({ city, setCity, eventId, setEventId, sort, setSort }: SocialFilterProps) => {
+const SocialFilter = ({
+  city,
+  setCity,
+  eventId,
+  setEventId,
+  sort,
+  setSort,
+  id,
+  className,
+}: SocialFilterProps) => {
   const t = useTranslations("Social");
   const { data } = useEvents();
   const events = data?.events ?? [];
@@ -48,7 +95,13 @@ const SocialFilter = ({ city, setCity, eventId, setEventId, sort, setSort }: Soc
   ];
 
   return (
-    <div className="rounded-2xl border bg-background/70 p-4 shadow-sm backdrop-blur-sm">
+    <div
+      id={id}
+      className={cn(
+        "w-full rounded-2xl border bg-background/70 p-4 shadow-sm backdrop-blur-sm",
+        className,
+      )}
+    >
       <div className="grid grid-cols-1 gap-4">
         <Field>
           <FieldLabel>{t("cityLabel")}</FieldLabel>
@@ -90,9 +143,7 @@ const SocialFilter = ({ city, setCity, eventId, setEventId, sort, setSort }: Soc
                 <SelectItem value="all">{t("allEvents")}</SelectItem>
                 {events.map((event) => (
                   <SelectItem key={event._id} value={event._id}>
-                    <span className="whitespace-normal wrap-break-word">
-                      {event.title}
-                    </span>
+                    <span className="whitespace-normal wrap-break-word">{event.title}</span>
                   </SelectItem>
                 ))}
               </SelectGroup>

@@ -2,19 +2,23 @@
 
 import { Camera, Images, MapPin } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import backgroundPattern from "../../../public/images/event-pattern.png";
 
 interface SocialLeftRailProps {
   children?: React.ReactNode;
+  onCreatePost: () => void;
 }
 
-function SocialLeftRail({ children }: SocialLeftRailProps) {
+function SocialLeftRail({ children, onCreatePost }: SocialLeftRailProps) {
   const t = useTranslations("Social");
+  const router = useRouter();
   const { data: currentUser } = useCurrentUser();
   const fullName = currentUser
     ? [currentUser.firstName, currentUser.lastName].filter(Boolean).join(" ")
@@ -31,6 +35,19 @@ function SocialLeftRail({ children }: SocialLeftRailProps) {
         admin: t("roleAdmin"),
       }[currentUser.role]
     : null;
+
+  const handleCreatePostClick = () => {
+    if (!currentUser) {
+      toast(t("createLoginPrompt"), {
+        action: {
+          label: t("signIn"),
+          onClick: () => router.push("/login"),
+        },
+      });
+      return;
+    }
+    onCreatePost();
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -63,7 +80,7 @@ function SocialLeftRail({ children }: SocialLeftRailProps) {
 
       {children}
 
-      <section className="relative isolate hidden overflow-hidden rounded-2xl bg-primary p-5 text-primary-foreground shadow-sm desktop:block">
+      <section className="relative isolate hidden overflow-hidden rounded-2xl bg-primary p-5 text-primary-foreground shadow-sm tablet:block">
         <Image
           src={backgroundPattern}
           alt=""
@@ -78,10 +95,13 @@ function SocialLeftRail({ children }: SocialLeftRailProps) {
         <p className="mt-3 font-heading text-xl font-semibold">{t("shareTitle")}</p>
         <p className="mt-2 text-sm text-primary-foreground/85">{t("shareBody")}</p>
 
-        <p className="mt-4 flex items-center gap-2 rounded-full bg-primary-foreground/12 px-3 py-2 text-sm text-primary-foreground/80">
+        <button 
+          type="button"
+          className="mt-4 flex items-center gap-2 rounded-full bg-primary-foreground/12 px-3 py-2 text-sm text-primary-foreground/80"
+          onClick={handleCreatePostClick}>
           <Images className="size-4 shrink-0" />
           <span className="truncate">{t("sharePrompt")}</span>
-        </p>
+        </button>
       </section>
     </div>
   );
