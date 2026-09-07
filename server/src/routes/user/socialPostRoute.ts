@@ -8,15 +8,18 @@ import Post from '../../models/postModel.js';
 import { createPostSchema, updatePostSchema } from '../../validations/post.schema.js';
 
 const router = Router();
-router.use(authentication);
+
 router.param('id', validateObjectIdParam);
 
 const { list, read, create, update, deletee, toggleLike } = socialPostController;
 
-router.route('/').get(list).post(validateBody(createPostSchema), create);
+router.route('/').get(list);
+router.route('/:id').get(read);
+
+router.use(authentication);
+router.route('/').post(validateBody(createPostSchema), create);
 router
   .route('/:id')
-  .get(read)
   .put(isOwnerOrAdmin(Post, 'authorId'), validateBody(updatePostSchema), update)
   .delete(isOwnerOrAdmin(Post, 'authorId'), deletee);
 router.route("/:id/like").post(toggleLike);
