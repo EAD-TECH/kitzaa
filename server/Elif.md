@@ -132,7 +132,7 @@ Mantıgı :
 - **Jira Kartı:** `KTZ-58`
 - **Mimari Kararlar & Ne Yaptım:**
 
-- Bu taskta cron gibi zaman güdümlü değil, doğrudan olaya (Event) güdümlü bir mantık işlettik.
+- Bu taskta cron gibi zaman güdümlü değil, doğrudan olaya (Event) güdümlü bir mantık işlettim.
 
 - Daha önce tekil bildirimler için helper/createNotification fonksiyonunu oluşturmuştum. Ancak bu taskta aynı şehirdeki birçok kullanıcıya bildirim atacağımız için o fonksiyonu kullanmak, her bildirim için DB'ye ayrı ayrı istek atılmasına (performans kaybına) neden olacaktı. Sistemi yormamak ve toplu kayıt yapabilmek için helpers/ altında sendBulkNotifications.ts adında yeni bir veritabanı motoru/şablonu oluşturdum (insertMany kullanıldı).
 

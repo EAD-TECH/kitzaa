@@ -2,6 +2,7 @@ import { sendBulknotificaitons } from "../helpers/sendBulkNotifications.js";
 import User from "../models/userModel.js";
 
 export const notifyUsersForNearbyEvent = async (event: any) => {
+  if (event.status !== "approved") return null;
   console.log(
     "[KTZ-58] Yakın çevre bildirim motoru tetiklendi. Şehir:",
     event.location.city,
