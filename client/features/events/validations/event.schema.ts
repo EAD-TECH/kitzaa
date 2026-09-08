@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { stripHtml } from "@/lib/utils"
 
 const ageRangeSchema = z.enum(["0-3", "4-6", "7-10", "10-14", "parents", "all-ages"])
 
@@ -51,7 +52,12 @@ const capacitySchema = z.object({
 
 const baseEventSchema = z.object({
   title: z.string().trim().min(1, "Titel ist erforderlich").max(100),
-  description: z.string().trim().min(1, "Beschreibung ist erforderlich").max(2000),
+  // Beschreibung kommt als HTML aus dem Rich-Text-Editor — Länge/Leer-Prüfung läuft auf
+  // dem sichtbaren Text (stripHtml), nicht auf dem rohen Markup-String.
+  description: z
+    .string()
+    .refine((html) => stripHtml(html).trim().length > 0, "Beschreibung ist erforderlich")
+    .refine((html) => stripHtml(html).length <= 2000, "Beschreibung darf maximal 2000 Zeichen haben"),
   coverImage: z.string().url().optional().nullable(),
   images: z.array(z.string().url()).optional().default([]),
   categoryId: z.string().min(1, "Kategorie ist erforderlich"),

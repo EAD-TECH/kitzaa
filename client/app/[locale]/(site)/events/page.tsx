@@ -12,6 +12,7 @@ import { Suspense } from 'react'
 import EventListError from '@/features/events/components/EventListError'
 import EventListSkeleton from '@/features/events/components/EventListSkeleton'
 import FilterSidebarSkeleton from '@/features/events/components/filterSidebar/FilterSidebarSkeleton'
+import ScrollToTopButton from '@/features/events/components/ScrollToTopButton'
 
 interface EventsPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>
@@ -23,7 +24,7 @@ const EventsPage = async ({ searchParams }: EventsPageProps) => {
 
   return (
     <div className='grid desktop:grid-cols-[320px_1fr] gap-16 px-6 tablet:px-20 desktop:px-10 mt-10 mx-auto'>
-      <div className='hidden desktop:flex flex-col gap-10 '>
+      <div className='hidden desktop:sticky desktop:top-20 desktop:flex desktop:flex-col desktop:gap-10'>
         <Suspense fallback={<FilterSidebarSkeleton />}>
           <FilterSidebar />
         </Suspense>
@@ -53,6 +54,7 @@ const EventsPage = async ({ searchParams }: EventsPageProps) => {
         </div>
       </div>
 
+      <ScrollToTopButton />
     </div>
   )
 }

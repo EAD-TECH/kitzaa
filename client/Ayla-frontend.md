@@ -406,3 +406,27 @@ Backend — katılımcıyı ekler, güncel event'i (yeni capacity + participants
 AnmeldenCard.tsx — cevap gelince mutate()'e verdiğin onSuccess çalışır → onEventChange(data.event) çağrılır.
 EventRegistration.tsx — onEventChange aslında setEvent, state güncellenir.
 React yeniden render eder → güncel event, hem AnmeldenCard'a hem ParticipantAvatars'a yeniden gider → ekran (kapasite + avatar listesi) güncellenir.
+
+
+# Create Event - Uploadthing
+
+
+1. UploadThing client kurulumu (client/lib/uploadthing.ts, yeni dosya)
+client içine uploadthing@^7.7.4 paketini kurdum (repo npm workspaces kullandığı için paket, workspace'in kök node_modules'una kuruldu). client/ ve server/ ayrı TS projeleri olduğu için server'daki OurFileRouter tipini doğrudan import edemedim — bu yüzden sadece eventImage endpoint'i için uploadthing/types'tan gelen FileRoute<...> ile eşleşen bir tip elle tanımladım. uploadFiles fonksiyonunu genUploader() ile oluşturdum ve ${NEXT_PUBLIC_API_URL}/api/uploadthing adresine yönlendirdim. Dosyaya, server'daki route şekli değişirse bunun da güncellenmesi gerektiğini belirten bir not bıraktım.
+
+2. Upload helper fonksiyonu (client/features/events/api/eventImageApi.ts, yeni)
+uploadEventImages(files) fonksiyonu uploadFiles("eventImage", ...) çağırıyor. Bu istek senin apiFetch wrapper'ından geçmediği için, Authorization: Bearer <token>'ı useAuthStore'dan alıp manuel olarak ekledim — çünkü backend'deki getUserFromRequest middleware'i kullanıcıyı bu header'dan çözüyor. Fonksiyon, yüklenen her dosyanın .ufsUrl alanını döndürüyor.
+
+3. İki React Query hook'u (yeni)
+
+useUploadEventImages.ts — upload çağrısını sarmalıyor, hata durumunda toast gösteriyor.
+useCreateEvent.ts — eventApi.ts'teki createEvent'i sarmalıyor; backend'in fırlattığı bilinen tek iş kuralı hatasını ("You must be an organizer to create paid events.") Almanca bir mesaja çeviriyor — mevcut useJoinEvent.ts ile aynı desen.
+
+4. Gerçek resim yükleme alanı (EventDetailsStep.tsx)
+Eskiden sadece yerel önizleme yapan dropzone'u değiştirdim: artık dosya seçilince önce blob önizlemesi anında gösteriliyor, arka planda UploadThing'e yükleniyor, dönen URL'ler form.images alanına (ilk resim de coverImage'a) setValue ile yazılıyor, ve her kutucukta yükleniyor/hata durumları gösteriliyor. Backend'in kendi limitleriyle eşleşen client-side kontroller ekledim: en fazla 5 resim, resim başına 8MB (eventFormOptions.ts içinde MAX_EVENT_IMAGES/MAX_EVENT_IMAGE_SIZE_MB olarak) — artık kullanılmayan PLACEHOLDER_CATEGORIES'i de kaldırdım.
+
+5. Gerçek kategoriler
+events-erstellen/page.tsx artık async bir server component; getCategoriesServer()'ı çağırıyor (zaten FilterSidebar'ın kullandığı mevcut server-fetch fonksiyonu) ve categories'i CreateEventWizard → EventDetailsStep'e prop olarak geçiriyor — kategori <Select>'indeki placeholder listenin yerini aldı.
+
+6. Submit'i bağladım (CreateEventWizard.tsx)
+onSubmit artık console.log yerine useCreateEvent()'in mutation'ını çağırıyor, "Yayınla" butonunda loading durumu gösteriyor, başarılı olunca toast gösterip /profile/meine-events'e yönlendiriyor.

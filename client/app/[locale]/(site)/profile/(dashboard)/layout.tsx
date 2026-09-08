@@ -1,8 +1,7 @@
 "use client"
 
-import { useEffect, type ReactNode } from "react"
+import type { ReactNode } from "react"
 
-import { useRouter } from "@/i18n/navigation"
 import { useAuthStore } from "@/features/auth/store/authStore"
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser"
 import ProfileHeader from "@/features/profile/components/ProfileHeader"
@@ -17,20 +16,15 @@ const PLACEHOLDER_STATS: ProfileStats = {
   postsCount: 8,
 }
 
-interface ProfileLayoutProps {
+interface DashboardLayoutProps {
   children: ReactNode
 }
 
-export default function ProfileLayout({ children }: ProfileLayoutProps) {
-  const router = useRouter()
+// Giriş zorunluluğu üst düzey profile/layout.tsx'te — burası sadece dashboard
+// sekmelerine (Profil, Meine Events, ...) özel chrome'u (header + tabs) ekliyor.
+export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const isReady = useAuthStore((state) => state.isReady)
   const { data: user } = useCurrentUser()
-
-  useEffect(() => {
-    if (isReady && !user) {
-      router.replace("/login")
-    }
-  }, [isReady, user, router])
 
   const isLoading = !isReady || !user
 

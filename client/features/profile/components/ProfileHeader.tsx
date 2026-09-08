@@ -98,7 +98,7 @@ const ProfileHeader = ({ user, stats }: ProfileHeaderProps) => {
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          <Button render={<Link href="/events/create" />} nativeButton={false} size="sm">
+          <Button render={<Link href="/profile/events-erstellen" />} nativeButton={false} size="sm">
             <Plus className="size-4" />
             Event erstellen
           </Button>

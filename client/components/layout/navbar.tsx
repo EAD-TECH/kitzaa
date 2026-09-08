@@ -66,7 +66,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="flex items-center justify-between px-3 tablet:px-5 desktop:px-8 bg-card/40 border-b border-border sticky backdrop-blur-sm">
+    <div className="flex h-16 items-center justify-between px-3 tablet:px-5 desktop:px-8 bg-card/40 border-b border-border sticky top-0 z-50 backdrop-blur-sm">
       {/* logo  */}
 
       <Link href="/" className="flex items-center">
@@ -232,9 +232,9 @@ const Navbar = () => {
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem render={<Link href="/profile" />}>
                     <FaUser />
-                    <Link href="/profile">Profil</Link>
+                    Profil
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
