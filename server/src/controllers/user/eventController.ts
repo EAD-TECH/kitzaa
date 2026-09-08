@@ -6,37 +6,44 @@ import { toEventDTO } from "../../helpers/toEventDTO.js";
 import Event from "../../models/eventModel.js";
 import type { EventDocument } from "../../types/event.types.js";
 import EventCategory from "../../models/eventCategoryModel.js";
-import type { CancelEventInput, CreateEventInput, JoinEventInput, NearbyQueryInput, UpdateEventInput } from "../../validations/event.schema.js";
+import type {
+  CancelEventInput,
+  CreateEventInput,
+  JoinEventInput,
+  NearbyQueryInput,
+  UpdateEventInput,
+} from "../../validations/event.schema.js";
 import { assertValidTransition } from "../../helpers/eventStateMachine.js";
-import {
-  notifyUsersForNearbyEvent,
-  notifyUsersForCancelledEvent,
-} from "../../services/notificationService.js";
+import { notifyUsersForCancelledEvent } from "../../services/notificationService.js";
 import User from "../../models/userModel.js";
 
 const eventController = {
-
   list: async (req: Request, res: Response) => {
-
     const customFilter: Record<string, unknown> = { status: "approved" };
 
-    const category = req.query.category
-    const organisator = req.query.organisator
+    const category = req.query.category;
+    const organisator = req.query.organisator;
 
     // console.log("category", category) // familie,bildung,sport
 
     if (typeof category === "string" && category.length > 0) {
       const slugs = category.split(",");
-      const categories = await EventCategory.find({ slug: { $in: slugs } }).select("_id");
+      const categories = await EventCategory.find({
+        slug: { $in: slugs },
+      }).select("_id");
       customFilter.categoryId = { $in: categories.map((c) => c._id) };
     }
 
     if (typeof organisator === "string" && organisator.length > 0) {
       const validRoles = ["organizer", "user"] as const;
-      const roles = organisator.split(",").filter((r): r is "organizer" | "user" =>
-        (validRoles as readonly string[]).includes(r)
+      const roles = organisator
+        .split(",")
+        .filter((r): r is "organizer" | "user" =>
+          (validRoles as readonly string[]).includes(r),
+        );
+      const organisators = await User.find({ role: { $in: roles } }).select(
+        "_id",
       );
-      const organisators = await User.find({ role: { $in: roles } }).select("_id");
       customFilter.createdBy = { $in: organisators.map((o) => o._id) };
     }
 
@@ -44,15 +51,25 @@ const eventController = {
     const lng = req.query.lng;
     const radius = req.query.radius;
 
-    if (typeof lat === "string" && typeof lng === "string" && typeof radius === "string") {
+    if (
+      typeof lat === "string" &&
+      typeof lng === "string" &&
+      typeof radius === "string"
+    ) {
       const latNum = Number(lat);
       const lngNum = Number(lng);
       const radiusKm = Number(radius);
 
       const isValid =
-        Number.isFinite(latNum) && latNum >= -90 && latNum <= 90 &&
-        Number.isFinite(lngNum) && lngNum >= -180 && lngNum <= 180 &&
-        Number.isFinite(radiusKm) && radiusKm > 0 && radiusKm <= 50;
+        Number.isFinite(latNum) &&
+        latNum >= -90 &&
+        latNum <= 90 &&
+        Number.isFinite(lngNum) &&
+        lngNum >= -180 &&
+        lngNum <= 180 &&
+        Number.isFinite(radiusKm) &&
+        radiusKm > 0 &&
+        radiusKm <= 50;
 
       if (isValid) {
         const EARTH_RADIUS_KM = 6378.1;
@@ -82,16 +99,16 @@ const eventController = {
     const { lat, lng, radius } = req.validatedQuery as NearbyQueryInput;
 
     const events = await Event.find({
-      status: 'approved',
-      'location.coordinates': {
+      status: "approved",
+      "location.coordinates": {
         $near: {
-          $geometry: { type: 'Point', coordinates: [lng, lat] }, // nereye göre yakinlik olcucez.
+          $geometry: { type: "Point", coordinates: [lng, lat] }, // nereye göre yakinlik olcucez.
           $maxDistance: radius,
         },
       },
     }).populate([
-      { path: 'categoryId', select: 'name slug icon' },
-      { path: 'createdBy', select: 'username avatarUrl role' },
+      { path: "categoryId", select: "name slug icon" },
+      { path: "createdBy", select: "username avatarUrl role" },
     ]);
 
     res.status(200).send({
@@ -99,7 +116,6 @@ const eventController = {
       events: toEventDTO(events),
     });
   },
-
 
   read: async (req: Request<{ slug: string }>, res: Response) => {
     const result = await Event.findOneAndUpdate(
@@ -138,10 +154,6 @@ const eventController = {
       createdBy: req.user._id,
     });
 
-    /* olusturulan yenı etkınlık db ye gıderken aynı anda await olmadan kullanıcıya bıldırım atmak */
-    console.log("API Yanıtı dönüyor, arka planda KTZ-58 motoru ateşleniyor.");
-    notifyUsersForNearbyEvent(newEvent);
-
     res.status(201).send({
       error: false,
       event: toEventDTO(newEvent),
@@ -176,17 +188,16 @@ const eventController = {
     event.status = "cancelled";
     await event.save();
 
-    console.log(
-      "API Yanıtı dönüyor, arka planda KTZ-61 motoru ateşleniyor",
-    );
+    console.log("API Yanıtı dönüyor, arka planda KTZ-61 motoru ateşleniyor");
     notifyUsersForCancelledEvent(event);
-
 
     res.sendStatus(204);
   },
 
-  join: async (req: Request<{ id: string }, any, JoinEventInput>, res: Response) => {
-
+  join: async (
+    req: Request<{ id: string }, any, JoinEventInput>,
+    res: Response,
+  ) => {
     const { participantCount } = req.body;
 
     const event = await Event.findById(req.params.id);
@@ -216,7 +227,12 @@ const eventController = {
         _id: event._id,
         status: "approved",
         "participants.userId": { $ne: req.user._id },
-        $expr: { $lte: [{ $add: ["$capacity.current", participantCount] }, "$capacity.max"] },
+        $expr: {
+          $lte: [
+            { $add: ["$capacity.current", participantCount] },
+            "$capacity.max",
+          ],
+        },
       },
       {
         $push: {
@@ -310,33 +326,32 @@ const eventController = {
   },
 
   toggleSave: async (req: Request<{ id: string }>, res: Response) => {
+    const eventId = req.params.id;
+    const userId = req.user._id;
 
-    const eventId = req.params.id
-    const userId = req.user._id
-
-    const event = await Event.findById(eventId)
+    const event = await Event.findById(eventId);
 
     if (!event) {
       throw new CustomError("Event not found", 404);
     }
 
-    const user = await User.findById(userId)
+    const user = await User.findById(userId);
 
-    const alreadySaved = user?.savedEvents?.some((id) => id.equals(eventId) ?? false)
+    const alreadySaved = user?.savedEvents?.some(
+      (id) => id.equals(eventId) ?? false,
+    );
 
     await User.findByIdAndUpdate(
       userId,
       alreadySaved
         ? { $pull: { savedEvents: eventId } }
-        : { $addToSet: { savedEvents: eventId } }
-    )
-
+        : { $addToSet: { savedEvents: eventId } },
+    );
 
     res.status(200).json({
       error: false,
       saved: !alreadySaved,
     });
-
   },
 
   participants: async (req: Request<{ id: string }>, res: Response) => {
@@ -356,7 +371,6 @@ const eventController = {
       participants: event.participants ?? [],
     });
   },
-  
 
   myEvents: async (req: Request, res: Response) => {
     const customFilter = { createdBy: req.user._id };
@@ -369,9 +383,6 @@ const eventController = {
       events: toEventDTO(result),
     });
   },
-
-
-
 
   myParticipations: async (req: Request, res: Response) => {
     const customFilter = { "participants.userId": req.user._id };

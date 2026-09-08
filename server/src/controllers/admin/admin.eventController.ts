@@ -8,56 +8,63 @@ import { eventApprovedTemplate } from "../../mail/templates/eventApproved.templa
 import { eventCancelledTemplate } from "../../mail/templates/eventCancelled.template.js";
 import { eventRejectedTemplate } from "../../mail/templates/eventRejected.template.js";
 import Event from "../../models/eventModel.js";
-import type { CancelEventInput, RejectEventInput } from "../../validations/event.schema.js";
+import type {
+  CancelEventInput,
+  RejectEventInput,
+} from "../../validations/event.schema.js";
 import { assertValidTransition } from "../../helpers/eventStateMachine.js";
 import type { UserDocument } from "../../types/user.types.js";
+import { notifyUsersForNearbyEvent } from "../../services/notificationService.js";
 
-const CREATED_BY_POPULATE = { path: 'createdBy', select: 'username email avatarUrl role' };
+const CREATED_BY_POPULATE = {
+  path: "createdBy",
+  select: "username email avatarUrl role",
+};
 
 const adminEventController = {
-
   list: async (req: Request, res: Response) => {
-
     const result = await res.getModelList(Event, {}, [
-      { path: 'categoryId', select: 'name slug icon' },
+      { path: "categoryId", select: "name slug icon" },
       CREATED_BY_POPULATE,
     ]);
 
     res.status(200).send({
       error: false,
       details: await res.getModelListDetails(Event),
-      events: toAdminEventDTO(result)
+      events: toAdminEventDTO(result),
     });
-
   },
 
   read: async (req: Request<{ id: string }>, res: Response) => {
-
-    const result = await Event.findById(req.params.id).populate(CREATED_BY_POPULATE);
+    const result = await Event.findById(req.params.id).populate(
+      CREATED_BY_POPULATE,
+    );
 
     if (!result) {
-      throw new CustomError('Event not found', 404);
+      throw new CustomError("Event not found", 404);
     }
 
     res.status(200).send({
       error: false,
-      event: toAdminEventDTO(result)
+      event: toAdminEventDTO(result),
     });
-
   },
 
   approve: async (req: Request<{ id: string }>, res: Response) => {
-
-    const event = await Event.findById(req.params.id).populate(CREATED_BY_POPULATE)
+    const event = await Event.findById(req.params.id).populate(
+      CREATED_BY_POPULATE,
+    );
 
     if (!event) {
-      throw new CustomError('Event not found', 404);
+      throw new CustomError("Event not found", 404);
     }
 
-    assertValidTransition(event.status, 'approved');
+    assertValidTransition(event.status, "approved");
 
-    event.status = 'approved'
-    await event.save()
+    event.status = "approved";
+    await event.save();
+
+    notifyUsersForNearbyEvent(event);
 
     const createdBy = event.createdBy as unknown as UserDocument;
 
@@ -77,22 +84,25 @@ const adminEventController = {
 
     res.status(200).send({
       error: false,
-      event: toAdminEventDTO(event)
+      event: toAdminEventDTO(event),
     });
-
   },
 
-  reject: async (req: Request<{ id: string }, any, RejectEventInput>, res: Response) => {
-
-    const event = await Event.findById(req.params.id).populate(CREATED_BY_POPULATE);
+  reject: async (
+    req: Request<{ id: string }, any, RejectEventInput>,
+    res: Response,
+  ) => {
+    const event = await Event.findById(req.params.id).populate(
+      CREATED_BY_POPULATE,
+    );
 
     if (!event) {
-      throw new CustomError('Event not found', 404);
+      throw new CustomError("Event not found", 404);
     }
 
-    assertValidTransition(event.status, 'rejected');
+    assertValidTransition(event.status, "rejected");
 
-    event.status = 'rejected';
+    event.status = "rejected";
     event.rejectedReason = req.body.rejectedReason;
     await event.save();
 
@@ -114,22 +124,25 @@ const adminEventController = {
 
     res.status(200).send({
       error: false,
-      event: toAdminEventDTO(event)
+      event: toAdminEventDTO(event),
     });
-
   },
 
-  cancel: async (req: Request<{ id: string }, any, CancelEventInput>, res: Response) => {
-
-    const event = await Event.findById(req.params.id).populate(CREATED_BY_POPULATE);
+  cancel: async (
+    req: Request<{ id: string }, any, CancelEventInput>,
+    res: Response,
+  ) => {
+    const event = await Event.findById(req.params.id).populate(
+      CREATED_BY_POPULATE,
+    );
 
     if (!event) {
-      throw new CustomError('Event not found', 404);
+      throw new CustomError("Event not found", 404);
     }
 
-    assertValidTransition(event.status, 'cancelled');
+    assertValidTransition(event.status, "cancelled");
 
-    event.status = 'cancelled';
+    event.status = "cancelled";
     event.cancelledReason = req.body.cancelledReason;
     await event.save();
 
@@ -151,24 +164,19 @@ const adminEventController = {
 
     res.status(200).send({
       error: false,
-      event: toAdminEventDTO(event)
+      event: toAdminEventDTO(event),
     });
-
   },
 
   deletee: async (req: Request<{ id: string }>, res: Response) => {
-
     const result = await Event.findByIdAndDelete(req.params.id);
 
     if (!result) {
-      throw new CustomError('Event not found or already deleted.', 404);
+      throw new CustomError("Event not found or already deleted.", 404);
     }
 
     res.sendStatus(204);
-
-  }
-
+  },
 };
 
 export default adminEventController;
-
