@@ -1,4 +1,3 @@
-
 :root {
   /* Nötr / sıcak gri-kahve tonları */
   --cream-50: oklch(0.98 0.01 80);
@@ -8,6 +7,7 @@
   --brown-600: oklch(0.45 0.03 50);
   --brown-800: oklch(0.28 0.025 45);
   --brown-900: oklch(0.2 0.02 40);
+  --brown-850: oklch(23% 0.024 54.9);
 
   /* Terracotta (primary/vurgu) */
   --terracotta-400: oklch(0.68 0.14 40);
@@ -21,4 +21,16 @@
   /* Feedback */
   --red-500: oklch(0.577 0.245 27);
   --green-500: oklch(0.6 0.15 145);
+
+  /* kendı custom renk token tablom */
+
+  --brown-500: oklch(0.549 0.035 60.6);
+  --white-transparent-02: rgba(255, 255, 255, 0.2);
+
+  /* kanban kart gorevlerı(semantık olarak ısım verıyorm) */
+  --kanban-card-border: var(--brown-500);
+  --kanban-card-title: var(--brown-850);
+  --kanban-card-bg: var(--white-transparent-02);
+  --kanban-card-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
 }

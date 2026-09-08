@@ -2,16 +2,17 @@
 import FeedList from "../../../../features/social/components/FeedList";
 import { usePosts } from "../../../../features/social/hooks/usePosts";
 import type { PostDTO } from "../../../../features/social/types/post.types";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import SocialFeedHeader from "@/features/social/components/SocialFeedHeader";
-import SocialFilter from "@/features/social/components/SocialFilter";
+import SocialFilter, { SocialFilterTrigger } from "@/features/social/components/SocialFilter";
 import SocialLeftRail from "@/features/social/components/SocialLeftRail";
 import SocialRightRail from "@/features/social/components/SocialRightRail";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { useTranslations } from "next-intl";
+import { CreatePostDialog } from "@/features/social/components/CreatePostDialog";
 
 function SocialPage() {
   const t = useTranslations("Social");
@@ -22,13 +23,18 @@ function SocialPage() {
   const [eventId, setEventId] = useState("");
   const [sort, setSort] = useState<{ createdAt?: 1 | -1 }>({ createdAt: -1 });
   const [search, setSearch] = useState("");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
+  const mobileFilterPanelId = useId();
 
-  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = usePosts({ city, eventId, sort, search });
+  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = usePosts({
+    city,
+    eventId,
+    sort,
+    search,
+  });
 
-  const posts = useMemo<PostDTO[]>(
-    () => data?.pages.flatMap((page) => page.posts) ?? [],
-    [data],
-  );
+  const posts = useMemo<PostDTO[]>(() => data?.pages.flatMap((page) => page.posts) ?? [], [data]);
 
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
@@ -89,30 +95,54 @@ function SocialPage() {
   return (
     <div className="mx-auto mt-10 grid w-full grid-cols-1 gap-6 px-6 tablet:px-20 desktop:grid-cols-[320px_minmax(0,1fr)_280px] desktop:items-start desktop:gap-16 desktop:px-10">
       <aside className="desktop:sticky desktop:top-20 desktop:max-h-[calc(100vh-5.5rem)] desktop:overflow-y-auto">
-        <SocialLeftRail>
-          <SocialFilter
-            city={city}
-            setCity={setCity}
-            eventId={eventId}
-            setEventId={setEventId}
-            sort={sort}
-            setSort={setSort}
-          />
+        <SocialLeftRail onCreatePost={() => setIsCreatePostOpen(true)}>
+          <div className="hidden desktop:block">
+            <SocialFilter
+              city={city}
+              setCity={setCity}
+              eventId={eventId}
+              setEventId={setEventId}
+              sort={sort}
+              setSort={setSort}
+            />
+          </div>
         </SocialLeftRail>
       </aside>
 
       <div className="min-w-0">
-        <SocialFeedHeader search={search} setSearch={setSearch} />
+        <SocialFeedHeader
+          search={search}
+          setSearch={setSearch}
+          action={
+            <SocialFilterTrigger
+              open={isFilterOpen}
+              onOpenChange={setIsFilterOpen}
+              panelId={mobileFilterPanelId}
+              className="desktop:hidden"
+            />
+          }
+          panel={
+            isFilterOpen ? (
+              <SocialFilter
+                id={mobileFilterPanelId}
+                className="mt-4 desktop:hidden"
+                city={city}
+                setCity={setCity}
+                eventId={eventId}
+                setEventId={setEventId}
+                sort={sort}
+                setSort={setSort}
+              />
+            ) : null
+          }
+        />
 
         {isLoading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="size-5 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <FeedList
-            posts={posts}
-            emptyMessage={eventId ? t("emptyEventPhotos") : t("emptyPosts")}
-          />
+          <FeedList posts={posts} emptyMessage={eventId ? t("emptyEventPhotos") : t("emptyPosts")} />
         )}
 
         {isFetchingNextPage && (
@@ -136,6 +166,7 @@ function SocialPage() {
           }}
         />
       </aside>
+      <CreatePostDialog open={isCreatePostOpen} onOpenChange={setIsCreatePostOpen} />
     </div>
   );
 }

@@ -9,8 +9,34 @@ import type {
 
 const BASE = "/api/v1/admin/organizer-applications";
 
-export async function listOrganizerApplications() {
-  return apiFetch<ListOrganizerApplicationsResponse>(BASE, { method: "GET" });
+interface ListOrganizerApplicationsParams {
+  secilenKategori: string | undefined;
+  page?:number
+  limit?:number
+}
+
+export async function listOrganizerApplications({
+  secilenKategori,
+  page,
+  limit
+}: ListOrganizerApplicationsParams): Promise<ListOrganizerApplicationsResponse> {
+  const params=new URLSearchParams()
+
+  if (secilenKategori && secilenKategori != "Tümü") {
+    params.append("category",secilenKategori)
+    
+  }if(page) { 
+    params.append("page",page.toString())
+  }if (limit) {
+    params.append("limit", limit.toString());
+  }
+  const queryString = params.toString();
+
+  const endpoint = queryString ? `${BASE}?${queryString}` : BASE;
+
+  return apiFetch<ListOrganizerApplicationsResponse>(endpoint, {
+    method: "GET",
+  });
 }
 
 export async function getOrganizerApplication(id: string) {
@@ -20,9 +46,12 @@ export async function getOrganizerApplication(id: string) {
 }
 
 export async function approveOrganizerApplication(id: string) {
-  return apiFetch<ApproveOrganizerApplicationResponse>(`${BASE}/${id}/approve`, {
-    method: "PUT",
-  });
+  return apiFetch<ApproveOrganizerApplicationResponse>(
+    `${BASE}/${id}/approve`,
+    {
+      method: "PUT",
+    },
+  );
 }
 
 export async function rejectOrganizerApplication(
@@ -34,3 +63,4 @@ export async function rejectOrganizerApplication(
     body,
   });
 }
+

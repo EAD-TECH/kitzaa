@@ -20,7 +20,7 @@ const socialPostController = {
     res.status(200).send({
       error: false,
       details: await res.getModelListDetails(Post, customFilter),
-      posts: toPostDTO(result, req.user._id),
+      posts: toPostDTO(result, req.user?._id),
     });
   },
 
@@ -40,7 +40,7 @@ const socialPostController = {
 
     res.status(200).send({
       error: false,
-      post: toPostDTO(result, req.user._id),
+      post: toPostDTO(result, req.user?._id),
     });
   },
 
