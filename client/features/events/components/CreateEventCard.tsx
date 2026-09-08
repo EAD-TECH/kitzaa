@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import backgroundPattern from "../../../public/images/event-pattern.png"
 
@@ -16,7 +16,7 @@ const CreateEventCard = () => {
                 <p className='mb-3 font-heading text-2xl font-bold'>Eigene Idee?</p>
                 <p className='text-base'>Hast du ein tolles Konzept für ein Treffen oder einen Workshop?</p>
                 <Button
-                    render={<Link href="/events/create" />}
+                    render={<Link href="/profile/events-erstellen" />}
                     nativeButton={false}
                     className="mt-6 px-6 tablet:px-8 desktop:px-6 cursor-pointer rounded-full bg-background text-foreground shadow-sm transition-all 
                     "

@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 function formatNotificationTime(createdAt: string) {
   const date = new Date(createdAt);
   if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleString("tr-TR", {
+  return date.toLocaleString("de-DE", {
     day: "numeric",
     month: "short",
     hour: "2-digit",
@@ -57,8 +57,8 @@ export function NotificationBellMenu() {
             type="button"
             aria-label={
               unreadCount > 0
-                ? `${unreadCount} okunmamış bildirim`
-                : "Bildirimler"
+                ? `${unreadCount} ungelesene Benachrichtigungen`
+                : "Benachrichtigungen"
             }
             className="relative inline-flex size-10 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
           >
@@ -76,7 +76,7 @@ export function NotificationBellMenu() {
       <DropdownMenuContent align="end" className="w-80 min-w-80 p-0">
         {/* baslık */}
         <div className="px-4 py-3 font-heading font-semibold text-sm text-foreground">
-          Bildirimler
+          Benachrichtigungen
         </div>
         <DropdownMenuSeparator />
 
@@ -84,15 +84,15 @@ export function NotificationBellMenu() {
         <div className=" max-h-80 overflow-y-auto">
           {isPending ? (
             <p className="px-4 py-4 text-center text-sm text-muted-foreground">
-              Yükleniyor...
+              Wird geladen...
             </p>
           ) : isError ? (
             <p className="px-4 py-4 text-center text-sm text-destructive">
-              Bildirimler yüklenemedi.
+              Benachrichtigungen konnten nicht geladen werden.
             </p>
           ) : notifications.length === 0 ? (
             <p className="px-4 py-4 text-center text-sm text-muted-foreground">
-              Bildiriminiz yok.
+              Du hast keine Benachrichtigungen.
             </p>
           ) : (
             /* tüm bildirimler, l,stele */
@@ -153,7 +153,7 @@ export function NotificationBellMenu() {
               markAllAsRead(); 
             }}
           >
-            Tümünü okundu işaretle
+            Alle als gelesen markieren
           </DropdownMenuItem>
         </div>
       </DropdownMenuContent>

@@ -44,21 +44,9 @@ const PersonalInfoCard = () => {
             Persönliche Informationen
           </h2>
         </div>
-        <Button variant="outline" size="sm">
-          Bearbeiten
-        </Button>
       </div>
 
       <Separator className="my-6" />
-
-      <dl className="grid grid-cols-1 gap-x-8 gap-y-5 tablet:grid-cols-2">
-        {fields.map((field) => (
-          <div key={field.label} className="flex flex-col gap-1">
-            <dt className="text-xs text-muted-foreground">{field.label}</dt>
-            <dd className="text-sm font-medium text-foreground">{field.value}</dd>
-          </div>
-        ))}
-      </dl>
     </div>
   )
 }

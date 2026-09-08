@@ -29,8 +29,8 @@ export const notifyUsersForNearbyEvent = async (event: any) => {
   await sendBulknotificaitons({
     userIdsArray: userIds,
     type: "nearby_event",
-    title: `Şehrinizde Yeni Etkinlik: ${event.title}`,
-    message: `${event.location.city} şehrinde yeni bir etkinlik oluşturuldu. Hemen inceleyin!`,
+    title: `Neue Veranstaltung in deiner Stadt: ${event.title}`,
+    message: `In ${event.location.city} wurde eine neue Veranstaltung erstellt. Schau sie dir gleich an!`,
     relatedId: event._id,
     relatedModel: "Event",
     linkNotification: `/events/${event._id}`,
@@ -55,11 +55,11 @@ export const notifyUsersForCancelledEvent = async (event: any) => {
   await sendBulknotificaitons({
     userIdsArray: userIds,
     type: "event_cancelled",
-    title: `Cancel edilmiştir: ${event.title}`,
+    title: `Abgesagt: ${event.title}`,
     // Eğer event objesinde bir iptal sebebi varsa onu kullan, yoksa standart mesaj ver
     message: event.cancelledReason
-      ? `Üzülerek bildiririz ki etkinlik iptal edilmiştir. Sebep: ${event.cancelledReason}`
-      : `Üzülerek bildiririz ki "${event.title}" adlı etkinlik organizatör tarafından iptal edilmiştir.`,
+      ? `Wir bedauern, dir mitteilen zu müssen, dass die Veranstaltung abgesagt wurde. Grund: ${event.cancelledReason}`
+      : `Wir bedauern, dir mitteilen zu müssen, dass die Veranstaltung "${event.title}" vom Organisator abgesagt wurde.`,
     relatedId: event._id,
     relatedModel: "Event",
     linkNotification: `/events/${event._id}`,

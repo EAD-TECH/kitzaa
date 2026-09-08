@@ -1,9 +1,10 @@
-import React from 'react'
+import { CreateEventWizard } from "@/features/events/components/createEvent/CreateEventWizard"
+import { getCategoriesServer } from "@/features/events/api/categoryApi.server"
 
-const page = () => {
-  return (
-    <div>page</div>
-  )
+const EventsErstellenPage = async () => {
+  const { categories } = await getCategoriesServer()
+
+  return <CreateEventWizard categories={categories} />
 }
 
-export default page
+export default EventsErstellenPage

@@ -14,7 +14,7 @@ const pageShell = "mx-auto max-w-2xl px-4 py-8";
 function formatNotificationTime(createdAt: string) {
   const date = new Date(createdAt);
   if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleString("tr-TR", {
+  return date.toLocaleString("de-DE", {
     day: "numeric",
     month: "short",
     hour: "2-digit",
@@ -49,12 +49,12 @@ export default function NotificationList() {
   if (isError)
     return (
       <div className={pageShell}>
-        <h1 className="font-heading mb-6 text-2xl">Bildirimler</h1>
+        <h1 className="font-heading mb-6 text-2xl">Benachrichtigungen</h1>
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Hata</AlertTitle>
+          <AlertTitle>Fehler</AlertTitle>
           <AlertDescription>
-            Bildirimler yüklenemedi. Lütfen daha sonra tekrar deneyin.
+            Benachrichtigungen konnten nicht geladen werden. Bitte versuche es später erneut.
           </AlertDescription>
         </Alert>
       </div>
@@ -63,16 +63,16 @@ export default function NotificationList() {
   if (!notifications.length)
     return (
       <div className={pageShell}>
-        <h1 className="font-heading mb-6 text-2xl">Bildirimler</h1>
+        <h1 className="font-heading mb-6 text-2xl">Benachrichtigungen</h1>
         <p className="font-body text-center text-sm text-muted-foreground">
-          Bildirim yok.
+          Keine Benachrichtigungen.
         </p>
       </div>
     );
 
   return (
     <div className={pageShell}>
-      <h1 className="font-heading mb-6 text-2xl">Bildirimler</h1>
+      <h1 className="font-heading mb-6 text-2xl">Benachrichtigungen</h1>
       <ul className="overflow-hidden rounded-xl border border-border bg-background">
         <li>
           <div className="flex items-center gap-3 bg-amber-200 px-3 py-2">

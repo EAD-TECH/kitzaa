@@ -40,14 +40,14 @@ export const sendOrganizerPrepSummary = async () => {
     /*  organizatöre (createdBy) için bildirim objesini sayıyı donduruyorm */
     const message =
       confirmedCount === 0
-        ? `Yarınki '${event.title}' etkinliğinize henüz kayıt olan olmadı. Yine de harika bir gün olmasını dileriz!`
-        : `Yarınki '${event.title}' etkinliğine şu an ${confirmedCount} aile kayıtlı! Malzemelerini ve hazırlıklarını bu sayıya göre yapmayı unutma.`;
+        ? `Für deine morgige Veranstaltung '${event.title}' hat sich noch niemand angemeldet. Wir wünschen dir trotzdem einen großartigen Tag!`
+        : `Für deine morgige Veranstaltung '${event.title}' sind aktuell ${confirmedCount} Familien angemeldet! Plane dein Material und deine Vorbereitung entsprechend.`;
 
     return {
       recipientId: event.createdBy,
       relatedId: event._id,
       relatedModel: "Event",
-      title: "Etkinlik Hazırlık Özeti",
+      title: "Vorbereitungs-Übersicht",
       message: message,
       type: "organizer_prep_summary",
     };
