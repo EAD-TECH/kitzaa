@@ -11,9 +11,12 @@ import KanbanErrorState from "@/components/shared/KanbanErrorState";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowDown, Loader2 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import ReusableDrawer from "@/components/shared/drawer/ReusableDrawer";
 
 export default function OrganizerApplicationBoard() {
   const [aktifKategori, SetAktifKategori] = useState("Tümü");
+
   const {
     data,
     isLoading,
@@ -126,7 +129,6 @@ export default function OrganizerApplicationBoard() {
           <Button
             onClick={() => fetchNextPage()}
             disabled={!hasNextPage || isFetchingNextPage}
-        
             className=" max-w-md rounded-full border-2 border-kanban-card-border bg-transparent py-6 text-kanban-card-title transition-all hover:border-terracotta-600 hover:bg-(--cream-200) hover:text-terracotta-600 shadow-none"
           >
             {isFetchingNextPage ? (
@@ -143,6 +145,7 @@ export default function OrganizerApplicationBoard() {
           </Button>
         </div>
       )}
+      <ReusableDrawer />
     </Card>
   );
 }

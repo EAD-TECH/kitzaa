@@ -204,3 +204,36 @@ isFetchingNextPage // Şu an yeni sayfa yükleniyor mu?
 - Tanstack ten bu fonksıyonları cagırdım.
 - Burda flatMap mantıgını kullandım tanstack klasor seklınde cektıgı ıcın nested verıyı duzlestırdm
 
+
+[KTZ-204](https://dygcankurt17.atlassian.net/browse/KTZ-204)
+
+- **Durum:** In Progress (okuma + drawer; mutation sonraki adım)
+- **Jira Kartı:** `KTZ-204`
+- **Mimari Kararlar & Ne Yaptım:**
+
+1. Drawer yapısı kullandım. Verileri yan taraftan acılması ıcın, admının hızlı aksıyon alması ıcın. Bunu diğer sayfalarda da kullanıcm bu yuzden reusable forma getiriyorm.
+- Event kısmında da kullanabılmek adına Header kısmını ayırdm ve propslarını belırttım. [ReusableDraweHeader](./components/shared/drawer/ReusableDraweHeader.tsx) [types](./components/shared/types.ts)
+
+2. Kart tıklama akışı (aptal kart + akıllı organizer kartı)
+- [KanbanCard](./components/shared/KanbanCard.tsx) ıslevsız/aptal bır bılesen. En dıs Card'a onClick verdim:
+  `onClick={() => { data.onClick && data.onClick(data.id); }}`
+- `data.onClick` demem sebebi: asıl ıslevsel olan [OrganizerApplicationCard](./features/admin/components/organizer-applications/OrganizerApplicationCard.tsx). data altında karta kazandırdıgım görevlerden bırı onClick. `&&` true ise calıstır, calıstırırken o kartın id'sini ver.
+- Organizer kartında DTO'dan cardData olusturdum (id, title, category, description, status, time) ve `onClick: handleCardClick` verdim. Kanban kartı bu sayede akıllı hale geldi.
+
+3. Ortak pano state'i = URL (sayfa degısmeden drawer)
+- Kartın ortak pano (URL) state'ine bakması ıcın next/navigation: `useSearchParams`, `usePathname`, `useRouter`.
+- handleCardClick: mevcut URL'i `URLSearchParams` ile okuyup stringe cevirdim, `set("applicationId", clickedId)` ile id ekledim, `router.push(\`${pathname}?${currentParams}\`)` ile yonlendırdım. Pathname aynı; sadece query degısıyor, F5 yok, drawer aynı board sayfasında render.
+- Board [OrganizerApplicationBoard](./features/admin/components/organizer-applications/OrganizerApplicationBoard.tsx) kartı cagırıyor; altta `<ReusableDrawer />` zaten mount.
+
+4. Drawer'ın URL'den acılıp kapanması
+- [ReusableDrawer](./components/shared/drawer/ReusableDrawer.tsx) yine `useSearchParams`. `cardId = params.get("applicationId")`.
+- Shadcn Drawer `open` kesinlikle boolean bekler. `get` string veya `null` doner. Dolu string truthy, null falsy.
+- Okunaklı tanım: `const isOpen = Boolean(cardId);` (`!!cardId` ile aynı; `!!` cıft degıl, boolean'a cevirir.)
+- Kapanıs `handleDrawerClose`: `onOpenChange(false)` gelince yine current URL'i oku, `delete("applicationId")`, `router.replace` ile adresi guncelle, `form.reset`. Delete tek basına yetmez; replace olmadan adres cubugu ve isOpen degısmez.
+
+5. Drawer icinde form + GET veri
+- React Hook Form + [reviewApplicationSchema](./features/validations/ReviewApplicationForm.ts). Close'da form reset.
+- Karta tıklayınca id'yi [useOrganızarApplicationById](./features/admin/hooks/useOrganızerApplicationById.ts) ıcındeki API'ye verdim (`enabled: Boolean(id)`). [getOrganizerApplication](./features/admin/api/organizerApplications.ts) `GET /api/v1/admin/organizer-applications/:id`. Cekmecede kurum bilgisi / mesaj / createdAt basıldı.
+- AI kutusu UI iskeleti: [SectionAIBox](./components/shared/drawer/SectionAIBox.tsx)
+
+

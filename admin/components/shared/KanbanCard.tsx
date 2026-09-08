@@ -30,8 +30,11 @@ export function KanbanCard({ data }: { data: KanbanCardProps }) {
 
   return (
     <Card
+      onClick={() => {
+        data.onClick && data.onClick(data.id);
+      }}
       size="sm"
-      className="w-full ring-0 border border-kanban-card-border bg-kanban-card-bg rounded-xl shadow-kanban-card"
+      className="w-full cursor-pointer ring-0 border border-kanban-card-border bg-kanban-card-bg rounded-xl shadow-kanban-card"
     >
       <CardHeader>
         <div className="flex flex-col gap-2">
@@ -55,11 +58,13 @@ export function KanbanCard({ data }: { data: KanbanCardProps }) {
         </div>
         <CardAction>
           <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button variant="ghost" className="text-(--brown-500)">
-                <MoreHorizontal size={20} />
-              </Button>
-            </DropdownMenuTrigger>
+            <DropdownMenuTrigger
+              render={
+                <Button variant="ghost" className="text-(--brown-500)">
+                  <MoreHorizontal size={20} />
+                </Button>
+              }
+            ></DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
               side="bottom"
