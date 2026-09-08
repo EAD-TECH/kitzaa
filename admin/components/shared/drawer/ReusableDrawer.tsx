@@ -26,6 +26,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useOrganızarApplicationById } from "@/features/admin/hooks/useOrganızerApplicationById";
 import SectionAIBox from "./SectionAIBox";
+import { useApproveApplication } from "@/features/admin/hooks/useApproveApplication";
+import { useRejectApplication } from "@/features/admin/hooks/useRejectApplication";
 
 type ReviewFormValues = z.infer<typeof reviewApplicationSchema>;
 
@@ -39,19 +41,51 @@ export default function ReusableDrawer() {
   const pathname = usePathname();
   const router = useRouter();
   const cardId = params.get("applicationId");
+  console.log("cardid geldimi",cardId)
   const isOpen = Boolean(cardId);
+  console.log(isOpen,"kontrol et isopen kısmını cekmece acılmalı ")
 
   const { data: response, isLoading } = useOrganızarApplicationById(cardId);
   const appData = response?.application;
+  /* onaylama kamyonum */
+  const { mutate: approveApplication, isPending: isApproving } =
+    useApproveApplication();
+
+  /* reddetme kamyonum */
+  const { mutate: rejectApplication, isPending: isRejecting } =
+    useRejectApplication();
 
   const form = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewApplicationSchema),
     defaultValues: reviewFormDefaults,
   });
 
+console.log("zod hatası almalıym bossa rejected kısmım")
   function onSubmit(data: ReviewFormValues) {
-    // TODO: review kararını backend'e gönder
-    console.log(data);
+    /* TODO: review kararını backend'e gönder */
+    /*  console.log(data); */
+    if (!cardId) return;
+    if (data.status === "approved") {
+      console.log("onay kamyonu yola cıktımı id:" ,cardId)
+      approveApplication(cardId, {
+        onSuccess: () => {
+          /* basarılı olduysa drawerı kapa */
+          console.log("islm basarılımı cekmece kapanıyormu")
+          handleDrawerClose(false);
+        },
+      });
+    } else if (data.status === "rejected") {
+      console.log("reject kamyonum yola cıktı  Sebebi ve id ",data.note,cardId )
+      rejectApplication(
+        { id: cardId, body: { rejectedReason: data.note } },
+        {
+          onSuccess: () => {
+            console.log("cekmece kapanıyrmu ıslem tamam")
+            handleDrawerClose(false);
+          },
+        },
+      );
+    }
   }
 
   function handleDrawerClose(open: boolean) {
@@ -169,19 +203,21 @@ export default function ReusableDrawer() {
                   </Button>
                 }
               />
-              <div className="flex flex-row gap-2">
+              <div className="flex flex-row gap-2 bg-brown-500 hover:bg-brown-600">
                 <Button
+                  disabled={isApproving}
                   type="submit"
                   onClick={() => form.setValue("status", "approved")}
                 >
-                  Onayla
+                  {isApproving ? "Onaylanıyor..." : "Onayla"}
                 </Button>
                 <Button
+                 disabled={isRejecting}
                   type="submit"
                   onClick={() => form.setValue("status", "rejected")}
                   className="bg-(--cream-200) text-(--brown-500) hover:text-(--cream-50)"
                 >
-                  Rejected
+                {isRejecting ? "Reject Ediliyor..." : "Reject"}
                 </Button>
               </div>
             </DrawerFooter>
