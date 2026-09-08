@@ -10,13 +10,14 @@ export interface KanbanCardProps {
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
   onReview?: (id: string) => void;
+  onClick?: (id: string) => void;
 }
 
 export interface KanbanColumnProps {
   title: string;
   count: number;
   dotColor?: string;
-  children?: ReactNode;   /* {children} diyerek, "Bana ne verirsen onu bu boşluğa dizeceğim" diyor. */
+  children?: ReactNode; /* {children} diyerek, "Bana ne verirsen onu bu boşluğa dizeceğim" diyor. */
 }
 
 export interface PageHeaderProps {
@@ -62,8 +63,43 @@ export interface FilterAndSearchProps {
   onFilterSelect: (val: string) => void;
 }
 
-
-
 export interface KanbanErrorStateProps {
   onRetry: () => void;
+}
+
+export interface ReusableDrawerHeaderProps {
+  title: string;
+  tag: string;
+  subtitle: string;
+}
+
+
+/* kurum bılgısı */
+export interface InfoSectionProps{
+  /* title:string  
+  category:string
+  address:string
+  description?:string
+  url?:string
+  assignee:string
+  status:string
+  */
+ label:string
+ children:React.ReactNode
+
+}
+
+export interface SectionShellProps {
+  title: string;
+  children: React.ReactNode; //* içine ne gelırse grıd onu dızeek */
+}
+
+
+
+ 
+export interface ActionSheetAiBoxProps {
+  title?: string;
+  text?: string;
+  riskLabel?: string;
+  suggestion?: string;
 }

@@ -28,7 +28,7 @@
   --white-transparent-02: rgba(255, 255, 255, 0.2);
 
   /* kanban kart gorevlerı(semantık olarak ısım verıyorm) */
-  --kanban-card-border: var(--brown-500);
+  --kanban-card-border: var(--cream-50);
   --kanban-card-title: var(--brown-850);
   --kanban-card-bg: var(--white-transparent-02);
   --kanban-card-shadow:

@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import { usePathname } from "next/navigation";
 import {
   Breadcrumb,
@@ -20,7 +21,6 @@ export default function DynamicBreadCrumb() {
 
   const crumbs = segments.map((segment, index) => {
     const partsUntilHere = segments.slice(0, index + 1);
-    console.log(partsUntilHere);
     const path = partsUntilHere.join("/");
     const href = `/${path}`;
 
@@ -35,18 +35,18 @@ export default function DynamicBreadCrumb() {
     <Breadcrumb>
       <BreadcrumbList>
         {crumbs.map((crumb) => (
-          <BreadcrumbItem key={crumb.href}>
-            {crumb.isLast ? (
-              <BreadcrumbPage>{crumb.segment}</BreadcrumbPage>
-            ) : (
-              <>
+          <Fragment key={crumb.href}>
+            <BreadcrumbItem>
+              {crumb.isLast ? (
+                <BreadcrumbPage>{crumb.segment}</BreadcrumbPage>
+              ) : (
                 <BreadcrumbLink href={crumb.href}>
                   {crumb.segment}
                 </BreadcrumbLink>
-                <BreadcrumbSeparator />
-              </>
-            )}
-          </BreadcrumbItem>
+              )}
+            </BreadcrumbItem>
+            {!crumb.isLast && <BreadcrumbSeparator />}
+          </Fragment>
         ))}
       </BreadcrumbList>
     </Breadcrumb>
