@@ -12,4 +12,24 @@ export type {
   RejectOrganizerApplicationResponse,
 } from "./organizerApplications";
 
-export type { RejectEventBody, CancelEventBody } from "./events";
+export type {
+  EventStatus,
+  EventLocationType,
+  AgeRange,
+  Price,
+  Schedule,
+  EventLocation,
+  Capacity,
+  EventCategoryRef,
+  EventCreatedByRef,
+  EventParticipantRef,
+  EventDTO,
+  AdminEventDTO,
+  RejectEventBody,
+  CancelEventBody,
+  ListAdminEventsResponse,
+  GetAdminEventResponse,
+  ApproveAdminEventResponse,
+  RejectAdminEventResponse,
+  CancelAdminEventResponse,
+} from "./events";

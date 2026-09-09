@@ -1,10 +1,30 @@
 import { apiFetch } from "@/lib/api/client";
-import type { CancelEventBody, RejectEventBody } from "../types";
+import type { CancelEventBody, ListAdminEventsResponse, RejectEventBody } from "../types";
 
 const BASE = "/api/v1/admin/events";
+const categoriUrl="/api/v1/category"
 
-export async function listAdminEvents() {
-  return apiFetch(BASE, { method: "GET" });
+interface ListAdminEventsParams {
+  secilenKategori?: string;
+  page?: number;
+  limit?: number;
+}
+export async function listAdminEvents({
+  secilenKategori,
+  page,
+  limit = 100,
+}: ListAdminEventsParams = {}): Promise<ListAdminEventsResponse> {
+  const params = new URLSearchParams();
+  params.append("sort[createdAt]", "-1");
+  if (secilenKategori && secilenKategori !== "Tümü") {
+    params.append("filter[categoryId]", secilenKategori);
+  }
+  if (page) params.append("page", String(page));
+  if (limit) params.append("limit", String(limit));
+  const qs = params.toString();
+  return apiFetch<ListAdminEventsResponse>(qs ? `${BASE}?${qs}` : BASE, {
+    method: "GET",
+  });
 }
 
 export async function getAdminEvent(id: string) {
@@ -25,4 +45,7 @@ export async function cancelAdminEvent(id: string, body: CancelEventBody) {
 
 export async function deleteAdminEvent(id: string) {
   return apiFetch(`${BASE}/${id}`, { method: "DELETE" });
+}
+export async function getEventCategories() {
+  return apiFetch(`${categoriUrl}`, { method: "GET" });
 }

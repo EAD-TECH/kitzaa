@@ -6,6 +6,7 @@ import {
   CardAction,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -18,23 +19,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Progress, ProgressLabel, ProgressValue } from "../ui/progress";
 
 export function KanbanCard({ data }: { data: KanbanCardProps }) {
-  const formattedTime = new Date(data.time).toLocaleDateString("tr-TR", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
   return (
     <Card
       onClick={() => {
         data.onClick && data.onClick(data.id);
       }}
       size="sm"
-      className="w-full cursor-pointer ring-0 border border-kanban-card-border bg-kanban-card-bg rounded-xl shadow-kanban-card"
+      className="w-full cursor-pointer ring-0 border border-kanban-card-border bg-(--cream-50) rounded-xl shadow-kanban-card"
     >
       <CardHeader>
         <div className="flex flex-col gap-2">
@@ -45,7 +39,7 @@ export function KanbanCard({ data }: { data: KanbanCardProps }) {
 
           {/* time*/}
           <CardDescription className="text-sm text-muted-foreground">
-            {formattedTime}
+            {data.time || "Tarih belirtilmemiş"}
           </CardDescription>
 
           {/* kategori */}
@@ -100,6 +94,20 @@ export function KanbanCard({ data }: { data: KanbanCardProps }) {
           <p className="text-sm text-muted-foreground">{data.description}</p>
         </CardContent>
       ) : null}
+
+
+  <CardFooter>
+    {data.progressPercentage!=undefined && (
+       <Progress value={data.progressPercentage} className="w-full max-w-sm">
+      <ProgressLabel>Doluluk oranı</ProgressLabel>
+      <ProgressValue />
+    </Progress>
+    )}
+      
+    </CardFooter>
+
+
     </Card>
+  
   );
 }

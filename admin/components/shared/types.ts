@@ -11,6 +11,7 @@ export interface KanbanCardProps {
   onDelete?: (id: string) => void;
   onReview?: (id: string) => void;
   onClick?: (id: string) => void;
+  progressPercentage?: number;
 }
 
 export interface KanbanColumnProps {
@@ -73,9 +74,8 @@ export interface ReusableDrawerHeaderProps {
   subtitle: string;
 }
 
-
 /* kurum bılgısı */
-export interface InfoSectionProps{
+export interface InfoSectionProps {
   /* title:string  
   category:string
   address:string
@@ -84,9 +84,8 @@ export interface InfoSectionProps{
   assignee:string
   status:string
   */
- label:string
- children:React.ReactNode
-
+  label: string;
+  children: React.ReactNode;
 }
 
 export interface SectionShellProps {
@@ -94,9 +93,6 @@ export interface SectionShellProps {
   children: React.ReactNode; //* içine ne gelırse grıd onu dızeek */
 }
 
-
-
- 
 export interface ActionSheetAiBoxProps {
   title?: string;
   text?: string;
