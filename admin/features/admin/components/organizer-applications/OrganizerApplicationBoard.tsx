@@ -11,7 +11,7 @@ import KanbanErrorState from "@/components/shared/KanbanErrorState";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowDown, Loader2 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+
 import ReusableDrawer from "@/components/shared/drawer/ReusableDrawer";
 
 export default function OrganizerApplicationBoard() {
