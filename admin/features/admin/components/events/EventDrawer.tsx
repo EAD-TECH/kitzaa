@@ -134,16 +134,16 @@ export default function EventDrawer() {
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex min-h-0 flex-1 flex-col"
           >
-            <div className="min-h-0 flex flex-col gap-8 flex-1 overflow-y-auto px-6 py-6">
+            <div className="min-h-0 flex flex-col gap-8  flex-1 overflow-y-auto px-6 py-6">
               <SectionShell title="Etkinlik Bilgileri">
                 {isLoading ? (
-                  <div className="p-4 text-sm text-yellow-600 animate-pulse">
-                    Veriler Çekiliyor...
+                  <div className="p-4 text-sm text-(--terracotta-500)">
+                    Yükleniyor...
                   </div>
                 ) : (
                   <>
                     <InfoSection label="Durum">
-                      <span className="capitalize font-medium text-blue-600">
+                      <span className="capitalize">
                         {eventData?.status || "Belirtilmemiş"}
                       </span>
                     </InfoSection>
@@ -175,7 +175,7 @@ export default function EventDrawer() {
                     </InfoSection>
 
                     <InfoSection label="Ucretli/Ucretsiz">
-                      <span className="capitalize font-medium text-(--brown-500)">
+                      <span className="capitalize">
                         {eventData?.isFree || "Belirtilmemiş"}
                       </span>
                     </InfoSection>
@@ -185,11 +185,9 @@ export default function EventDrawer() {
                     </InfoSection>
 
                     <InfoSection label="Olusturan">
-                      <span className="capitalize font-medium text-(--brown-500)">
-                        {typeof eventData?.createdBy === "object"
-                          ? eventData.createdBy?.username
-                          : eventData?.createdBy}
-                      </span>
+                      {typeof eventData?.createdBy === "object"
+                        ? eventData.createdBy?.username
+                        : eventData?.createdBy}
                     </InfoSection>
                   </>
                 )}
@@ -229,13 +227,12 @@ export default function EventDrawer() {
                 }
               />
 
-              <div className="flex flex-row gap-2">
+              <div className="flex flex-row gap-2 bg-brown-500 hover:bg-brown-600">
                 {eventData?.status === "pending" && (
                   <Button
                     disabled={isWorking}
                     type="submit"
                     onClick={() => form.setValue("status", "approved")}
-                    className="bg-green-600 hover:bg-green-700 text-white"
                   >
                     {isApproving ? "Onaylanıyor..." : "Onayla"}
                   </Button>
@@ -246,7 +243,7 @@ export default function EventDrawer() {
                     disabled={isWorking}
                     type="submit"
                     onClick={() => form.setValue("status", "rejected")}
-                    className="bg-red-600 hover:bg-red-700 text-white"
+                    className="bg-(--cream-200) text-(--brown-500) hover:text-(--cream-50)"
                   >
                     {isRejecting ? "Reddediliyor..." : "Reddet"}
                   </Button>
@@ -257,7 +254,7 @@ export default function EventDrawer() {
                     disabled={isWorking}
                     type="submit"
                     onClick={() => form.setValue("status", "cancelled")}
-                    className="bg-gray-600 hover:bg-gray-700 text-white"
+                    className="bg-(--cream-200) text-(--brown-500) hover:text-(--cream-50)"
                   >
                     {isCanceling ? "İptal Ediliyor..." : "İptal Et"}
                   </Button>
