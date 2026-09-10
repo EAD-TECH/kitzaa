@@ -1,6 +1,6 @@
 "use client";
 import FeedList from "../../../../features/social/components/FeedList";
-import { usePosts } from "../../../../features/social/hooks/usePosts";
+import { usePosts } from "@/features/social/hooks/socialHooks";
 import type { PostDTO } from "../../../../features/social/types/post.types";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { AlertCircle, Loader2, RefreshCw } from "lucide-react";

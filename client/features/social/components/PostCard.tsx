@@ -20,9 +20,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import type { PostDTO } from "../types/post.types";
-import { useTogglePostLike } from "../hooks/useTooglePostLike";
+import { useTogglePostLike } from "../hooks/socialHooks";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { useRouter } from "next/navigation";
+import { Link } from "@/i18n/navigation";
 
 function PostCard({ post }: { post: PostDTO }) {
   const locale = useLocale();
@@ -125,10 +126,12 @@ function PostCard({ post }: { post: PostDTO }) {
             {post.likesCount}
           </Button>
 
-          <span className="flex items-center gap-1.5 text-sm">
-            <MessageCircle className="size-5" />
-            {post.commentsCount}
-          </span>
+          <Link href={`/posts/${post._id}`}>
+            <span className="flex items-center gap-1.5 text-sm">
+              <MessageCircle className="size-5" />
+              {post.commentsCount}
+            </span>
+          </Link>
         </div>
 
         <Button variant="ghost" size="icon" aria-label={t("share")}>

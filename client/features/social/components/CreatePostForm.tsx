@@ -19,7 +19,7 @@ import {
   ComboboxList,
 } from "@/components/ui/combobox";
 import { usePlaceSearch } from "../hooks/usePlaceSearch";
-import { useCreatePost } from "../hooks/useCreatePost";
+import { useCreatePost } from "../hooks/socialHooks";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 
 export default function CreatePostForm({ onCreated }: { onCreated?: () => void }) {
