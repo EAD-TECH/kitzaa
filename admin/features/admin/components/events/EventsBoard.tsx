@@ -12,39 +12,83 @@ import FilterAndSearch from "@/components/shared/FilterAndSearch";
 import FilterPills from "@/components/shared/FilterPills";
 import { useEventCategories } from "../../hooks/useEventCategories";
 import EventDrawer from "./EventDrawer";
+import { useDebounce } from "use-debounce";
+import { Button } from "@/components/ui/button";
+import { ArrowDown, CircleIcon, Loader2, UserIcon } from "lucide-react";
+
+const filtreSecenekleri = [
+  {
+    id: "status",
+    value: "status",
+    label: "Status (Durum)",
+    icon: <CircleIcon />,
+    options: [
+      { value: "pending", label: "Yeni Başvurular" },
+      { value: "approved", label: "Onaylananlar" },
+      { value: "rejected", label: "Reddeilenler" },
+      { value: "cancelled", label: "İptal Edilenler" },
+      { value: "completed", label: "Tamamlananlar" },
+    ],
+  },
+  {
+    id: "assignee",
+    value: "assignee",
+    label: "Assignee (Atanan Kişi)",
+    icon: <UserIcon />,
+    options: [
+      { value: "elif", label: "Elif" },
+      { value: "ayla", label: "Ayla" },
+      { value: "duygu", label: "Duygu" },
+    ],
+  },
+];
 
 export default function AdminEventsBoard() {
   const [aktifKategori, SetAktifKategori] = useState("Tümü");
   const { data: categoriesResponse } = useEventCategories();
   console.log(categoriesResponse);
+  const [inputValue, setInputValue] = useState("");
+  const [sakinKelime] = useDebounce(inputValue, 400);
+
+  const [seciliStatus, setSeciliStatus] = useState<string[]>([]);
 
   const categories = Array.isArray(categoriesResponse)
     ? categoriesResponse
     : (categoriesResponse as any)?.data ||
       (categoriesResponse as any)?.categories ||
       [];
-      console.log(categories)
+  console.log(categories);
 
   const categoryNames = categories.map((cat: any) => cat.name);
-  console.log(categoryNames)
+  console.log(categoryNames);
   const benzersizkategoriler = ["Tümü", ...categoryNames];
 
   const seciliKategoriObj = categories.find(
     (cat: any) => cat.name === aktifKategori,
   );
-  console.log(seciliKategoriObj)
+  console.log(seciliKategoriObj);
   const seciliKategoriId = seciliKategoriObj
     ? seciliKategoriObj._id
     : undefined;
-    console.log(seciliKategoriId)
+  console.log(seciliKategoriId);
 
   const onKategoriSec = (kategori: string) => {
     SetAktifKategori(kategori);
   };
 
-  const { data, isLoading, isError, refetch } = useEventApplications({
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useEventApplications({
     secilenKategori: seciliKategoriId,
-    limit: 100,
+    arananKelime: sakinKelime,
+    seciliStatus: seciliStatus,
+    limit: 6,
   });
 
   const tumEtkinlikler = data?.pages.flatMap((page) => page.events || []) || [];
@@ -55,6 +99,20 @@ export default function AdminEventsBoard() {
   const cancelled = tumEtkinlikler.filter((e) => e.status === "cancelled");
   const completed = tumEtkinlikler.filter((e) => e.status === "completed");
 
+  const onFilterSelect = (tiklananDeger: string) => {
+    console.log("popoverdan gelen deger", tiklananDeger);
+    console.log("popoverın defaultu", seciliStatus);
+
+    const varMi = seciliStatus.includes(tiklananDeger);
+    console.log("bu deger dızı de varmı", varMi);
+    if (varMi) {
+      let yeniDizi = seciliStatus.filter((deger) => deger != tiklananDeger);
+      setSeciliStatus(yeniDizi);
+    } else {
+      setSeciliStatus([...seciliStatus, tiklananDeger]);
+    }
+  };
+
   return (
     <Card className="flex flex-col gap-6 self-stretch rounded-2xl border border-border bg-(--cream-50) p-6 ring-0 shadow-none">
       {/* baslik*/}
@@ -62,14 +120,19 @@ export default function AdminEventsBoard() {
         title="Etkinlikler"
         description="Etkinlikleri durumlarına göre yönetin ve yayın akışını takip edin."
       />
-      <div className="flex items-center gap-2">
+      <div className="flex w-fit  items-center gap-2">
         <FilterAndSearch
-          searchValue=""
-          onSearchChange={() => {}}
-          filterOptions={[]}
-          selectedValues={[]}
-          onFilterSelect={() => {}}
+          searchValue={inputValue}
+          onSearchChange={setInputValue}
+          filterOptions={filtreSecenekleri}
+          selectedValues={seciliStatus}
+          onFilterSelect={onFilterSelect}
         />
+        {seciliStatus.length > 0 && (
+          <Button variant="ghost" onClick={() => setSeciliStatus([])}>
+            Temizle 
+          </Button>
+        )}
       </div>
 
       <FilterPills
@@ -140,7 +203,29 @@ export default function AdminEventsBoard() {
           </KanbanColumn>
         </div>
       )}
-      <EventDrawer/>
+
+      {(hasNextPage || isFetchingNextPage) && (
+        <div className="mt-6 flex w-full justify-center pb-4">
+          <Button
+            onClick={() => fetchNextPage()}
+            disabled={!hasNextPage || isFetchingNextPage}
+            className=" max-w-md rounded-full border-2 border-kanban-card-border bg-transparent py-6 text-kanban-card-title transition-all hover:border-terracotta-600 hover:bg-(--cream-200) hover:text-terracotta-600 shadow-none"
+          >
+            {isFetchingNextPage ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Etkinlikler Yükleniyor...
+              </>
+            ) : (
+              <>
+                <ArrowDown className="mr-2 h-5 w-5" />
+                Daha Fazla Etkinlik Yükle
+              </>
+            )}
+          </Button>
+        </div>
+      )}
+      <EventDrawer />
     </Card>
   );
 }

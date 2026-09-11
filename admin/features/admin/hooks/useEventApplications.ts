@@ -6,19 +6,23 @@ import { listAdminEvents } from "../api";
 
 interface useEventsApplicationsParams {
   secilenKategori: string | undefined;
+  arananKelime?: string;
+  seciliStatus?:string[]
   limit?: number;
 }
 
 export const useEventApplications = ({
   secilenKategori,
-  limit = 100,
+  arananKelime,
+  seciliStatus,
+  limit = 6,
 }: useEventsApplicationsParams) => {
   return useInfiniteQuery({
-    queryKey: ["event-applications", secilenKategori, limit],
+    queryKey: ["event-applications", secilenKategori, arananKelime, seciliStatus, limit],
 
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
-      listAdminEvents({ secilenKategori, page: pageParam, limit }),
+      listAdminEvents({ secilenKategori, arananKelime, seciliStatus ,page: pageParam, limit }),
 
     getNextPageParam: (lastPage, allPages) => {
       const applications = lastPage.events || [];

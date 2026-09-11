@@ -10,24 +10,30 @@ import type {
 const BASE = "/api/v1/admin/organizer-applications";
 
 interface ListOrganizerApplicationsParams {
-  secilenKategori: string | undefined;
-  page?:number
-  limit?:number
+  arananKelime: string | undefined;
+  seciliStatus?: string[];
+  page?: number;
+  limit?: number;
 }
 
 export async function listOrganizerApplications({
-  secilenKategori,
+  arananKelime,
+  seciliStatus,
   page,
-  limit
+  limit,
 }: ListOrganizerApplicationsParams): Promise<ListOrganizerApplicationsResponse> {
-  const params=new URLSearchParams()
+  const params = new URLSearchParams();
 
-  if (secilenKategori && secilenKategori != "Tümü") {
-    params.append("category",secilenKategori)
-    
-  }if(page) { 
-    params.append("page",page.toString())
-  }if (limit) {
+  if (arananKelime) {
+    params.append("search[institutionData.name]", arananKelime);
+  }
+  if (seciliStatus && seciliStatus.length > 0) {
+    seciliStatus.forEach((durum) => params.append("filter[status]", durum));
+  }
+  if (page) {
+    params.append("page", page.toString());
+  }
+  if (limit) {
     params.append("limit", limit.toString());
   }
   const queryString = params.toString();

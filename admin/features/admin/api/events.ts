@@ -1,24 +1,39 @@
 import { apiFetch } from "@/lib/api/client";
-import type { CancelEventBody, ListAdminEventsResponse, RejectEventBody } from "../types";
+import type {
+  CancelEventBody,
+  ListAdminEventsResponse,
+  RejectEventBody,
+} from "../types";
 
 const BASE = "/api/v1/admin/events";
-const categoriUrl="/api/v1/category"
+const categoriUrl = "/api/v1/category";
 
 interface ListAdminEventsParams {
   secilenKategori?: string;
+  arananKelime?: string;
+  seciliStatus?: string[];
   page?: number;
   limit?: number;
 }
 export async function listAdminEvents({
   secilenKategori,
+  arananKelime,
+  seciliStatus,
   page,
-  limit = 100,
+  limit = 6,
 }: ListAdminEventsParams = {}): Promise<ListAdminEventsResponse> {
   const params = new URLSearchParams();
   params.append("sort[createdAt]", "-1");
   if (secilenKategori && secilenKategori !== "Tümü") {
     params.append("filter[categoryId]", secilenKategori);
   }
+  if (arananKelime) {
+    params.append("search[title]", arananKelime);
+  }
+  if (seciliStatus && seciliStatus.length > 0) {
+    seciliStatus.forEach((durum) => params.append("filter[status]", durum));
+  }
+
   if (page) params.append("page", String(page));
   if (limit) params.append("limit", String(limit));
   const qs = params.toString();
