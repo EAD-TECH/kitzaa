@@ -204,7 +204,6 @@ isFetchingNextPage // Şu an yeni sayfa yükleniyor mu?
 - Tanstack ten bu fonksıyonları cagırdım.
 - Burda flatMap mantıgını kullandım tanstack klasor seklınde cektıgı ıcın nested verıyı duzlestırdm
 
-
 [KTZ-204](https://dygcankurt17.atlassian.net/browse/KTZ-204)
 
 - **Durum:** In Progress (okuma + drawer; mutation sonraki adım)
@@ -212,28 +211,166 @@ isFetchingNextPage // Şu an yeni sayfa yükleniyor mu?
 - **Mimari Kararlar & Ne Yaptım:**
 
 1. Drawer yapısı kullandım. Verileri yan taraftan acılması ıcın, admının hızlı aksıyon alması ıcın. Bunu diğer sayfalarda da kullanıcm bu yuzden reusable forma getiriyorm.
+
 - Event kısmında da kullanabılmek adına Header kısmını ayırdm ve propslarını belırttım. [ReusableDraweHeader](./components/shared/drawer/ReusableDraweHeader.tsx) [types](./components/shared/types.ts)
 
 2. Kart tıklama akışı (aptal kart + akıllı organizer kartı)
+
 - [KanbanCard](./components/shared/KanbanCard.tsx) ıslevsız/aptal bır bılesen. En dıs Card'a onClick verdim:
   `onClick={() => { data.onClick && data.onClick(data.id); }}`
 - `data.onClick` demem sebebi: asıl ıslevsel olan [OrganizerApplicationCard](./features/admin/components/organizer-applications/OrganizerApplicationCard.tsx). data altında karta kazandırdıgım görevlerden bırı onClick. `&&` true ise calıstır, calıstırırken o kartın id'sini ver.
 - Organizer kartında DTO'dan cardData olusturdum (id, title, category, description, status, time) ve `onClick: handleCardClick` verdim. Kanban kartı bu sayede akıllı hale geldi.
 
 3. Ortak pano state'i = URL (sayfa degısmeden drawer)
+
 - Kartın ortak pano (URL) state'ine bakması ıcın next/navigation: `useSearchParams`, `usePathname`, `useRouter`.
 - handleCardClick: mevcut URL'i `URLSearchParams` ile okuyup stringe cevirdim, `set("applicationId", clickedId)` ile id ekledim, `router.push(\`${pathname}?${currentParams}\`)` ile yonlendırdım. Pathname aynı; sadece query degısıyor, F5 yok, drawer aynı board sayfasında render.
 - Board [OrganizerApplicationBoard](./features/admin/components/organizer-applications/OrganizerApplicationBoard.tsx) kartı cagırıyor; altta `<ReusableDrawer />` zaten mount.
 
 4. Drawer'ın URL'den acılıp kapanması
+
 - [ReusableDrawer](./components/shared/drawer/ReusableDrawer.tsx) yine `useSearchParams`. `cardId = params.get("applicationId")`.
 - Shadcn Drawer `open` kesinlikle boolean bekler. `get` string veya `null` doner. Dolu string truthy, null falsy.
 - Okunaklı tanım: `const isOpen = Boolean(cardId);` (`!!cardId` ile aynı; `!!` cıft degıl, boolean'a cevirir.)
 - Kapanıs `handleDrawerClose`: `onOpenChange(false)` gelince yine current URL'i oku, `delete("applicationId")`, `router.replace` ile adresi guncelle, `form.reset`. Delete tek basına yetmez; replace olmadan adres cubugu ve isOpen degısmez.
 
 5. Drawer icinde form + GET veri
+
 - React Hook Form + [reviewApplicationSchema](./features/validations/ReviewApplicationForm.ts). Close'da form reset.
 - Karta tıklayınca id'yi [useOrganızarApplicationById](./features/admin/hooks/useOrganızerApplicationById.ts) ıcındeki API'ye verdim (`enabled: Boolean(id)`). [getOrganizerApplication](./features/admin/api/organizerApplications.ts) `GET /api/v1/admin/organizer-applications/:id`. Cekmecede kurum bilgisi / mesaj / createdAt basıldı.
 - AI kutusu UI iskeleti: [SectionAIBox](./components/shared/drawer/SectionAIBox.tsx)
 
+[KTZ-203](https://dygcankurt17.atlassian.net/browse/KTZ-203)
 
+## Search kısmı asamaları :
+
+1. const [inputValue, setInputValue] = useState(""); state ini tanımlayarak inputa gırılen degerı state ıle hafızada tutuyorum.
+2. Search mantıgında her kelıme vurusunda apiye ıstek atılmasın dıye useDebounce hookunu kullanarak her ınput vurusundan sonra bekleme suresı eklıyorm. bunun ıcın useDebounce hook paketını ındırdım.
+3. const [sakinKelime] = useDebounce(inputValue, 400); bu sekılde inputtan aldıgım value aracılıgyla ve state te tutggum degerı verıyorm.
+4. - searchValue={inputValue}
+   - onSearchChange={setInputValue} Event ve Organizer basvurularında statete tuttugm bu degerlerı props olarak bılesene yolluyorm
+     bunlar ayrıca kullanıcı ıcın yazdıgını gormesı adına
+
+5. Daha sonra kullanıcın arama yapmak ıstedıgı kelımeyı hooka arananKelime:sakinKelime olarak tanımladıgm degerle value olarak yolluyorm
+
+- queryKey dizisine arananKelime yi dahil ettm.
+  listAdminEvents a parametre olarak verip next/navigation metodu yardımıyla query i urle ekleyip yolluyorm
+  params.append("search[title]", arananKelime)
+
+## PopOver Filter Mantıgı :
+
+
+```js faceted filter mantıgı
+const filtreSecenekleri = [
+  {
+    id: "status",
+    value: "status",
+    label: "Status (Durum)",
+    icon: <CircleIcon />,
+    options: [
+      { value: "pending", label: "Yeni Başvurular" },
+      { value: "approved", label: "Onaylananlar" },
+      { value: "rejected", label: "Reddeilenler" },
+      { value: "cancelled", label: "İptal Edilenler" },
+      { value: "completed", label: "Tamamlananlar" },
+    ],
+  },
+  {
+    id: "assignee",
+    value: "assignee",
+    label: "Assignee (Atanan Kişi)",
+    icon: <UserIcon />,
+    options: [
+      { value: "elif", label: "Elif" },
+      { value: "ayla", label: "Ayla" },
+      { value: "duygu", label: "Duygu" },
+    ],
+  },
+];
+```
+
+1. bu sekılde nested mantıkta bır dizi ıcınde nesne gruplarına ayırdım  fıltreleme mantıgı ıcın :
+   status ve asıgnee ekledım ılk olarak oncelıkle status kısmını halledıcem
+
+2. Filter kısmı tıklandıgında oncelıkle hangı menude oldugumu bılmem ve hafızaya almam gerek useState ile (status,asignee..)
+
+3. const [aktifMenu, setAktifMenu] = useState<string | null>(null); olarak ayarladım.
+null oldugu ıcın hepsını gorebılıyorm .
+
+4. sonrasında kosullu renderıng yaparak eger herhangı bır aktıfmenu yoksa state te hepsını goster dedım 
+```js 
+ {!aktifMenu ? (
+                <CommandGroup>
+                  {/* dınamık filter dongusu */}
+                  {filterOptions.map((kategori) => (
+                    // CommandItem burada açılıyor...
+                    <CommandItem
+                      key={kategori.id}
+                      onSelect={() => setAktifMenu(kategori.id)}
+                    >
+                      {kategori.icon && (
+                        <span className="mr-2">{kategori.icon}</span>
+                      )}
+                      <span className="text-(--brown-500)">
+                        {kategori.label}
+                      </span>
+                    </CommandItem>
+                    
+                  ))}
+                </CommandGroup>
+```
+
+- Eger ki secilmişse yanı usestate hafızasında varsa ve olusturdugm array ıd sı ıle esse bul ve ciz
+```js
+
+: (
+                <CommandGroup>
+                  <CommandItem onSelect={() => setAktifMenu(null)}>
+                    <span>Geri</span>
+                  </CommandItem>
+                  <Separator className="my-1" />
+
+                  {filterOptions
+                    .find((k) => k.id === aktifMenu)
+                    ?.options.map((option) => (
+                      <CommandItem
+                        key={option.value}
+                        onSelect={() => onFilterSelect(option.value)}
+                      >
+                        <span className="text-(--brown-500)">
+                          {option.label}
+                        </span>
+                      </CommandItem>
+                    ))}
+                </CommandGroup>
+              )}
+```
+- array olarak ayarladıgm ıcın types dosyasında bılesene geleck propsları da o sekılde duzelttım
+
+5. Tıklama algoritması ıcın daha oncekı taskta props olarak verdıgım fonksıyonu yazıyorum
+ filterOptions={filtreSecenekleri}
+          selectedValues={seciliStatus} <!-- state i bilesene yolladm badge içic -->
+          onFilterSelect={onFilterSelect}
+        />  props olarak gonderıyorm
+
+<!-- onFilterSelect fonksıyonuna parametre kullanıcının tıkladıgıdegerı olarak yolladım
+ -->
+ <!-- Gelen veriyi yakaladm secilistatus olarak tuttugm hafıza dızısınde varmı dıye ıncludes ıle arattm sonrada kosula bagladm.Eger varsa filter ile sildim yoksa else blogunda spread ıle ekledım -->
+
+
+6. Son olarak yıne aynı mantıkla hook ve api içerisine parametre olarak yolladım.Api kısmında foreachle donerek url e bastım
+
+7. Son olarak Temizle butonunu ekleyerek butona tıklandıgında dızıyı bosalttm
+
+## Sort kısmını ekleme Adımı : 
+1. iziye en yenı ve eneskıye gore fıltrelemek ıcın ekledım yenı bır nesne elemanı
+2. Sonrasında sıralama ıcın bır state mantıgı olusturmak gerekıyor :Backendde -1 en yeni ,eski 1 
+const [siralama,setSiralama]=useState<string>("sort_newest") hafızayı bu sekılde baslatıyorm 
+3. tiklanan degeri diziye gondermeden return ettırmem lazım 
+4. onFilterSelect   fonksıyona if (tiklananDeger.startsWith("sort_")) {
+      setSiralama(tiklananDeger);
+      return;
+    } tiklanan deger 
+
+    Burda amacım siralamayı dızıye pushlamamak bu sayede fıltreleın bırbırıne karısmasını engellemıs oldm
+    
