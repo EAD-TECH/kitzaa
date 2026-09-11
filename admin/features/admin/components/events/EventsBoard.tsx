@@ -11,6 +11,7 @@ import { useState } from "react";
 import FilterAndSearch from "@/components/shared/FilterAndSearch";
 import FilterPills from "@/components/shared/FilterPills";
 import { useEventCategories } from "../../hooks/useEventCategories";
+import EventDrawer from "./EventDrawer";
 
 export default function AdminEventsBoard() {
   const [aktifKategori, SetAktifKategori] = useState("Tümü");
@@ -139,6 +140,7 @@ export default function AdminEventsBoard() {
           </KanbanColumn>
         </div>
       )}
+      <EventDrawer/>
     </Card>
   );
 }

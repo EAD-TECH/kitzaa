@@ -22,7 +22,7 @@ function toCategoryRef(event: EventDocument): string | EventCategoryRef {
     _id: category._id!.toString(),
     name: category.name,
     slug: category.slug,
-    icon: category.icon,
+    icon: category.icon ?? "",
   };
 }
 

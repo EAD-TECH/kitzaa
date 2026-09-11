@@ -36,10 +36,10 @@ const adminEventController = {
   },
 
   read: async (req: Request<{ id: string }>, res: Response) => {
-    const result = await Event.findById(req.params.id).populate(
+    const result = await Event.findById(req.params.id).populate([
+      { path: "categoryId", select: "name slug icon" },
       CREATED_BY_POPULATE,
-    );
-
+    ]);
     if (!result) {
       throw new CustomError("Event not found", 404);
     }
