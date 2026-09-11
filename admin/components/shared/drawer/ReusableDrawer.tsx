@@ -62,7 +62,7 @@ export default function ReusableDrawer() {
 
 console.log("zod hatası almalıym bossa rejected kısmım")
   function onSubmit(data: ReviewFormValues) {
-    /* TODO: review kararını backend'e gönder */
+    
     /*  console.log(data); */
     if (!cardId) return;
     if (data.status === "approved") {
