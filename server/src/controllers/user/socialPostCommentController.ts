@@ -141,9 +141,25 @@ const socialPostCommentController = {
     comment.isDeleted = true;
     await comment.save();
 
+    let deletedCount = 1;
+
+    // Top-level silinince 2 seviyeli thread'deki reply'ler de soft-delete.
+    if (comment.parentCommentId == null) {
+      const replyResult = await PostComment.updateMany(
+        {
+          postId: comment.postId,
+          parentCommentId: comment._id,
+          isDeleted: false,
+        },
+        { $set: { isDeleted: true } },
+      );
+
+      deletedCount += replyResult.modifiedCount;
+    }
+
     await Post.findOneAndUpdate(
       { _id: comment.postId, isDeleted: false },
-      { $inc: { commentsCount: -1 } },
+      { $inc: { commentsCount: -deletedCount } },
     );
 
     res.sendStatus(204);
