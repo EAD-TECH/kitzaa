@@ -1,22 +1,37 @@
 "use client";
 
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNowStrict } from "date-fns";
 import { de, enUS } from "date-fns/locale";
 import Image from "next/image";
 import { Heart, ImageOff, MapPin, MessageCircle, MoreHorizontal, Send, Trees } from "lucide-react";
 import { useLocale } from "next-intl";
+import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { useRouter } from "@/i18n/navigation";
+import { cn } from "@/lib/utils";
 
 import type { PostDTO } from "../types/post.types";
-import { useCreatePostComment, usePostComments } from "../hooks/socialHooks";
+import {
+  useCreatePostComment,
+  useDeletePostComment,
+  usePostComments,
+  useToggleCommentLike,
+} from "../hooks/socialHooks";
 import { useState } from "react";
+import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 
 interface PostDetailContentProps {
   post: PostDTO;
@@ -25,6 +40,60 @@ interface PostDetailContentProps {
 interface SelectedComment {
   commentId: string | null;
   authorName: string | null;
+}
+
+function formatShortCommentTime(date: Date, locale: string) {
+  const isDe = locale.startsWith("de");
+  const text = formatDistanceToNowStrict(date, {
+    addSuffix: true,
+    locale: isDe ? de : enUS,
+  });
+
+  if (isDe) {
+    return text
+      .replace(" Sekunden", " Sek.")
+      .replace(" Sekunde", " Sek.")
+      .replace(" Minuten", " Min.")
+      .replace(" Minute", " Min.")
+      .replace(" Stunden", " Std.")
+      .replace(" Stunde", " Std.")
+      .replace(" Tagen", " Tg.")
+      .replace(" Tage", " Tg.")
+      .replace(" Tag", " Tg.");
+  }
+
+  return text
+    .replace(" seconds", "s")
+    .replace(" second", "s")
+    .replace(" minutes", "m")
+    .replace(" minute", "m")
+    .replace(" hours", "h")
+    .replace(" hour", "h")
+    .replace(" days", "d")
+    .replace(" day", "d");
+}
+
+
+
+function CommentOwnerMenu({ isOwner, label, onDelete }: { isOwner: boolean; label: string; onDelete: () => void }) {
+  if (!isOwner) return null;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button type="button" variant="ghost" size="icon-xs" className="shrink-0" aria-label={label}>
+            <MoreHorizontal className="size-3.5" />
+          </Button>
+        }
+      />
+      <DropdownMenuContent align="end" className="min-w-40">
+        <DropdownMenuItem variant="destructive" onClick={onDelete}>
+          Löschen
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }
 
 export default function PostDetailContent({ post }: PostDetailContentProps) {
@@ -45,7 +114,32 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
 
   const [commentText, setCommentText] = useState("");
   const [selectedComment, setSelectedComment] = useState<SelectedComment | null>(null);
-  console.log("Selected comment ID:", selectedComment);
+  // console.log("Selected comment ID:", selectedComment);
+
+  const { data: currentUser } = useCurrentUser();
+  const router = useRouter();
+  const deleteComment = useDeletePostComment();
+  const toggleCommentLike = useToggleCommentLike();
+
+  const onDelete = ({ commentId, postId }: { commentId: string; postId: string }) => {
+    deleteComment.mutate({ commentId, postId });
+  };
+
+  const onCommentLike = (commentId: string) => {
+    if (!currentUser) {
+      toast("Bitte melde dich an, um zu liken.", {
+        action: {
+          label: "Anmelden",
+          onClick: () => router.push("/login"),
+        },
+      });
+      return;
+    }
+
+    toggleCommentLike.mutate({ commentId, postId: post._id });
+  };
+
+
 
   const onCommentSubmit = () => {
     console.log("Submitting comment:", commentText);
@@ -191,10 +285,7 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
                   const createdAt = new Date(comment.createdAt);
                   const relativeDate = Number.isNaN(createdAt.getTime())
                     ? null
-                    : formatDistanceToNow(createdAt, {
-                        addSuffix: true,
-                        locale: locale.startsWith("de") ? de : enUS,
-                      });
+                    : formatShortCommentTime(createdAt, locale);
 
                   return (
                     <div key={comment._id} className="space-y-3">
@@ -212,20 +303,33 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
                             {comment.text}
                           </p>
 
-                          <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
+                          <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                             {relativeDate ? (
-                              <time dateTime={comment.createdAt} title={createdAt.toLocaleString(locale)}>
+                              <time
+                                dateTime={comment.createdAt}
+                                title={createdAt.toLocaleString(locale)}
+                                className="shrink-0 whitespace-nowrap"
+                              >
                                 {relativeDate}
                               </time>
                             ) : null}
-                            <Button type="button" variant="ghost" size="xs" className="h-auto px-0">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="xs"
+                              className={cn(
+                                "h-auto shrink-0 px-0",
+                                comment.isLikedByMe && "font-medium text-primary",
+                              )}
+                              onClick={() => onCommentLike(comment._id)}
+                            >
                               Gefällt mir
                             </Button>
                             <Button
                               type="button"
                               variant="ghost"
                               size="xs"
-                              className="h-auto px-0"
+                              className="h-auto shrink-0 px-0"
                               onClick={() => {
                                 setSelectedComment({ commentId: comment._id, authorName: commentAuthorName });
                                 setCommentText(`@${commentAuthorName} `);
@@ -233,6 +337,11 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
                             >
                               Antworten
                             </Button>
+                            <CommentOwnerMenu
+                              onDelete={() => onDelete({ commentId: comment._id, postId: post._id })}
+                              isOwner={Boolean(currentUser && currentUser._id === comment.author._id)}
+                              label={`Optionen für Kommentar von ${commentAuthorName}`}
+                            />
                           </div>
                         </div>
 
@@ -241,8 +350,14 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
                           variant="ghost"
                           size="icon-xs"
                           aria-label={`Kommentar von ${commentAuthorName} liken`}
+                          onClick={() => onCommentLike(comment._id)}
                         >
-                          <Heart className="size-3.5" />
+                          <Heart
+                            className={cn(
+                              "size-3.5",
+                              comment.isLikedByMe && "fill-primary text-primary",
+                            )}
+                          />
                         </Button>
                       </div>
 
@@ -267,10 +382,7 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
                               const replyCreatedAt = new Date(reply.createdAt);
                               const replyRelativeDate = Number.isNaN(replyCreatedAt.getTime())
                                 ? null
-                                : formatDistanceToNow(replyCreatedAt, {
-                                    addSuffix: true,
-                                    locale: locale.startsWith("de") ? de : enUS,
-                                  });
+                                : formatShortCommentTime(replyCreatedAt, locale);
 
                               return (
                                 <div key={reply._id} className="flex items-start gap-3">
@@ -286,23 +398,33 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
                                       <span className="font-medium">{replyAuthorName} </span>
                                       {reply.text}
                                     </p>
-                                    <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
+                                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                                       {replyRelativeDate ? (
                                         <time
                                           dateTime={reply.createdAt}
                                           title={replyCreatedAt.toLocaleString(locale)}
+                                          className="shrink-0 whitespace-nowrap"
                                         >
                                           {replyRelativeDate}
                                         </time>
                                       ) : null}
-                                      <Button type="button" variant="ghost" size="xs" className="h-auto px-0">
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="xs"
+                                        className={cn(
+                                          "h-auto shrink-0 px-0",
+                                          reply.isLikedByMe && "font-medium text-primary",
+                                        )}
+                                        onClick={() => onCommentLike(reply._id)}
+                                      >
                                         Gefällt mir
                                       </Button>
                                       <Button
                                         type="button"
                                         variant="ghost"
                                         size="xs"
-                                        className="h-auto px-0"
+                                        className="h-auto shrink-0 px-0"
                                         onClick={() => {
                                           setSelectedComment({
                                             commentId: comment._id,
@@ -313,6 +435,11 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
                                       >
                                         Antworten
                                       </Button>
+                                      <CommentOwnerMenu
+                                        onDelete={() => onDelete({ commentId: reply._id, postId: post._id })}
+                                        isOwner={Boolean(currentUser && currentUser._id === reply.author._id)}
+                                        label={`Optionen für Antwort von ${replyAuthorName}`}
+                                      />
                                     </div>
                                   </div>
 
@@ -321,8 +448,14 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
                                     variant="ghost"
                                     size="icon-xs"
                                     aria-label={`Antwort von ${replyAuthorName} liken`}
+                                    onClick={() => onCommentLike(reply._id)}
                                   >
-                                    <Heart className="size-3.5" />
+                                    <Heart
+                                      className={cn(
+                                        "size-3.5",
+                                        reply.isLikedByMe && "fill-primary text-primary",
+                                      )}
+                                    />
                                   </Button>
                                 </div>
                               );

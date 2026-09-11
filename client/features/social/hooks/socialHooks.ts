@@ -13,6 +13,8 @@ import { ApiError } from "@/lib/api/client";
 
 import {
   createSocialPostComment,
+  deleteSocialPostComment,
+  likeSocialPostComment,
   listSocialPostComments,
 } from "../api/postCommentApi";
 import {
@@ -21,12 +23,23 @@ import {
   likeSocialPost,
   listSocialPosts,
 } from "../api/postApi";
+import type { PostCommentListResponse } from "../types/postComment.types";
 import type { PostListResponse, UsePostsParams } from "../types/post.types";
 import type { CreatePostCommentInput } from "../validations/postComment.schema";
 import type { CreatePostInput } from "../validations/post.schema";
 
 const POST_CREATE_ERROR_MESSAGES: Record<string, string> = {};
 const COMMENT_CREATE_ERROR_MESSAGES: Record<string, string> = {};
+
+// Backend CustomError.message → kullanıcıya gösterilen Almanca metin.
+// Key'ler sunucudaki string ile birebir aynı olmalı (isOwnerOrAdmin + comment deletee).
+const COMMENT_DELETE_ERROR_MESSAGES: Record<string, string> = {
+  "You do not have permission to perform this action.":
+    "Du darfst diesen Kommentar nicht löschen.",
+  "Comment not found": "Kommentar wurde nicht gefunden.",
+  "Resource not found": "Kommentar wurde nicht gefunden.",
+  "Invalid resource id.": "Ungültige Kommentar-ID.",
+};
 
 export const usePosts = ({ city, eventId, sort, search }: UsePostsParams = {}) => {
   return useInfiniteQuery({
@@ -94,6 +107,30 @@ export const useCreatePost = () => {
     onSuccess: () => {
       toast.success("Beitrag erfolgreich erstellt.");
       queryClient.invalidateQueries({ queryKey: ["social-posts"] });
+    },
+  });
+};
+
+export const useDeletePostComment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ commentId, postId }: { commentId: string; postId: string }) => deleteSocialPostComment(commentId),
+    onError: (error) => {
+      const message =
+        error instanceof ApiError
+          ? (COMMENT_DELETE_ERROR_MESSAGES[error.message] ??
+            "Kommentar konnte nicht gelöscht werden. Bitte versuche es erneut.")
+          : "Kommentar konnte nicht gelöscht werden. Bitte versuche es erneut.";
+      toast.error(message);
+    },
+    onSuccess: (_response, variablesId) => {
+      toast.success("Kommentar erfolgreich gelöscht.");
+      queryClient.invalidateQueries({
+        queryKey: ["social-post-comments", variablesId.postId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["social-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["social-post", variablesId.postId] });
     },
   });
 };
@@ -180,6 +217,65 @@ export const useTogglePostLike = () => {
                 post._id === data.post._id ? data.post : post,
               ),
             })),
+          };
+        },
+      );
+    },
+  });
+};
+
+export const useToggleCommentLike = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ commentId }: { commentId: string; postId: string }) =>
+      likeSocialPostComment(commentId),
+    onMutate: async ({ commentId, postId }) => {
+      const queryKey = ["social-post-comments", postId];
+
+      await queryClient.cancelQueries({ queryKey });
+
+      const previousQueries = queryClient.getQueriesData<PostCommentListResponse>({
+        queryKey,
+      });
+
+      queryClient.setQueryData<PostCommentListResponse>(queryKey, (oldData) => {
+        if (!oldData) return oldData;
+
+        return {
+          ...oldData,
+          comments: oldData.comments.map((comment) => {
+            if (comment._id !== commentId) return comment;
+
+            return {
+              ...comment,
+              isLikedByMe: !comment.isLikedByMe,
+              likesCount: comment.isLikedByMe
+                ? comment.likesCount - 1
+                : comment.likesCount + 1,
+            };
+          }),
+        };
+      });
+
+      return { previousQueries };
+    },
+    onError: (_error, _variables, context) => {
+      context?.previousQueries.forEach(([queryKey, previousData]) => {
+        queryClient.setQueryData(queryKey, previousData);
+      });
+    },
+    onSuccess: (data, { postId }) => {
+      queryClient.setQueryData<PostCommentListResponse>(
+        ["social-post-comments", postId],
+        (oldData) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            comments: oldData.comments.map((comment) =>
+              comment._id === data.comment._id ? data.comment : comment,
+            ),
           };
         },
       );
