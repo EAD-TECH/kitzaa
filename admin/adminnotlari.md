@@ -373,4 +373,13 @@ const [siralama,setSiralama]=useState<string>("sort_newest") hafızayı bu sekı
     } tiklanan deger 
 
     Burda amacım siralamayı dızıye pushlamamak bu sayede fıltreleın bırbırıne karısmasını engellemıs oldm
-    
+
+
+[KTZ-202](https://dygcankurt17.atlassian.net/browse/KTZ-202)
+
+1. api dosyasına yolu yazdım
+2. Clienttan logout fonksıyonunu kopyaladım
+3. onclıck olarak bagladm dropdowndan
+4. export const redirectExternal = (url: string) => {
+  window.location.assign(url);
+};  tum sayfayı url e goturur
