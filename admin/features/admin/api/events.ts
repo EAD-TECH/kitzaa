@@ -12,6 +12,7 @@ interface ListAdminEventsParams {
   secilenKategori?: string;
   arananKelime?: string;
   seciliStatus?: string[];
+  siralama?: string;
   page?: number;
   limit?: number;
 }
@@ -19,11 +20,18 @@ export async function listAdminEvents({
   secilenKategori,
   arananKelime,
   seciliStatus,
+  siralama,
   page,
   limit = 6,
 }: ListAdminEventsParams = {}): Promise<ListAdminEventsResponse> {
   const params = new URLSearchParams();
-  params.append("sort[createdAt]", "-1");
+
+  if (siralama === "sort_oldest") {
+    params.append("sort[schedule.startDate]", "1");
+  } else {
+    params.append("sort[schedule.startDate]", "-1");
+  }
+
   if (secilenKategori && secilenKategori !== "Tümü") {
     params.append("filter[categoryId]", secilenKategori);
   }

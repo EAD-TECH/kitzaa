@@ -6,22 +6,25 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 interface useOrganizerApplicationsParams {
   arananKelime: string | undefined;
   seciliStatus?: string[];
+  siralama?:string
   limit?: number;
 }
 
 export const useOrganizerApplications = ({
   arananKelime,
   seciliStatus,
+  siralama,
   limit = 6,
 }: useOrganizerApplicationsParams) => {
   return useInfiniteQuery({
-    queryKey: ["organizer-applications", seciliStatus, arananKelime, limit],
+    queryKey: ["organizer-applications", seciliStatus, siralama, arananKelime, limit],
 
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       listOrganizerApplications({
         arananKelime,
         seciliStatus,
+        siralama,
         page: pageParam,
         limit,
       }),

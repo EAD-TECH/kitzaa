@@ -12,6 +12,7 @@ const BASE = "/api/v1/admin/organizer-applications";
 interface ListOrganizerApplicationsParams {
   arananKelime: string | undefined;
   seciliStatus?: string[];
+  siralama?: string;
   page?: number;
   limit?: number;
 }
@@ -19,10 +20,17 @@ interface ListOrganizerApplicationsParams {
 export async function listOrganizerApplications({
   arananKelime,
   seciliStatus,
+  siralama,
   page,
   limit,
 }: ListOrganizerApplicationsParams): Promise<ListOrganizerApplicationsResponse> {
   const params = new URLSearchParams();
+
+  if (siralama === "sort_oldest") {
+    params.append("sort[createdAt]", "1");
+  } else {
+    params.append("sort[createdAt]", "-1");
+  }
 
   if (arananKelime) {
     params.append("search[institutionData.name]", arananKelime);
@@ -69,4 +77,3 @@ export async function rejectOrganizerApplication(
     body,
   });
 }
-

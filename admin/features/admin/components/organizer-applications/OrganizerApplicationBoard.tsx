@@ -9,7 +9,13 @@ import KanbanSkeleton from "@/components/shared/KanbanSkeleton";
 import KanbanErrorState from "@/components/shared/KanbanErrorState";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowDown, CircleIcon, Loader2, UserIcon } from "lucide-react";
+import {
+  ArrowDown,
+  Calendar,
+  CircleIcon,
+  Loader2,
+  UserIcon,
+} from "lucide-react";
 import { useDebounce } from "use-debounce";
 
 import ReusableDrawer from "@/components/shared/drawer/ReusableDrawer";
@@ -37,12 +43,23 @@ const filtreSecenekleri = [
       { value: "duygu", label: "Duygu" },
     ],
   },
+  {
+    id: "sort",
+    value: "sort",
+    label: "Tarihe Göre",
+    icon: <Calendar />,
+    options: [
+      { value: "sort_newest", label: "En Yeniler" },
+      { value: "sort_oldest", label: "Eskiler" },
+    ],
+  },
 ];
 
 export default function OrganizerApplicationBoard() {
   const [inputValue, setInputValue] = useState("");
   const [sakinKelime] = useDebounce(inputValue, 400);
   const [seciliStatus, setSeciliStatus] = useState<string[]>([]);
+  const [siralama, setSiralama] = useState<string>("sort_newest");
 
   const {
     data,
@@ -55,6 +72,7 @@ export default function OrganizerApplicationBoard() {
   } = useOrganizerApplications({
     arananKelime: sakinKelime,
     seciliStatus: seciliStatus,
+    siralama,
     limit: 6,
   });
   /* flatMap */
@@ -79,6 +97,11 @@ export default function OrganizerApplicationBoard() {
     console.log("popoverdan gelen deger", tiklananDeger);
     console.log("popoverın defaultu", seciliStatus);
 
+    if (tiklananDeger.startsWith("sort_")) {
+      setSiralama(tiklananDeger);
+      return;
+    }
+
     const varMi = seciliStatus.includes(tiklananDeger);
     console.log("bu deger dızı de varmı", varMi);
     if (varMi) {
@@ -102,14 +125,18 @@ export default function OrganizerApplicationBoard() {
             searchValue={inputValue}
             onSearchChange={setInputValue}
             filterOptions={filtreSecenekleri}
-            selectedValues={seciliStatus}
+            selectedValues={
+              siralama === "sort_newest"
+                ? seciliStatus
+                : [...seciliStatus, siralama]
+            }
             onFilterSelect={onFilterSelect}
           />
-           {seciliStatus.length > 0 && (
-          <Button variant="ghost" onClick={() => setSeciliStatus([])}>
-            Temizle 
-          </Button>
-        )}
+          {seciliStatus.length > 0 && (
+            <Button variant="ghost" onClick={() => setSeciliStatus([])}>
+              Temizle
+            </Button>
+          )}
         </div>
       </div>
 

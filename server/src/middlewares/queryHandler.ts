@@ -7,10 +7,9 @@ import type { Model, PopulateOption, PopulateOptions } from "mongoose";
 const queryHandler = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
-
-  const query = req.query as QueryHandlerQuery
+  const query = req.query as QueryHandlerQuery;
 
   //* Filter:
   const filter = query.filter ?? {};
@@ -41,17 +40,12 @@ const queryHandler = async (
 
   //* Skip:
 
-  const skip =
-    Number(query.skip) > 0
-      ? Number(query.skip)
-      : (page - 1) * limit;
-
-
+  const skip = Number(query.skip) > 0 ? Number(query.skip) : (page - 1) * limit;
 
   res.getModelList = async <T>(
     model: Model<T>,
     customFilter: Record<string, unknown> = {},
-    populate?: string | PopulateOptions | (string | PopulateOptions)[]
+    populate?: string | PopulateOptions | (string | PopulateOptions)[],
   ): Promise<T[]> => {
     const query = model
       .find({
@@ -72,10 +66,9 @@ const queryHandler = async (
     return await query;
   };
 
-
   res.getModelListDetails = async <T>(
     model: Model<T>,
-    customFilter: Record<string, unknown> = {}
+    customFilter: Record<string, unknown> = {},
   ) => {
     const count = await model.countDocuments({
       ...filter,
@@ -95,16 +88,15 @@ const queryHandler = async (
         count <= limit
           ? false
           : {
-            previous: page > 1 ? page - 1 : false,
-            current: page,
-            next: page < Math.ceil(count / limit) ? page + 1 : false,
-            total: Math.ceil(count / limit),
-          },
+              previous: page > 1 ? page - 1 : false,
+              current: page,
+              next: page < Math.ceil(count / limit) ? page + 1 : false,
+              total: Math.ceil(count / limit),
+            },
     };
   };
 
   next();
-
 };
 
 export default queryHandler;
