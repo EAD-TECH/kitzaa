@@ -176,7 +176,7 @@ export default function EventDrawer() {
 
                     <InfoSection label="Ucretli/Ucretsiz">
                       <span className="capitalize">
-                        {eventData?.isFree || "Belirtilmemiş"}
+                        {eventData?.isFree ? "Ücretsiz" : "Ücretli"}
                       </span>
                     </InfoSection>
 

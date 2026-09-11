@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { cancelAdminEvent, rejectOrganizerApplication } from "../api";
-import { CancelEventBody, RejectEventBody } from "../types";
+import { cancelAdminEvent } from "../api";
+import { CancelEventBody } from "../types";
 
 export const useEventCancel = () => {
   /* santıye sefımın telsı */
@@ -9,9 +9,12 @@ export const useEventCancel = () => {
   return useMutation({
     mutationFn: ({ id, body }: { id: string; body: CancelEventBody }) =>
       cancelAdminEvent(id, body),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       // Telsizle anons et: Tahtayı yenile!
       queryClient.invalidateQueries({ queryKey: ["event-applications"] });
+      queryClient.invalidateQueries({
+        queryKey: ["admin-event", variables.id],
+      });
     },
   });
 };

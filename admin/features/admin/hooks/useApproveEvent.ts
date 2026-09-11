@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { approveAdminEvent, approveOrganizerApplication } from "../api";
+import { approveAdminEvent} from "../api";
 
 
 export const useApproveEvent = () => {
@@ -11,9 +11,10 @@ export const useApproveEvent = () => {
     mutationFn: (id: string) => approveAdminEvent(id),
 
     /* yolda kaza yapmazsa */
-    onSuccess: () => {
+    onSuccess: (_,id) => {
       /* tlsize anons gec lısteyı yenılemen lazım */
       queryClient.invalidateQueries({ queryKey: ["event-applications"] });
+      queryClient.invalidateQueries({queryKey:["admin-event",id]})
     },
   });
 };
