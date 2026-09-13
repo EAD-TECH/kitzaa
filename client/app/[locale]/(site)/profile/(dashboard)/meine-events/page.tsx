@@ -2,20 +2,23 @@
 
 import { PartyPopper } from "lucide-react"
 
+import { Skeleton } from "@/components/ui/skeleton"
 import ProfileEmptyState from "@/features/profile/components/ProfileEmptyState"
-import MyEventCard from "@/features/events/components/MyEventCard"
-import EventListSkeleton from "@/features/events/components/EventListSkeleton"
 import EventListError from "@/features/events/components/EventListError"
+import { MyEventCard } from "@/features/events/components/MyEventCard"
 import { useMyEvents } from "@/features/events/hooks/useMyEvents"
-
-const EVENT_GRID_CLASSNAME =
-  "grid grid-cols-1 max-w-90 tablet:grid-cols-[repeat(2,minmax(320px,370px))] desktop:grid-cols-[repeat(3,minmax(250px,1fr))] desktop:max-w-270 gap-10 desktop:gap-16 mx-auto justify-center desktop:justify-start desktop:mx-0"
 
 const MeineEventsPage = () => {
   const { events, isLoading, isError } = useMyEvents()
 
   if (isLoading) {
-    return <EventListSkeleton />
+    return (
+      <div className="flex flex-col gap-3">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <Skeleton key={index} className="h-22 w-full" />
+        ))}
+      </div>
+    )
   }
 
   if (isError) {
@@ -33,7 +36,7 @@ const MeineEventsPage = () => {
   }
 
   return (
-    <div className={EVENT_GRID_CLASSNAME}>
+    <div className="flex flex-col gap-3">
       {events.map((event) => (
         <MyEventCard key={event._id} event={event} />
       ))}

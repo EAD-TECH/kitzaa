@@ -1,4 +1,4 @@
-import { EditEventWizard } from "@/features/events/components/createEvent/EditEventWizard"
+import { CreateEventWizard } from "@/features/events/components/createEvent/CreateEventWizard"
 import { getCategoriesServer } from "@/features/events/api/categoryApi.server"
 
 interface EventsBearbeitenPageProps {
@@ -9,7 +9,7 @@ const EventsBearbeitenPage = async ({ params }: EventsBearbeitenPageProps) => {
   const { id } = await params
   const { categories } = await getCategoriesServer()
 
-  return <EditEventWizard eventId={id} categories={categories} />
+  return <CreateEventWizard categories={categories} eventId={id} />
 }
 
 export default EventsBearbeitenPage

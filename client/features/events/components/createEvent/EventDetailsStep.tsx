@@ -46,12 +46,25 @@ interface ImageItem {
 // önce yerel bir önizleme gösterilir, ardından UploadThing'e yüklenir; dönen URL form'un
 // "images" alanına eklenir ve ilk görsel otomatik olarak "coverImage" yapılır.
 function ImageDropzone({ form }: { form: UseFormReturn<CreateEventFormInput> }) {
-  const [items, setItems] = useState<ImageItem[]>([])
+  // Bearbeiten-Modus'ta form zaten mevcut resim URL'leriyle dolu mount oluyor (bkz.
+  // CreateEventWizard'da isLoadingEvent guard'ı) — bu yüzden başlangıç state'ini
+  // form'dan türetiyoruz, aksi halde dropzone önizlemesi boş görünür.
+  const [items, setItems] = useState<ImageItem[]>(() =>
+    (form.getValues("images") ?? []).map((url) => ({
+      id: crypto.randomUUID(),
+      name: url,
+      previewUrl: url,
+      status: "done" as const,
+      url,
+    }))
+  )
   const { mutateAsync: uploadImages } = useUploadEventImages()
 
   useEffect(() => {
     return () => {
-      items.forEach((item) => URL.revokeObjectURL(item.previewUrl))
+      items.forEach((item) => {
+        if (item.previewUrl.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl)
+      })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -123,7 +136,7 @@ function ImageDropzone({ form }: { form: UseFormReturn<CreateEventFormInput> }) 
           form.setValue("coverImage", nextImages[0] ?? null)
         }
       }
-      if (item) URL.revokeObjectURL(item.previewUrl)
+      if (item?.previewUrl.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl)
       return prev.filter((i) => i.id !== id)
     })
   }

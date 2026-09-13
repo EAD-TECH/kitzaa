@@ -20,11 +20,15 @@ const scheduleSchema = z
     .refine((data) => !data.endDate || data.startDate <= data.endDate, {
         message: 'startDate cannot be after endDate',
         path: ['endDate'],
-    })
-    .refine((data) => data.startDate >= new Date(new Date().setHours(0, 0, 0, 0)), {
-        message: 'startDate cannot be in the past',
-        path: ['startDate'],
     });
+
+// Nur beim Erstellen erzwungen — beim Bearbeiten muss ein bereits gestartetes/vergangenes,
+// aber weiterhin genehmigtes Event editierbar bleiben (z.B. Titel/Preis korrigieren), ohne
+// das Datum zwangsweise in die Zukunft verschieben zu müssen.
+const futureScheduleSchema = scheduleSchema.refine(
+    (data) => data.startDate >= new Date(new Date().setHours(0, 0, 0, 0)),
+    { message: 'startDate cannot be in the past', path: ['startDate'] },
+);
 
 const locationSchema = z.object({
     venueName: z.string().trim().optional().nullable(),
@@ -81,6 +85,7 @@ const baseEventSchema = z.object({
 //  CREATE SCHEMA
 
 export const createEventSchema = baseEventSchema
+    .extend({ schedule: futureScheduleSchema })
     .strict()
     .refine((data) => data.isFree || !!data.price, {
         message: 'Price is required for paid events',
