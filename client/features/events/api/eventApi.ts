@@ -29,6 +29,11 @@ export const updateEvent = async (id: string, payload: UpdateEventFormValues) =>
 
 }
 
+export const getEventForEdit = async (id: string) => {
+
+    return apiFetch<EventResponse>(`/api/v1/events/${id}/edit`, { method: "GET" })
+}
+
 export const deleteEvent = async (id: string, cancelledReason: string) => {
 
     return apiFetch<void>(`/api/v1/events/${id}`, {

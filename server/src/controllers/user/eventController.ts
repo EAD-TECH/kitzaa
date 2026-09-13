@@ -372,10 +372,23 @@ const eventController = {
     });
   },
 
+  getForEdit: async (req: Request<{ id: string }>, res: Response) => {
+    // isOwnerOrAdmin middleware'i sahiplik/admin kontrolunu yapip event'i req.resource'a koyuyor.
+    const event = req.resource as EventDocument;
+
+    res.status(200).send({
+      error: false,
+      event: toEventDTO(event),
+    });
+  },
+
   myEvents: async (req: Request, res: Response) => {
     const customFilter = { createdBy: req.user._id };
 
-    const result = await res.getModelList(Event, customFilter);
+    const result = await res.getModelList(Event, customFilter, [
+      { path: "categoryId", select: "name slug icon" },
+      { path: "createdBy", select: "username avatarUrl role" },
+    ]);
 
     res.status(200).send({
       error: false,

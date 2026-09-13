@@ -25,6 +25,7 @@ import { createEventSchema, type CreateEventFormValues } from "../../validations
 import type { CreateEventFieldName, CreateEventFormInput, CreateEventStepMeta } from "../../types/createEvent.types"
 import type { EventCategoryDTO } from "../../types/eventCategory.types"
 import { useCreateEvent } from "../../hooks/useCreateEvent"
+import { useUpdateEvent } from "../../hooks/useUpdateEvent"
 import { EventDetailsStep } from "./EventDetailsStep"
 import { EventScheduleStep } from "./EventScheduleStep"
 import { EventPricingStep } from "./EventPricingStep"
@@ -86,17 +87,22 @@ const DEFAULT_VALUES: CreateEventFormInput = {
 
 interface CreateEventWizardProps {
   categories: EventCategoryDTO[]
+  mode?: "create" | "edit"
+  eventId?: string
+  defaultValues?: CreateEventFormInput
 }
 
-export function CreateEventWizard({ categories }: CreateEventWizardProps) {
+export function CreateEventWizard({ categories, mode = "create", eventId, defaultValues }: CreateEventWizardProps) {
   const [currentStep, setCurrentStep] = useState(1)
   const router = useRouter()
-  const { mutate: createEvent, isPending } = useCreateEvent()
+  const { mutate: createEvent, isPending: isCreating } = useCreateEvent()
+  const { mutate: updateEvent, isPending: isUpdating } = useUpdateEvent()
+  const isPending = isCreating || isUpdating
 
   const form = useForm<CreateEventFormInput, unknown, CreateEventFormValues>({
     resolver: zodResolver(createEventSchema),
     mode: "onSubmit",
-    defaultValues: DEFAULT_VALUES,
+    defaultValues: defaultValues ?? DEFAULT_VALUES,
   })
 
   const goToNextStep = async () => {
@@ -108,6 +114,19 @@ export function CreateEventWizard({ categories }: CreateEventWizardProps) {
   const goToPreviousStep = () => setCurrentStep((prev) => prev - 1)
 
   const onSubmit = (data: CreateEventFormValues) => {
+    if (mode === "edit" && eventId) {
+      updateEvent(
+        { id: eventId, payload: data },
+        {
+          onSuccess: () => {
+            toast.success("Event wurde aktualisiert.")
+            router.push("/profile/meine-events")
+          },
+        }
+      )
+      return
+    }
+
     createEvent(data, {
       onSuccess: () => {
         toast.success("Event wurde erstellt und wartet auf Freigabe.")
@@ -127,11 +146,12 @@ export function CreateEventWizard({ categories }: CreateEventWizardProps) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="font-heading text-2xl font-bold text-foreground tablet:text-3xl">
-            Eine Aktivität hosten
+            {mode === "edit" ? "Event bearbeiten" : "Eine Aktivität hosten"}
           </h1>
           <p className="mt-1 max-w-md text-sm text-muted-foreground">
-            Erstelle eine Aktivität für Kinder und Familien in deiner Nähe – von Ausflug bis Workshop. In
-            wenigen Schritten fertig.
+            {mode === "edit"
+              ? "Aktualisiere die Details deiner Aktivität."
+              : "Erstelle eine Aktivität für Kinder und Familien in deiner Nähe – von Ausflug bis Workshop. In wenigen Schritten fertig."}
           </p>
         </div>
 
@@ -206,7 +226,13 @@ export function CreateEventWizard({ categories }: CreateEventWizardProps) {
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 <CheckIcon className="size-4" />
-                {isPending ? "Wird veröffentlicht…" : "Event veröffentlichen"}
+                {mode === "edit"
+                  ? isPending
+                    ? "Wird gespeichert…"
+                    : "Änderungen speichern"
+                  : isPending
+                    ? "Wird veröffentlicht…"
+                    : "Event veröffentlichen"}
               </Button>
             )}
           </div>

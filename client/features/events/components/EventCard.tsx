@@ -2,12 +2,18 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { Baby, Bookmark, Building2, CalendarDays, MapPin, PartyPopper, Tag, Users } from "lucide-react"
+import { Baby, Bookmark, Building2, CalendarDays, MapPin, MoreVertical, PartyPopper, Pencil, Tag, Trash2, Users } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import type { EventDTO } from "../types/event.types"
 import { useEventsStore } from "../store/EventStore"
@@ -46,6 +52,14 @@ function formatAgeRange(ageRange: EventDTO["ageRange"]) {
   return AGE_RANGE_LABELS[ageRange]
 }
 
+const STATUS_LABELS: Record<EventDTO["status"], string> = {
+  pending: "Ausstehend",
+  approved: "Genehmigt",
+  rejected: "Abgelehnt",
+  cancelled: "Storniert",
+  completed: "Abgeschlossen",
+}
+
 function getCategoryName(categoryId: EventDTO["categoryId"]) {
   return typeof categoryId === "string" ? null : categoryId.name
 }
@@ -60,9 +74,11 @@ function getOrganizer(createdBy: EventDTO["createdBy"]) {
 interface EventCardProps {
   event: EventDTO
   className?: string
+  variant?: "public" | "owner"
+  onDelete?: () => void
 }
 
-const EventCard = ({ event, className }: EventCardProps) => {
+const EventCard = ({ event, className, variant = "public", onDelete }: EventCardProps) => {
 
   const accessToken = useAuthStore((state) => state.accessToken)
 
@@ -111,22 +127,55 @@ const EventCard = ({ event, className }: EventCardProps) => {
           </div>
         )}
 
-        {categoryName && (
-          <Badge className="absolute top-2 left-2 h-4 gap-1 border-none bg-background/90 px-1.5 text-[10px] font-medium text-foreground shadow-sm">
-            <Tag className="size-2.5" />
-            {categoryName}
-          </Badge>
-        )}
+        <div className="absolute top-2 left-2 flex items-center gap-1">
+          {categoryName && (
+            <Badge className="h-4 gap-1 border-none bg-background/90 px-1.5 text-[10px] font-medium text-foreground shadow-sm">
+              <Tag className="size-2.5" />
+              {categoryName}
+            </Badge>
+          )}
+          {variant === "owner" && event.status !== "approved" && (
+            <Badge className="h-4 border-none bg-background/90 px-1.5 text-[10px] font-medium text-destructive shadow-sm">
+              {STATUS_LABELS[event.status]}
+            </Badge>
+          )}
+        </div>
 
-        <button
-          type="button"
-          aria-pressed={isSaved}
-          aria-label={isSaved ? "Event gespeichert" : "Event speichern"}
-          onClick={toggleSaved}
-          className="absolute top-2 right-2 flex size-6 cursor-pointer items-center justify-center rounded-full bg-background/90 shadow-sm transition-colors hover:bg-background"
-        >
-          <Bookmark className={cn("size-3 text-foreground", isSaved && "fill-primary text-primary")} />
-        </button>
+        {variant === "owner" ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <button
+                  type="button"
+                  aria-label="Event-Optionen"
+                  className="absolute top-2 right-2 flex size-6 cursor-pointer items-center justify-center rounded-full bg-background/90 shadow-sm transition-colors hover:bg-background"
+                />
+              }
+            >
+              <MoreVertical className="size-3.5 text-foreground" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem render={<Link href={`/profile/events-bearbeiten/${event._id}`} />}>
+                <Pencil />
+                Bearbeiten
+              </DropdownMenuItem>
+              <DropdownMenuItem variant="destructive" onClick={onDelete}>
+                <Trash2 />
+                Löschen
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <button
+            type="button"
+            aria-pressed={isSaved}
+            aria-label={isSaved ? "Event gespeichert" : "Event speichern"}
+            onClick={toggleSaved}
+            className="absolute top-2 right-2 flex size-6 cursor-pointer items-center justify-center rounded-full bg-background/90 shadow-sm transition-colors hover:bg-background"
+          >
+            <Bookmark className={cn("size-3 text-foreground", isSaved && "fill-primary text-primary")} />
+          </button>
+        )}
       </div>
 
       <CardContent className="flex flex-col gap-2 p-3">
@@ -179,11 +228,22 @@ const EventCard = ({ event, className }: EventCardProps) => {
               </span>
             </span>
           )}
-          <Link href={`/events/${event.slug}`}>
-            <Button size="xs" className="shrink-0 rounded-full">
+          {event.status === "approved" ? (
+            <Link href={`/events/${event.slug}`}>
+              <Button size="xs" className="shrink-0 rounded-full">
+                Details
+              </Button>
+            </Link>
+          ) : (
+            <Button
+              size="xs"
+              disabled
+              className="shrink-0 rounded-full"
+              title="Details sind erst nach Genehmigung sichtbar."
+            >
               Details
             </Button>
-          </Link>
+          )}
 
         </div>
       </CardContent>
