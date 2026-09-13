@@ -78,6 +78,12 @@ export const myParticipations = async () => {
 }
 
 
+export const savedEvents = async () => {
+
+    return apiFetch<EventListResponse>(`/api/v1/events/saved-events`, { method: "GET" })
+}
+
+
 export const participants = async (id: string) => {
 
     return apiFetch<EventParticipantsResponse>(`/api/v1/events/${id}/participants`, { method: "GET" })
