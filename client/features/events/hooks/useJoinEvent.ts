@@ -1,6 +1,6 @@
 
 
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { joinEvent } from '../api/eventApi'
 import { toast } from 'sonner'
 import { ApiError } from '@/lib/api/client'
@@ -14,8 +14,14 @@ const JOIN_ERROR_MESSAGES: Record<string, string> = {
 }
 
 export const useJoinEvent = (eventId: string) => {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: (participantCount: number) => joinEvent(eventId, participantCount),
+    onSuccess: () => {
+      toast.success("Erfolgreich für das Event angemeldet!")
+      queryClient.invalidateQueries({ queryKey: ["events", "my-participations"] })
+    },
     onError: (err) => {
       const message = err instanceof ApiError
         ? (JOIN_ERROR_MESSAGES[err.message] ?? "Anmeldung fehlgeschlagen. Bitte versuche es erneut.")

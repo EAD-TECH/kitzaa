@@ -400,7 +400,25 @@ const eventController = {
   myParticipations: async (req: Request, res: Response) => {
     const customFilter = { "participants.userId": req.user._id };
 
-    const result = await res.getModelList(Event, customFilter);
+    const result = await res.getModelList(Event, customFilter, [
+      { path: "categoryId", select: "name slug icon" },
+      { path: "createdBy", select: "username avatarUrl role" },
+    ]);
+
+    res.status(200).send({
+      error: false,
+      details: await res.getModelListDetails(Event, customFilter),
+      events: toEventDTO(result),
+    });
+  },
+
+  savedEvents: async (req: Request, res: Response) => {
+    const customFilter = { _id: { $in: req.user.savedEvents ?? [] } };
+
+    const result = await res.getModelList(Event, customFilter, [
+      { path: "categoryId", select: "name slug icon" },
+      { path: "createdBy", select: "username avatarUrl role" },
+    ]);
 
     res.status(200).send({
       error: false,
