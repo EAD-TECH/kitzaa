@@ -1,7 +1,7 @@
 "use client";
 
 import { BellIcon } from "lucide-react";
-import Link from "next/link";
+import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -36,6 +36,7 @@ function getNotificationHref(not: NotificationDTO) {
 }
 
 export function NotificationBellMenu() {
+  const router = useRouter();
   const { data: listData, isPending, isError } = useNotifications();
   const { data: unreadData } = useUnreadCount();
 
@@ -100,13 +101,11 @@ export function NotificationBellMenu() {
               <DropdownMenuItem
                 key={not._id}
                 className="items-start gap-3 rounded-none p-4"
-                nativeButton={false}
-                render={<Link href={getNotificationHref(not)} />}
                 onClick={() => {
-                  /*linke gıttıgı sırada bıldırm okunmamıssa canı guncellemek ısın patch at dbye */
                   if (!not.isRead) {
                     markAsRead(not._id);
                   }
+                  router.push(getNotificationHref(not));
                 }}
               >
                 {/* okunmamıslara ısaretledm */}

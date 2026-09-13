@@ -58,7 +58,7 @@ export const sendLowCapacityPrompts = async () => {
       title: "Möchtest du deine Kapazität auffüllen?",
       message: `Es sind noch ${daysLeft} Tage bis zu deiner Veranstaltung, aber erst ${percent}% der Plätze sind belegt. Möchtest du sie im Feed mit der Community teilen, um mehr Familien zu erreichen?`,
       type: "low_capacity_3day",
-      linkNotification: `/share-event/${event._id}`,
+      linkNotification: `/events/${event.slug}`,
     };
   });
 

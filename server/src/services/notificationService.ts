@@ -34,7 +34,7 @@ export const notifyUsersForNearbyEvent = async (event: any) => {
     message: `In ${event.location.city} wurde eine neue Veranstaltung erstellt. Schau sie dir gleich an!`,
     relatedId: event._id,
     relatedModel: "Event",
-    linkNotification: `/events/${event._id}`,
+    linkNotification: `/events/${event.slug}`,
   });
   console.log("[KTZ-58] Yakın çevre bildirimleri başarıyla gönderildi!");
 };
@@ -63,7 +63,7 @@ export const notifyUsersForCancelledEvent = async (event: any) => {
       : `Wir bedauern, dir mitteilen zu müssen, dass die Veranstaltung "${event.title}" vom Organisator abgesagt wurde.`,
     relatedId: event._id,
     relatedModel: "Event",
-    linkNotification: `/events/${event._id}`,
+    linkNotification: `/events/${event.slug}`,
   });
 
   console.log("[KTZ-61] İptal bildirimleri başarıyla gönderildi!");

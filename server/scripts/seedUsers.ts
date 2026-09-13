@@ -52,16 +52,53 @@ const USERS: { firstName: string; lastName: string; role: "user" | "organizer" }
 
 const USER_PASSWORD = "Kitzaa2026!";
 
+const ELIF_ADMIN = {
+  username: "elif.admin",
+  firstName: "Elif",
+  lastName: "Yuzer",
+  email: "elif.admin@example.com",
+  password: "ElifAdmin2026!",
+  role: "admin" as const,
+  isEmailVerified: true,
+  location: { state: "Berlin", city: "Berlin", zipCode: "10115", country: "DE" },
+};
+
+const ELIF_USER = {
+  username: "elif.user",
+  firstName: "Elif",
+  lastName: "User",
+  email: "elif.user@example.com",
+  password: USER_PASSWORD,
+  role: "user" as const,
+  isEmailVerified: true,
+  location: { state: "Berlin", city: "Berlin", zipCode: "10115", country: "DE" },
+};
+
 async function run() {
   await dbConnection();
 
   const { deletedCount } = await User.deleteMany({
-    email: { $in: [ADMIN.email, ...USERS.map((u) => `${u.firstName}.${u.lastName}`.toLowerCase() + "@example.com")] },
+    email: {
+      $in: [
+        ADMIN.email,
+        ELIF_ADMIN.email,
+        ELIF_USER.email,
+        ...USERS.map(
+          (u) => `${u.firstName}.${u.lastName}`.toLowerCase() + "@example.com",
+        ),
+      ],
+    },
   });
   console.log(`${deletedCount} mevcut seed kullanıcısı silindi.`);
 
   const admin = await User.create(ADMIN);
   console.log(`Admin oluşturuldu: ${admin.username} / ${ADMIN.password}`);
+
+  const elifAdmin = await User.create(ELIF_ADMIN);
+  console.log(`Elif admin: ${elifAdmin.username} / ${ELIF_ADMIN.password}`);
+
+  const elifUser = await User.create(ELIF_USER);
+  console.log(`Elif user: ${elifUser.username} / ${ELIF_USER.password}`);
 
   for (const [i, u] of USERS.entries()) {
     const location = CITIES[i % CITIES.length]!;
@@ -80,8 +117,8 @@ async function run() {
     console.log(`"${username}" (${u.role}) oluşturuldu.`);
   }
 
-  console.log(`\nToplam: 1 admin + ${USERS.length} kullanıcı.`);
-  console.log(`Kullanıcı şifresi (hepsi için): ${USER_PASSWORD}`);
+  console.log(`\nToplam: 2 admin + ${USERS.length} kullanıcı + Elif user.`);
+  console.log(`Kullanıcı şifresi (user/organizer için): ${USER_PASSWORD}`);
 
   await mongoose.disconnect();
 }
