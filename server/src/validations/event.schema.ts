@@ -1,15 +1,7 @@
 
 import { z } from 'zod';
 
-const ageRangeSchema = z
-    .object({
-        min: z.number().int().min(0),
-        max: z.number().int().min(0),
-    })
-    .refine((data) => data.min <= data.max, {
-        message: 'ageRange.min cannot be greater than ageRange.max',
-        path: ['max'],
-    });
+const ageRangeSchema = z.enum(['0-3', '4-6', '7-10', '10-14', 'parents', 'all-ages']);
 
 const priceSchema = z.object({
     amount: z.number().min(0),
@@ -28,11 +20,15 @@ const scheduleSchema = z
     .refine((data) => !data.endDate || data.startDate <= data.endDate, {
         message: 'startDate cannot be after endDate',
         path: ['endDate'],
-    })
-    .refine((data) => data.startDate >= new Date(new Date().setHours(0, 0, 0, 0)), {
-        message: 'startDate cannot be in the past',
-        path: ['startDate'],
     });
+
+// Nur beim Erstellen erzwungen — beim Bearbeiten muss ein bereits gestartetes/vergangenes,
+// aber weiterhin genehmigtes Event editierbar bleiben (z.B. Titel/Preis korrigieren), ohne
+// das Datum zwangsweise in die Zukunft verschieben zu müssen.
+const futureScheduleSchema = scheduleSchema.refine(
+    (data) => data.startDate >= new Date(new Date().setHours(0, 0, 0, 0)),
+    { message: 'startDate cannot be in the past', path: ['startDate'] },
+);
 
 const locationSchema = z.object({
     venueName: z.string().trim().optional().nullable(),
@@ -76,6 +72,7 @@ const baseEventSchema = z.object({
     coverImage: z.string().url().optional().nullable(),
     images: z.array(z.string().url()).optional().default([]),
     categoryId: z.string().min(1, 'Category is required'),
+    locationType: z.enum(['indoor', 'outdoor', 'online']),
     ageRange: ageRangeSchema,
     isFree: z.boolean(),
     price: priceSchema.optional().nullable(),
@@ -88,6 +85,7 @@ const baseEventSchema = z.object({
 //  CREATE SCHEMA
 
 export const createEventSchema = baseEventSchema
+    .extend({ schedule: futureScheduleSchema })
     .strict()
     .refine((data) => data.isFree || !!data.price, {
         message: 'Price is required for paid events',
@@ -132,8 +130,17 @@ export const cancelEventSchema = z
     })
     .strict();
 
+// JOIN SCHEMA
+
+export const joinEventSchema = z
+    .object({
+        participantCount: z.number().int().min(1, 'participantCount must be at least 1'),
+    })
+    .strict();
+
 export type CreateEventInput = z.infer<typeof createEventSchema>;
 export type UpdateEventInput = z.infer<typeof updateEventSchema>;
 export type EventStatusInput = z.infer<typeof eventStatusSchema>;
 export type RejectEventInput = z.infer<typeof rejectEventSchema>;
 export type CancelEventInput = z.infer<typeof cancelEventSchema>;
+export type JoinEventInput = z.infer<typeof joinEventSchema>;

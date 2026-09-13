@@ -1,0 +1,385 @@
+## [KTZ-136-ADMİN-ROUTE-GUARD](https://dygcankurt17.atlassian.net/browse/KTZ-136)
+
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-136`
+- **Mimari Kararlar & Ne Yaptım:**
+
+1. Client tarafında yaptıgım route kısmını degıstırdm.Admin klasoru actıgım için.Dolayısyla yollar degıstı.
+2. admin ve (admin) klasorlerı clıent tarafındaydı ,admın katmanında routta gereksiz durdugu ıcın kaldırdm
+3. Kök layout’tan font / QueryProvider kalıbını aldım, üstüne tüm app’i RequireAuth roles="admin" ile sardım. Client kök layout tüm siteyi kilitlemez. : chrome kopyası + admin-only guard.
+4. client tarafında olusturdugum api ve types dosyalarını tasıdım.
+5. Admin kisinin login olabilmesi için [](./providers/query-provider.tsx)
+
+- Backend'e gidip gizli çerezlerdeki (cookie) Refresh Token'ı kullanarak "Bu adam sayfayı yeniledi ama hala bizden biri mi? Öyleyse bana yeni bir Access Token ver" demek için
+  setAccessToken: varsaZustand buraya kaydeder
+  En alttaki return bloğu ise, oluşturduğumuz bu Query Client (Veri Çekme Motoru) altyapısını bir battaniye gibi tüm çocuk bileşenlerin ({children}) üzerine örterek onların React Query özelliklerini kullanabilmesini sağlar.
+- Login client’ta; admin’e gelince access token memory’de yok. HttpOnly refresh cookie (CORS + credentials: "include") ile POST /api/v1/auth/refresh çağrılıyor. Bu yüzden bu dosya 136’nın parçası: guard’ın “kim var?” sorusunu cevaplamak.
+
+5. Test için config dosyalar olusturdm.Test sırasında Next.js ve Typescript hatalarından kaynaklı
+
+- [](./features/auth/components/RequireAuth.tsx) burda ben test kosullarımı yazdım aslında kullanıcıcn rolune gore senaryolarım
+  isReady: false (Sistem henüz hazır değil): Zustand ilk ayağa kalktığında bu bayrak kapalıdır. Güvenlik şefine (RequireAuth) şu mesajı verir: "Bekle! Token null görünüyor olabilir ama belki kullanıcı F5 atmıştır. Ben şu an arka planda Backend'e soruyorum (refresh). Ben sana haber verene kadar kapıyı kimseye açma, kimseyi de kovma!" (Testin 1. senaryosu isReady: false iken ekrana hiçbir şey basmadm, sebebi tam olarak budur).
+- setIsReady (Telsiz Düğmesi): Bu fonksiyon, Resepsiyonun (QueryProvider) güvenlik şefine telsizden haber verme tuşudur.
+  setIsReady(true) (Sistem Hazır!): QueryProvider backend'den cevabı alır (olumlu veya olumsuz). Yeni token'ı kasaya koyar ve en son .finally() bloğunda telsize basıp setIsReady(true) der. Yani şefe: "İşim bitti, herkesin gerçek kimliği kasada güncellendi. Artık kurallarını uygulayabilirsin!" der.
+  Bu mantıga gore test dosyamda Zustandın Nextin ve JSDOM’da window.location.assign güvenilir değil diye redirectExternal sarmalayıp onu mock’ladım. Zustand + useCurrentUser da mock.
+  FE kapı UX; asıl isAdmin backend’de.
+
+[KTZ-134](https://dygcankurt17.atlassian.net/browse/KTZ-134)
+
+- **Durum:** In Progress
+- **Jira Kartı:** `KTZ-134`
+- **Mimari Kararlar & Ne Yaptım:**
+
+1. Sidebar için Shadcn Tooltip kullanarak custom css vererek yuzen bır sıdebar mantıgı olusturdum
+2. Navbar için client taki yapıyı kopyaladım
+
+3. Logout yazılmadı logout kısmı yazılmalı
+4. Organizator Basvurulari sayfasini yaparken su mantigi olusturdum \_
+5. Shared klasoru olusturdum componentlerimi orda olusturdum ve reusable yapmak adina yine shared klasorunde olusturdugum propsları vererek dınamık hale getırdım.
+6. PageHeader kısmı için su yollardan gecti.
+
+## 6.1 Bileşen olusturdum ve types kısmında oluturdugum propsları yolladım.[pageheader-shared](./components/shared/PageHeader.tsx)
+
+- Olusturdugum bu bileşeni [organizatorboard](./features/admin/components/organizer-applications/OrganizerApplicationBoard.tsx) bu dosyada cagırdım sayfaya yerleştırırken ve propslara ıstedıgım degerlerı vererek kullandım
+
+7.  FilterandSearch için de aynı sekılde SHADCN kullanarak ıskeletını yaptıktan sonra [FilterandSearch](./components/shared/FilterAndSearch.tsx) yıne aynı mantıkta InputGroup ve Popover kullanarak olusturdugum bu ıskeletı kullanabılır hale getırmek olacak : gelecek taskta olusturdugum bu popover yapısı altında status ,asıgnee,priorty sort gıbı fıltreleme fonksıyonları eklemek ıcın ıhtıyac duyulacak propsları olusturup props olarak gonderdım yıne aynı mantıkta board sayfasına cagırırkende propsları gondermıs oldum.
+    selectedVlaues: Bunu bir "Alışveriş Sepeti" gibi düşün.
+
+        Ne işe yarar? Kullanıcı açılır menüden bir şey seçtiğinde (örneğin "Status" ve "Priority"), bu kelimeleri içinde tutar: ["status", "priority"].
+
+export interface FilterAndSearchProps {
+searchValue: string; // Arama kutusunda ne yazıyor?
+onSearchChange: (val: string) => void; // Arama kutusu değişince Panoya haber ver
+selectedValues: string[]; // Hangi filtreler seçili? (Panodan gelecek)
+onFilterSelect: (val: string) => void; // Filtre seçilince Panoya haber ver
+}
+
+"Seçenekler Listesi" (filterOptions) için de type tanımlaması yaptım
+
+Sayfadakı bagımsız Search inputu (Shadncn InputGroup için props larım da export interface SearchInputProps {
+placeholder: string;
+value: string;
+onChange: (value: string) => void;
+}) bu sekılde
+
+8. KanbanKolumn sayfasını da aynı mantıkla ıskeletını olusturdum [kanbancolumn](./components/shared/KanbanColumn.tsx)
+   export default function KanbanColumn({
+   title,
+   count,
+   dotColor,
+   children,
+   }: KanbanColumnProps) aladıgı propslar bu sekılde ve [boardsayfam](./features/admin/components/organizer-applications/OrganizerApplicationBoard.tsx) 3 adet kolon oldugu için bu sekılde her kolona props degerlerını ve ıcınde kanban kartı yerlestırmıs oldum
+
+9. KanbanKard kısmını da aynı mantıkta tasarladım [kanbancard](./components/shared/KanbanCard.tsx)
+   export interface KanbanCardProps {
+   id: string;
+   title: string;
+   category?: string;
+   time: string;
+   description?: string;
+   status: string;
+   onEdit?: (id: string) => void;
+   onDelete?: (id: string) => void;
+   onReview?: (id: string) => void;
+   } bu sekılde types larını tanıttm sonra organızator basvurusu için kard yapısı olusturcgm için card bılesenı olusturup backenddeki DTO yapısından faydalanarak gercek gelecek verilerle birlestirp card bileşenini organızatore cevırmıs oldum
+
+10. Sayfa yuklenırken kullanıcıya yuklenıyor hıssı veren ve hata akısında ekrana hata oldgunu basan bılsenelerı de tasarlayıp board sayfasında cagırdm bu sekılde board kısmını tamamladım
+
+11. ## FILTERPILLS CATEGORI FILTER MANTIGININ KURULMASI :
+
+Bu mantıgı kurarken beyın olan board sayfasında useState ile
+
+- const [aktifKategori, SetAktifKategori] = useState("Tümü"); baslangıcta hafızada Tümü olsun seklınde olusturdum.
+- useOrganızasyon hook ıle cektıgım verilerden categoryi ayıkladım ve dızıye attım .burda soyle bır olay vardı backendde event gıbı categorıler ayrı model altında tutlmuyor organızer modelıne embedded olarak eklenmıs ve endpoint olmadıgı ıcın de categorlerı ayrı cekemedım bu yuzden her fıltre butonuna bastıgımda verıler render oldugu ıcın sadece ılgılı fıltrenın butonu kalıyor .Bunu sormam lazım bılınclı bır tercıh mı bu yaklasım
+  kategoriler (Dizi): Butonların üzerine yazılacak metinler (Örn: ["Tümü", "Eğitim", "Sanat"]). Bu sayede yarın Etkinlik sayfasında kullanırken farklı bir dizi gönderebilir.
+
+aktifKategori (Metin): Şu an hangi butonun seçili olduğu bilgisini dışarıdan alacak (Rengini kırmızı yapmak için).
+
+onKategoriSec (Fonksiyon): Bir butona tıklandığında onClick içinde çalıştıracağı ve tıklanan kategorinin adını üst bileşene fırlatan bir "Haberci" fonksiyon.
+
+bunları board sayfasında yapıp verileri props olarak FilterPills bilesenime yolladm.
+
+- Ayrıca board sayfasında cagırdıgım hook 'a da parametre olarak verdım kı useOrganizerApplications(aktifKategori) , querykeyde ıkıncı bır parametre olarak sadece ılgılı kategorının verısnı ceksın dıye queryKey dizisine bu sekılde ekledım["organizer-applications", kategori]
+
+12. Daha sonra verılerı kartlara lımıtlı bır sekılde cekıp basmak ıcın pagınatıon kısmına baktım Akıs su sekılde :
+1. Oncelıkle burda bır page degerı ve lımıt degerınden Tanstack ın haberının olması gerekır.Bu yuzden page ve lımıt degerını hooka parametre olarak vermem gerekır.
+1. const { data, isLoading, isError, refetch } = useOrganizerApplications({
+   secilenKategori: aktifKategori,
+   page: page,
+   limit: limit
+   });
+   Burda sımdıye kadar kullandıgım useQuery mantıgını useInfiniteQuery Mantıgına cevrdım.
+
+- Faz 1: API fonksiyonunu page ve limit alacak şekilde güncellemek. : Burda JS in URLSearch metodunu kullandm ve urlden eger bır query varsa bunu bılecek ve endpoint ona gore sekıllenecek
+
+```js
+const params = new URLSearchParams();
+
+// Eğer kategori Tümü değilse parametrelere ekle:
+if (secilenKategori && secilenKategori !== "Tümü") {
+  params.append("category", secilenKategori);
+}
+
+// Eğer page varsa parametrelere ekle:
+if (page) {
+  params.append("page", page.toString());
+}
+
+// Parametreleri URL'in sonuna bağla:
+const queryString = params.toString(); // "category=Art&page=1" çıktısı verir
+const endpoint = queryString ? `${BASE}?${queryString}` : BASE;
+```
+
+Beyin (TanStack Query): useInfiniteQuery kancası, panoda kullanıcı aşağı kaydırdıkça Yeni sayfa lazım. Gidip API fonksiyonuna page: 2 diyeyim" diyecek.
+
+Paketleyici (URLSearchParams): API fonksiyonum, TanStack'ten gelen bu page: 2 bilgisini alacak. URLSearchParams kullanarak endpoint URL'i oluşturacak: /api/applications?page=2
+
+İşçi (Backend / Server-Side): Bu URL backend'e gidecek. Senin daha önce Node.js/Express'te yazdığın Query Handler (Sorgu İşleyici) bu URL'i okuyacak, veritabanından sadece 2. sayfaya ait 10 veriyi süzüp sana geri yollayacak.
+
+```js
+
+
+// 1. Arayüze (Interface) yeni parametreleri ekliyorum
+interface ListOrganizerApplicationsParams {
+  secilenKategori: string | undefined;
+  page?: number;   // Opsiyonel (varsa eklenecek)
+  limit?: number;  // Opsiyonel (varsa eklenecek)
+}
+
+export async function listOrganizerApplications(
+  { secilenKategori, page, limit }: ListOrganizerApplicationsParams,
+): Promise<ListOrganizerApplicationsResponse> {
+
+  //  paketleyicimizi çağırıyoruz
+  const params = new URLSearchParams();
+
+  // Kategori kuralımız (Eskisiyle aynı mantık, sadece append ile ekliyoruz)
+  if (secilenKategori && secilenKategori !== "Tümü") {
+    params.append("category", secilenKategori);
+  }
+
+  // Eğer page gönderildiyse pakete ekle (Sayıyı metne çevirerek)
+  if (page) {
+    params.append("page", page.toString());
+  }
+
+  // Eğer limit gönderildiyse pakete ekle
+  if (limit) {
+    params.append("limit", limit.toString());
+  }
+
+  // Paketi kapat ve metne çevir (Örn: "category=Art&page=1&limit=10")
+  const queryString = params.toString();
+
+  // Eğer paket doluysa sonuna ekle, boşsa sadece BASE kalsın
+  const endpoint = queryString ? `${BASE}?${queryString}` : BASE;
+
+  // Trene bindirip yolluyoruz!
+  return apiFetch<ListOrganizerApplicationsResponse>(endpoint, { method: "GET" });
+}
+```
+
+Faz 2: Hook'u useQuery'den useInfiniteQuery'e çevirmek.
+[hook](./features/admin/hooks/useOrganizerApplications.ts)
+
+- hook ta Panodan limit değerini de alıyorum
+- secılenkategori ,limit degerlerini querykeye verıyorm
+  -queryFn: ({ pageParam = 1 }) =>
+  listOrganizerApplications({
+  secilenKategori,
+  page: pageParam,
+  limit
+  }), pageParam ı page olarak yolluyrom
+  kategori değiştiğinde panonun eski verileri silinip yeni kategorinin 1. sayfası temiz bir şekilde gelecek.
+
+- queryFn Bağlantısı: Senin mükemmel yazdığın API fonksiyonuna secilenKategori, pageParam ve limit değerlerini birleştirip yolladık.
+
+- getNextPageParam Mantığı: Backend'in cevabını okuduk. Eğer backend'den gelen başvuru sayısı bizim limitimizden (örn: 10) daha azsa (örn: 7 tane geldiyse), sistem "Tamam, veritabanının dibini sıyırdık, başka sayfa kalmadı" diyerek undefined dönüyor ve sonsuz kaydırmayı durduruyor.
+
+Faz 3: Kanban Panosunda sayfa sayfa gelen verileri "düzleştirip" (Flattening) sütunlara dağıtmak.
+fetchNextPage, // Sonraki sayfayı çeken tetikleyici
+hasNextPage, // Sonraki sayfa var mı? (Boolean)
+isFetchingNextPage // Şu an yeni sayfa yükleniyor mu?
+
+- Tanstack ten bu fonksıyonları cagırdım.
+- Burda flatMap mantıgını kullandım tanstack klasor seklınde cektıgı ıcın nested verıyı duzlestırdm
+
+[KTZ-204](https://dygcankurt17.atlassian.net/browse/KTZ-204)
+
+- **Durum:** In Progress (okuma + drawer; mutation sonraki adım)
+- **Jira Kartı:** `KTZ-204`
+- **Mimari Kararlar & Ne Yaptım:**
+
+1. Drawer yapısı kullandım. Verileri yan taraftan acılması ıcın, admının hızlı aksıyon alması ıcın. Bunu diğer sayfalarda da kullanıcm bu yuzden reusable forma getiriyorm.
+
+- Event kısmında da kullanabılmek adına Header kısmını ayırdm ve propslarını belırttım. [ReusableDraweHeader](./components/shared/drawer/ReusableDraweHeader.tsx) [types](./components/shared/types.ts)
+
+2. Kart tıklama akışı (aptal kart + akıllı organizer kartı)
+
+- [KanbanCard](./components/shared/KanbanCard.tsx) ıslevsız/aptal bır bılesen. En dıs Card'a onClick verdim:
+  `onClick={() => { data.onClick && data.onClick(data.id); }}`
+- `data.onClick` demem sebebi: asıl ıslevsel olan [OrganizerApplicationCard](./features/admin/components/organizer-applications/OrganizerApplicationCard.tsx). data altında karta kazandırdıgım görevlerden bırı onClick. `&&` true ise calıstır, calıstırırken o kartın id'sini ver.
+- Organizer kartında DTO'dan cardData olusturdum (id, title, category, description, status, time) ve `onClick: handleCardClick` verdim. Kanban kartı bu sayede akıllı hale geldi.
+
+3. Ortak pano state'i = URL (sayfa degısmeden drawer)
+
+- Kartın ortak pano (URL) state'ine bakması ıcın next/navigation: `useSearchParams`, `usePathname`, `useRouter`.
+- handleCardClick: mevcut URL'i `URLSearchParams` ile okuyup stringe cevirdim, `set("applicationId", clickedId)` ile id ekledim, `router.push(\`${pathname}?${currentParams}\`)` ile yonlendırdım. Pathname aynı; sadece query degısıyor, F5 yok, drawer aynı board sayfasında render.
+- Board [OrganizerApplicationBoard](./features/admin/components/organizer-applications/OrganizerApplicationBoard.tsx) kartı cagırıyor; altta `<ReusableDrawer />` zaten mount.
+
+4. Drawer'ın URL'den acılıp kapanması
+
+- [ReusableDrawer](./components/shared/drawer/ReusableDrawer.tsx) yine `useSearchParams`. `cardId = params.get("applicationId")`.
+- Shadcn Drawer `open` kesinlikle boolean bekler. `get` string veya `null` doner. Dolu string truthy, null falsy.
+- Okunaklı tanım: `const isOpen = Boolean(cardId);` (`!!cardId` ile aynı; `!!` cıft degıl, boolean'a cevirir.)
+- Kapanıs `handleDrawerClose`: `onOpenChange(false)` gelince yine current URL'i oku, `delete("applicationId")`, `router.replace` ile adresi guncelle, `form.reset`. Delete tek basına yetmez; replace olmadan adres cubugu ve isOpen degısmez.
+
+5. Drawer icinde form + GET veri
+
+- React Hook Form + [reviewApplicationSchema](./features/validations/ReviewApplicationForm.ts). Close'da form reset.
+- Karta tıklayınca id'yi [useOrganızarApplicationById](./features/admin/hooks/useOrganızerApplicationById.ts) ıcındeki API'ye verdim (`enabled: Boolean(id)`). [getOrganizerApplication](./features/admin/api/organizerApplications.ts) `GET /api/v1/admin/organizer-applications/:id`. Cekmecede kurum bilgisi / mesaj / createdAt basıldı.
+- AI kutusu UI iskeleti: [SectionAIBox](./components/shared/drawer/SectionAIBox.tsx)
+
+[KTZ-203](https://dygcankurt17.atlassian.net/browse/KTZ-203)
+
+## Search kısmı asamaları :
+
+1. const [inputValue, setInputValue] = useState(""); state ini tanımlayarak inputa gırılen degerı state ıle hafızada tutuyorum.
+2. Search mantıgında her kelıme vurusunda apiye ıstek atılmasın dıye useDebounce hookunu kullanarak her ınput vurusundan sonra bekleme suresı eklıyorm. bunun ıcın useDebounce hook paketını ındırdım.
+3. const [sakinKelime] = useDebounce(inputValue, 400); bu sekılde inputtan aldıgım value aracılıgyla ve state te tutggum degerı verıyorm.
+4. - searchValue={inputValue}
+   - onSearchChange={setInputValue} Event ve Organizer basvurularında statete tuttugm bu degerlerı props olarak bılesene yolluyorm
+     bunlar ayrıca kullanıcı ıcın yazdıgını gormesı adına
+
+5. Daha sonra kullanıcın arama yapmak ıstedıgı kelımeyı hooka arananKelime:sakinKelime olarak tanımladıgm degerle value olarak yolluyorm
+
+- queryKey dizisine arananKelime yi dahil ettm.
+  listAdminEvents a parametre olarak verip next/navigation metodu yardımıyla query i urle ekleyip yolluyorm
+  params.append("search[title]", arananKelime)
+
+## PopOver Filter Mantıgı :
+
+
+```js faceted filter mantıgı
+const filtreSecenekleri = [
+  {
+    id: "status",
+    value: "status",
+    label: "Status (Durum)",
+    icon: <CircleIcon />,
+    options: [
+      { value: "pending", label: "Yeni Başvurular" },
+      { value: "approved", label: "Onaylananlar" },
+      { value: "rejected", label: "Reddeilenler" },
+      { value: "cancelled", label: "İptal Edilenler" },
+      { value: "completed", label: "Tamamlananlar" },
+    ],
+  },
+  {
+    id: "assignee",
+    value: "assignee",
+    label: "Assignee (Atanan Kişi)",
+    icon: <UserIcon />,
+    options: [
+      { value: "elif", label: "Elif" },
+      { value: "ayla", label: "Ayla" },
+      { value: "duygu", label: "Duygu" },
+    ],
+  },
+];
+```
+
+1. bu sekılde nested mantıkta bır dizi ıcınde nesne gruplarına ayırdım  fıltreleme mantıgı ıcın :
+   status ve asıgnee ekledım ılk olarak oncelıkle status kısmını halledıcem
+
+2. Filter kısmı tıklandıgında oncelıkle hangı menude oldugumu bılmem ve hafızaya almam gerek useState ile (status,asignee..)
+
+3. const [aktifMenu, setAktifMenu] = useState<string | null>(null); olarak ayarladım.
+null oldugu ıcın hepsını gorebılıyorm .
+
+4. sonrasında kosullu renderıng yaparak eger herhangı bır aktıfmenu yoksa state te hepsını goster dedım 
+```js 
+ {!aktifMenu ? (
+                <CommandGroup>
+                  {/* dınamık filter dongusu */}
+                  {filterOptions.map((kategori) => (
+                    // CommandItem burada açılıyor...
+                    <CommandItem
+                      key={kategori.id}
+                      onSelect={() => setAktifMenu(kategori.id)}
+                    >
+                      {kategori.icon && (
+                        <span className="mr-2">{kategori.icon}</span>
+                      )}
+                      <span className="text-(--brown-500)">
+                        {kategori.label}
+                      </span>
+                    </CommandItem>
+                    
+                  ))}
+                </CommandGroup>
+```
+
+- Eger ki secilmişse yanı usestate hafızasında varsa ve olusturdugm array ıd sı ıle esse bul ve ciz
+```js
+
+: (
+                <CommandGroup>
+                  <CommandItem onSelect={() => setAktifMenu(null)}>
+                    <span>Geri</span>
+                  </CommandItem>
+                  <Separator className="my-1" />
+
+                  {filterOptions
+                    .find((k) => k.id === aktifMenu)
+                    ?.options.map((option) => (
+                      <CommandItem
+                        key={option.value}
+                        onSelect={() => onFilterSelect(option.value)}
+                      >
+                        <span className="text-(--brown-500)">
+                          {option.label}
+                        </span>
+                      </CommandItem>
+                    ))}
+                </CommandGroup>
+              )}
+```
+- array olarak ayarladıgm ıcın types dosyasında bılesene geleck propsları da o sekılde duzelttım
+
+5. Tıklama algoritması ıcın daha oncekı taskta props olarak verdıgım fonksıyonu yazıyorum
+ filterOptions={filtreSecenekleri}
+          selectedValues={seciliStatus} <!-- state i bilesene yolladm badge içic -->
+          onFilterSelect={onFilterSelect}
+        />  props olarak gonderıyorm
+
+<!-- onFilterSelect fonksıyonuna parametre kullanıcının tıkladıgıdegerı olarak yolladım
+ -->
+ <!-- Gelen veriyi yakaladm secilistatus olarak tuttugm hafıza dızısınde varmı dıye ıncludes ıle arattm sonrada kosula bagladm.Eger varsa filter ile sildim yoksa else blogunda spread ıle ekledım -->
+
+
+6. Son olarak yıne aynı mantıkla hook ve api içerisine parametre olarak yolladım.Api kısmında foreachle donerek url e bastım
+
+7. Son olarak Temizle butonunu ekleyerek butona tıklandıgında dızıyı bosalttm
+
+## Sort kısmını ekleme Adımı : 
+1. iziye en yenı ve eneskıye gore fıltrelemek ıcın ekledım yenı bır nesne elemanı
+2. Sonrasında sıralama ıcın bır state mantıgı olusturmak gerekıyor :Backendde -1 en yeni ,eski 1 
+const [siralama,setSiralama]=useState<string>("sort_newest") hafızayı bu sekılde baslatıyorm 
+3. tiklanan degeri diziye gondermeden return ettırmem lazım 
+4. onFilterSelect   fonksıyona if (tiklananDeger.startsWith("sort_")) {
+      setSiralama(tiklananDeger);
+      return;
+    } tiklanan deger 
+
+    Burda amacım siralamayı dızıye pushlamamak bu sayede fıltreleın bırbırıne karısmasını engellemıs oldm
+
+
+[KTZ-202](https://dygcankurt17.atlassian.net/browse/KTZ-202)
+
+1. api dosyasına yolu yazdım
+2. Clienttan logout fonksıyonunu kopyaladım
+3. onclıck olarak bagladm dropdowndan
+4. export const redirectExternal = (url: string) => {
+  window.location.assign(url);
+};  tum sayfayı url e goturur

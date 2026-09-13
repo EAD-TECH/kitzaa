@@ -7,10 +7,9 @@ import type { Model, PopulateOption, PopulateOptions } from "mongoose";
 const queryHandler = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
-
-  const query = req.query as QueryHandlerQuery
+  const query = req.query as QueryHandlerQuery;
 
   //* Filter:
   const filter = query.filter ?? {};
@@ -21,28 +20,32 @@ const queryHandler = async (
   for (let key in search) search[key] = { $regex: search[key], $options: "i" };
 
   //* Sorting:
-  const sort = query.sort ?? {};
+  // Query string'den gelen sort değerleri string olur ("-1"); MongoDB 1 | -1 ister.
+  const rawSort = query.sort ?? {};
+  const sort: Record<string, 1 | -1> = {};
+
+  for (const [key, value] of Object.entries(rawSort)) {
+    const direction = Number(value);
+    if (direction === 1 || direction === -1) {
+      sort[key] = direction;
+    }
+  }
 
   //? PAGINATION:
   // URL?page=3&limit=10&skip=20
 
   const page = Number(query.page) > 0 ? Number(query.page) : 1;
 
-  const limit = Number(query.limit) > 0 ? Number(query.limit) : 20;
+  const limit = Number(query.limit) > 0 ? Number(query.limit) : 6;
 
   //* Skip:
 
-  const skip =
-    Number(query.skip) > 0
-      ? Number(query.skip)
-      : (page - 1) * limit;
-
-
+  const skip = Number(query.skip) > 0 ? Number(query.skip) : (page - 1) * limit;
 
   res.getModelList = async <T>(
     model: Model<T>,
     customFilter: Record<string, unknown> = {},
-    populate?: string | PopulateOptions | (string | PopulateOptions)[]
+    populate?: string | PopulateOptions | (string | PopulateOptions)[],
   ): Promise<T[]> => {
     const query = model
       .find({
@@ -63,10 +66,9 @@ const queryHandler = async (
     return await query;
   };
 
-
   res.getModelListDetails = async <T>(
     model: Model<T>,
-    customFilter: Record<string, unknown> = {}
+    customFilter: Record<string, unknown> = {},
   ) => {
     const count = await model.countDocuments({
       ...filter,
@@ -86,16 +88,15 @@ const queryHandler = async (
         count <= limit
           ? false
           : {
-            previous: page > 1 ? page - 1 : false,
-            current: page,
-            next: page < Math.ceil(count / limit) ? page + 1 : false,
-            total: Math.ceil(count / limit),
-          },
+              previous: page > 1 ? page - 1 : false,
+              current: page,
+              next: page < Math.ceil(count / limit) ? page + 1 : false,
+              total: Math.ceil(count / limit),
+            },
     };
   };
 
   next();
-
 };
 
 export default queryHandler;

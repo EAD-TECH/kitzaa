@@ -14,11 +14,23 @@ import type { RejectApplicationInput } from "../../validations/organizerApplicat
 
 const organizerApplicationController = {
   list: async (req: Request, res: Response) => {
-    const result = await res.getModelList(OrganizerApplication);
+    const category =
+      typeof req.query.category === "string"
+        ? req.query.category.trim()
+        : undefined;
+
+    const customFilter = category
+      ? { "institutionData.category": category }
+      : {};
+
+    const result = await res.getModelList(OrganizerApplication, customFilter);
 
     res.status(200).send({
       error: false,
-      details: await res.getModelListDetails(OrganizerApplication),
+      details: await res.getModelListDetails(
+        OrganizerApplication,
+        customFilter,
+      ),
       applications: toOrganizerApplicationDTO(result),
     });
   },
@@ -43,8 +55,15 @@ const organizerApplicationController = {
       throw new CustomError("Application not found", 404);
     }
 
-    if (!["pending", "under_review", "needs_more_info"].includes(application.status)) {
-      throw new CustomError("Application cannot be approved in its current status.", 400);
+    if (
+      !["pending", "under_review", "needs_more_info"].includes(
+        application.status,
+      )
+    ) {
+      throw new CustomError(
+        "Application cannot be approved in its current status.",
+        400,
+      );
     }
 
     const user = await User.findById(application.userId);
@@ -57,15 +76,20 @@ const organizerApplicationController = {
       throw new CustomError("User is already an organizer or admin.", 400);
     }
 
-    const existingInstitution = await Institution.findOne({ ownerId: user._id });
+    const existingInstitution = await Institution.findOne({
+      ownerId: user._id,
+    });
     if (existingInstitution) {
       throw new CustomError("User already has an institution.", 409);
     }
 
-    const slug = await generateUniqueSlug(application.institutionData.name, async (value) => {
-      const exists = await Institution.findOne({ slug: value });
-      return Boolean(exists);
-    });
+    const slug = await generateUniqueSlug(
+      application.institutionData.name,
+      async (value) => {
+        const exists = await Institution.findOne({ slug: value });
+        return Boolean(exists);
+      },
+    );
 
     const institution = await Institution.create({
       ownerId: user._id,
@@ -126,7 +150,10 @@ const organizerApplicationController = {
     });
   },
 
-  reject: async (req: Request<{ id: string }, any, RejectApplicationInput>, res: Response) => {
+  reject: async (
+    req: Request<{ id: string }, any, RejectApplicationInput>,
+    res: Response,
+  ) => {
     const { rejectedReason } = req.body;
     const application = await OrganizerApplication.findById(req.params.id);
 
@@ -134,8 +161,15 @@ const organizerApplicationController = {
       throw new CustomError("Application not found", 404);
     }
 
-    if (!["pending", "under_review", "needs_more_info"].includes(application.status)) {
-      throw new CustomError("Application cannot be rejected in its current status.", 400);
+    if (
+      !["pending", "under_review", "needs_more_info"].includes(
+        application.status,
+      )
+    ) {
+      throw new CustomError(
+        "Application cannot be rejected in its current status.",
+        400,
+      );
     }
 
     const user = await User.findById(application.userId);

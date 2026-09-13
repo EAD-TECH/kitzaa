@@ -1,5 +1,5 @@
 
-import type { EventDocument, EventDTO, AdminEventDTO, EventCategoryRef, EventCreatedByRef } from "../types/event.types.js";
+import type { EventDocument, EventDTO, AdminEventDTO, EventCategoryRef, EventCreatedByRef, EventParticipantRef } from "../types/event.types.js";
 import type { EventCategoryDocument } from "../types/eventCategory.types.js";
 import type { UserDocument } from "../types/user.types.js";
 
@@ -22,7 +22,7 @@ function toCategoryRef(event: EventDocument): string | EventCategoryRef {
     _id: category._id!.toString(),
     name: category.name,
     slug: category.slug,
-    icon: category.icon,
+    icon: category.icon ?? "",
   };
 }
 
@@ -45,7 +45,29 @@ function toCreatedByRef(event: EventDocument): string | EventCreatedByRef {
     _id: user._id!.toString(),
     username: user.username,
     avatarUrl: user.avatarUrl ?? null,
+    role: user.role,
   };
+}
+
+// Katılımcı avatarları/isimleri için herkese açık önizleme — sadece "confirmed" katılımcılar,
+// sadece populate edilmiş (username/avatarUrl) olanlar döner. Silinmiş kullanıcı (dangling ref)
+// ya da populate edilmemiş participants sessizce listeden düşer.
+function toParticipantsPreview(event: EventDocument): EventParticipantRef[] {
+  const isPopulated = event.populated('participants.userId');
+
+  if (!isPopulated) {
+    return [];
+  }
+
+  return (event.participants ?? [])
+    .filter((p) => p.status === "confirmed")
+    .map((p) => p.userId as unknown as UserDocument | null)
+    .filter((user): user is UserDocument => !!user)
+    .map((user) => ({
+      _id: user._id!.toString(),
+      username: user.username,
+      avatarUrl: user.avatarUrl ?? null,
+    }));
 }
 
 // Function overloads
@@ -69,6 +91,7 @@ export function toEventDTO(event: EventDocument | EventDocument[] | null): Event
     coverImage: event.coverImage ?? null,
     images: event.images ?? [],
     categoryId: toCategoryRef(event),
+    locationType: event.locationType,
     ageRange: event.ageRange,
     createdBy: toCreatedByRef(event),
     status: event.status,
@@ -77,6 +100,7 @@ export function toEventDTO(event: EventDocument | EventDocument[] | null): Event
     schedule: event.schedule,
     location: event.location,
     capacity: event.capacity,
+    participantsPreview: toParticipantsPreview(event),
     viewCount: event.viewCount,
     createdAt: event.createdAt!,
     updatedAt: event.updatedAt!,
@@ -107,6 +131,7 @@ export function toAdminEventDTO(event: EventDocument | EventDocument[] | null): 
     coverImage: event.coverImage ?? null,
     images: event.images ?? [],
     categoryId: toCategoryRef(event),
+    locationType: event.locationType,
     ageRange: event.ageRange,
     createdBy: createdBy
       ? {
@@ -125,6 +150,7 @@ export function toAdminEventDTO(event: EventDocument | EventDocument[] | null): 
     schedule: event.schedule,
     location: event.location,
     capacity: event.capacity,
+    participantsPreview: toParticipantsPreview(event),
     viewCount: event.viewCount,
     createdAt: event.createdAt!,
     updatedAt: event.updatedAt!,

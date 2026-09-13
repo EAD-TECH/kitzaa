@@ -40,8 +40,8 @@ export const sendRemindersForTomorrow = async () => {
         recipientId: participant.userId,
         relatedId: event._id,
         relatedModel: "Event",
-        title: "Etkinlik Hatırlatıcısı",
-        message: `Morgen beginnt Ihr Event '${event.title}'!`,
+        title: "Termin-Erinnerung",
+        message: `Morgen beginnt dein Event '${event.title}'!`,
         type: "event_reminder",
       })),
   );

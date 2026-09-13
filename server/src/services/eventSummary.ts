@@ -50,8 +50,8 @@ export const sendPostEventSummaries = async () => {
         recipientId: event.createdBy,
         relatedId: event._id,
         relatedModel: "Event",
-        title: "Etkinliğin nasıldı? 📸",
-        message: `Umarız '${event.title}' etkinliğiniz harika geçmiştir! Deneyimini toplulukla paylaşmak ve diğer ailelere ilham olmak için etkinlikten birkaç anı fotoğrafı paylaşmaya ne dersin?`,
+        title: "Wie war deine Veranstaltung? 📸",
+        message: `Wir hoffen, deine Veranstaltung '${event.title}' war ein voller Erfolg! Wie wäre es, ein paar Erinnerungsfotos mit der Community zu teilen und andere Familien zu inspirieren?`,
         type: "post_event_summary",
         linkNotification: `/share-event-photos/${event._id}`,
       };

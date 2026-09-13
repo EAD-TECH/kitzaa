@@ -1,39 +1,45 @@
-import { useState } from "react";
-import axios from "axios";
+import { savedEvents } from './../../events/types/event.types';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { login as loginApi } from "../api";
+import { login as loginApi } from "../AuthApi";
 import { useAuthStore } from "../store/authStore";
-import type { LoginFormValues } from "../validations/loginSchema";
+import { ApiError } from "@/lib/api/client";
+import type { LoginFormValues } from "../validations/login.schema";
+import { useEventsStore } from "@/features/events/store/EventStore";
 
 export function useLogin() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const setSession = useAuthStore((state) => state.setSession);
+  const queryClient = useQueryClient();
+  const setAccessToken = useAuthStore((state) => state.setAccessToken);
 
-  const login = async (values: LoginFormValues) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await loginApi(values);
-      setSession({ accessToken: data.accessToken, user: data.user });
-      router.push("/");
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        if (!err.response) {
-          setError("Unable to reach the server. Please try again.");
-        } else if (err.response.status === 401 || err.response.status === 404) {
-          setError("Invalid email/username or password.");
-        } else {
-          setError("Login failed. Please try again.");
-        }
-      } else {
-        setError("Something went wrong. Please try again.");
+  const setSavedEventIds = useEventsStore((state) => state.setSavedEventIds)
+
+  return useMutation({
+    mutationFn: (values: LoginFormValues) => loginApi(values),
+    onSuccess: (data) => {
+      setAccessToken(data.accessToken);
+      queryClient.setQueryData(["currentUser"], data.user);
+      setSavedEventIds(data.user.savedEvents)
+
+      if (data.user.role === "admin") {
+        window.location.assign(
+          process.env.NEXT_PUBLIC_ADMIN_URL ?? "http://localhost:3001",
+        );
+        return;
       }
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  return { login, isLoading, error };
+      router.push("/");
+    },
+  });
+}
+
+export function mapLoginError(error: unknown): string {
+  if (error instanceof ApiError) {
+    if (error.status === 401 || error.status === 404) {
+      return "Invalid email/username or password.";
+    }
+    return "Login failed. Please try again.";
+  }
+
+  return "Unable to reach the server. Please try again.";
 }

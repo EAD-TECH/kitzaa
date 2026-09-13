@@ -1,4 +1,4 @@
-import type { LoginFormValues } from "../validations/loginSchema";
+import type { LoginFormValues } from "../validations/login.schema";
 
 export interface AuthUser {
   _id: string;
@@ -9,7 +9,15 @@ export interface AuthUser {
   avatar: string | null;
   role: "user" | "organizer" | "admin";
   language: string;
+  location: {
+    state: string;
+    city: string;
+    district: string;
+    zipCode: string;
+    country: string;
+  };
   isEmailVerified: boolean;
+  savedEvents: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -20,12 +28,24 @@ export interface LoginResponse {
   user: AuthUser;
 }
 
-// backend'e ne gönderiyoruz: zod'dan gelen tip, tekrar yazmıyoruz
 export type LoginPayload = LoginFormValues;
 
-export interface AuthState {
-  user: AuthUser | null;
+export interface AuthTokenState {
   accessToken: string | null;
-  setSession: (session: { accessToken: string; user: AuthUser }) => void;
-  clearSession: () => void;
+  setAccessToken: (accessToken: string | null) => void;
+  isReady: boolean;
+  setIsReady: (value: boolean) => void;
+}
+
+export interface RegisterResponse {
+  error: false;
+  message: string;
+}
+
+export interface ForgotPasswordResponse {
+  message: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
 }

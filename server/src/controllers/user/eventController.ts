@@ -5,20 +5,85 @@ import CustomError from "../../helpers/customError.js";
 import { toEventDTO } from "../../helpers/toEventDTO.js";
 import Event from "../../models/eventModel.js";
 import type { EventDocument } from "../../types/event.types.js";
-import type { CancelEventInput, CreateEventInput, NearbyQueryInput, UpdateEventInput } from "../../validations/event.schema.js";
+import EventCategory from "../../models/eventCategoryModel.js";
+import type {
+  CancelEventInput,
+  CreateEventInput,
+  JoinEventInput,
+  NearbyQueryInput,
+  UpdateEventInput,
+} from "../../validations/event.schema.js";
 import { assertValidTransition } from "../../helpers/eventStateMachine.js";
-import {
-  notifyUsersForNearbyEvent,
-  notifyUsersForCancelledEvent,
-} from "../../services/notificationService.js";
+import { notifyUsersForCancelledEvent } from "../../services/notificationService.js";
+import User from "../../models/userModel.js";
 
 const eventController = {
   list: async (req: Request, res: Response) => {
-    const customFilter = { status: "approved" };
+    const customFilter: Record<string, unknown> = { status: "approved" };
+
+    const category = req.query.category;
+    const organisator = req.query.organisator;
+
+    // console.log("category", category) // familie,bildung,sport
+
+    if (typeof category === "string" && category.length > 0) {
+      const slugs = category.split(",");
+      const categories = await EventCategory.find({
+        slug: { $in: slugs },
+      }).select("_id");
+      customFilter.categoryId = { $in: categories.map((c) => c._id) };
+    }
+
+    if (typeof organisator === "string" && organisator.length > 0) {
+      const validRoles = ["organizer", "user"] as const;
+      const roles = organisator
+        .split(",")
+        .filter((r): r is "organizer" | "user" =>
+          (validRoles as readonly string[]).includes(r),
+        );
+      const organisators = await User.find({ role: { $in: roles } }).select(
+        "_id",
+      );
+      customFilter.createdBy = { $in: organisators.map((o) => o._id) };
+    }
+
+    const lat = req.query.lat;
+    const lng = req.query.lng;
+    const radius = req.query.radius;
+
+    if (
+      typeof lat === "string" &&
+      typeof lng === "string" &&
+      typeof radius === "string"
+    ) {
+      const latNum = Number(lat);
+      const lngNum = Number(lng);
+      const radiusKm = Number(radius);
+
+      const isValid =
+        Number.isFinite(latNum) &&
+        latNum >= -90 &&
+        latNum <= 90 &&
+        Number.isFinite(lngNum) &&
+        lngNum >= -180 &&
+        lngNum <= 180 &&
+        Number.isFinite(radiusKm) &&
+        radiusKm > 0 &&
+        radiusKm <= 50;
+
+      if (isValid) {
+        const EARTH_RADIUS_KM = 6378.1;
+        customFilter["location.coordinates"] = {
+          $geoWithin: {
+            $centerSphere: [[lngNum, latNum], radiusKm / EARTH_RADIUS_KM],
+          },
+        };
+      }
+    }
 
     const result = await res.getModelList(Event, customFilter, [
       { path: "categoryId", select: "name slug icon" },
-      { path: "createdBy", select: "username avatarUrl" },
+      { path: "createdBy", select: "username avatarUrl role" },
     ]);
 
     console.log("result", result);
@@ -34,16 +99,16 @@ const eventController = {
     const { lat, lng, radius } = req.validatedQuery as NearbyQueryInput;
 
     const events = await Event.find({
-      status: 'approved',
-      'location.coordinates': {
+      status: "approved",
+      "location.coordinates": {
         $near: {
-          $geometry: { type: 'Point', coordinates: [lng, lat] }, // nereye göre yakinlik olcucez.
+          $geometry: { type: "Point", coordinates: [lng, lat] }, // nereye göre yakinlik olcucez.
           $maxDistance: radius,
         },
       },
     }).populate([
-      { path: 'categoryId', select: 'name slug icon' },
-      { path: 'createdBy', select: 'username avatarUrl' },
+      { path: "categoryId", select: "name slug icon" },
+      { path: "createdBy", select: "username avatarUrl role" },
     ]);
 
     res.status(200).send({
@@ -52,7 +117,6 @@ const eventController = {
     });
   },
 
-
   read: async (req: Request<{ slug: string }>, res: Response) => {
     const result = await Event.findOneAndUpdate(
       { slug: req.params.slug, status: "approved" },
@@ -60,7 +124,8 @@ const eventController = {
       { new: true },
     ).populate([
       { path: "categoryId", select: "name slug icon" },
-      { path: "createdBy", select: "username avatarUrl" },
+      { path: "createdBy", select: "username avatarUrl role" },
+      { path: "participants.userId", select: "username avatarUrl" },
     ]);
 
     if (!result) {
@@ -89,13 +154,19 @@ const eventController = {
       createdBy: req.user._id,
     });
 
-    /* olusturulan yenı etkınlık db ye gıderken aynı anda await olmadan kullanıcıya bıldırım atmak */
-    console.log("API Yanıtı dönüyor, arka planda KTZ-58 motoru ateşleniyor.");
-    notifyUsersForNearbyEvent(newEvent);
-
     res.status(201).send({
       error: false,
       event: toEventDTO(newEvent),
+    });
+  },
+
+  readForEdit: async (req: Request<{ id: string }>, res: Response) => {
+    // isOwnerOrAdmin middleware'i sahiplik/admin kontrolunu yapip event'i req.resource'a koyuyor.
+    const event = req.resource as EventDocument;
+
+    res.status(200).send({
+      error: false,
+      event: toEventDTO(event),
     });
   },
 
@@ -105,6 +176,19 @@ const eventController = {
   ) => {
     // isOwnerOrAdmin middleware'i sahiplik/admin kontrolunu yapip event'i req.resource'a koyuyor.
     const event = req.resource as EventDocument;
+
+    if (event.status === "cancelled" || event.status === "completed") {
+      throw new CustomError(
+        "Cancelled or completed events cannot be edited.",
+        400,
+      );
+    }
+
+    // Onaylanmış bir event düzenlendiğinde içerik değiştiği için tekrar admin
+    // onayına düşer — moderasyon bypass edilmemiş olur.
+    if (event.status === "approved") {
+      event.status = "pending";
+    }
 
     Object.assign(event, req.body);
     await event.save();
@@ -125,18 +209,20 @@ const eventController = {
     assertValidTransition(event.status, "cancelled");
 
     event.status = "cancelled";
+    event.cancelledReason = req.body.cancelledReason;
     await event.save();
 
-    console.log(
-      "API Yanıtı dönüyor, arka planda KTZ-61 motoru ateşleniyor",
-    );
+    console.log("API Yanıtı dönüyor, arka planda KTZ-61 motoru ateşleniyor");
     notifyUsersForCancelledEvent(event);
-    
 
     res.sendStatus(204);
   },
 
-  join: async (req: Request<{ id: string }>, res: Response) => {
+  join: async (
+    req: Request<{ id: string }, any, JoinEventInput>,
+    res: Response,
+  ) => {
+    const { participantCount } = req.body;
 
     const event = await Event.findById(req.params.id);
 
@@ -156,7 +242,7 @@ const eventController = {
       throw new CustomError("You have already joined this event.", 409);
     }
 
-    if (event.capacity.current >= event.capacity.max) {
+    if (event.capacity.current + participantCount > event.capacity.max) {
       throw new CustomError("This event is full.", 409);
     }
 
@@ -165,20 +251,26 @@ const eventController = {
         _id: event._id,
         status: "approved",
         "participants.userId": { $ne: req.user._id },
-        $expr: { $lt: ["$capacity.current", "$capacity.max"] },
+        $expr: {
+          $lte: [
+            { $add: ["$capacity.current", participantCount] },
+            "$capacity.max",
+          ],
+        },
       },
       {
         $push: {
           participants: {
             userId: req.user._id,
             status: "confirmed",
+            participantCount,
             joinedAt: new Date(),
           },
         },
-        $inc: { "capacity.current": 1 },
+        $inc: { "capacity.current": participantCount },
       },
       { new: true },
-    );
+    ).populate("participants.userId", "username avatarUrl");
 
     if (!updatedEvent) {
       throw new CustomError(
@@ -200,11 +292,11 @@ const eventController = {
       throw new CustomError("Event not found", 404);
     }
 
-    const alreadyJoined = event.participants?.some((p) =>
+    const participant = event.participants?.find((p) =>
       p.userId.equals(req.user._id),
     );
 
-    if (!alreadyJoined) {
+    if (!participant) {
       throw new CustomError("You have not joined this event.", 400);
     }
 
@@ -215,10 +307,10 @@ const eventController = {
       },
       {
         $pull: { participants: { userId: req.user._id } },
-        $inc: { "capacity.current": -1 },
+        $inc: { "capacity.current": -participant.participantCount },
       },
       { new: true },
-    );
+    ).populate("participants.userId", "username avatarUrl");
 
     if (!updatedEvent) {
       throw new CustomError("You have not joined this event.", 400);
@@ -257,12 +349,46 @@ const eventController = {
     });
   },
 
+  toggleSave: async (req: Request<{ id: string }>, res: Response) => {
+    const eventId = req.params.id;
+    const userId = req.user._id;
+
+    const event = await Event.findById(eventId);
+
+    if (!event) {
+      throw new CustomError("Event not found", 404);
+    }
+
+    const user = await User.findById(userId);
+
+    const alreadySaved = user?.savedEvents?.some(
+      (id) => id.equals(eventId) ?? false,
+    );
+
+    await User.findByIdAndUpdate(
+      userId,
+      alreadySaved
+        ? { $pull: { savedEvents: eventId } }
+        : { $addToSet: { savedEvents: eventId } },
+    );
+
+    res.status(200).json({
+      error: false,
+      saved: !alreadySaved,
+    });
+  },
+
   participants: async (req: Request<{ id: string }>, res: Response) => {
-    // isOwnerOrAdmin middleware'i sahiplik/admin kontrolunu yapip event'i req.resource'a koyuyor.
-    const event = await (req.resource as EventDocument).populate(
+    // Artik owner/admin'e ozel degil — herhangi bir giris yapmis kullanici cagirabilir,
+    // bu yuzden event'i (isOwnerOrAdmin'in yaptigi gibi) kendimiz cekiyoruz.
+    const event = await Event.findById(req.params.id).populate(
       "participants.userId",
       "username avatarUrl",
     );
+
+    if (!event) {
+      throw new CustomError("Event not found", 404);
+    }
 
     res.status(200).send({
       error: false,
@@ -273,7 +399,10 @@ const eventController = {
   myEvents: async (req: Request, res: Response) => {
     const customFilter = { createdBy: req.user._id };
 
-    const result = await res.getModelList(Event, customFilter);
+    const result = await res.getModelList(Event, customFilter, [
+      { path: "categoryId", select: "name slug icon" },
+      { path: "createdBy", select: "username avatarUrl role" },
+    ]);
 
     res.status(200).send({
       error: false,
@@ -282,13 +411,28 @@ const eventController = {
     });
   },
 
-
-
-
   myParticipations: async (req: Request, res: Response) => {
     const customFilter = { "participants.userId": req.user._id };
 
-    const result = await res.getModelList(Event, customFilter);
+    const result = await res.getModelList(Event, customFilter, [
+      { path: "categoryId", select: "name slug icon" },
+      { path: "createdBy", select: "username avatarUrl role" },
+    ]);
+
+    res.status(200).send({
+      error: false,
+      details: await res.getModelListDetails(Event, customFilter),
+      events: toEventDTO(result),
+    });
+  },
+
+  savedEvents: async (req: Request, res: Response) => {
+    const customFilter = { _id: { $in: req.user.savedEvents ?? [] } };
+
+    const result = await res.getModelList(Event, customFilter, [
+      { path: "categoryId", select: "name slug icon" },
+      { path: "createdBy", select: "username avatarUrl role" },
+    ]);
 
     res.status(200).send({
       error: false,

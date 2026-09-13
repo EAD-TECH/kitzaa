@@ -16,8 +16,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "login": "elif",
-  "password": "Password1!."
+  "login": "admin",
+  "password": "Admin123!"
 }
 
 
@@ -29,7 +29,7 @@ Authorization: Bearer {{accessToken}}
 Content-Type: {{contentType}}
 
 {
-  "username": "adminAyla",
+  "username": "admin",
   "firstName": "adminAyla",
   "lastName": "adminAyla",
   "email": "ataydirayla@gmail.com",
@@ -101,9 +101,8 @@ Authorization: Bearer {{accessToken}}
 Content-Type: {{contentType}}
 
 {
-  "name": "schwimmen",
+  "name": "",
   "description": "schwimmen",
-  "icon": "music",
   "isActive": true
 }
 

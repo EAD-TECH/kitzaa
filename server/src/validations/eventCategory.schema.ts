@@ -15,7 +15,7 @@ export const createEventCategorySchema = z
       .optional()
       .nullable(),
 
-    icon: z.string().trim().min(1, 'Icon is required'),
+    icon: z.string().trim().optional(),
 
     isActive: z.boolean().optional().default(true),
   })

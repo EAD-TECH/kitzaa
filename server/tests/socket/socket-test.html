@@ -116,6 +116,13 @@
         socket.on("pong", (cevap) => {
           log("PONG: " + cevap, "ok");
         });
+        socket.on("notification:new", (payload) => {
+          // Bu kod çalıştığında ekrana bir uyarı (alert) fırlayacak ki bildirimin geldiğini hemen anla!
+          alert(
+            "📬 YENİ BİLDİRİM GELDİ!\n\n" + JSON.stringify(payload, null, 2),
+          );
+          console.log("🟢 BİLDİRİM DETAYI:", payload);
+        });
 
         socket.on("disconnect", (reason) => {
           log("DISCONNECT: " + reason);

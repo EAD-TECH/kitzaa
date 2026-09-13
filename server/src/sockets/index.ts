@@ -24,7 +24,7 @@ export const initSocket = (httpServer: HttpServer) => {
     /* Cebe konulan  ID */
     console.log(`🟢 Kimliği doğrulanan Kullanıcı ID: ${socket.data.userId}`); 
     const room=`user:${socket.data.userId}`;
-   socket.join(`user:${room}`);
+   socket.join(`${room}`);
    console.log(`Joined room: ${room}`);
     
     socket.on("ping", (mesaj) => {

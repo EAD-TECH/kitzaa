@@ -1,0 +1,108 @@
+import { ReactNode } from "react";
+
+export interface KanbanCardProps {
+  id: string;
+  title: string;
+  category?: string;
+  time: string;
+  description?: string;
+  status: string;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
+  onReview?: (id: string) => void;
+  onClick?: (id: string) => void;
+  progressPercentage?: number;
+}
+
+export interface KanbanColumnProps {
+  title: string;
+  count: number;
+  dotColor?: string;
+  children?: ReactNode; /* {children} diyerek, "Bana ne verirsen onu bu boşluğa dizeceğim" diyor. */
+}
+
+export interface PageHeaderProps {
+  title: string;
+  description?: string;
+  actionButton?: ReactNode; /* sagda belkı buton koyarım event ıcın emın degılm children mantıgıyla bıraktm bunu da yıne */
+}
+
+export interface SearchInputProps {
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+}
+
+export interface FilterCategoriesProps {
+  options: string[]; /* tümü */
+  activeOption: string; /* secili olan kategori */
+  onChange: (
+    selected: string,
+  ) => void; /* bu categori filter kısmının fonksıyonu ıcın */
+}
+
+/* filter için */
+export interface FilterSubOption {
+  value: string;
+  label: string;
+  icon?: ReactNode;
+}
+
+export interface FilterOption {
+  id: string;
+  label: string;
+  value: string;
+  icon?: ReactNode;
+  options:FilterSubOption[]
+}
+
+export interface FilterDropDownProps {
+  title: string;
+  options: FilterOption[];
+  selectedValues: string[];
+  onSelect: (value: string) => void;
+}
+
+export interface FilterAndSearchProps {
+  searchValue: string;
+  onSearchChange: (val: string) => void;
+  filterOptions: FilterOption[];
+  selectedValues: string[];
+  onFilterSelect: (val: string) => void;
+}
+
+export interface KanbanErrorStateProps {
+  onRetry: () => void;
+}
+
+export interface ReusableDrawerHeaderProps {
+  title: string;
+  tag: string;
+  subtitle: string;
+}
+
+/* kurum bılgısı */
+export interface InfoSectionProps {
+  /* title:string  
+  category:string
+  address:string
+  description?:string
+  url?:string
+  assignee:string
+  status:string
+  */
+  label: string;
+  children: React.ReactNode;
+}
+
+export interface SectionShellProps {
+  title: string;
+  children: React.ReactNode; //* içine ne gelırse grıd onu dızeek */
+}
+
+export interface ActionSheetAiBoxProps {
+  title?: string;
+  text?: string;
+  riskLabel?: string;
+  suggestion?: string;
+}

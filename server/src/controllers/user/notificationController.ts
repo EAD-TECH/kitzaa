@@ -3,10 +3,14 @@ import { Notification } from "../../models/notificationModel.js";
 import { toNotificationDTO } from "../../helpers/toNotificationDTO.js";
 import CustomError from "../../helpers/customError.js";
 import path from "node:path";
+import { getOneMonthAgo } from "../../helpers/getOneMonthAgo.js";
 
 export const listNotificationsById = async (req: Request, res: Response) => {
   // 1. Sadece bu kullanıcıya ait olanları filtrele
-  const customFilter: any = { recipientId: req.user._id };
+  const customFilter: any = {
+    recipientId: req.user._id,
+    createdAt: { $gte: getOneMonthAgo() },
+  };
 
   /* eger FE sadece ?isRead=false olanları derse customfıltera bunu eklıyorm   */
   if (req.query.isRead === "false") {
@@ -48,6 +52,7 @@ export const getUnReadNotificationCount = async (
   const unreadCount = await Notification.countDocuments({
     recipientId: req.user._id,
     isRead: false,
+     createdAt: { $gte: getOneMonthAgo() },
   });
   console.log("okunmamısları getirmesi lazım", unreadCount);
 

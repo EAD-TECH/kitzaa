@@ -7,10 +7,9 @@ export type EventStatus =
   | "cancelled"
   | "completed";
 
-export interface IAgeRange {
-  min: number;
-  max: number;
-}
+export type EventLocationType = "indoor" | "outdoor" | "online";
+
+export type AgeRange = "0-3" | "4-6" | "7-10" | "10-14" | "parents" | "all-ages";
 
 export interface IPrice {
   amount: number;
@@ -47,6 +46,7 @@ export interface ICapacity {
 export interface IParticipant {
   userId: Types.ObjectId;
   status: "confirmed" | "cancelled";
+  participantCount: number;
   joinedAt: Date;
 }
 
@@ -58,7 +58,8 @@ export interface IEvent {
   coverImage?: string | null;
   images?: string[];
   categoryId: Types.ObjectId;
-  ageRange: IAgeRange;
+  locationType: EventLocationType;
+  ageRange: AgeRange;
   createdBy: Types.ObjectId;
   status: EventStatus;
   rejectedReason?: string | null;
@@ -97,6 +98,15 @@ export interface EventCreatedByRef {
   _id: string;
   username: string;
   avatarUrl: string | null;
+  role: "user" | "organizer" | "admin";
+}
+
+// Herkese açık DTO'da gösterilen katılımcı önizlemesi — status/participantCount/joinedAt gibi
+// organizatöre özel bilgiler kasıtlı olarak dışarıda bırakılır (bkz. /:id/participants, owner/admin'e özel).
+export interface EventParticipantRef {
+  _id: string;
+  username: string;
+  avatarUrl: string | null;
 }
 
 export interface EventDTO {
@@ -107,7 +117,8 @@ export interface EventDTO {
   coverImage: string | null;
   images: string[];
   categoryId: string | EventCategoryRef;
-  ageRange: IAgeRange;
+  locationType: EventLocationType;
+  ageRange: AgeRange;
   createdBy: string | EventCreatedByRef;
   status: EventStatus;
   isFree: boolean;
@@ -115,6 +126,7 @@ export interface EventDTO {
   schedule: ISchedule;
   location: IEventLocation;
   capacity: ICapacity;
+  participantsPreview: EventParticipantRef[];
   viewCount: number;
   createdAt: Date;
   updatedAt: Date;
@@ -123,9 +135,7 @@ export interface EventDTO {
 // omit createdBy haric tum alanlari al demek ve yazilanlari ekle
 export interface AdminEventDTO extends Omit<EventDTO, "createdBy"> {
   // createdBy silinmis bir kullaniciya isaret ediyorsa (dangling ref) sadece id string'i olarak doner.
-  createdBy:
-    | (EventCreatedByRef & { role: "user" | "organizer" | "admin" })
-    | string;
+  createdBy: EventCreatedByRef | string;
   rejectedReason: string | null;
   cancelledReason: string | null;
   approvedAt: Date | null;

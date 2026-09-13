@@ -2,11 +2,9 @@
  * @swagger
  * definitions:
  *   AgeRange:
- *     type: object
- *     required: [min, max]
- *     properties:
- *       min: { type: integer, example: 3 }
- *       max: { type: integer, example: 12 }
+ *     type: string
+ *     enum: ["0-3", "4-6", "7-10", "10-14", parents, all-ages]
+ *     example: "7-10"
  *
  *   Price:
  *     type: object

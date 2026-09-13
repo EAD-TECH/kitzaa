@@ -220,6 +220,7 @@ Table events [headercolor: #1E8449] {
   coverImage      string        [null]
   categoryId      objectid      [ref: > event_categories._id, not null]
   createdBy       objectid      [ref: > users._id, not null, note: 'onayli organizer']
+  ageRange        string        [not null, note: '"0-3" | "4-6" | "7-10" | "10-14" | "parents" | "all-ages"']
   status          event_status  [not null, default: 'pending']
   rejectedReason  string        [null]
   approvedAt      datetime      [null]
@@ -228,7 +229,7 @@ Table events [headercolor: #1E8449] {
   createdAt       datetime
   updatedAt       datetime
 
-  Note: 'Etkinlik. ageRange/price/schedule/location/capacity/participants/likes/images gomulu veya dizi.'
+  Note: 'Etkinlik. ageRange sabit enum; price/schedule/location/capacity/participants/likes/images gomulu veya dizi.'
 }
 
 Table "event_images (embedded)" [headercolor: #CA6F1E] {
@@ -236,14 +237,6 @@ Table "event_images (embedded)" [headercolor: #CA6F1E] {
   url       string   [not null]
 
   Note: 'EMBEDDED dizi: events.images[]'
-}
-
-Table "event_ageRange (embedded)" [headercolor: #CA6F1E] {
-  event_id  objectid [ref: - events._id]
-  min       number   [not null]
-  max       number   [not null]
-
-  Note: 'EMBEDDED: events.ageRange'
 }
 
 Table "event_price (embedded)" [headercolor: #CA6F1E] {

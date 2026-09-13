@@ -25,7 +25,8 @@ export function toUserDTO(user: UserDocument | UserDocument[] | null): UserDTO |
     language: user.language,
     location: user.location,
     isEmailVerified: user.isEmailVerified,
-    createdAt: user.createdAt!, 
+    savedEvents: (user.savedEvents ?? []).map((id) => id.toString()),
+    createdAt: user.createdAt!,
     updatedAt: user.updatedAt!,
   };
 }

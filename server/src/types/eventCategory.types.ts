@@ -6,7 +6,7 @@ export interface IEventCategory {
   name: string;
   slug: string;
   description?: string | null;
-  icon: string;
+  icon?: string;
   isActive: boolean;
   createdAt?: Date;
   updatedAt?: Date;
@@ -21,7 +21,7 @@ export interface EventCategoryDTO {
   name: string;
   slug: string;
   description: string | null;
-  icon: string;
+  icon?: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
