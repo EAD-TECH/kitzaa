@@ -2,7 +2,7 @@
 
 
 import type { EventDTO } from '@/features/events/types/event.types'
-import EventCard from './EventCard'
+import EventListRow from './EventListRow'
 import { getEventsServer } from '../api/eventApi.server'
 import LoadMoreEvents from './LoadMoreEvents'
 
@@ -13,6 +13,8 @@ interface EventListProps {
 
 export const EVENT_GRID_CLASSNAME =
     'grid grid-cols-1 max-w-90 tablet:grid-cols-[repeat(2,minmax(320px,370px))] desktop:grid-cols-[repeat(3,minmax(250px,1fr))] desktop:max-w-270 gap-10 desktop:gap-16 mx-auto justify-center desktop:justify-start desktop:mx-0'
+
+export const EVENT_LIST_CLASSNAME = 'flex flex-col desktop:max-w-270'
 
 
 const EventList = async ({ searchParams }: EventListProps) => {
@@ -30,9 +32,9 @@ const EventList = async ({ searchParams }: EventListProps) => {
 
     return (
         <>
-            <div className='mt-12 grid grid-cols-1 max-w-90 tablet:grid-cols-[repeat(2,minmax(320px,370px))] desktop:grid-cols-[repeat(3,minmax(250px,1fr))] desktop:max-w-270 gap-10 desktop:gap-16 mx-auto justify-center desktop:justify-start desktop:mx-0 mb-15'>
+            <div className={`mb-15 ${EVENT_LIST_CLASSNAME}`}>
                 {events.map((event) => (
-                    <EventCard key={event._id} event={event} />
+                    <EventListRow key={event._id} event={event} />
                 ))}
             </div>
             <LoadMoreEvents initialNextPage={nextPage} />

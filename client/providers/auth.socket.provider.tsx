@@ -20,16 +20,35 @@ export default function AuthSocketProvider({
 }) {
   const router = useRouter();
   const accessToken = useAuthStore((state) => state.accessToken);
+  const setIsSocketConnected = useAuthStore(
+    (state) => state.setIsSocketConnected,
+  );
   const queryClient = useQueryClient();
-  
+
   /* salterim  useeffect*/
   useEffect(() => {
     if (accessToken) {
       /* sockete tokenı ve baglantıyı kur */
       socket.auth = { token: accessToken };
       socket.connect();
-      
+
+      socket.on("connect", () => {
+        console.log("Socket bağlandı, Polling durdurulacak!");
+        setIsSocketConnected(true);
+      });
+
+      socket.on("disconnect", () => {
+        console.log("Socket koptu, Polling (Yedekleme) devreye giriyor!");
+        setIsSocketConnected(false);
+      });
+
+      // Hata olursa da koptu sayıyoruz
+      socket.on("connect_error", () => {
+        setIsSocketConnected(false);
+      });
+
       /* backendın gonderdıgı verıyı socket.on la getırdm */
+      /* burda socket baglantısı kurulduktan sonra socketın durumunu dınlıyorm ve zustanda yazıyorm */
       socket.on("notification:new", (yenibildirim: NotificationDTO) => {
         const targetPath = yenibildirim.linkNotification || "/notifications";
         console.log(targetPath);
@@ -79,11 +98,13 @@ export default function AuthSocketProvider({
             result: [yenibildirim, ...eskiData.result],
           };
         });
-
       });
     } else {
       /* token yoksa hattı kes */
       socket.disconnect();
+
+      /* cıkıs yapınca bayragıda ındır */
+      setIsSocketConnected(false)
     }
 
     /* cleanup */
@@ -92,6 +113,10 @@ export default function AuthSocketProvider({
       /* bileşen ekrandan gıttı : kapanma, sayfa degısımı gıbı */
       /* frekansı dınlemeyı bırak ve baglantıyı kes dıyorum */
       socket.off("notification:new");
+      socket.off("connect")
+      socket.off("disconnect")
+      socket.off("connect_error")
+      setIsSocketConnected(false)
       socket.disconnect();
     };
   }, [accessToken, queryClient]);

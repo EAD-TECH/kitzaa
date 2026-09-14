@@ -40,6 +40,7 @@ export const sendRemindersForTomorrow = async () => {
         recipientId: participant.userId,
         relatedId: event._id,
         relatedModel: "Event",
+        linkNotification:`/events/${event.slug}`,
         title: "Termin-Erinnerung",
         message: `Morgen beginnt dein Event '${event.title}'!`,
         type: "event_reminder",

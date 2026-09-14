@@ -11,10 +11,12 @@ const router = Router();
 
 router.param('id', validateObjectIdParam);
 
-const { list, read, create, update, deletee, toggleLike } = socialPostController;
+const { list, read, myPosts, create, update, deletee, toggleLike } = socialPostController;
 
 router.route('/').get(list);
+router.route('/my-posts').get(authentication, myPosts);
 router.route('/:id').get(read);
+
 
 router.use(authentication);
 router.route('/').post(validateBody(createPostSchema), create);

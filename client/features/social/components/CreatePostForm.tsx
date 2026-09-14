@@ -2,13 +2,14 @@
 
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { ImagePlus, Info } from "lucide-react";
+import { ImagePlus, Info, Loader2, X } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createPostSchema, type CreatePostInput } from "../validations/post.schema";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { useEvents } from "../hooks/useEvents";
 import {
   Combobox,
@@ -20,7 +21,11 @@ import {
 } from "@/components/ui/combobox";
 import { usePlaceSearch } from "../hooks/usePlaceSearch";
 import { useCreatePost } from "../hooks/socialHooks";
+import { useUploadPostImage } from "../hooks/useUploadPostImage";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+
+// uploadRouter.socialImage (server/src/configs/uploadthing.ts) ile birebir aynı limit.
+const MAX_POST_IMAGE_SIZE_MB = 8;
 
 export default function CreatePostForm({ onCreated }: { onCreated?: () => void }) {
   const { data } = useEvents();
@@ -28,10 +33,12 @@ export default function CreatePostForm({ onCreated }: { onCreated?: () => void }
   const [placeQuery, setPlaceQuery] = useState("");
   const { data: places = [] } = usePlaceSearch(placeQuery);
   const createPost = useCreatePost();
-  
+  const uploadImage = useUploadPostImage();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [imageStatus, setImageStatus] = useState<"idle" | "uploading" | "done" | "error">("idle");
 
-  const  { data: currentUser } = useCurrentUser();
-  // console.log(currentUser);
+  const { data: currentUser } = useCurrentUser();
 
   const form = useForm<CreatePostInput>({
     resolver: zodResolver(createPostSchema),
@@ -52,38 +59,150 @@ export default function CreatePostForm({ onCreated }: { onCreated?: () => void }
       defaultValue: "",
     }) ?? "";
 
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  const clearImage = () => {
+    setPreviewUrl(null);
+    setImageStatus("idle");
+    form.setValue("imageUrl", null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleFile = async (file: File) => {
+    if (imageStatus === "uploading") return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Bitte wähle eine Bilddatei aus.");
+      return;
+    }
+
+    if (file.size > MAX_POST_IMAGE_SIZE_MB * 1024 * 1024) {
+      toast.error(`"${file.name}" ist größer als ${MAX_POST_IMAGE_SIZE_MB}MB.`);
+      return;
+    }
+
+    setPreviewUrl(URL.createObjectURL(file));
+    setImageStatus("uploading");
+    form.setValue("imageUrl", null);
+
+    try {
+      const url = await uploadImage.mutateAsync(file);
+      setImageStatus("done");
+      form.setValue("imageUrl", url, { shouldValidate: true });
+    } catch {
+      setImageStatus("error");
+    }
+  };
+
   const onSubmit = (data: CreatePostInput) => {
-  createPost.mutate(data, {
-    onSuccess: () => {
-      form.reset();
-      setPlaceQuery("");
-      onCreated?.();
-    },
-  });
-};
+    if (imageStatus === "uploading" || imageStatus === "error") return;
+
+    createPost.mutate(data, {
+      onSuccess: () => {
+        clearImage();
+        form.reset();
+        setPlaceQuery("");
+        onCreated?.();
+      },
+    });
+  };
+
+  const isImageBusy = imageStatus === "uploading";
+  const canSubmit = !createPost.isPending && imageStatus !== "uploading" && imageStatus !== "error";
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
       <div className="grid grid-cols-1 desktop:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
         {/* Bildbereich */}
-        <section className="flex min-h-80 items-center justify-center border-b bg-muted/20 p-6 desktop:min-h-140 desktop:border-r desktop:border-b-0">
-          <div className="flex max-w-xs flex-col items-center text-center">
-            <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              <ImagePlus className="size-6" />
+        <section className="relative flex min-h-80 items-center justify-center overflow-hidden border-b bg-muted/20 p-6 desktop:min-h-140 desktop:border-r desktop:border-b-0">
+          <input
+            ref={fileInputRef}
+            id="post-image"
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            disabled={isImageBusy || createPost.isPending}
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              event.target.value = "";
+              if (file) void handleFile(file);
+            }}
+          />
+
+          {previewUrl ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={previewUrl}
+                alt="Ausgewähltes Beitragsbild"
+                className="absolute inset-0 size-full object-cover"
+              />
+
+              {imageStatus === "uploading" ? (
+                <div className="absolute inset-0 flex items-center justify-center bg-background/60">
+                  <Loader2 className="size-6 animate-spin text-foreground" />
+                </div>
+              ) : null}
+
+              {imageStatus === "error" ? (
+                <div className="absolute inset-0 flex items-center justify-center bg-destructive/20 px-6 text-center text-sm font-medium text-destructive">
+                  Bild konnte nicht hochgeladen werden.
+                </div>
+              ) : null}
+
+              <button
+                type="button"
+                onClick={clearImage}
+                disabled={isImageBusy}
+                aria-label="Bild entfernen"
+                className="absolute top-3 right-3 flex size-8 cursor-pointer items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm disabled:opacity-50"
+              >
+                <X className="size-4" />
+              </button>
+
+              {imageStatus !== "uploading" ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="absolute bottom-4 left-1/2 -translate-x-1/2"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={createPost.isPending}
+                >
+                  Bild ändern
+                </Button>
+              ) : null}
+            </>
+          ) : (
+            <div className="flex max-w-xs flex-col items-center text-center">
+              <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <ImagePlus className="size-6" />
+              </div>
+
+              <p className="mt-4 text-sm font-medium">Bild hinzufügen</p>
+
+              <p className="mt-1 text-sm text-muted-foreground">Optional</p>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-4"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={createPost.isPending}
+              >
+                Auswählen
+              </Button>
+
+              <p className="mt-6 text-xs text-muted-foreground">
+                PNG, JPG oder GIF (max. {MAX_POST_IMAGE_SIZE_MB}MB). Ein Bild kann deine Empfehlung noch anschaulicher machen.
+              </p>
             </div>
-
-            <p className="mt-4 text-sm font-medium">Bild hinzufügen</p>
-
-            <p className="mt-1 text-sm text-muted-foreground">Optional</p>
-
-            <Button type="button" variant="outline" size="sm" className="mt-4">
-              Auswählen
-            </Button>
-
-            <p className="mt-6 text-xs text-muted-foreground">
-              Ein Bild kann deine Empfehlung noch anschaulicher machen.
-            </p>
-          </div>
+          )}
         </section>
 
         {/* Formularbereich */}
@@ -249,7 +368,7 @@ export default function CreatePostForm({ onCreated }: { onCreated?: () => void }
               Mit deinem Beitrag hilfst du anderen Familien, schöne Orte und Aktivitäten zu entdecken.
             </p>
 
-            <Button type="submit" className="mt-4 w-full" disabled={createPost.isPending}>
+            <Button type="submit" className="mt-4 w-full" disabled={!canSubmit}>
               {createPost.isPending ? "Wird veröffentlicht..." : "Beitrag veröffentlichen"}
             </Button>
           </div>

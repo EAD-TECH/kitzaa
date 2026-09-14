@@ -63,6 +63,51 @@
  *       404:
  *         description: eventId was provided but the event was not found
  *
+ * /posts/my-posts:
+ *   get:
+ *     summary: Lists posts created by the logged-in user
+ *     description: |
+ *       Returns the current user's posts (excludes soft-deleted).
+ *       `authorId` comes from the access token, not from the client.
+ *
+ *       `filter[]`, `search[]`, `sort[]`, `page` and `limit` query parameters are supported.
+ *
+ *       **Examples:**
+ *       - `?sort[createdAt]=-1`
+ *       - `?page=2&limit=10`
+ *     tags: [Posts]
+ *     security:
+ *       - Bearer: []
+ *     parameters:
+ *       - in: query
+ *         name: filter
+ *         type: string
+ *       - in: query
+ *         name: search
+ *         type: string
+ *       - in: query
+ *         name: sort
+ *         type: string
+ *       - in: query
+ *         name: page
+ *         type: integer
+ *       - in: query
+ *         name: limit
+ *         type: integer
+ *     responses:
+ *       200:
+ *         description: Post list
+ *         schema:
+ *           type: object
+ *           properties:
+ *             error: { type: boolean, example: false }
+ *             details: { type: object }
+ *             posts:
+ *               type: array
+ *               items: { $ref: '#/definitions/Post' }
+ *       401:
+ *         description: Missing or invalid access token
+ *
  * /posts/{id}:
  *   get:
  *     summary: Returns a single post (increments viewCount by 1)

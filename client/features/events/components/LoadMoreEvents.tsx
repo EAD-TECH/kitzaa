@@ -3,8 +3,8 @@
 import { useEffect, useRef } from "react"
 import { Loader2 } from "lucide-react"
 import { useInfiniteEvents } from "../hooks/useInfiniteEvents"
-import EventCard from "./EventCard"
-import { EVENT_GRID_CLASSNAME } from "./EventList"
+import EventListRow from "./EventListRow"
+import { EVENT_LIST_CLASSNAME } from "./EventList"
 
 interface LoadMoreEventsProps {
     initialNextPage: number | null
@@ -38,9 +38,9 @@ const LoadMoreEvents = ({ initialNextPage }: LoadMoreEventsProps) => {
 
     return (
         <>
-            <div className={EVENT_GRID_CLASSNAME}>
+            <div className={EVENT_LIST_CLASSNAME}>
                 {events.map((event) => (
-                    <EventCard key={event._id} event={event} />
+                    <EventListRow key={event._id} event={event} />
                 ))}
             </div>
 

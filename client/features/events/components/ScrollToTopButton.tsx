@@ -8,18 +8,35 @@ import { cn } from "@/lib/utils"
 
 const SCROLL_THRESHOLD = 400
 
-const ScrollToTopButton = () => {
+interface ScrollToTopButtonProps {
+  scrollContainerId?: string
+}
+
+const ScrollToTopButton = ({ scrollContainerId }: ScrollToTopButtonProps) => {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    const handleScroll = () => setVisible(window.scrollY > SCROLL_THRESHOLD)
+    const container = scrollContainerId ? document.getElementById(scrollContainerId) : null
+
+    const handleScroll = () => {
+      const containerScrollY = container?.scrollTop ?? 0
+      setVisible(window.scrollY > SCROLL_THRESHOLD || containerScrollY > SCROLL_THRESHOLD)
+    }
+
     handleScroll()
     window.addEventListener("scroll", handleScroll, { passive: true })
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+    container?.addEventListener("scroll", handleScroll, { passive: true })
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      container?.removeEventListener("scroll", handleScroll)
+    }
+  }, [scrollContainerId])
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" })
+    if (scrollContainerId) {
+      document.getElementById(scrollContainerId)?.scrollTo({ top: 0, behavior: "smooth" })
+    }
   }
 
   return (
