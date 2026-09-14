@@ -3,12 +3,17 @@ import type { FileRoute } from "uploadthing/types"
 
 // client/ ve server/ ayrı TS projeleri olduğu için server/src/configs/uploadthing.ts
 // içindeki OurFileRouter tipi doğrudan import edilemiyor. Bu yüzden burada sadece
-// "eventImage" route'unun şeklini (input/output) elle kopyalıyoruz — üretilen değeri
+// kullanılan route'ların şeklini (input/output) elle kopyalıyoruz — üretilen değeri
 // hiç kullanmıyoruz, sadece uploadFiles'a doğru tipleri vermek için.
-// Server'daki eventImage tanımı değişirse (uploadRouter.eventImage), bunu da güncelle.
+// Server'daki eventImage / socialImage tanımı değişirse, bunu da güncelle.
 type OurFileRouter = {
   eventImage: FileRoute<{
     input: { eventId?: string }
+    output: null
+    errorShape: unknown
+  }>
+  socialImage: FileRoute<{
+    input: { postId?: string }
     output: null
     errorShape: unknown
   }>
