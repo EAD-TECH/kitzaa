@@ -24,8 +24,8 @@ const AgeFilter = () => {
       <button
         onClick={() => setParam("ageRange", null)}
         className={cn(
-          'bg-popover/40 py-1.5 px-4 rounded-4xl text-sm border hover:bg-primary/90 hover:text-primary-foreground cursor-pointer transition-colors duration-200 ease-in-out',
-          selected === null && 'bg-primary text-primary-foreground',
+          'bg-popover/40 py-1.5 px-4 rounded-4xl text-sm border hover:bg-secondary/90 hover:text-secondary-foreground cursor-pointer transition-colors duration-200 ease-in-out',
+          selected === null && 'bg-secondary text-secondary-foreground',
         )}
       >
         Alle Alter
@@ -36,8 +36,8 @@ const AgeFilter = () => {
           key={value}
           onClick={() => setParam("ageRange", selected === value ? null : value)}
           className={cn(
-            'bg-popover/40 py-1.5 px-4 rounded-4xl text-sm border hover:bg-primary/90 hover:text-primary-foreground cursor-pointer transition-colors duration-200 ease-in-out',
-            selected === value && 'bg-primary text-primary-foreground',
+            'bg-popover/40 py-1.5 px-4 rounded-4xl text-sm border hover:bg-secondary/90 hover:text-secondary-foreground cursor-pointer transition-colors duration-200 ease-in-out',
+            selected === value && 'bg-secondary text-secondary-foreground',
           )}
         >
           {label}
