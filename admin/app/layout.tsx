@@ -47,7 +47,7 @@ export default function RootLayout({
             <RequireAuth roles="admin">
               <div className="min-h-dvh">
                 <SideBar />
-                <div className="min-h-dvh pl-28">
+                <div className="min-h-dvh pl-0 desktop:pl-28">
                   <Header />
 
                   {children}

@@ -28,24 +28,24 @@ export function KanbanCard({ data }: { data: KanbanCardProps }) {
         data.onClick && data.onClick(data.id);
       }}
       size="sm"
-      className="w-full cursor-pointer ring-0 border border-kanban-card-border bg-(--cream-50) rounded-xl shadow-kanban-card"
+      className="w-full cursor-pointer ring-0 border border-kanban-card-border bg-kanban-card-bg rounded-xl shadow-kanban-card"
     >
       <CardHeader>
-        <div className="flex flex-col gap-2">
+        <div className="flex min-w-0 flex-col gap-2">
           {/* baslık*/}
-          <CardTitle className="font-heading text-base font-normal leading-normal text-kanban-card-title">
+          <CardTitle className="font-heading min-w-0 wrap-break-word text-base font-normal leading-normal text-kanban-card-title">
             {data.title}
           </CardTitle>
 
           {/* time*/}
-          <CardDescription className="text-sm text-muted-foreground">
+          <CardDescription className="min-w-0 wrap-break-word text-sm text-muted-foreground">
             {data.time || "Tarih belirtilmemiş"}
           </CardDescription>
 
           {/* kategori */}
           {data.category && (
-            <Badge className="w-fit border-0 bg-(--cream-50) text-(--brown-500) rounded-full text-xs font-normal">
-              <CircleDot size={12} className="mr-1" />
+            <Badge className="w-fit max-w-full min-w-0  border-0 bg-kanban-card-bg text-kanban-card-muted rounded-full text-xs font-normal">
+              <CircleDot size={12} className="mr-1 truncate" />
               {data.category}
             </Badge>
           )}
@@ -54,7 +54,7 @@ export function KanbanCard({ data }: { data: KanbanCardProps }) {
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
-                <Button variant="ghost" className="text-(--brown-500)">
+                <Button variant="ghost" className="text-kanban-card-muted">
                   <MoreHorizontal size={20} />
                 </Button>
               }
@@ -91,7 +91,7 @@ export function KanbanCard({ data }: { data: KanbanCardProps }) {
 
       {data.description ? (
         <CardContent>
-          <p className="text-sm text-muted-foreground">{data.description}</p>
+          <p className="wrap-break-word text-left text-sm text-muted-foreground sm:text-xs">{data.description}</p>
         </CardContent>
       ) : null}
 

@@ -3,7 +3,7 @@ import type { SectionShellProps } from "../types";
 export default function SectionShell({ title, children }: SectionShellProps) {
   return (
     <section className="  rounded-xl border border-kanban-card-bg flex flex-col gap-4">
-      <h2 className="font-heading text-xs uppercase tracking-wider text-(--terracotta-600)">
+      <h2 className="font-heading text-xs uppercase tracking-wider text-primary">
         {title} {/* Kurum Bilgisi */}
       </h2>
 

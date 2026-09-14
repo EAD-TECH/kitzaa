@@ -45,4 +45,10 @@
   --chart-3: var(--brown-600);
   --chart-4: var(--green-500);
   --chart-5: var(--red-500);
+
+  --kanban-column-bg: var(--cream-100);
+  --kanban-card-border: var(--cream-50);
+  --kanban-card-title: var(--brown-850);
+  --kanban-card-bg: var(--cream-50);
+  --kanban-card-muted: var(--brown-500);
 }

@@ -9,15 +9,15 @@ export default function ReusableDrawerHeader({title,tag,subtitle}:ReusableDrawer
     <>
       <DrawerHeader className="flex-row  items-start justify-between gap-4 text-left pb-4">
           <div className="flex min-w-0 flex-col gap-2">
-            <DrawerTitle className="font-heading text-sm font-normal uppercase tracking-wider text-(--terracotta-600)">
+            <DrawerTitle className="font-heading text-sm font-normal uppercase tracking-wider text-primary">
              {/*  Başvuru Detayı */} {title }
             </DrawerTitle>
-            <p className="font-heading text-xl font-normal leading-8 text-(--brown-500)">
+            <p className="font-heading wrap-break-word sm:text-sm text-xl font-normal leading-8 text-foreground">
               {/* Yeni organizatör başvurularını incele */} 
               
               {tag}
             </p>
-            <DrawerDescription className="text-sm font-normal text-(--brown-500)">
+            <DrawerDescription className="text-sm font-normal text-muted-foreground">
           {/*     Operasyon - Bugün, 14:00 */}  {subtitle}
              </DrawerDescription>
           </div>

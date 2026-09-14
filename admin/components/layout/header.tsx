@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { Bell, ChevronDown, LogOut, Moon, Sun } from "lucide-react";
+import { Bell, ChevronDown, LogOut, Menu, Moon, Sun, X } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +25,7 @@ export default function Header() {
   const { data: user } = useCurrentUser();
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const isDark = resolvedTheme === "dark";
   useEffect(() => setMounted(true), []);
@@ -36,8 +37,8 @@ export default function Header() {
     "AD";
 
   return (
-    <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-border bg-background/90 backdrop-blur">
-      <div className="flex items-center gap-2">
+    <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-3 border-b border-border bg-background/90 px-4 backdrop-blur tablet:px-6 desktop:px-8">
+      <div className="flex min-w-0 items-center gap-2">
         <Link
           href="/"
           className="font-heading h-8 w-8 bg-primary rounded-xl flex items-center justify-center text-sidebar-accent"
@@ -76,15 +77,16 @@ export default function Header() {
           <Bell className="size-5" />
         </Button>
 
-        <DropdownMenu>
+        <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
           <DropdownMenuTrigger
             render={
               <Button
                 variant="ghost"
-                className="h-11 gap-2 rounded-full px-2"
+                size="icon"
+                className="size-10 rounded-full px-2 tablet:h-11 tablet:w-auto tablet:gap-2"
                 aria-label="Profil menüsünü aç"
               >
-                <Avatar>
+                <Avatar className="hidden tablet:flex">
                   {user?.avatar && (
                     <AvatarImage
                       src={user.avatar}
@@ -94,7 +96,15 @@ export default function Header() {
                   <AvatarFallback>{initials}</AvatarFallback>
                 </Avatar>
 
-                <div className="hidden text-left desktop:block">
+                <span className="flex tablet:hidden">
+                  {menuOpen ? (
+                    <X className="size-5" />
+                  ) : (
+                    <Menu className="size-5" />
+                  )}
+                </span>
+
+                <div className="hidden text-left tablet:block">
                   <p className="text-sm font-medium">
                     {user?.firstName} {user?.lastName}
                   </p>
@@ -108,10 +118,9 @@ export default function Header() {
 
           <DropdownMenuContent align="end" sideOffset={8} className="w-64">
             <DropdownMenuGroup>
-            <DropdownMenuLabel>
-              <p>{user?.username}</p>
-             
-            </DropdownMenuLabel>
+              <DropdownMenuLabel>
+                <p>{user?.username}</p>
+              </DropdownMenuLabel>
             </DropdownMenuGroup>
 
             <DropdownMenuSeparator />

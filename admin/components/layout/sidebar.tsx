@@ -33,7 +33,7 @@ export default function SideBar() {
     { icon: Settings, label: "Ayarlar", href: "/settings" },
   ];
   return (
-    <aside className="fixed z-40 left-4 top-1/2 -translate-y-1/2 flex flex-col items-center justify-center gap-6 rounded-full py-2 px-1.5 shadow-xl  border border-sidebar-border  bg-sidebar">
+    <aside className="fixed inset-x-3 bottom-3 z-40 flex translate-x-0 flex-row items-center justify-between gap-0 rounded-2xl border border-sidebar-border bg-sidebar px-1 py-1 shadow-xl desktop:inset-x-auto desktop:bottom-auto desktop:left-4 desktop:top-1/2 desktop:-translate-y-1/2 desktop:flex-col desktop:justify-center desktop:gap-6 desktop:rounded-full desktop:px-1.5 desktop:py-2">
       <TooltipProvider>
         {menuItems.map((item) => {
           const isActive =
@@ -62,7 +62,7 @@ export default function SideBar() {
               <TooltipContent
                 side="right"
                 sideOffset={6}
-                className="ml-2 bg-primary text-sidebar-accent border-none"
+                className="ml-2 hidden border-none bg-primary text-sidebar-accent desktop:block"
               >
                 <p className="font-heading font-medium">{item.label}</p>
               </TooltipContent>

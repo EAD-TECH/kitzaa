@@ -19,8 +19,6 @@ import {
   Calendar,
   CircleIcon,
   Loader2,
-  
- 
   UserIcon,
 } from "lucide-react";
 
@@ -70,7 +68,7 @@ export default function AdminEventsBoard() {
 
   const [seciliStatus, setSeciliStatus] = useState<string[]>([]);
 
-  const [siralama,setSiralama]=useState<string>("sort_newest")
+  const [siralama, setSiralama] = useState<string>("sort_newest");
 
   const categories = Array.isArray(categoriesResponse)
     ? categoriesResponse
@@ -96,38 +94,96 @@ export default function AdminEventsBoard() {
     SetAktifKategori(kategori);
   };
 
-  const {
-    data,
-    isLoading,
-    isError,
-    refetch,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useEventApplications({
-    secilenKategori: seciliKategoriId,
-    arananKelime: sakinKelime,
-    seciliStatus: seciliStatus,
-    siralama,
-    limit: 6,
-  });
-
-  const tumEtkinlikler = data?.pages.flatMap((page) => page.events || []) || [];
+  /*  const tumEtkinlikler = data?.pages.flatMap((page) => page.events || []) || [];
 
   const pendingEvents = tumEtkinlikler.filter((e) => e.status === "pending");
   const approvedEvents = tumEtkinlikler.filter((e) => e.status === "approved");
   const rejected = tumEtkinlikler.filter((e) => e.status === "rejected");
   const cancelled = tumEtkinlikler.filter((e) => e.status === "cancelled");
-  const completed = tumEtkinlikler.filter((e) => e.status === "completed");
+  const completed = tumEtkinlikler.filter((e) => e.status === "completed"); */
+
+  const pendingEvent = useEventApplications({
+    secilenKategori: seciliKategoriId,
+    arananKelime: sakinKelime,
+    seciliStatus: seciliStatus,
+
+    siralama,
+    kolonStatus: "pending",
+    limit: 3,
+  });
+
+  const pendingEvents =
+    pendingEvent.data?.pages.flatMap((p) => p.events || []) || [];
+
+  const approvedEvent = useEventApplications({
+    secilenKategori: seciliKategoriId,
+    arananKelime: sakinKelime,
+    seciliStatus: seciliStatus,
+    siralama,
+    kolonStatus: "approved",
+    limit: 3,
+  });
+
+  const approvedEvents =
+    approvedEvent.data?.pages.flatMap((p) => p.events || []) || [];
+
+  const rejectedEvent = useEventApplications({
+    secilenKategori: seciliKategoriId,
+    arananKelime: sakinKelime,
+    seciliStatus: seciliStatus,
+    siralama,
+    kolonStatus: "rejected",
+    limit: 3,
+  });
+
+  const rejectedEvents =
+    rejectedEvent.data?.pages.flatMap((p) => p.events || []) || [];
+
+  const cancelledEvent = useEventApplications({
+    secilenKategori: seciliKategoriId,
+    arananKelime: sakinKelime,
+    seciliStatus: seciliStatus,
+    siralama,
+    kolonStatus: "cancelled",
+    limit: 3,
+  });
+
+  const cancelledEvents =
+    cancelledEvent.data?.pages.flatMap((p) => p.events || []) || [];
+
+  const completedEvent = useEventApplications({
+    secilenKategori: seciliKategoriId,
+    arananKelime: sakinKelime,
+    seciliStatus: seciliStatus,
+    siralama,
+    kolonStatus: "completed",
+    limit: 3,
+  });
+
+  const completedEvents =
+    completedEvent.data?.pages.flatMap((p) => p.events || []) || [];
+
+  const isLoading =
+    pendingEvent.isLoading ||
+    approvedEvent.isLoading ||
+    rejectedEvent.isLoading ||
+    cancelledEvent.isLoading ||
+    completedEvent.isLoading;
+
+  const isError =
+    pendingEvent.isError ||
+    approvedEvent.isError ||
+    rejectedEvent.isError ||
+    cancelledEvent.isError ||
+    completedEvent.isError;
 
   const onFilterSelect = (tiklananDeger: string) => {
     console.log("popoverdan gelen deger", tiklananDeger);
     console.log("popoverın defaultu", seciliStatus);
 
-
-    if(tiklananDeger.startsWith("sort_")){
-      setSiralama(tiklananDeger)
-      return
+    if (tiklananDeger.startsWith("sort_")) {
+      setSiralama(tiklananDeger);
+      return;
     }
 
     const varMi = seciliStatus.includes(tiklananDeger);
@@ -141,13 +197,13 @@ export default function AdminEventsBoard() {
   };
 
   return (
-    <Card className="flex flex-col gap-6 self-stretch rounded-2xl border border-border bg-(--cream-50) p-6 ring-0 shadow-none">
+    <Card className="flex flex-col gap-6 self-stretch rounded-2xl border border-border bg-background p-4 ring-0 shadow-none tablet:p-6">
       {/* baslik*/}
       <PageHeader
         title="Etkinlikler"
         description="Etkinlikleri durumlarına göre yönetin ve yayın akışını takip edin."
       />
-      <div className="flex w-fit  items-center gap-2">
+      <div className="flex w-full min-w-0 flex-col gap-2 tablet:flex-row tablet:items-center">
         <FilterAndSearch
           searchValue={inputValue}
           onSearchChange={setInputValue}
@@ -162,6 +218,7 @@ export default function AdminEventsBoard() {
         {(seciliStatus.length > 0 || siralama !== "sort_newest") && (
           <Button
             variant="ghost"
+            className="shrink-0 self-start tablet:self-center"
             onClick={() => {
               setSeciliStatus([]);
               setSiralama("sort_newest");
@@ -182,71 +239,110 @@ export default function AdminEventsBoard() {
       {isLoading && <KanbanSkeleton />}
 
       {/* hata durumu*/}
-      {!isLoading && isError && <KanbanErrorState onRetry={refetch} />}
+      {!isLoading && isError && (
+        <KanbanErrorState
+          onRetry={() => {
+            pendingEvent.refetch();
+            approvedEvent.refetch();
+            rejectedEvent.refetch();
+            cancelledEvent.refetch();
+            completedEvent.refetch();
+          }}
+        />
+      )}
 
       {/* hata yoksa  */}
       {!isLoading && !isError && (
-        <div className="flex flex-row gap-4 overflow-x-auto">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 desktop:flex desktop:items-start desktop:overflow-x-auto">
           {/* pendıng*/}
-          <KanbanColumn
-            title="Onay Bekliyor"
-            count={pendingEvents.length}
-            dotColor="bg-yellow-500"
-          >
-            {pendingEvents.map((event) => (
-              <EventCard key={event._id} application={event} />
-            ))}
-          </KanbanColumn>
+          {(seciliStatus.length === 0 || seciliStatus.includes("pending")) && (
+            <KanbanColumn
+              title="Onay Bekliyor"
+              count={pendingEvents.length}
+              dotColor="bg-yellow-500"
+              fetchNextPage={pendingEvent.fetchNextPage}
+              hasNextPage={pendingEvent.hasNextPage}
+              isFetchingNextPage={pendingEvent.isFetchingNextPage}
+            >
+              {pendingEvents.map((event) => (
+                <EventCard key={event._id} application={event} />
+              ))}
+            </KanbanColumn>
+          )}
 
           {/* onaylı */}
-          <KanbanColumn
-            title="Yayında"
-            count={approvedEvents.length}
-            dotColor="bg-green-500"
-          >
-            {approvedEvents.map((event) => (
-              <EventCard key={event._id} application={event} />
-            ))}
-          </KanbanColumn>
+          {(seciliStatus.length === 0 || seciliStatus.includes("approved")) && (
+            <KanbanColumn
+              title="Yayında"
+              count={approvedEvents.length}
+              dotColor="bg-green-500"
+              fetchNextPage={approvedEvent.fetchNextPage}
+              hasNextPage={approvedEvent.hasNextPage}
+              isFetchingNextPage={approvedEvent.isFetchingNextPage}
+            >
+              {approvedEvents.map((event) => (
+                <EventCard key={event._id} application={event} />
+              ))}
+            </KanbanColumn>
+          )}
           {/*  Rejected */}
-          <KanbanColumn
-            title="Rejected"
-            count={rejected.length}
-            dotColor="bg-red-500"
-          >
-            {rejected.map((event) => (
-              <EventCard key={event._id} application={event} />
-            ))}
-          </KanbanColumn>
+          {(seciliStatus.length === 0 || seciliStatus.includes("rejected")) && (
+            <KanbanColumn
+              title="Rejected"
+              count={rejectedEvents.length}
+              dotColor="bg-red-500"
+              fetchNextPage={rejectedEvent.fetchNextPage}
+              hasNextPage={rejectedEvent.hasNextPage}
+              isFetchingNextPage={rejectedEvent.isFetchingNextPage}
+            >
+              {rejectedEvents.map((event) => (
+                <EventCard key={event._id} application={event} />
+              ))}
+            </KanbanColumn>
+          )}
+
           {/*  Cancelled */}
-          <KanbanColumn
-            title="Cancelled"
-            count={cancelled.length}
-            dotColor="bg-gray-500"
-          >
-            {cancelled.map((event) => (
-              <EventCard key={event._id} application={event} />
-            ))}
-            {/* completed */}
-          </KanbanColumn>
-          <KanbanColumn
-            title="Completed"
-            count={completed.length}
-            dotColor="bg-blue-500"
-          >
-            {completed.map((event) => (
-              <EventCard key={event._id} application={event} />
-            ))}
-          </KanbanColumn>
+          {(seciliStatus.length === 0 ||
+            seciliStatus.includes("cancelled")) && (
+            <KanbanColumn
+              title="Cancelled"
+              count={cancelledEvents.length}
+              dotColor="bg-gray-500"
+              fetchNextPage={cancelledEvent.fetchNextPage}
+              hasNextPage={cancelledEvent.hasNextPage}
+              isFetchingNextPage={cancelledEvent.isFetchingNextPage}
+            >
+              {cancelledEvents.map((event) => (
+                <EventCard key={event._id} application={event} />
+              ))}
+            </KanbanColumn>
+          )}
+
+          {/* completed */}
+          {(seciliStatus.length === 0 ||
+            seciliStatus.includes("completed")) && (
+            <KanbanColumn
+              title="Completed"
+              count={completedEvents.length}
+              dotColor="bg-blue-500"
+              fetchNextPage={completedEvent.fetchNextPage}
+              hasNextPage={completedEvent.hasNextPage}
+              isFetchingNextPage={completedEvent.isFetchingNextPage}
+            >
+              {completedEvents.map((event) => (
+                <EventCard key={event._id} application={event} />
+              ))}
+            </KanbanColumn>
+          )}
         </div>
       )}
 
-      {(hasNextPage || isFetchingNextPage) && (
+      {/*  {(hasNextPage || isFetchingNextPage) && (
         <div className="mt-6 flex w-full justify-center pb-4">
           <Button
             onClick={() => fetchNextPage()}
             disabled={!hasNextPage || isFetchingNextPage}
-            className=" max-w-md rounded-full border-2 border-kanban-card-border bg-transparent py-6 text-kanban-card-title transition-all hover:border-terracotta-600 hover:bg-(--cream-200) hover:text-terracotta-600 shadow-none"
+            className=" max-w-md rounded-full border-2 border-border bg-transparent py-6 text-foreground transition-all hover:border-primary hover:bg-muted hover:text-primary shadow-none"
           >
             {isFetchingNextPage ? (
               <>
@@ -261,7 +357,7 @@ export default function AdminEventsBoard() {
             )}
           </Button>
         </div>
-      )}
+      )} */}
       <EventDrawer />
     </Card>
   );

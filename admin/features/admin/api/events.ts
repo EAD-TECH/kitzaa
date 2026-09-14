@@ -13,6 +13,7 @@ interface ListAdminEventsParams {
   arananKelime?: string;
   seciliStatus?: string[];
   siralama?: string;
+  kolonStatus?: string;
   page?: number;
   limit?: number;
 }
@@ -21,6 +22,7 @@ export async function listAdminEvents({
   arananKelime,
   seciliStatus,
   siralama,
+  kolonStatus,
   page,
   limit = 6,
 }: ListAdminEventsParams = {}): Promise<ListAdminEventsResponse> {
@@ -30,6 +32,9 @@ export async function listAdminEvents({
     params.append("sort[schedule.startDate]", "1");
   } else {
     params.append("sort[schedule.startDate]", "-1");
+  }
+  if (kolonStatus) {
+    params.append("filter[status]", kolonStatus);
   }
 
   if (secilenKategori && secilenKategori !== "Tümü") {

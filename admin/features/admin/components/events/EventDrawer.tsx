@@ -3,7 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+
 
 import { Button } from "@/components/ui/button";
 import {
@@ -27,17 +27,11 @@ import ReusableDrawerHeader from "@/components/shared/drawer/ReusableDraweHeader
 import SectionShell from "@/components/shared/drawer/SectionShell";
 import InfoSection from "@/components/shared/drawer/InfoSection";
 
-// YAZDIĞIMIZ 4 KURYE
-/* import { useEventById } from "../../hooks/useEventById";
-import { useApproveEvent } from "../../hooks/useApproveEvent";
-import { useRejectEvent } from "../../hooks/useRejectEvent";
-import { useCancelEvent } from "../../hooks/useCancelEvent"; */
 import { useEventReject } from "../../hooks/useEventReject";
 import { useEventCancel } from "../../hooks/useEventCancel";
 import { AdminEventDTO } from "../../types";
 import { useEventById } from "../../hooks/useEventByID";
 import { useApproveEvent } from "../../hooks/useApproveEvent";
-import SectionAIBox from "@/components/shared/drawer/SectionAIBox";
 import {
   eventActionSchema,
   type ReviewEventFormValues,
@@ -48,7 +42,6 @@ const formDefaults = {
   note: "",
 } as unknown as ReviewEventFormValues;
 
-
 export default function EventDrawer() {
   const params = useSearchParams();
   const pathname = usePathname();
@@ -57,12 +50,8 @@ export default function EventDrawer() {
   const eventId = params.get("applicationId");
   const isOpen = Boolean(eventId);
 
-  /* veriyi getiren kurye */
   const { data: response, isLoading } = useEventById(eventId);
-  console.log(response);
   const eventData = response?.event as AdminEventDTO;
-
-  console.log(eventData);
 
   /* kamyonlarım */
   const { mutate: approveEvent, isPending: isApproving } = useApproveEvent();
@@ -120,7 +109,7 @@ export default function EventDrawer() {
       onOpenChange={handleDrawerClose}
       swipeDirection="right"
     >
-      <DrawerContent className="h-full max-w-none w-[min(30rem,75vw)] rounded-r-none rounded-l-xl [--drawer-inset:0px]">
+      <DrawerContent className="h-dvh max-h-dvh min-h-0  max-w-full overflow-hidden tablet:w-(30rem) w-[min(30rem,75vw)] rounded-r-none rounded-l-xl [--drawer-inset:0px]">
         <ReusableDrawerHeader
           title="Etkinlik Detayı"
           tag={eventData?.title ?? "Yükleniyor..."}
@@ -132,21 +121,44 @@ export default function EventDrawer() {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex min-h-0 flex-1 flex-col"
+            className="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
           >
-            <div className="min-h-0 flex flex-col gap-8  flex-1 overflow-y-auto px-6 py-6">
+            <div className="min-h-0 flex flex-1 flex-col gap-8 overflow-y-auto overscroll-contain px-4 py-4 tablet:px-6 tablet:py-6">
               <SectionShell title="Etkinlik Bilgileri">
                 {isLoading ? (
-                  <div className="p-4 text-sm text-(--terracotta-500)">
+                  <div className="p-4 text-sm text-primary">
                     Yükleniyor...
                   </div>
                 ) : (
                   <>
+                    <InfoSection label="Başlık">
+                      {eventData?.title || "Belirtilmemiş"}
+                    </InfoSection>
+
+                    <InfoSection label="Organizatör">
+                      {typeof eventData?.createdBy === "object"
+                        ? eventData.createdBy?.username
+                        : eventData?.createdBy || "Belirtilmemiş"}
+                    </InfoSection>
                     <InfoSection label="Durum">
                       <span className="capitalize">
                         {eventData?.status || "Belirtilmemiş"}
                       </span>
                     </InfoSection>
+                    {(eventData?.status === "rejected" ||
+                      eventData?.status === "cancelled") && (
+                      <InfoSection
+                        label={
+                          eventData.status === "rejected"
+                            ? "Red sebebi"
+                            : "İptal sebebi"
+                        }
+                      >
+                        {eventData.status === "rejected"
+                          ? eventData.rejectedReason || "Sebep yok"
+                          : eventData.cancelledReason || "Sebep yok"}
+                      </InfoSection>
+                    )}
 
                     <InfoSection label="Kategori">
                       {typeof eventData?.categoryId === "object"
@@ -154,11 +166,11 @@ export default function EventDrawer() {
                         : eventData?.categoryId || "Belirtilmemiş"}
                     </InfoSection>
 
-                    <InfoSection label="Yaş Aralıgı">
+                    <InfoSection label="Yaş Aralığı">
                       {eventData?.ageRange || "Belirtilmemiş"}
                     </InfoSection>
 
-                    <InfoSection label="Acıklama">
+                    <InfoSection label="Açıklama">
                       {eventData?.description || "Belirtilmemiş"}
                     </InfoSection>
 
@@ -174,7 +186,7 @@ export default function EventDrawer() {
                         : "Sınırsız/Belirtilmemiş"}
                     </InfoSection>
 
-                    <InfoSection label="Ucretli/Ucretsiz">
+                    <InfoSection label="Ücretli/Ücretsiz">
                       <span className="capitalize">
                         {eventData?.isFree ? "Ücretsiz" : "Ücretli"}
                       </span>
@@ -184,16 +196,10 @@ export default function EventDrawer() {
                       {eventData?.price?.amount || "Belirtilmemiş"}
                     </InfoSection>
 
-                    <InfoSection label="Olusturan">
-                      {typeof eventData?.createdBy === "object"
-                        ? eventData.createdBy?.username
-                        : eventData?.createdBy}
-                    </InfoSection>
+                    
                   </>
                 )}
               </SectionShell>
-
-              <SectionAIBox />
 
               <div className="flex flex-col gap-3">
                 <FormField
@@ -201,13 +207,13 @@ export default function EventDrawer() {
                   name="note"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-heading text-terracotta-600">
+                      <FormLabel className="font-heading text-primary">
                         İşlem Notu / Red & İptal Sebebi
                       </FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Red veya İptal ediyorsanız sebebini yazmak zorunludur."
-                          className="focus-visible:ring-0 bg-sidebar border-none resize-none"
+                          className="focus-visible:ring-0 bg-muted border-none resize-none"
                           {...field}
                         />
                       </FormControl>
@@ -218,7 +224,7 @@ export default function EventDrawer() {
               </div>
             </div>
 
-            <DrawerFooter className="bg-sidebar flex-row items-center justify-between border-t px-6 py-4">
+            <DrawerFooter className="bg-sidebar flex flex-col gap-2 border-t px-4 py-4 tablet:flex-row tablet:items-center tablet:justify-between tablet:px-6">
               <DrawerClose
                 render={
                   <Button type="button" variant="ghost">
@@ -227,7 +233,7 @@ export default function EventDrawer() {
                 }
               />
 
-              <div className="flex flex-row gap-2 bg-brown-500 hover:bg-brown-600">
+              <div className="flex flex-row flex-wrap gap-2">
                 {eventData?.status === "pending" && (
                   <Button
                     disabled={isWorking}
@@ -243,7 +249,7 @@ export default function EventDrawer() {
                     disabled={isWorking}
                     type="submit"
                     onClick={() => form.setValue("status", "rejected")}
-                    className="bg-(--cream-200) text-(--brown-500) hover:text-(--cream-50)"
+                    className="bg-muted text-foreground hover:bg-muted/80"
                   >
                     {isRejecting ? "Reddediliyor..." : "Reddet"}
                   </Button>
@@ -254,7 +260,7 @@ export default function EventDrawer() {
                     disabled={isWorking}
                     type="submit"
                     onClick={() => form.setValue("status", "cancelled")}
-                    className="bg-(--cream-200) text-(--brown-500) hover:text-(--cream-50)"
+                    className="bg-muted text-foreground hover:bg-muted/80"
                   >
                     {isCanceling ? "İptal Ediliyor..." : "İptal Et"}
                   </Button>

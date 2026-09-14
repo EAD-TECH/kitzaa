@@ -58,15 +58,15 @@ const adminEventController = {
     if (!event) {
       throw new CustomError("Event not found", 404);
     }
-
+    
     assertValidTransition(event.status, "approved");
+    const createdBy = event.createdBy as unknown as UserDocument;
 
     event.status = "approved";
-    await event.save();
+    await event.save({validateModifiedOnly:true});
 
     notifyUsersForNearbyEvent(event);
 
-    const createdBy = event.createdBy as unknown as UserDocument;
 
     try {
       await sendMail({
@@ -99,14 +99,14 @@ const adminEventController = {
     if (!event) {
       throw new CustomError("Event not found", 404);
     }
-
+    
     assertValidTransition(event.status, "rejected");
+    const createdBy = event.createdBy as unknown as UserDocument;
 
     event.status = "rejected";
     event.rejectedReason = req.body.rejectedReason;
-    await event.save();
+    await event.save({validateModifiedOnly:true});
 
-    const createdBy = event.createdBy as unknown as UserDocument;
 
     try {
       await sendMail({
@@ -139,14 +139,14 @@ const adminEventController = {
     if (!event) {
       throw new CustomError("Event not found", 404);
     }
-
+    
     assertValidTransition(event.status, "cancelled");
-
+    
     event.status = "cancelled";
-    event.cancelledReason = req.body.cancelledReason;
-    await event.save();
-
     const createdBy = event.createdBy as unknown as UserDocument;
+    event.cancelledReason = req.body.cancelledReason;
+    await event.save({validateModifiedOnly:true});
+
 
     try {
       await sendMail({
