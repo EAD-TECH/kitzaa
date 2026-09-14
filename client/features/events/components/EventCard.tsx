@@ -192,9 +192,9 @@ const EventCard = ({ event, className, variant = "public", onDelete }: EventCard
           </span>
         </div>
 
-        <h3 className="line-clamp-2 min-h-10 text-sm leading-5 font-semibold text-foreground">
+        <p className="line-clamp-2 min-h-12 text-base leading-5 font-semibold text-foreground">
           {event.title}
-        </h3>
+        </p>
 
         <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
           <span className="flex min-w-0 items-center gap-1">
@@ -230,7 +230,7 @@ const EventCard = ({ event, className, variant = "public", onDelete }: EventCard
           )}
           {event.status === "approved" ? (
             <Link href={`/events/${event.slug}`}>
-              <Button size="xs" className="shrink-0 rounded-full">
+              <Button size="xs" className="shrink-0 rounded-full cursor-pointer hover:bg-primary/90">
                 Details
               </Button>
             </Link>
