@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 
+
 export interface KanbanCardProps {
   id: string;
   title: string;
@@ -18,7 +19,10 @@ export interface KanbanColumnProps {
   title: string;
   count: number;
   dotColor?: string;
-  children?: ReactNode; /* {children} diyerek, "Bana ne verirsen onu bu boşluğa dizeceğim" diyor. */
+  children?: ReactNode;
+  fetchNextPage?: () => void;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean; /* {children} diyerek, "Bana ne verirsen onu bu boşluğa dizeceğim" diyor. */
 }
 
 export interface PageHeaderProps {
@@ -53,7 +57,7 @@ export interface FilterOption {
   label: string;
   value: string;
   icon?: ReactNode;
-  options:FilterSubOption[]
+  options: FilterSubOption[];
 }
 
 export interface FilterDropDownProps {

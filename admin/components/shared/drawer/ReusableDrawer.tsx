@@ -129,7 +129,7 @@ console.log("zod hatası almalıym bossa rejected kısmım")
             <div className="min-h-0 flex flex-col gap-8  flex-1 overflow-y-auto px-6 py-6">
               <SectionShell title="Kurum bilgisi">
                 {isLoading ? (
-                  <div className="p-4 text-sm text-(--terracotta-500)">
+                  <div className="p-4 text-sm text-primary">
                     Yükleniyor...
                   </div>
                 ) : (
@@ -161,10 +161,10 @@ console.log("zod hatası almalıym bossa rejected kısmım")
               <SectionAIBox />
 
               <div className="flex flex-col gap-3">
-                <h2 className="font-heading uppercase text-xs text-(--terracotta-600)">
+                <h2 className="font-heading uppercase text-xs text-primary">
                   Basvuru Mesajı
                 </h2>
-                <div className="pl-4 flex flex-col gap-2 rounded-l border-l-2 border-l-(--terracotta-600) bg-(--cream-200) p-2">
+                <div className="pl-4 flex flex-col gap-2 rounded-l border-l-2 border-l-primary bg-muted p-2">
                   <p className="font-body text-xs leading-7 italic">
                     {appData?.message ||
                       "Başvuru sırasında özel bir mesaj iletilmemiş."}
@@ -178,13 +178,13 @@ console.log("zod hatası almalıym bossa rejected kısmım")
                   name="note"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-heading text-terracotta-600">
+                      <FormLabel className="font-heading text-primary">
                         Reddetme Sebebi (Zorunlu)
                       </FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="İşlemi neden reddettiğini yaz"
-                          className="focus-visible:ring-0 bg-sidebar border-none resize-none"
+                          className="focus-visible:ring-0 bg-muted border-none resize-none"
                           {...field}
                         />
                       </FormControl>
@@ -203,7 +203,7 @@ console.log("zod hatası almalıym bossa rejected kısmım")
                   </Button>
                 }
               />
-              <div className="flex flex-row gap-2 bg-brown-500 hover:bg-brown-600">
+              <div className="flex flex-row flex-wrap gap-2">
                 <Button
                   disabled={isApproving}
                   type="submit"
@@ -215,7 +215,7 @@ console.log("zod hatası almalıym bossa rejected kısmım")
                  disabled={isRejecting}
                   type="submit"
                   onClick={() => form.setValue("status", "rejected")}
-                  className="bg-(--cream-200) text-(--brown-500) hover:text-(--cream-50)"
+                  className="bg-muted text-foreground hover:bg-muted/80"
                 >
                 {isRejecting ? "Reject Ediliyor..." : "Reject"}
                 </Button>

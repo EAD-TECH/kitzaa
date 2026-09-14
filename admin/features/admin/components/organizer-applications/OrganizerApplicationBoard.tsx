@@ -113,14 +113,14 @@ export default function OrganizerApplicationBoard() {
   };
 
   return (
-    <Card className="flex flex-col gap-6 self-stretch rounded-2xl border border-border bg-(--cream-50) p-6 ring-0 shadow-none">
-      <div className="flex items-center justify-between gap-4">
+    <Card className="flex flex-col gap-6 self-stretch rounded-2xl border border-border bg-background p-6 ring-0 shadow-none">
+      <div className="flex flex-col gap-4 desktop:flex-row desktop:items-center desktop:justify-between">
         <PageHeader
           title="Organizatör Başvuruları"
           description="Başvuruları yönetin"
         />
 
-        <div className="flex w-fit items-center gap-2">
+        <div className="flex w-full flex-wrap items-center gap-2 desktop:w-fit">
           <FilterAndSearch
             searchValue={inputValue}
             onSearchChange={setInputValue}
@@ -132,11 +132,17 @@ export default function OrganizerApplicationBoard() {
             }
             onFilterSelect={onFilterSelect}
           />
-          {seciliStatus.length > 0 && (
-            <Button variant="ghost" onClick={() => setSeciliStatus([])}>
-              Temizle
-            </Button>
-          )}
+            {(seciliStatus.length > 0 || siralama !== "sort_newest") && (
+          <Button 
+            variant="ghost"
+            onClick={() => {
+              setSeciliStatus([]);
+              setSiralama("sort_newest");
+            }}
+          >
+            Temizle
+          </Button>
+        )}
         </div>
       </div>
 
@@ -145,7 +151,7 @@ export default function OrganizerApplicationBoard() {
       {!isLoading && isError && <KanbanErrorState onRetry={refetch} />}
 
       {!isLoading && !isError && (
-        <div className="flex flex-row gap-4 overflow-x-auto">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 desktop:flex desktop:overflow-x-auto">
           <KanbanColumn title="Yeni" count={yeniBasvurular.length}>
             {yeniBasvurular.map((basvuru) => (
               <OrganizerApplicationCard
@@ -184,7 +190,7 @@ export default function OrganizerApplicationBoard() {
           <Button
             onClick={() => fetchNextPage()}
             disabled={!hasNextPage || isFetchingNextPage}
-            className=" max-w-md rounded-full border-2 border-kanban-card-border bg-transparent py-6 text-kanban-card-title transition-all hover:border-terracotta-600 hover:bg-(--cream-200) hover:text-terracotta-600 shadow-none"
+            className=" max-w-md rounded-full border-2 border-border bg-transparent py-6 text-foreground transition-all hover:border-primary hover:bg-muted hover:text-primary shadow-none"
           >
             {isFetchingNextPage ? (
               <>

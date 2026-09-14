@@ -34,9 +34,9 @@ export default function FilterAndSearch({
   const [aktifMenu, setAktifMenu] = useState<string | null>(null)
 
   return (
-    <>
+    <div className="flex w-full min-w-0 items-center justify-between gap-2 tablet:flex-1 tablet:w-auto">
       {/* genel search alanım */}
-      <InputGroup>
+      <InputGroup className="w-full   focus-visible:ring-0 max-w-xs min-w-0 sm:max-w-sm">
         <InputGroupInput
           placeholder="Search..."
           value={searchValue} /* dinamik deger */
@@ -55,9 +55,9 @@ export default function FilterAndSearch({
           render={
             <Button
               variant="outline"
-              className="flex items-center border-dashed h-8"
+              className="flex h-8 shrink-0 items-center border-dashed"
             >
-              <ListFilter className="mr-2 h-4 w-4 text-(--brown-500)" />
+              <ListFilter className="mr-2 h-4 w-4 text-muted-foreground" />
               <span>Filtrele</span>
 
               {selectedValues.length > 0 && (
@@ -99,7 +99,7 @@ export default function FilterAndSearch({
                       {kategori.icon && (
                         <span className="mr-2">{kategori.icon}</span>
                       )}
-                      <span className="text-(--brown-500)">
+                      <span className="text-foreground">
                         {kategori.label}
                       </span>
                     </CommandItem>
@@ -120,7 +120,7 @@ export default function FilterAndSearch({
                         key={option.value}
                         onSelect={() => onFilterSelect(option.value)}
                       >
-                        <span className="text-(--brown-500)">
+                        <span className="text-foreground">
                           {option.label}
                         </span>
                       </CommandItem>
@@ -131,6 +131,6 @@ export default function FilterAndSearch({
           </Command>
         </PopoverContent>
       </Popover>
-    </>
+    </div>
   );
 }

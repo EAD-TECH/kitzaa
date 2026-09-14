@@ -152,7 +152,7 @@ Bunun için oncelıkle isSocketConnexcted bilgisini hafızada tutması ıcın zu
   isSocketConnected:(value:boolean)=>void
   }
 
-zustandı haberdar edıyorm
+zustandı haberdar edıyormK
 /_ false olarak baslatıyorm _/
 "Merkez! Benim canlı bağlantım (Socket'im) şu an koptu (veya çıkış yaptım). Haberiniz olsun!"
 isSocketConnected:false,

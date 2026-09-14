@@ -20,8 +20,8 @@ export default function FilterPills({
           key={category}
           className={
             category === aktifKategori
-              ? "rounded-full px-4 py-2 font-normal bg-(--terracotta-600) text-(--cream-50)"
-              : " rounded-full px-4 py-2 bg-(--cream-200) text-(--brown-500) font-normal"
+              ? "rounded-full px-4 py-2 font-normal bg-primary text-primary-foreground"
+              : " rounded-full px-4 py-2 bg-muted text-muted-foreground font-normal"
           }
         >
           {category}

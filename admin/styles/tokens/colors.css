@@ -30,7 +30,9 @@
   /* kanban kart gorevlerı(semantık olarak ısım verıyorm) */
   --kanban-card-border: var(--cream-50);
   --kanban-card-title: var(--brown-850);
-  --kanban-card-bg: var(--white-transparent-02);
+  --kanban-card-bg: var(--cream-50);
+  --kanban-card-muted: var(--brown-500);
+  --kanban-column-bg: var(--cream-100);
   --kanban-card-shadow:
     0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
 }
