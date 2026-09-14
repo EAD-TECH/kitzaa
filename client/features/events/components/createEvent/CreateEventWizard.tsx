@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
-import { ArrowLeftIcon, ArrowRightIcon, CalendarClock, CheckIcon, PenLine, Wallet, X } from "lucide-react"
+import { ArrowLeftIcon, ArrowRightIcon, CalendarClock, CheckIcon, Loader2, PenLine, Wallet, X } from "lucide-react"
 
 import {
   Stepper,
@@ -21,10 +21,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Link, useRouter } from "@/i18n/navigation"
 import { cn } from "@/lib/utils"
 
-import { createEventSchema, type CreateEventFormValues } from "../../validations/event.schema"
+import { createEventSchema, editEventSchema, type CreateEventFormValues } from "../../validations/event.schema"
 import type { CreateEventFieldName, CreateEventFormInput, CreateEventStepMeta } from "../../types/createEvent.types"
 import type { EventCategoryDTO } from "../../types/eventCategory.types"
+import type { EventDTO } from "../../types/event.types"
 import { useCreateEvent } from "../../hooks/useCreateEvent"
+import { useUpdateEvent } from "../../hooks/useUpdateEvent"
+import { useEvent } from "../../hooks/useEvent"
 import { EventDetailsStep } from "./EventDetailsStep"
 import { EventScheduleStep } from "./EventScheduleStep"
 import { EventPricingStep } from "./EventPricingStep"
@@ -84,20 +87,73 @@ const DEFAULT_VALUES: CreateEventFormInput = {
   capacity: { max: NaN },
 }
 
-interface CreateEventWizardProps {
-  categories: EventCategoryDTO[]
+// EventDTO bir GeoJSON Point + ISO date string'leri taşır, form ise {lat,lng} ve
+// Date/string girişi bekler (bkz. üstteki location/schedule şema yorumları) — bu yüzden
+// düzenleme moduna geçerken DTO'yu form'un input şekline dönüştürmek gerekiyor.
+function eventToFormInput(event: EventDTO): CreateEventFormInput {
+  return {
+    title: event.title,
+    description: event.description,
+    coverImage: event.coverImage,
+    images: event.images,
+    categoryId: typeof event.categoryId === "string" ? event.categoryId : event.categoryId._id,
+    locationType: event.locationType,
+    // Bazı eski (Altersgruppe-Feld'i modele eklenmeden önce oluşturulmuş) Events'lerde
+    // ageRange fehlt — Formular bu durumda "Alle Alter" varsayılanına düşer, aksi halde
+    // Zod-Validierung geçersiz/undefined bir değerle sessizce takılı kalır.
+    ageRange: event.ageRange ?? "all-ages",
+    isFree: event.isFree,
+    price: event.price,
+    schedule: {
+      startDate: event.schedule.startDate,
+      endDate: event.schedule.endDate ?? null,
+      startTime: event.schedule.startTime,
+      endTime: event.schedule.endTime,
+      isRecurring: event.schedule.isRecurring ?? false,
+      recurrenceRule: event.schedule.recurrenceRule ?? null,
+    },
+    location: {
+      venueName: event.location.venueName ?? null,
+      addressLine: event.location.addressLine,
+      city: event.location.city,
+      state: event.location.state ?? null,
+      zipCode: event.location.zipCode ?? null,
+      country: event.location.country,
+      coordinates: {
+        lat: event.location.coordinates.coordinates[1],
+        lng: event.location.coordinates.coordinates[0],
+      },
+    },
+    capacity: { max: event.capacity.max },
+  }
 }
 
-export function CreateEventWizard({ categories }: CreateEventWizardProps) {
+interface CreateEventWizardProps {
+  categories: EventCategoryDTO[]
+  eventId?: string
+}
+
+export function CreateEventWizard({ categories, eventId }: CreateEventWizardProps) {
+  const isEditMode = !!eventId
   const [currentStep, setCurrentStep] = useState(1)
   const router = useRouter()
-  const { mutate: createEvent, isPending } = useCreateEvent()
+  const { mutate: createEvent, isPending: isCreating } = useCreateEvent()
+  const { mutate: updateEvent, isPending: isUpdating } = useUpdateEvent()
+  const { data: existingEventData, isLoading: isLoadingEvent } = useEvent(eventId)
+  const isPending = isCreating || isUpdating
 
   const form = useForm<CreateEventFormInput, unknown, CreateEventFormValues>({
-    resolver: zodResolver(createEventSchema),
+    resolver: zodResolver(isEditMode ? editEventSchema : createEventSchema),
     mode: "onSubmit",
     defaultValues: DEFAULT_VALUES,
   })
+
+  useEffect(() => {
+    if (existingEventData) {
+      form.reset(eventToFormInput(existingEventData.event))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existingEventData])
 
   const goToNextStep = async () => {
     const fields = currentStep === 1 ? STEP_1_FIELDS : STEP_2_FIELDS
@@ -108,6 +164,19 @@ export function CreateEventWizard({ categories }: CreateEventWizardProps) {
   const goToPreviousStep = () => setCurrentStep((prev) => prev - 1)
 
   const onSubmit = (data: CreateEventFormValues) => {
+    if (isEditMode && eventId) {
+      updateEvent(
+        { id: eventId, payload: data },
+        {
+          onSuccess: () => {
+            toast.success("Änderungen wurden gespeichert.")
+            router.push("/profile/meine-events")
+          },
+        }
+      )
+      return
+    }
+
     createEvent(data, {
       onSuccess: () => {
         toast.success("Event wurde erstellt und wartet auf Freigabe.")
@@ -119,6 +188,14 @@ export function CreateEventWizard({ categories }: CreateEventWizardProps) {
   const activeStepMeta = STEPS[currentStep - 1]
   const ActiveIcon = STEP_ICONS[currentStep as 1 | 2 | 3]
 
+  if (isEditMode && isLoadingEvent) {
+    return (
+      <div className="mx-auto flex max-w-3xl items-center justify-center px-4 py-24">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
   return (
     <div
       className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-8 tablet:px-6 tablet:py-10 **:data-[slot=form-item]:gap-3"
@@ -127,11 +204,12 @@ export function CreateEventWizard({ categories }: CreateEventWizardProps) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="font-heading text-2xl font-bold text-foreground tablet:text-3xl">
-            Eine Aktivität hosten
+            {isEditMode ? "Aktivität bearbeiten" : "Eine Aktivität hosten"}
           </h1>
           <p className="mt-1 max-w-md text-sm text-muted-foreground">
-            Erstelle eine Aktivität für Kinder und Familien in deiner Nähe – von Ausflug bis Workshop. In
-            wenigen Schritten fertig.
+            {isEditMode
+              ? "Passe die Details deiner Aktivität an. Wurde sie bereits genehmigt, wird sie nach dem Speichern erneut geprüft."
+              : "Erstelle eine Aktivität für Kinder und Familien in deiner Nähe – von Ausflug bis Workshop. In wenigen Schritten fertig."}
           </p>
         </div>
 
@@ -201,12 +279,15 @@ export function CreateEventWizard({ categories }: CreateEventWizardProps) {
               </Button>
             ) : (
               <Button
-                type="submit"
+                type="button"
+                onClick={form.handleSubmit(onSubmit)}
                 disabled={isPending}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 <CheckIcon className="size-4" />
-                {isPending ? "Wird veröffentlicht…" : "Event veröffentlichen"}
+                {isEditMode
+                  ? isPending ? "Wird gespeichert…" : "Änderungen speichern"
+                  : isPending ? "Wird veröffentlicht…" : "Event veröffentlichen"}
               </Button>
             )}
           </div>

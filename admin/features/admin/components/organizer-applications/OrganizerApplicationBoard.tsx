@@ -5,17 +5,61 @@ import { Card } from "@/components/ui/card";
 import OrganizerApplicationCard from "./OrganizerApplicationCard";
 import { useOrganizerApplications } from "../../hooks/useOrganizerApplications";
 import { OrganizerApplicationDTO } from "../../types";
-import FilterPills from "@/components/shared/FilterPills";
 import KanbanSkeleton from "@/components/shared/KanbanSkeleton";
 import KanbanErrorState from "@/components/shared/KanbanErrorState";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowDown, Loader2 } from "lucide-react";
+import {
+  ArrowDown,
+  Calendar,
+  CircleIcon,
+  Loader2,
+  UserIcon,
+} from "lucide-react";
+import { useDebounce } from "use-debounce";
 
 import ReusableDrawer from "@/components/shared/drawer/ReusableDrawer";
 
+const filtreSecenekleri = [
+  {
+    id: "status",
+    value: "status",
+    label: "Status (Durum)",
+    icon: <CircleIcon />,
+    options: [
+      { value: "pending", label: "Yeni Başvurular" },
+      { value: "approved", label: "Onaylananlar" },
+      { value: "rejected", label: "Reddeilenler" },
+    ],
+  },
+  {
+    id: "assignee",
+    value: "assignee",
+    label: "Assignee (Atanan Kişi)",
+    icon: <UserIcon />,
+    options: [
+      { value: "elif", label: "Elif" },
+      { value: "ayla", label: "Ayla" },
+      { value: "duygu", label: "Duygu" },
+    ],
+  },
+  {
+    id: "sort",
+    value: "sort",
+    label: "Tarihe Göre",
+    icon: <Calendar />,
+    options: [
+      { value: "sort_newest", label: "En Yeniler" },
+      { value: "sort_oldest", label: "Eskiler" },
+    ],
+  },
+];
+
 export default function OrganizerApplicationBoard() {
-  const [aktifKategori, SetAktifKategori] = useState("Tümü");
+  const [inputValue, setInputValue] = useState("");
+  const [sakinKelime] = useDebounce(inputValue, 400);
+  const [seciliStatus, setSeciliStatus] = useState<string[]>([]);
+  const [siralama, setSiralama] = useState<string>("sort_newest");
 
   const {
     data,
@@ -26,22 +70,15 @@ export default function OrganizerApplicationBoard() {
     hasNextPage,
     isFetchingNextPage,
   } = useOrganizerApplications({
-    secilenKategori: aktifKategori,
+    arananKelime: sakinKelime,
+    seciliStatus: seciliStatus,
+    siralama,
     limit: 6,
   });
   /* flatMap */
   const tumBasvurular =
     data?.pages.flatMap((page) => page.applications || []) || [];
   console.log(tumBasvurular);
-
-  /* const applications: OrganizerApplicationDTO[] = data?.applications || []; */
-  /* console.log(applications); */
-
-  const cekilenKategoriler = tumBasvurular
-    .map((app) => app.institutionData?.category)
-    .filter((kategori): kategori is string => Boolean(kategori));
-
-  const benzersizkategoriler = ["Tümü", ...new Set(cekilenKategoriler)];
 
   const yeniBasvurular = tumBasvurular.filter(
     (app: OrganizerApplicationDTO) => app.status === "pending",
@@ -56,8 +93,23 @@ export default function OrganizerApplicationBoard() {
       app.status === "approved" || app.status === "rejected",
   );
 
-  const onKategoriSec = (kategori: string) => {
-    SetAktifKategori(kategori);
+  const onFilterSelect = (tiklananDeger: string) => {
+    console.log("popoverdan gelen deger", tiklananDeger);
+    console.log("popoverın defaultu", seciliStatus);
+
+    if (tiklananDeger.startsWith("sort_")) {
+      setSiralama(tiklananDeger);
+      return;
+    }
+
+    const varMi = seciliStatus.includes(tiklananDeger);
+    console.log("bu deger dızı de varmı", varMi);
+    if (varMi) {
+      let yeniDizi = seciliStatus.filter((deger) => deger != tiklananDeger);
+      setSeciliStatus(yeniDizi);
+    } else {
+      setSeciliStatus([...seciliStatus, tiklananDeger]);
+    }
   };
 
   return (
@@ -68,22 +120,25 @@ export default function OrganizerApplicationBoard() {
           description="Başvuruları yönetin"
         />
 
-        <div className="flex items-center gap-2">
+        <div className="flex w-fit items-center gap-2">
           <FilterAndSearch
-            searchValue=""
-            onSearchChange={() => {}}
-            filterOptions={[]}
-            selectedValues={[]}
-            onFilterSelect={() => {}}
+            searchValue={inputValue}
+            onSearchChange={setInputValue}
+            filterOptions={filtreSecenekleri}
+            selectedValues={
+              siralama === "sort_newest"
+                ? seciliStatus
+                : [...seciliStatus, siralama]
+            }
+            onFilterSelect={onFilterSelect}
           />
+          {seciliStatus.length > 0 && (
+            <Button variant="ghost" onClick={() => setSeciliStatus([])}>
+              Temizle
+            </Button>
+          )}
         </div>
       </div>
-
-      <FilterPills
-        kategoriler={benzersizkategoriler}
-        aktifKategori={aktifKategori}
-        onKategoriSec={onKategoriSec}
-      />
 
       {isLoading && <KanbanSkeleton />}
 

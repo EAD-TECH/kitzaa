@@ -4,20 +4,30 @@ import { listOrganizerApplications } from "@/features/admin/api";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 interface useOrganizerApplicationsParams {
-  secilenKategori: string | undefined;
+  arananKelime: string | undefined;
+  seciliStatus?: string[];
+  siralama?:string
   limit?: number;
 }
 
 export const useOrganizerApplications = ({
-  secilenKategori,
+  arananKelime,
+  seciliStatus,
+  siralama,
   limit = 6,
 }: useOrganizerApplicationsParams) => {
   return useInfiniteQuery({
-    queryKey: ["organizer-applications", secilenKategori, limit],
+    queryKey: ["organizer-applications", seciliStatus, siralama, arananKelime, limit],
 
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
-      listOrganizerApplications({ secilenKategori, page: pageParam, limit }),
+      listOrganizerApplications({
+        arananKelime,
+        seciliStatus,
+        siralama,
+        page: pageParam,
+        limit,
+      }),
 
     getNextPageParam: (lastPage, allPages) => {
       const applications = lastPage.applications || [];

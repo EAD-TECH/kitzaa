@@ -1,7 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { useOrganizerApplications } from "@/features/admin/hooks/useOrganizerApplications";
-/* const categories = ["Tümü", "Kültür", "Spor", "Eğitim", "Eğlence"];
- */
 
 interface FilterPillsProps {
   kategoriler: string[]

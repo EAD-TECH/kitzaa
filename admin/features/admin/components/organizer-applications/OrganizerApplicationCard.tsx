@@ -22,6 +22,16 @@ export default function OrganizerApplicationCard(application: {
     currentParams.set("applicationId", clickedId);
     router.push(`${pathname}?${currentParams.toString()}`);
   };
+  let formattedDate = "Tarih yok";
+  if (application.application?.createdAt) {
+    const dateObj = new Date(application.application.createdAt);
+    if (!isNaN(dateObj.getTime())) {
+      formattedDate = dateObj.toLocaleDateString("tr-TR", {
+        day: "numeric",
+        month: "long",
+      });
+    }
+  }
 
   const cardData = {
     id: application.application._id,
@@ -29,7 +39,7 @@ export default function OrganizerApplicationCard(application: {
     category: application.application.institutionData.category,
     description: application.application.message,
     status: application.application.status,
-    time: application.application.createdAt.toString(),
+    time: formattedDate,
     onClick: handleCardClick,
   } as KanbanCardProps;
 

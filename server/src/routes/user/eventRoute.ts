@@ -11,7 +11,7 @@ import { validateQuery } from "../../middlewares/validateQuery.js";
 const router = Router();
 router.param('id', validateObjectIdParam);
 
-const { list, read, create, update, deletee, join, leave, toggleLike, myEvents, myParticipations, participants, nearby, toggleSave } = eventController;
+const { list, read, create, update, deletee, join, leave, toggleLike, myEvents, myParticipations, savedEvents, participants, nearby, toggleSave, readForEdit } = eventController;
 
 // ---- Authentication istemeyen route'lar (public — sadece status:"approved" event döner) ----
 router.route("/").get(list);
@@ -20,6 +20,7 @@ router.route("/nearby").get(validateQuery(nearbyQuerySchema), nearby);
 
 router.route("/my-events").get(authentication, myEvents);
 router.route("/my-participations").get(authentication, myParticipations);
+router.route("/saved-events").get(authentication, savedEvents);
 
 router.route("/:slug").get(read);
 
@@ -27,6 +28,7 @@ router.route("/:slug").get(read);
 router.use(authentication);
 
 router.route("/").post(validateBody(createEventSchema), create);
+router.route("/:id/edit").get(isOwnerOrAdmin(Event), readForEdit);
 router.route("/:id").put(isOwnerOrAdmin(Event), validateBody(updateEventSchema), update).delete(isOwnerOrAdmin(Event), validateBody(cancelEventSchema), deletee);
 router.route("/:id/participants").get(participants);
 router.route("/:id/join").post(validateBody(joinEventSchema), join);

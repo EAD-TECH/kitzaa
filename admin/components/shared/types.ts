@@ -42,11 +42,18 @@ export interface FilterCategoriesProps {
 }
 
 /* filter için */
+export interface FilterSubOption {
+  value: string;
+  label: string;
+  icon?: ReactNode;
+}
 
 export interface FilterOption {
+  id: string;
   label: string;
   value: string;
   icon?: ReactNode;
+  options:FilterSubOption[]
 }
 
 export interface FilterDropDownProps {

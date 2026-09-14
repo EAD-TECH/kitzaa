@@ -1,14 +1,14 @@
 "use client";
 
-
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { Bell, ChevronDown, Moon,  Sun, UserRound } from "lucide-react";
+import { Bell, ChevronDown, LogOut, Moon, Sun } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -19,6 +19,7 @@ import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import DynamicBreadCrumb from "./dynamic.breadcrumb";
 
 import { Separator } from "../ui/separator";
+import { useLogout } from "@/features/auth/hooks/useLogout";
 
 export default function Header() {
   const { data: user } = useCurrentUser();
@@ -27,6 +28,7 @@ export default function Header() {
 
   const isDark = resolvedTheme === "dark";
   useEffect(() => setMounted(true), []);
+  const { logout, isLoading } = useLogout();
 
   const initials =
     `${user?.firstName?.[0] ?? ""}${user?.lastName?.[0] ?? ""}` ||
@@ -35,12 +37,17 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-border bg-background/90 backdrop-blur">
-     <div className="flex items-center gap-2">
-      <Link href="/"  className="font-heading h-8 w-8 bg-primary rounded-xl flex items-center justify-center text-sidebar-accent">k</Link>
-      
-      <Separator orientation="vertical" className="h-8 bg-accent " />
-        <DynamicBreadCrumb/>
-      </div> 
+      <div className="flex items-center gap-2">
+        <Link
+          href="/"
+          className="font-heading h-8 w-8 bg-primary rounded-xl flex items-center justify-center text-sidebar-accent"
+        >
+          k
+        </Link>
+
+        <Separator orientation="vertical" className="h-8 bg-accent " />
+        <DynamicBreadCrumb />
+      </div>
 
       <div className="flex items-center gap-2">
         <Button
@@ -100,18 +107,21 @@ export default function Header() {
           />
 
           <DropdownMenuContent align="end" sideOffset={8} className="w-64">
+            <DropdownMenuGroup>
             <DropdownMenuLabel>
               <p>{user?.username}</p>
-              <p className="text-xs font-normal text-muted-foreground">
-                {user?.email}
-              </p>
+             
             </DropdownMenuLabel>
+            </DropdownMenuGroup>
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem disabled>
-              <UserRound />
-              
+            <DropdownMenuItem
+              disabled={isLoading}
+              onClick={() => void logout()}
+            >
+              <LogOut />
+              Çıkış
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

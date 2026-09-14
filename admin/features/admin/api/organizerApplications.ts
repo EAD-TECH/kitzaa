@@ -10,24 +10,38 @@ import type {
 const BASE = "/api/v1/admin/organizer-applications";
 
 interface ListOrganizerApplicationsParams {
-  secilenKategori: string | undefined;
-  page?:number
-  limit?:number
+  arananKelime: string | undefined;
+  seciliStatus?: string[];
+  siralama?: string;
+  page?: number;
+  limit?: number;
 }
 
 export async function listOrganizerApplications({
-  secilenKategori,
+  arananKelime,
+  seciliStatus,
+  siralama,
   page,
-  limit
+  limit,
 }: ListOrganizerApplicationsParams): Promise<ListOrganizerApplicationsResponse> {
-  const params=new URLSearchParams()
+  const params = new URLSearchParams();
 
-  if (secilenKategori && secilenKategori != "Tümü") {
-    params.append("category",secilenKategori)
-    
-  }if(page) { 
-    params.append("page",page.toString())
-  }if (limit) {
+  if (siralama === "sort_oldest") {
+    params.append("sort[createdAt]", "1");
+  } else {
+    params.append("sort[createdAt]", "-1");
+  }
+
+  if (arananKelime) {
+    params.append("search[institutionData.name]", arananKelime);
+  }
+  if (seciliStatus && seciliStatus.length > 0) {
+    seciliStatus.forEach((durum) => params.append("filter[status]", durum));
+  }
+  if (page) {
+    params.append("page", page.toString());
+  }
+  if (limit) {
     params.append("limit", limit.toString());
   }
   const queryString = params.toString();
@@ -63,4 +77,3 @@ export async function rejectOrganizerApplication(
     body,
   });
 }
-

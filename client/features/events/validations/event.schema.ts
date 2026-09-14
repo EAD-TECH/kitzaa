@@ -21,10 +21,14 @@ const scheduleSchema = z
     message: "Startdatum darf nicht nach dem Enddatum liegen",
     path: ["endDate"],
   })
-  .refine((data) => data.startDate >= new Date(new Date().setHours(0, 0, 0, 0)), {
-    message: "Startdatum darf nicht in der Vergangenheit liegen",
-    path: ["startDate"],
-  })
+
+// Nur beim Erstellen erzwungen — beim Bearbeiten muss ein bereits gestartetes/vergangenes,
+// aber weiterhin genehmigtes Event editierbar bleiben (z.B. Titel/Preis korrigieren), ohne
+// das Datum zwangsweise in die Zukunft verschieben zu müssen.
+const futureScheduleSchema = scheduleSchema.refine(
+  (data) => data.startDate >= new Date(new Date().setHours(0, 0, 0, 0)),
+  { message: "Startdatum darf nicht in der Vergangenheit liegen", path: ["startDate"] }
+)
 
 // Not: coordinates'i burda GeoJSON'a transform ETMİYORUZ — backend {lat,lng} bekliyor
 // ve kendi transform'unu kendisi yapıyor. Burada transform edersek backend'in
@@ -73,6 +77,7 @@ const baseEventSchema = z.object({
 // CREATE SCHEMA
 
 export const createEventSchema = baseEventSchema
+  .extend({ schedule: futureScheduleSchema })
   .strict()
   .refine((data) => data.isFree || !!data.price, {
     message: "Für kostenpflichtige Events ist ein Preis erforderlich",
@@ -82,6 +87,15 @@ export const createEventSchema = baseEventSchema
 // UPDATE SCHEMA
 
 export const updateEventSchema = baseEventSchema.partial().strict()
+
+// EDIT-WIZARD SCHEMA — wie createEventSchema (alle Felder Pflicht), aber ohne die
+// "Startdatum nicht in der Vergangenheit"-Regel (siehe futureScheduleSchema-Kommentar oben).
+export const editEventSchema = baseEventSchema
+  .strict()
+  .refine((data) => data.isFree || !!data.price, {
+    message: "Für kostenpflichtige Events ist ein Preis erforderlich",
+    path: ["price"],
+  })
 
 export type CreateEventFormValues = z.infer<typeof createEventSchema>
 export type UpdateEventFormValues = z.infer<typeof updateEventSchema>

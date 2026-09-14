@@ -22,6 +22,7 @@ import { ListFilter, SearchIcon } from "lucide-react";
 import { Separator } from "../ui/separator";
 import { Badge } from "../ui/badge";
 import type { FilterAndSearchProps } from "./types";
+import { useState } from "react";
 
 export default function FilterAndSearch({
   searchValue,
@@ -30,19 +31,24 @@ export default function FilterAndSearch({
   selectedValues,
   onFilterSelect,
 }: FilterAndSearchProps) {
+  const [aktifMenu, setAktifMenu] = useState<string | null>(null)
+
   return (
     <>
       {/* genel search alanım */}
       <InputGroup>
         <InputGroupInput
           placeholder="Search..."
-          value={searchValue}  /* dinamik deger */
-          onChange={(e) => onSearchChange(e.target.value)}  /* arama calıstıgında Panoya haber vereck */
+          value={searchValue} /* dinamik deger */
+          onChange={(e) =>
+            onSearchChange(e.target.value)
+          } /* arama calıstıgında Panoya haber vereck */
         />
         <InputGroupAddon>
           <SearchIcon />
         </InputGroupAddon>
       </InputGroup>
+
       {/* filter dropdownlu kısm */}
       <Popover>
         <PopoverTrigger
@@ -81,22 +87,46 @@ export default function FilterAndSearch({
               <CommandEmpty>Sonuç bulunamadı.</CommandEmpty>
 
               {/*secenekleri grupluyorum */}
-              <CommandGroup>
-                {/* dınamık filter dongusu */}
-                {filterOptions.map((option) => (
-                  <CommandItem
-                    key={option.value}
-                    onSelect={() => onFilterSelect(option.value)}
-                  >
-                    {/*   <CircleDot className="text-(--brown-500)" /> */}
+              {!aktifMenu ? (
+                <CommandGroup>
+                  {/* dınamık filter dongusu */}
+                  {filterOptions.map((kategori) => (
+                    // CommandItem burada açılıyor...
+                    <CommandItem
+                      key={kategori.id}
+                      onSelect={() => setAktifMenu(kategori.id)}
+                    >
+                      {kategori.icon && (
+                        <span className="mr-2">{kategori.icon}</span>
+                      )}
+                      <span className="text-(--brown-500)">
+                        {kategori.label}
+                      </span>
+                    </CommandItem>
                     
-
-                    {option.icon && <span className="mr-2">{option.icon}</span>}
-
-                    <span className="text-(--brown-500)">{option.label}</span>
+                  ))}
+                </CommandGroup>
+              ) : (
+                <CommandGroup>
+                  <CommandItem onSelect={() => setAktifMenu(null)}>
+                    <span>Geri</span>
                   </CommandItem>
-                ))}
-              </CommandGroup>
+                  <Separator className="my-1" />
+
+                  {filterOptions
+                    .find((k) => k.id === aktifMenu)
+                    ?.options.map((option) => (
+                      <CommandItem
+                        key={option.value}
+                        onSelect={() => onFilterSelect(option.value)}
+                      >
+                        <span className="text-(--brown-500)">
+                          {option.label}
+                        </span>
+                      </CommandItem>
+                    ))}
+                </CommandGroup>
+              )}
             </CommandList>
           </Command>
         </PopoverContent>

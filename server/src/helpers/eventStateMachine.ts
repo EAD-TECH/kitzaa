@@ -3,7 +3,9 @@ import type { EventStatus } from '../types/event.types.js';
 import CustomError from './customError.js';
 
 const ALLOWED_TRANSITIONS: Record<EventStatus, EventStatus[]> = {
-  pending: ['approved', 'rejected'],
+  // 'cancelled' hier auch für 'pending' erlaubt — ein User muss sein eigenes, noch
+  // nicht geprüftes Event zurückziehen können, nicht nur ein bereits genehmigtes.
+  pending: ['approved', 'rejected', 'cancelled'],
   approved: ['completed', 'cancelled'],
   rejected: [],
   cancelled: [],

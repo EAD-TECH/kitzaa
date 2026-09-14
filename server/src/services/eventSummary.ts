@@ -53,7 +53,7 @@ export const sendPostEventSummaries = async () => {
         title: "Wie war deine Veranstaltung? 📸",
         message: `Wir hoffen, deine Veranstaltung '${event.title}' war ein voller Erfolg! Wie wäre es, ein paar Erinnerungsfotos mit der Community zu teilen und andere Familien zu inspirieren?`,
         type: "post_event_summary",
-        linkNotification: `/share-event-photos/${event._id}`,
+        linkNotification: `/events/${event.slug}`,
       };
     });
 

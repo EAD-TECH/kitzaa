@@ -160,12 +160,35 @@ const eventController = {
     });
   },
 
+  readForEdit: async (req: Request<{ id: string }>, res: Response) => {
+    // isOwnerOrAdmin middleware'i sahiplik/admin kontrolunu yapip event'i req.resource'a koyuyor.
+    const event = req.resource as EventDocument;
+
+    res.status(200).send({
+      error: false,
+      event: toEventDTO(event),
+    });
+  },
+
   update: async (
     req: Request<{ id: string }, any, UpdateEventInput>,
     res: Response,
   ) => {
     // isOwnerOrAdmin middleware'i sahiplik/admin kontrolunu yapip event'i req.resource'a koyuyor.
     const event = req.resource as EventDocument;
+
+    if (event.status === "cancelled" || event.status === "completed") {
+      throw new CustomError(
+        "Cancelled or completed events cannot be edited.",
+        400,
+      );
+    }
+
+    // Onaylanmış bir event düzenlendiğinde içerik değiştiği için tekrar admin
+    // onayına düşer — moderasyon bypass edilmemiş olur.
+    if (event.status === "approved") {
+      event.status = "pending";
+    }
 
     Object.assign(event, req.body);
     await event.save();
@@ -186,6 +209,7 @@ const eventController = {
     assertValidTransition(event.status, "cancelled");
 
     event.status = "cancelled";
+    event.cancelledReason = req.body.cancelledReason;
     await event.save();
 
     console.log("API Yanıtı dönüyor, arka planda KTZ-61 motoru ateşleniyor");
@@ -375,7 +399,10 @@ const eventController = {
   myEvents: async (req: Request, res: Response) => {
     const customFilter = { createdBy: req.user._id };
 
-    const result = await res.getModelList(Event, customFilter);
+    const result = await res.getModelList(Event, customFilter, [
+      { path: "categoryId", select: "name slug icon" },
+      { path: "createdBy", select: "username avatarUrl role" },
+    ]);
 
     res.status(200).send({
       error: false,
@@ -387,7 +414,25 @@ const eventController = {
   myParticipations: async (req: Request, res: Response) => {
     const customFilter = { "participants.userId": req.user._id };
 
-    const result = await res.getModelList(Event, customFilter);
+    const result = await res.getModelList(Event, customFilter, [
+      { path: "categoryId", select: "name slug icon" },
+      { path: "createdBy", select: "username avatarUrl role" },
+    ]);
+
+    res.status(200).send({
+      error: false,
+      details: await res.getModelListDetails(Event, customFilter),
+      events: toEventDTO(result),
+    });
+  },
+
+  savedEvents: async (req: Request, res: Response) => {
+    const customFilter = { _id: { $in: req.user.savedEvents ?? [] } };
+
+    const result = await res.getModelList(Event, customFilter, [
+      { path: "categoryId", select: "name slug icon" },
+      { path: "createdBy", select: "username avatarUrl role" },
+    ]);
 
     res.status(200).send({
       error: false,

@@ -129,22 +129,27 @@ export function EventPricingStep({ form }: EventPricingStepProps) {
         )}
       />
 
-      <FormField
-        control={form.control}
-        name="price.amount"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Preis</FormLabel>
-            <FormControl>
-              <InputGroup className="bg-background">
-                <InputGroupAddon>€</InputGroupAddon>
-                <PriceAmountInput field={field} disabled={isFree} />
-              </InputGroup>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      {/* Nur mounten wenn kostenpflichtig — react-hook-form würde sonst beim Registrieren
+          von "price.amount" das null-Parent-Objekt "price" automatisch in {amount: undefined}
+          umwandeln, was die Zod-Validierung selbst bei einem kostenlosen Event fehlschlagen lässt. */}
+      {!isFree && (
+        <FormField
+          control={form.control}
+          name="price.amount"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Preis</FormLabel>
+              <FormControl>
+                <InputGroup className="bg-background">
+                  <InputGroupAddon>€</InputGroupAddon>
+                  <PriceAmountInput field={field} disabled={isFree} />
+                </InputGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      )}
 
       <FormField
         control={form.control}
