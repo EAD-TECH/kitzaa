@@ -6,4 +6,6 @@ export const useAuthStore = create<AuthTokenState>()((set) => ({
   setAccessToken: (accessToken) => set({ accessToken }),
   isReady: false,
   setIsReady: (value) => set({ isReady: value }),
+  isSocketConnected: false,
+  setIsSocketConnected: (value) => set({ isSocketConnected: value }),
 }));
