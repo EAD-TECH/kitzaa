@@ -63,7 +63,6 @@
 6. hookkları olustururken queryKey:["notifications","unread-count"], bu sekılde tanımlamıstm daha sonra patch ıslemını yaparken mutation ıslemınde tekrar zil ikonunu guncellemek ıcın tekrar unread-coun tu cagırıp guncellememe gerek kalmadı cunku bu olay soyle : queryKey olarak tanımladıgm sey aslında notifikasyon dolabı ve bu dolabın bır rafını da unread-count olarak ayırmıstm .bu sayede mutation işleminde tanstack notification ı gordugunde otomatık olarak dolabın unread rafını da kendısı guncelleıyor
 7. son olarak son 1 aylık veriler için queryfilterdan cekmeden once helperdan bır fonksıyon olusturdm ıslem yapılack tarıhten 1 ay oncesını kapayack zamanı cagırıyor.Sonrasında controllerda createdAt: { $gte: getOneMonthAgo( } bu sekılde yazarak fıltre etmıs oldum
 
-
 ## [KTZ-180](https://dygcankurt17.atlassian.net/browse/KTZ-180)
 
 - **Durum:** In Progress
@@ -71,10 +70,9 @@
 - **Puan:** 3
 - **Amaç:**
 
-1. Bu taskta amacım 
+1. Bu taskta amacım
 
 bu taskın amacı client tarafında socket baglantısını login ile token ı dogrulayıp baglantıyı kurmak ve logout ıle koparmak tı deilmi socket baglantısını projenın tum sayfaları haberdar olsun dıye provıder context yapısını kullanarak socket baglantımı kurdum ve bunu app altında layout a bıldırdm kı socketten herkes haberdar olsun bu task aslında gelecektıkı realtıme bıldırımlerın kullanıcıya f5 yaomadan gıtmesi için bır altyapımı olusturmaktı .
-
 
 ## [KTZ-181](## [KTZ-180](https://dygcankurt17.atlassian.net/browse/KTZ-181)
 
@@ -84,24 +82,38 @@ bu taskın amacı client tarafında socket baglantısını login ile token ı do
 - **Amaç:**)
 
 ### Start / End
+
 - Start / End→src/providers/AuthSocketProvider.tsx acqurylientı cagır
+
 #### src/providers/AuthSocketProvider.tsx ac
+
 qurylientı cagır
+
 - src/providers/AuthSocketProvider.tsx acqurylientı cagır→telsiz her zaman acık burda useeffct içinde socket.on(“notification:new”,{data})
+
 ##### telsiz her zaman acık burda useeffct içinde socket.on(“notification:new”,{data})
+
 - telsiz her zaman acık burda useeffct içinde socket.on("notification:new", (yeniBildirim) => { ... })→telsizden gelen sesle birlikte tanstack te notifikasyon rafını guncellemesı gerekıyor querClient cagırıp al bu yenı bıldırımı listeye ve sayaca ekle dicem iki rafı guncellemek lazım
+
 ###### A Rafı (Liste):
+
 ['notifications'] rafındaki listenin en tepesine yeni bildirimi koyacağız.
+
 ###### telsizden gelen sesle birlikte tanstack te notifikasyon rafını guncellemesı gerekıyor
-querClient cagırıp al bu yenı bıldırımı listeye ve sayaca ekle dicem 
+
+querClient cagırıp al bu yenı bıldırımı listeye ve sayaca ekle dicem
 iki rafı guncellemek lazım
+
 - telsizden gelen sesle birlikte tanstack te notifikasyon rafını guncellemesı gerekıyorquerClient cagırıp al bu yenı bıldırımı listeye ve sayaca ekle dicem iki rafı guncellemek lazım→A Rafı (Liste):['notifications'] rafındaki listenin en tepesine yeni bildirimi koyacağız.
 - telsizden gelen sesle birlikte tanstack te notifikasyon rafını guncellemesı gerekıyorquerClient cagırıp al bu yenı bıldırımı listeye ve sayaca ekle dicem iki rafı guncellemek lazım→B Rafı (Sayaç): Örneğin ['unread-count'] rafındaki sayıyı alıp +1 yapacağız.
+
 ###### B Rafı (Sayaç): Örneğin ['unread-count'] rafındaki sayıyı alıp +1 yapacağız.
+
 """
 
 | NIHAI KARARIM |
-|----------|
+| ------------- |
+
 | Burda setqueryclient yontemını kullanıcm cunku ,cunku neden olmasın :)
 Soyle ki invalidate yontemındde her kullanıcı aynı anda backende ıstek atar bu ıstenmeyen bısey ,ama setqueryde ben bildirimin tum detaylarını socket telsızıme koyup yollucm boylelıkle react query ekstra ıstek atmıyck.Gelen bu paketı socketın getırdıgı , havada yakalr ve setquerys kullanarak o an ekranda acık olan 20 elemanlık bır lıstenın en basına ekler(Buna optimistic ui ya da cache injection dıyoruz) |
 | https://tanstack.com/query/latest/docs/reference/QueryClient#queryclient-setquerydata |
@@ -109,4 +121,54 @@ Soyle ki invalidate yontemındde her kullanıcı aynı anda backende ıstek atar
 setQueryData kullanırken, içeriye enjekte edeceğimiz yeni veri, Backend API'nin döndüğü JSON formatı ile BİREBİR aynı yapıda olmalıdır. Eğer Backend { error: false, data: { count: 5 } } dönüyorsa, biz de sadece içindeki count'u artırıp objenin dış yapısını korumalıyız (...eskiData). Aksi takdirde React UI bozulur ve TanStack veriyi arkadan gizlice yeniden çeker (Sayı gelir ve gider).
 """
 
+## [KTZ-198](## [KTZ-198](https://dygcankurt17.atlassian.net/browse/KTZ-198)
 
+- **Durum:** In Progress
+- **Jira:** `KTZ-198`
+- **Amaç:**
+
+LinkNotification kısmıı ben event:\_id olacak sekıdldde yapmıstm ama slug olarak duzenlenmıs yuzden dogru calısmıyor yapım.NotificationService sayfasında slug olarak degıstırdm id kısımlarını
+nearby_event / event_cancelled / event_reminder → /events/<slug>
+kırık slug → 404
+post_comment / post_reply → /posts/<id> (bu ticket’ta event bitti)
+
+## [KTZ-199](## [KTZ-199](https://dygcankurt17.atlassian.net/browse/KTZ-199)
+
+- **Durum:** In Progress
+- **Jira:** `KTZ-199`
+- **Amaç:**
+
+1. Burda amac socket.io zaten canlı canlı dınlıyor ama dıyelım kı baglantı koptu ve zıl badge ın notıfıkasyonu anlık olrak guncellenemez burda cıft dıkıs bır mantık olusturcm. Tanstack in Polling kısmından faydalanarak sunu yapıcam : arka planda socket kopsa bıle 30 sanıyede bır verıyı ceken tımerlı bır yapı olusturucm bunu da useEnreadcount hookuma eklıyorm.
+2. Burda dokumanı okurken tanstackte [dokuman](https://tanstack.com/query/latest/docs/framework/react/guides/polling)
+
+Bu taskta soyle bır mımarı olusturdum :
+Zustand , socket.io ve Tanstack i haberlestirerek
+socket koptugunda otomatık devreye gıren (fallback) dinamık bir polll,g mimarısı kurma kararı aldım gereksız api istegi atmama ıcın.
+
+Bunun için oncelıkle isSocketConnexcted bilgisini hafızada tutması ıcın zustanda ogretmem lazım .
+
+- typesini belirtmem lazım
+  export interface isSocketState {
+  isSocketConnected:(value:boolean)=>void
+  }
+
+zustandı haberdar edıyorm
+/_ false olarak baslatıyorm _/
+"Merkez! Benim canlı bağlantım (Socket'im) şu an koptu (veya çıkış yaptım). Haberiniz olsun!"
+isSocketConnected:false,
+setIsConnected:(value)=>set({isSocketConnected:value}),
+
+}))
+- sonrasında socket baglantısını yaptıgım auth.socket.provider dosyasında kulak mısafırı olmam lazım socketın durumuna
+-  refetchInterval:isSocketConnected ? false : 30000,
+
+
+  retry: (failureCount, error) => {
+    if(error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+      return false /* deneme  */
+    }
+    return failureCount < 3  /* bu satıra geldıysen 3 kereye kadar dene */
+
+     
+   },    provıder sayfamda da bu sekılde retry :fonk(iki parametresı var)
+   eger hata alıyorsa 401,403 hıc ıstek atmasın onun dısında 3 kereye kaar ıstek atabılrı

@@ -30,7 +30,7 @@ export interface LoginResponse {
 
 export type LoginPayload = LoginFormValues;
 
-export interface AuthTokenState {
+export interface AuthTokenState extends isSocketState {
   accessToken: string | null;
   setAccessToken: (accessToken: string | null) => void;
   isReady: boolean;
@@ -48,4 +48,9 @@ export interface ForgotPasswordResponse {
 
 export interface ResetPasswordResponse {
   message: string;
+}
+
+export interface isSocketState {
+  isSocketConnected: boolean;
+  setIsSocketConnected: (value: boolean) => void;
 }
