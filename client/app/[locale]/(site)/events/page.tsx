@@ -41,7 +41,7 @@ const EventsPage = async ({ searchParams }: EventsPageProps) => {
 
         <div
           id="event-list-scroll"
-          className='desktop:col-start-2 desktop:h-[calc(100vh-0.5rem)] desktop:overflow-y-auto desktop:pr-2 scrollbar-subtle mt-12'
+          className='desktop:col-start-2 desktop:h-230 desktop:overflow-y-auto desktop:pr-2 scrollbar-subtle mt-12'
         >
           <ErrorBoundary fallback={<EventListError />}>
             <Suspense fallback={<EventListSkeleton />}>
