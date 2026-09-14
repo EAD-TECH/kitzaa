@@ -19,9 +19,11 @@ import {
 } from "../api/postCommentApi";
 import {
   createSocialPost,
+  deleteSocialPost,
   getSocialPost,
   likeSocialPost,
   listSocialPosts,
+  myPosts,
 } from "../api/postApi";
 import type { PostCommentListResponse } from "../types/postComment.types";
 import type { PostListResponse, UsePostsParams } from "../types/post.types";
@@ -33,12 +35,13 @@ const COMMENT_CREATE_ERROR_MESSAGES: Record<string, string> = {};
 
 // Backend CustomError.message → kullanıcıya gösterilen Almanca metin.
 // Key'ler sunucudaki string ile birebir aynı olmalı (isOwnerOrAdmin + comment deletee).
-const COMMENT_DELETE_ERROR_MESSAGES: Record<string, string> = {
+const POST_DELETE_ERROR_MESSAGES: Record<string, string> = {
   "You do not have permission to perform this action.":
-    "Du darfst diesen Kommentar nicht löschen.",
-  "Comment not found": "Kommentar wurde nicht gefunden.",
-  "Resource not found": "Kommentar wurde nicht gefunden.",
-  "Invalid resource id.": "Ungültige Kommentar-ID.",
+    "Du darfst diesen Beitrag nicht löschen.",
+  "Post not found": "Beitrag wurde nicht gefunden.",
+  "Resource not found": "Beitrag wurde nicht gefunden.",
+  "Invalid resource id.": "Ungültige Beitrags-ID.",
+  "Invalid id.": "Ungültige Beitrags-ID.",
 };
 
 export const usePosts = ({ city, eventId, sort, search }: UsePostsParams = {}) => {
@@ -61,6 +64,15 @@ export const usePosts = ({ city, eventId, sort, search }: UsePostsParams = {}) =
   });
 };
 
+export function useMyPosts() {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["social-posts", "my-posts"],
+    queryFn: myPosts,
+  });
+
+  return { posts: data?.posts ?? [], isLoading, isError };
+}
+
 export function usePostById(postId: string) {
   return useQuery({
     queryKey: ["social-post", postId],
@@ -74,6 +86,31 @@ export function usePostById(postId: string) {
     refetchOnWindowFocus: false,
   });
 }
+
+export const useDeletePost = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (postId: string) => deleteSocialPost(postId),
+    onError: (error) => {
+      const message =
+        error instanceof ApiError
+          ? (POST_DELETE_ERROR_MESSAGES[error.message] ??
+            "Post konnte nicht gelöscht werden. Bitte versuche es erneut.")
+          : "Post konnte nicht gelöscht werden. Bitte versuche es erneut.";
+      toast.error(message);
+    },
+    onSuccess: (_response, postId) => {
+      toast.success("Post erfolgreich gelöscht.");
+      queryClient.invalidateQueries({
+        queryKey: ["social-post", postId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["social-posts"],
+      });
+    },
+  });
+};
 
 export function usePostComments(postId: string) {
   return useQuery({
@@ -115,7 +152,8 @@ export const useDeletePostComment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ commentId, postId }: { commentId: string; postId: string }) => deleteSocialPostComment(commentId),
+    mutationFn: ({ commentId, postId }: { commentId: string; postId: string }) =>
+      deleteSocialPostComment(commentId),
     onError: (error) => {
       const message =
         error instanceof ApiError
@@ -139,8 +177,7 @@ export const useCreatePostComment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (commentData: CreatePostCommentInput) =>
-      createSocialPostComment(commentData),
+    mutationFn: (commentData: CreatePostCommentInput) => createSocialPostComment(commentData),
     onError: (error) => {
       const message =
         error instanceof ApiError
@@ -186,9 +223,7 @@ export const useTogglePostLike = () => {
                 return {
                   ...post,
                   isLikedByMe: !post.isLikedByMe,
-                  likesCount: post.isLikedByMe
-                    ? post.likesCount - 1
-                    : post.likesCount + 1,
+                  likesCount: post.isLikedByMe ? post.likesCount - 1 : post.likesCount + 1,
                 };
               }),
             })),
@@ -213,9 +248,7 @@ export const useTogglePostLike = () => {
             ...oldData,
             pages: oldData.pages.map((page) => ({
               ...page,
-              posts: page.posts.map((post) =>
-                post._id === data.post._id ? data.post : post,
-              ),
+              posts: page.posts.map((post) => (post._id === data.post._id ? data.post : post)),
             })),
           };
         },
@@ -228,8 +261,7 @@ export const useToggleCommentLike = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ commentId }: { commentId: string; postId: string }) =>
-      likeSocialPostComment(commentId),
+    mutationFn: ({ commentId }: { commentId: string; postId: string }) => likeSocialPostComment(commentId),
     onMutate: async ({ commentId, postId }) => {
       const queryKey = ["social-post-comments", postId];
 
@@ -250,9 +282,7 @@ export const useToggleCommentLike = () => {
             return {
               ...comment,
               isLikedByMe: !comment.isLikedByMe,
-              likesCount: comment.isLikedByMe
-                ? comment.likesCount - 1
-                : comment.likesCount + 1,
+              likesCount: comment.isLikedByMe ? comment.likesCount - 1 : comment.likesCount + 1,
             };
           }),
         };
@@ -266,19 +296,16 @@ export const useToggleCommentLike = () => {
       });
     },
     onSuccess: (data, { postId }) => {
-      queryClient.setQueryData<PostCommentListResponse>(
-        ["social-post-comments", postId],
-        (oldData) => {
-          if (!oldData) return oldData;
+      queryClient.setQueryData<PostCommentListResponse>(["social-post-comments", postId], (oldData) => {
+        if (!oldData) return oldData;
 
-          return {
-            ...oldData,
-            comments: oldData.comments.map((comment) =>
-              comment._id === data.comment._id ? data.comment : comment,
-            ),
-          };
-        },
-      );
+        return {
+          ...oldData,
+          comments: oldData.comments.map((comment) =>
+            comment._id === data.comment._id ? data.comment : comment,
+          ),
+        };
+      });
     },
   });
 };
