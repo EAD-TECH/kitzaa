@@ -1,1 +1,1 @@
-export {};
+export { listAdminUsers } from "./getUsers";

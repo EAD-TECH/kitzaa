@@ -12,7 +12,7 @@ export default function FilterPills({
   onKategoriSec,
 }: FilterPillsProps) {
   return (
-    <div className="flex flex-row gap-1.5 flex-wrap items-center">
+    <div className="flex min-w-0  flex-row gap-1.5 flex-wrap items-center">
       {kategoriler.map((category) => (
         <Button
           onClick={() => onKategoriSec(category)}

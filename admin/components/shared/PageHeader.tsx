@@ -6,7 +6,7 @@ export default function PageHeader({
   actionButton,
 }: PageHeaderProps) {
   return (
-    <div className="flex w-full items-start justify-between gap-2 ">
+    <div className="flex w-full min-w-0 flex-col items-stretch tablet:flex-row tablet:items-start tablet:justify-between gap-2 ">
       <div className="flex flex-col  justify-between gap-2">
         {description ? (
           <p className="font-heading text-sm font-normal tracking-wider uppercase text-muted-foreground">

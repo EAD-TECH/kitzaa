@@ -363,6 +363,8 @@ null oldugu ıcın hepsını gorebılıyorm .
 7. Son olarak Temizle butonunu ekleyerek butona tıklandıgında dızıyı bosalttm
 
 ## Sort kısmını ekleme Adımı : 
+
+
 1. iziye en yenı ve eneskıye gore fıltrelemek ıcın ekledım yenı bır nesne elemanı
 2. Sonrasında sıralama ıcın bır state mantıgı olusturmak gerekıyor :Backendde -1 en yeni ,eski 1 
 const [siralama,setSiralama]=useState<string>("sort_newest") hafızayı bu sekılde baslatıyorm 
@@ -456,3 +458,25 @@ Sorun: Eski yapıda sayfa açıldığında tek bir devasa useInfiniteQuery çal�
 Çözüm (API ve Hook): seciliStatus parametresini API'ye giden (queryFn) isteklerin içinden tamamen kopardım. API'nin sadece kolonStatus'a (Örn: Sadece "pending") odaklanmasını sağladım.
 Çözüm (Board): Tahtadaki o devasa tek kancayı sildim. Yerine 4 farklı kolon için 4 ayrı kanca (Örn: pendingEvent, approvedEvent) oluşturdum.
 Şalter Mantığı (Performance Optimization): Popover'dan gelen seciliStatus dizisini veritabanını filtrelemek için DEĞİL, kolonları açıp kapatan bir Şalter olarak kullandım. Kancanın içine enabled: kolonAcik şartını ekledim. Böylece kullanıcı Popover'dan bir kolon gizlediğinde, o kolon için arkada boşuna API isteği atılmamasını (Ağ tasarrufu - Network Optimization) sağladım
+
+
+[KTZ-208](https://dygcankurt17.atlassian.net/browse/KTZ-208)
+
+1. shared klasorunde ortak bır kalıp olusturdm categorıes ı de burdan besleyecegm.
+data-table motoruma yenı bır slot actım ve daha once olusturdugum reusable yapımı entegre etmek ıcın React.ReactNode reactin ekrana cızdıgı herseydırburdakı mantık aslında tanstack table mantıgını kendı free bılesenlerımle entegre etme adımı burda buyuk sırketler nasıl yapıyor bılmıyorm .
+onst [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],  bu kısım tanstack table ın arka planda yaptıgı calıstırdıgı fıltre mantıgı.
+2. backendle haberlesme adına kuryemın yolunu hook yapımı ve types kısmını userları lıstelemek ıcın olusturdm .
+
+3. Tanstack table ıcın kolon dosyası olusturdm ve tanstack in columnHelper metodu nu kullanrak kolon ların ıcını dolduracak verıyı tanımlayıp render ettim
+
+4. UsersBoard kısmında resuable yapımı cagırdm. Data table a hook sayesınde cagırdgm verılerı props plarak verdım yanı akıs su sekılde beyın data-table.tsx olusturdgm column ve board bılesenlerı verıyı beyne ıletıyor beyın ıslıyor ve bılesenler render edılıp ekrana basılıyor
+3 ve 4. Beyin, Kurye ve Veri Akışı (Mükemmel Analiz)
+
+
+
+    Kurye (Hooks): Depoya (Backend'e) gidip veriyi alır. Sayfa (UsersBoard) kuryeyi karşılar.
+
+    Kalıp Ustası (Columns): Gelen verinin (DTO) içinden ismin, resmin, tarihin nasıl bir tuğla dizilimiyle (Avatar, Badge) ekranda duracağını çizer.
+
+    Beyin (DataTable): Sayfadan aldığı veriyi ve kalıp ustasından aldığı kuralları yutar. Kendi içindeki motoru (filtreleme, sayfalama) çalıştırıp HTML çıktısını ekrana basar.
