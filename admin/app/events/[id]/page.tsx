@@ -1,6 +1,6 @@
 "use client";
 
-import { getAdminEvent } from "@/features/admin/api";
+import { getAdminEvent } from "@/features/events/api";
 import { useParams } from "next/navigation";
 
 export default function EventDetailPage() {

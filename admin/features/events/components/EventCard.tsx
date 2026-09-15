@@ -1,7 +1,7 @@
 "use client";
 
 import { KanbanCardProps } from "@/components/shared/types";
-import { AdminEventDTO } from "../../types";
+import { AdminEventDTO } from "../types";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { KanbanCard } from "@/components/shared/KanbanCard";

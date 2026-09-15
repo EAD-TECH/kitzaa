@@ -24,10 +24,10 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useOrganızarApplicationById } from "@/features/admin/hooks/useOrganızerApplicationById";
+import { useOrganızarApplicationById } from "@/features/organizer-applications/hooks/useOrganizerApplicationById";
 import SectionAIBox from "./SectionAIBox";
-import { useApproveApplication } from "@/features/admin/hooks/useApproveApplication";
-import { useRejectApplication } from "@/features/admin/hooks/useRejectApplication";
+import { useApproveApplication } from "@/features/organizer-applications/hooks/useApproveApplication";
+import { useRejectApplication } from "@/features/organizer-applications/hooks/useRejectApplication";
 
 type ReviewFormValues = z.infer<typeof reviewApplicationSchema>;
 
