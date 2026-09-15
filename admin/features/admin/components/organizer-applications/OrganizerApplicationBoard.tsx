@@ -1,21 +1,16 @@
+"use client";
+
 import FilterAndSearch from "@/components/shared/FilterAndSearch";
 import KanbanColumn from "@/components/shared/KanbanColumn";
 import PageHeader from "@/components/shared/PageHeader";
 import { Card } from "@/components/ui/card";
 import OrganizerApplicationCard from "./OrganizerApplicationCard";
 import { useOrganizerApplications } from "../../hooks/useOrganizerApplications";
-import { OrganizerApplicationDTO } from "../../types";
 import KanbanSkeleton from "@/components/shared/KanbanSkeleton";
 import KanbanErrorState from "@/components/shared/KanbanErrorState";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowDown,
-  Calendar,
-  CircleIcon,
-  Loader2,
-  UserIcon,
-} from "lucide-react";
+import { Calendar, CircleIcon, UserIcon } from "lucide-react";
 import { useDebounce } from "use-debounce";
 
 import ReusableDrawer from "@/components/shared/drawer/ReusableDrawer";
@@ -28,8 +23,9 @@ const filtreSecenekleri = [
     icon: <CircleIcon />,
     options: [
       { value: "pending", label: "Yeni Başvurular" },
+      { value: "under_review", label: "İncelemedekiler" },
       { value: "approved", label: "Onaylananlar" },
-      { value: "rejected", label: "Reddeilenler" },
+      { value: "rejected", label: "Reddedilenler" },
     ],
   },
   {
@@ -60,60 +56,88 @@ export default function OrganizerApplicationBoard() {
   const [sakinKelime] = useDebounce(inputValue, 400);
   const [seciliStatus, setSeciliStatus] = useState<string[]>([]);
   const [siralama, setSiralama] = useState<string>("sort_newest");
+ 
 
-  const {
-    data,
-    isLoading,
-    isError,
-    refetch,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useOrganizerApplications({
+  /*  // pendıng*/
+  const pendingEvent = useOrganizerApplications({
     arananKelime: sakinKelime,
-    seciliStatus: seciliStatus,
+    seciliStatus,
     siralama,
+    kolonStatus: "pending",
     limit: 6,
   });
-  /* flatMap */
-  const tumBasvurular =
-    data?.pages.flatMap((page) => page.applications || []) || [];
-  console.log(tumBasvurular);
+  const pendingEvents =
+    pendingEvent.data?.pages.flatMap((p) => p.applications || []) || [];
 
-  const yeniBasvurular = tumBasvurular.filter(
-    (app: OrganizerApplicationDTO) => app.status === "pending",
-  );
+  /* incelemede */
+  const underReviewEvent = useOrganizerApplications({
+    arananKelime: sakinKelime,
+    seciliStatus,
+    siralama,
+    kolonStatus: "under_review",
+    limit: 6,
+  });
+  const underReviewEvents =
+    underReviewEvent.data?.pages.flatMap((p) => p.applications || []) || [];
 
-  const incelemedekiler = tumBasvurular.filter(
-    (app: OrganizerApplicationDTO) => app.status === "under_review",
-  );
+  /* approved */
+  const approvedEvent = useOrganizerApplications({
+    arananKelime: sakinKelime,
+    seciliStatus,
+    siralama,
+    kolonStatus: "approved",
+    limit: 6,
+  });
+  const approvedEvents =
+    approvedEvent.data?.pages.flatMap((p) => p.applications || []) || [];
 
-  const kararaBaglananlar = tumBasvurular.filter(
-    (app: OrganizerApplicationDTO) =>
-      app.status === "approved" || app.status === "rejected",
-  );
+  /* rejected */
+  const rejectedEvent = useOrganizerApplications({
+    arananKelime: sakinKelime,
+    seciliStatus,
+    siralama,
+    kolonStatus: "rejected",
+    limit: 6,
+  });
+  const rejectedEvents =
+    rejectedEvent.data?.pages.flatMap((p) => p.applications || []) || [];
+  /* ortak yukleme ve hata durumu */
+  const isLoading =
+    pendingEvent.isLoading ||
+    underReviewEvent.isLoading ||
+    approvedEvent.isLoading ||
+    rejectedEvent.isLoading;
+  const isError =
+    pendingEvent.isError ||
+    underReviewEvent.isError ||
+    approvedEvent.isError ||
+    rejectedEvent.isError;
 
+  /* fılter */
   const onFilterSelect = (tiklananDeger: string) => {
-    console.log("popoverdan gelen deger", tiklananDeger);
-    console.log("popoverın defaultu", seciliStatus);
-
     if (tiklananDeger.startsWith("sort_")) {
       setSiralama(tiklananDeger);
       return;
     }
 
-    const varMi = seciliStatus.includes(tiklananDeger);
-    console.log("bu deger dızı de varmı", varMi);
-    if (varMi) {
-      let yeniDizi = seciliStatus.filter((deger) => deger != tiklananDeger);
-      setSeciliStatus(yeniDizi);
+    const gercekStatusler = ["pending", "under_review", "approved", "rejected"];
+    if (gercekStatusler.includes(tiklananDeger)) {
+      const varMi = seciliStatus.includes(tiklananDeger);
+      if (varMi) {
+        setSeciliStatus(
+          seciliStatus.filter((deger) => deger !== tiklananDeger),
+        );
+      } else {
+        setSeciliStatus([...seciliStatus, tiklananDeger]);
+      }
     } else {
-      setSeciliStatus([...seciliStatus, tiklananDeger]);
+      console.log("Kişi seçildi, tahta silinmeyecek!"); // Assignee bug'ı çözümü
     }
   };
 
   return (
     <Card className="flex flex-col gap-6 self-stretch rounded-2xl border border-border bg-background p-6 ring-0 shadow-none">
+      {/* BAŞLIK VE FİLTRELER */}
       <div className="flex flex-col gap-4 desktop:flex-row desktop:items-center desktop:justify-between">
         <PageHeader
           title="Organizatör Başvuruları"
@@ -132,80 +156,116 @@ export default function OrganizerApplicationBoard() {
             }
             onFilterSelect={onFilterSelect}
           />
-            {(seciliStatus.length > 0 || siralama !== "sort_newest") && (
-          <Button 
-            variant="ghost"
-            onClick={() => {
-              setSeciliStatus([]);
-              setSiralama("sort_newest");
-            }}
-          >
-            Temizle
-          </Button>
-        )}
+          {(seciliStatus.length > 0 || siralama !== "sort_newest") && (
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setSeciliStatus([]);
+                setSiralama("sort_newest");
+              }}
+            >
+              Temizle
+            </Button>
+          )}
         </div>
       </div>
 
       {isLoading && <KanbanSkeleton />}
 
-      {!isLoading && isError && <KanbanErrorState onRetry={refetch} />}
+     
+      {!isLoading && isError && (
+        <KanbanErrorState
+          onRetry={() => {
+            pendingEvent.refetch();
+            underReviewEvent.refetch()
+            approvedEvent.refetch();
+            rejectedEvent.refetch();
+          }}
+        />
+      )}
 
+      {/* --- KANBAN KOLONLARI --- */}
       {!isLoading && !isError && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 desktop:flex desktop:overflow-x-auto">
-          <KanbanColumn title="Yeni" count={yeniBasvurular.length}>
-            {yeniBasvurular.map((basvuru) => (
-              <OrganizerApplicationCard
-                key={basvuru._id}
-                application={basvuru}
-              />
-            ))}
-          </KanbanColumn>
+          {/* 1. YENİ */}
+          {(seciliStatus.length === 0 || seciliStatus.includes("pending")) && (
+            <KanbanColumn
+              title="Yeni"
+              count={pendingEvents.length}
+              dotColor="bg-yellow-500"
+              fetchNextPage={pendingEvent.fetchNextPage}
+              hasNextPage={pendingEvent.hasNextPage}
+              isFetchingNextPage={pendingEvent.isFetchingNextPage}
+            >
+              {pendingEvents.map((basvuru) => (
+                <OrganizerApplicationCard
+                  key={basvuru._id}
+                  application={basvuru}
+                />
+              ))}
+            </KanbanColumn>
+          )}
 
-          <KanbanColumn title="İncelemede" count={incelemedekiler.length}>
-            {/* TODO [KTZ-201]: backend akışına bakılacak, endpoint henüz yok */}
-            {incelemedekiler.map((basvuru) => (
-              <OrganizerApplicationCard
-                key={basvuru._id}
-                application={basvuru}
-              />
-            ))}
-          </KanbanColumn>
+          {/* 2. İNCELEMEDE */}
+          {(seciliStatus.length === 0 ||
+            seciliStatus.includes("under_review")) && (
+            <KanbanColumn
+              title="İncelemede"
+              count={underReviewEvents.length}
+              dotColor="bg-blue-500"
+              fetchNextPage={underReviewEvent.fetchNextPage}
+              hasNextPage={underReviewEvent.hasNextPage}
+              isFetchingNextPage={underReviewEvent.isFetchingNextPage}
+            >
+              {underReviewEvents.map((basvuru) => (
+                <OrganizerApplicationCard
+                  key={basvuru._id}
+                  application={basvuru}
+                />
+              ))}
+            </KanbanColumn>
+          )}
 
-          <KanbanColumn
-            title="Approved/Rejected"
-            count={kararaBaglananlar.length}
-          >
-            {kararaBaglananlar.map((basvuru) => (
-              <OrganizerApplicationCard
-                key={basvuru._id}
-                application={basvuru}
-              />
-            ))}
-          </KanbanColumn>
+          {/* 3. ONAYLANDI */}
+          {(seciliStatus.length === 0 || seciliStatus.includes("approved")) && (
+            <KanbanColumn
+              title="Onaylandı"
+              count={approvedEvents.length}
+              dotColor="bg-green-500"
+              fetchNextPage={approvedEvent.fetchNextPage}
+              hasNextPage={approvedEvent.hasNextPage}
+              isFetchingNextPage={approvedEvent.isFetchingNextPage}
+            >
+              {approvedEvents.map((basvuru) => (
+                <OrganizerApplicationCard
+                  key={basvuru._id}
+                  application={basvuru}
+                />
+              ))}
+            </KanbanColumn>
+          )}
+
+          {/* 4. REDDEDİLDİ */}
+          {(seciliStatus.length === 0 || seciliStatus.includes("rejected")) && (
+            <KanbanColumn
+              title="Reddedildi"
+              count={rejectedEvents.length}
+              dotColor="bg-red-500"
+              fetchNextPage={rejectedEvent.fetchNextPage}
+              hasNextPage={rejectedEvent.hasNextPage}
+              isFetchingNextPage={rejectedEvent.isFetchingNextPage}
+            >
+              {rejectedEvents.map((basvuru) => (
+                <OrganizerApplicationCard
+                  key={basvuru._id}
+                  application={basvuru}
+                />
+              ))}
+            </KanbanColumn>
+          )}
         </div>
       )}
 
-      {(hasNextPage || isFetchingNextPage) && (
-        <div className="mt-6 flex w-full justify-center pb-4">
-          <Button
-            onClick={() => fetchNextPage()}
-            disabled={!hasNextPage || isFetchingNextPage}
-            className=" max-w-md rounded-full border-2 border-border bg-transparent py-6 text-foreground transition-all hover:border-primary hover:bg-muted hover:text-primary shadow-none"
-          >
-            {isFetchingNextPage ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Başvurular Yükleniyor...
-              </>
-            ) : (
-              <>
-                <ArrowDown className="mr-2 h-5 w-5" />
-                Daha Fazla Başvuru Yükle
-              </>
-            )}
-          </Button>
-        </div>
-      )}
       <ReusableDrawer />
     </Card>
   );

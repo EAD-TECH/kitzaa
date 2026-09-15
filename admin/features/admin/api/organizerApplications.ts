@@ -11,7 +11,7 @@ const BASE = "/api/v1/admin/organizer-applications";
 
 interface ListOrganizerApplicationsParams {
   arananKelime: string | undefined;
-  seciliStatus?: string[];
+  kolonStatus?: string;
   siralama?: string;
   page?: number;
   limit?: number;
@@ -19,7 +19,7 @@ interface ListOrganizerApplicationsParams {
 
 export async function listOrganizerApplications({
   arananKelime,
-  seciliStatus,
+  kolonStatus,
   siralama,
   page,
   limit,
@@ -35,9 +35,10 @@ export async function listOrganizerApplications({
   if (arananKelime) {
     params.append("search[institutionData.name]", arananKelime);
   }
-  if (seciliStatus && seciliStatus.length > 0) {
-    seciliStatus.forEach((durum) => params.append("filter[status]", durum));
+  if (kolonStatus) {
+    params.append("filter[status]", kolonStatus);
   }
+
   if (page) {
     params.append("page", page.toString());
   }

@@ -6,26 +6,39 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 interface useOrganizerApplicationsParams {
   arananKelime: string | undefined;
   seciliStatus?: string[];
-  siralama?:string
+  kolonStatus?: string;
+  siralama?: string;
   limit?: number;
 }
 
 export const useOrganizerApplications = ({
   arananKelime,
   seciliStatus,
+  kolonStatus,
   siralama,
   limit = 6,
 }: useOrganizerApplicationsParams) => {
+  
+ /* salter mantıgı */
+  const kolonAcik =
+    !seciliStatus ||
+    seciliStatus.length === 0 ||
+    (kolonStatus ? seciliStatus.includes(kolonStatus) : false);
+
   return useInfiniteQuery({
-    queryKey: ["organizer-applications", seciliStatus, siralama, arananKelime, limit],
+    /* kolon bazlı api ye ıstek atıyorm */
+    enabled: kolonAcik,
+    
+    /* secili status deıl kolon status e gore */
+    queryKey: ["organizer-applications", kolonStatus, siralama, arananKelime, limit],
 
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       listOrganizerApplications({
         arananKelime,
-        seciliStatus,
         siralama,
         page: pageParam,
+        kolonStatus, 
         limit,
       }),
 
