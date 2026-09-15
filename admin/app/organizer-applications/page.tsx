@@ -1,6 +1,6 @@
 "use client";
 
-import OrganizerApplicationBoard from "@/features/admin/components/organizer-applications/OrganizerApplicationBoard";
+import OrganizerApplicationBoard from "@/features/organizer-applications/components/OrganizerApplicationBoard";
 
 export default function OrganizerApplicationsPage() {
   return (

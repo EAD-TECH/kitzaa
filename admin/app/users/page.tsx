@@ -1,6 +1,6 @@
 "use client";
 
-import UsersBoard from "@/features/admin/components/users/UsersBoard";
+import UsersBoard from "@/features/users/components/UsersBoard";
 
 export default function OrganizerApplicationsPage() {
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { listOrganizerApplications } from "@/features/admin/api";
+import { listOrganizerApplications } from "../api";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 interface useOrganizerApplicationsParams {

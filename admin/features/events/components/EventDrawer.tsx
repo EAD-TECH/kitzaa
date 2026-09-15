@@ -27,11 +27,11 @@ import ReusableDrawerHeader from "@/components/shared/drawer/ReusableDraweHeader
 import SectionShell from "@/components/shared/drawer/SectionShell";
 import InfoSection from "@/components/shared/drawer/InfoSection";
 
-import { useEventReject } from "../../hooks/useEventReject";
-import { useEventCancel } from "../../hooks/useEventCancel";
-import { AdminEventDTO } from "../../types";
-import { useEventById } from "../../hooks/useEventByID";
-import { useApproveEvent } from "../../hooks/useApproveEvent";
+import { useEventReject } from "../hooks/useEventReject";
+import { useEventCancel } from "../hooks/useEventCancel";
+import { AdminEventDTO } from "../types";
+import { useEventById } from "../hooks/useEventByID";
+import { useApproveEvent } from "../hooks/useApproveEvent";
 import {
   eventActionSchema,
   type ReviewEventFormValues,

@@ -5,7 +5,7 @@ import KanbanColumn from "@/components/shared/KanbanColumn";
 import PageHeader from "@/components/shared/PageHeader";
 import { Card } from "@/components/ui/card";
 import OrganizerApplicationCard from "./OrganizerApplicationCard";
-import { useOrganizerApplications } from "../../hooks/useOrganizerApplications";
+import { useOrganizerApplications } from "../hooks/useOrganizerApplications";
 import KanbanSkeleton from "@/components/shared/KanbanSkeleton";
 import KanbanErrorState from "@/components/shared/KanbanErrorState";
 import { useState } from "react";
