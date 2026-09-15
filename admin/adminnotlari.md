@@ -383,3 +383,76 @@ const [siralama,setSiralama]=useState<string>("sort_newest") hafızayı bu sekı
 4. export const redirectExternal = (url: string) => {
   window.location.assign(url);
 };  tum sayfayı url e goturur
+
+[KTZ-206](https://dygcankurt17.atlassian.net/browse/KTZ-206)
+
+- **Durum:** In Progress (okuma + drawer; mutation sonraki adım)
+- **Jira Kartı:** `KTZ-204`
+- **Mimari Kararlar & Ne Yaptım:**
+
+1. KanbanColumn kısmında 
+types olarak 
+export interface KanbanColumnProps {
+  title: string;
+  count: number;
+  dotColor?: string;
+  children?: ReactNode;
+  fetchNextPage?: () => void;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean; /* {children} diyerek, "Bana ne verirsen onu bu boşluğa dizeceğim" diyor. */
+}  tanıttım 
+2. Kolon bazlı cekıcegım ıcın mımarıyı degıstırıdm
+ve shared olarak tasarladıgm kanban kolona parametre olarak getirdm .Her kolon kendı statuundekılerı ınfınıte queries mantıgında cekecek.Bu yuzden kolona canlı bır kamera gorevı gorecek olan useRef hook u ıle html divini yakalaması ıcın bu sekılde tanıtıyorm en son dıvı algılaması ıcın sayfanın en altındakı burda useref nasıl calısıyor arkadakı muhendıslık mantıgı nedr cpu ram de ne oluyor tam hakım degılım ama useeffect ıle kamera gorevı gorecek sekılde ıcerısıne bır gozlemleyıcı tanıtıyorm muhtemelen burda mantık su : tarayıcının domunda baslangıcı null olan bır sensorref tanıttmm bu pc nın ram bolgesınde aldı adresını sensorref ıle sonrasında reactın hook u olan useeffect bu nasıl calısıyordu tam hatırlamıyorm ama ıcerısıne yıne ramde bır adres vererek bır gozlemelyıcı ye yer ayırdm.sonrasında new dıyerek js ın ıntersectıonobserver metodunu kullanrak bu metod ram demı heap te mı yer alıyor bılmıyorm muhtemelen basıt bır tanımlama olmadıgı ıcın fonk dızı nesne mantıgında oldugu ıcın karmasık verı yapısı syesınde heap te buna bır slot acılmıstır ve bu metod ya da fonksıyon aynı mantık ıcerınıe bır callback alıyor buna hıgh order functıon dıyoruz oncelıkle bu fonk calısıyor ve alu bolgesınde bu fonk parametre alıyor ama bu parametre nerden gelıyor buna bılmıyorm burda bır kosul donusyor burda da aslında hasnextpage ısfetchingnext page ddedık sanırm bunlarda tam oturmadı  bunlar ıle ılgılı anladıgm hazrı olarak tan tack query ullandgm ıcın manuel olarak hangı sayfadayım backende snrakı sayfa varmı bunları benım ıcın arka planda hesaplayıp oylesı be ıle haberlesıp getırıyor ben sadece useınfınıtequerıes kullandgm ıcın bu parametrelerı aldıgını bılıyorm ve bu mantıgı olustururken kosullandırıyorm eger son sayfadaysan return yap ve baska sayfa yoksa return yap gıbı returnler vermesem api kilitlenir sonsuz donguye gırer cunku bılmedıgı ıcın sureklı apıye ıstek atıp duracak . burdakı entrıes sorgulaması tam olarak sanırm ıste sayfa sonuna geldıysen ve eger yolda bır ıstek yoksa halı hazırda gıt verıyı getır demek oluyr.eger bu esıgı gecıp verıyı cekıp getırırse alt satıra gecıyor burdakı trshold degerı nedır tam olarak bılmıyorm 0.1 neyı temsıl edılıyor nerde tutuluyor bılmıyorm.sonrasında yıne zaten sensorref ıle bır dıv degerı tutuyordk onun current metodunu sorgulayıp varsa verı ceksın yoksa verı bıttı deyıp disconnect dıyerek useeffectın calısmanını durduyuroz ama tam oturmadı bu ksım baska mesela hangı durumarda kullanabılırm bu mtodu
+const sensorRef = useRef<HTMLDivElement>(null);
+
+  /* kamera */
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          if (fetchNextPage) fetchNextPage();
+        }
+      },
+      { threshold: 0.1 },
+    );
+    if (sensorRef.current) {
+      observer.observe(sensorRef.current);
+    }
+    return () => observer.disconnect(); // Bileşen kapandığında kamerayı kapat
+
+    1. useRef ve RAM (Hafıza) Mantığı
+"başlangıcı null olan bir sensorref tanıttım... RAM bölgesinde adresini aldı"
+
+Analizin %100 Doğru! useRef aslında { current: null } şeklinde bir JavaScript nesnesi (Object) yaratır. Nesneler basit veri (primitive) olmadıkları için Heap (Yığın) bellekte tutulurlar. React, bu nesnenin Heap'teki "Referans (Pointer) adresini" sıkıca tutar. Sayfa ekrana çizildiği (Render edildiği) an, React o en alttaki <div>'in fiziksel adresini alır ve bizim Heap'teki sensorRef.current alanına yazar. Artık elimizde o div'e giden doğrudan bir otoban (Pointer) vardır.
+
+2. new IntersectionObserver ve Heap/ALU Mantığı
+"karmaşık veri yapısı sayesinde heap'te buna bir slot açılmıştır... içine callback alıyor buna high order function diyoruz... entries parametresi nerden geliyor bilmiyorum"
+
+Analizin Kusursuz! new anahtar kelimesiyle oluşturulan her şey Heap'te bir slot (Instance) açar. İçine senin yazdığın o fonksiyonu (Callback) alır. Fonksiyon alan fonksiyonlara evet, Higher-Order Function denir. Peki entries nereden geliyor? Sen bu kamerayı kurduğunda, Google Chrome'un (veya Safari'nin) C++ ile yazılmış derin motoru bu div'i izlemeye başlar. Görüş açısına girdiği an Chrome motoru senin fonksiyonunu tetikler (ALU'ya işlem gönderir) ve o anki durumu bir dizi (entries) olarak senin fonksiyonunun eline zorla tutuşturur. Tıpkı butona basınca gelen (e) => içindeki event (e) gibi!
+
+3. TanStack Query ve Sonsuz Döngü (Spam) Koruması
+"TanStack arka planda hesaplayıp... returnler vermesem api kilitlenir sonsuz döngüye girer"
+
+Harika bir tespit! hasNextPage ve !isFetchingNextPage şartlarını koymasaydık; kurye (API) daha yoldayken kamera saniyede 60 kere "Hadi çek, hadi çek!" diyecekti ve arka planda binlerce istek birikip sunucuyu (Backend) felç edecekti (DDOS atacaktı). isFetchingNextPage aslında "Kurye yolda, lütfen ikinci bir sipariş verme, bekle" demektir.
+
+4. "threshold değeri nedir tam olarak bilmiyorum 0.1 neyi temsil ediyor"
+
+Threshold kelimesi "Eşik" demektir. Aldığı değer 0.0 ile 1.0 arasındadır (Yüzdelik dilimdir).
+
+threshold: 0.1 -> Sensör görevi gören o div'in sadece %10'u ekranda görünür görünmez fonksiyonu tetikle demektir.
+Eğer 1.0 yapsaydık, div'in tamamının (%100'ünün) ekrana girmesini beklerdi. Sayfa kaydırmada çok gecikme olmasın diye %10 (0.1) görünmesi bizim için yeterlidir. Eklendiği yer de Observer'ın "Ayarlar (Options)" objesidir.
+
+5. Cleanup (Temizlik) Mantığı: return () => observer.disconnect()
+"veri bitti deyip disconnect diyerek useeffectin çalışmasını durduruyoruz ama tam oturmadı bu kısım"
+
+Burada ufak bir düzeltme yapalım: Bu kod "Veri bittiğinde" çalışmaz. useEffect içindeki return () => ... fonksiyonuna Cleanup (Temizlik) denir. Kullanıcı başka bir sayfaya geçtiğinde (Örn: Profil sayfasına tıkladığında) bu Kanban tahtası ekrandan silinir. Eğer sen kamerayı fişten çekmezsen (disconnect), kamera RAM'de açık kalmaya devam eder ve artık ekranda olmayan bir div'i izlemeye çalışır. Buna Memory Leak (Hafıza Sızıntısı) denir. RAM şişer ve tarayıcı çöker. Yani bu kod: "Kullanıcı bu sayfadan çıkıp bileşen (Component) öldüğünde, lütfen Heap'teki kamerayı da imha et" demektir.
+
+----
+Sonrasında hook yapımı her kolonda kolonstatus olcak sekılde guncelledm api yi de aynı sekılde url e append ederek kolonstatuse gore getırmesı ıcın kurguladm bu kısmı
+secilistatuse gore deıl kolonstatuse gore getır dedım 
+3. Kanban Mimarisinin Kolon Bazlı (Per-Column) Parçalanması ve MongoDB Çakışma Bug'ının Çözümü:
+
+Sorun: Eski yapıda sayfa açıldığında tek bir devasa useInfiniteQuery çalışıyor ve tüm veriyi çekip Client (Tarayıcı) tarafında filtreliyordu. Ayrıca Popover'dan seçilen durumlar (seciliStatus) API'ye gittiğinde, Backend status=["pending", "approved"] gibi çakışan iki filtre alıyor ve MongoDB eşleşme bulamadığı için tahta boş dönüyordu.
+Çözüm (API ve Hook): seciliStatus parametresini API'ye giden (queryFn) isteklerin içinden tamamen kopardım. API'nin sadece kolonStatus'a (Örn: Sadece "pending") odaklanmasını sağladım.
+Çözüm (Board): Tahtadaki o devasa tek kancayı sildim. Yerine 4 farklı kolon için 4 ayrı kanca (Örn: pendingEvent, approvedEvent) oluşturdum.
+Şalter Mantığı (Performance Optimization): Popover'dan gelen seciliStatus dizisini veritabanını filtrelemek için DEĞİL, kolonları açıp kapatan bir Şalter olarak kullandım. Kancanın içine enabled: kolonAcik şartını ekledim. Böylece kullanıcı Popover'dan bir kolon gizlediğinde, o kolon için arkada boşuna API isteği atılmamasını (Ağ tasarrufu - Network Optimization) sağladım
