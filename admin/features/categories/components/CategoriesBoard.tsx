@@ -2,20 +2,19 @@
 
 /* ortak kalıp */
 import { DataTable } from "@/components/shared/table/data-table";
-import { columns } from "./column";
-import { useListUsers } from "../hooks/useListUsers";
-
 import PageHeader from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PlusIcon } from "lucide-react";
-import FilterPills from "@/components/shared/FilterPills";
 import { Input } from "@/components/ui/input";
+import { useListCategories } from "../hooks/useListCategories";
+import { columns } from "./columns";
 import { KanbanCard } from "@/components/shared/KanbanCard";
+import DynamicIcon from "@/components/shared/table/DynamicIcon";
 
-export default function UsersPage() {
+export default function CategoriesBoard() {
   /* telsizi acıp verimi cagırıyorm */
-  const { data, isLoading, isError } = useListUsers();
+  const { data, isLoading, isError } = useListCategories();
   console.log(data);
 
   if (isLoading)
@@ -27,37 +26,40 @@ export default function UsersPage() {
     <Card className="flex flex-col min-w-0  p-4   gap-6 self-stretch rounded-2xl border border-border bg-background tablet:p-6 ring-0 shadow-none">
       <div className="flex min-w-0 flex-col gap-4">
         <PageHeader
-          title="Kullanıcı Yönetimi"
-          description="Ebeveyn,organizator ve kişileri yönetin"
+          title="Kategori Yönetimi"
+          description="Eventlara ait kategorileri yönetin"
           actionButton={
             <Button className="w-full shrink-0 border border-border bg-primary p-4 text-accent hover:bg-foreground tablet:w-auto tablet:p-2">
               <PlusIcon size={16} />
-              Kullanıcı ekle
+              Kategori ekle
             </Button>
           }
         />
       </div>
 
       <DataTable
-        hideheader
         columns={columns}
-        data={data?.user || []}
-        renderMobileCard={(user) => (
+        data={data?.categories || []}
+        renderMobileCard={(category) => (
           <KanbanCard
             data={{
-              id: user._id,
-              title:
-                `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
-                "İsimsiz",
-              subtitle: user.email,
-              time: user.createdAt
-                ? new Date(user.createdAt).toLocaleDateString("tr-TR", {
+              id: category._id,
+              title: category.name,
+              subtitle: category.slug,
+              time: category.createdAt
+                ? new Date(category.createdAt).toLocaleDateString("tr-TR", {
                     day: "numeric",
                     month: "short",
                     year: "numeric",
                   })
                 : undefined,
-              status: user.role,
+              status: category.isActive ? "Aktif" : "Pasif",
+              description: category.description,
+              icon: (
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-foreground">
+                  <DynamicIcon name={category.icon} />
+                </div>
+              ),
               onEdit: (id: string) => console.log("Düzenle", id),
               onDelete: (id: string) => console.log("Sil", id),
             }}
@@ -67,24 +69,13 @@ export default function UsersPage() {
         {(table) => (
           <div className="flex w-full min-w-0 flex-col items-stretch gap-3 py-4 tablet:flex-row tablet:items-center tablet:justify-between">
             {/* children olarak data table a verdıgm bılesenlerım */}
-            <FilterPills
-              kategoriler={["Hepsi", "user", "organizer", "admin"]}
-              aktifKategori={
-                (table.getColumn("role")?.getFilterValue() as string) || "Hepsi"
-              }
-              onKategoriSec={(kategori) => {
-                const filterValue = kategori === "Hepsi" ? "" : kategori;
-                table.getColumn("role")?.setFilterValue(filterValue);
-              }}
-            />
-
             <Input
-              placeholder="Ad, e-posta veya ID ."
+              placeholder="Kategori ara ..."
               value={
-                (table.getColumn("email")?.getFilterValue() as string) ?? ""
+                (table.getColumn("name")?.getFilterValue() as string) ?? ""
               }
               onChange={(event) =>
-                table.getColumn("email")?.setFilterValue(event.target.value)
+                table.getColumn("name")?.setFilterValue(event.target.value)
               }
               className="w-full min-w-0 max-w-none focus-visible:ring-0 tablet:max-w-sm "
             />
