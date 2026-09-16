@@ -29,3 +29,40 @@ export interface ListAdminUsersResponse {
   details: unknown;
   user: AdminUserDTO[];
 }
+export interface CreateUserDTO {
+  username: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  email: string;
+  avatar?: string | null;
+  role?: UserRole;
+  language?: string;
+  location?: UserLocation;
+}
+export interface UpdateUserDTO {
+  _id: string;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  avatar?: string | null;
+  role?: UserRole;
+  language?: string;
+  location?: UserLocation;
+}
+export interface DeleteUser {
+  _id: string;
+}
+
+export interface CreateUsersResponse {
+  error: false;
+  details: unknown;
+  user: AdminUserDTO;
+}
+
+export interface UpdateUserResponse {
+  error: false;
+  details: unknown;
+  user: AdminUserDTO;
+}
