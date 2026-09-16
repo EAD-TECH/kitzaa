@@ -37,6 +37,12 @@ export function KanbanCard({ data }: { data: KanbanCardProps }) {
             {data.title}
           </CardTitle>
 
+          {data.subtitle && (
+            <CardDescription className="min-w-0 wrap-break-word text-sm text-muted-foreground">
+              {data.subtitle}
+            </CardDescription>
+          )}
+
           {/* time*/}
           <CardDescription className="min-w-0 wrap-break-word text-sm text-muted-foreground">
             {data.time || "Tarih belirtilmemiş"}
@@ -54,7 +60,11 @@ export function KanbanCard({ data }: { data: KanbanCardProps }) {
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
-                <Button variant="ghost" className="text-kanban-card-muted">
+                <Button
+                  variant="ghost"
+                  className="min-h-10 min-w-10 text-kanban-card-muted"
+                  onClick={(event) => event.stopPropagation()}
+                >
                   <MoreHorizontal size={20} />
                 </Button>
               }
@@ -89,25 +99,24 @@ export function KanbanCard({ data }: { data: KanbanCardProps }) {
         </CardAction>
       </CardHeader>
 
+      {data.icon}
+
       {data.description ? (
         <CardContent>
-          <p className="wrap-break-word text-left text-sm text-muted-foreground sm:text-xs">{data.description}</p>
+          <p className="wrap-break-word text-left text-sm text-muted-foreground sm:text-xs">
+            {data.description}
+          </p>
         </CardContent>
       ) : null}
 
-
-  <CardFooter>
-    {data.progressPercentage!=undefined && (
-       <Progress value={data.progressPercentage} className="w-full max-w-sm">
-      <ProgressLabel>Doluluk oranı</ProgressLabel>
-      <ProgressValue />
-    </Progress>
-    )}
-      
-    </CardFooter>
-
-
+      <CardFooter>
+        {data.progressPercentage != undefined && (
+          <Progress value={data.progressPercentage} className="w-full max-w-sm">
+            <ProgressLabel>Doluluk oranı</ProgressLabel>
+            <ProgressValue />
+          </Progress>
+        )}
+      </CardFooter>
     </Card>
-  
   );
 }

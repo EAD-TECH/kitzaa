@@ -1,13 +1,14 @@
 import { ReactNode } from "react";
 
-
 export interface KanbanCardProps {
   id: string;
   title: string;
   category?: string;
-  time: string;
+  time?: string;
   description?: string;
-  status: string;
+  status?: string;
+  subtitle?: string;
+  icon?: ReactNode;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
   onReview?: (id: string) => void;
