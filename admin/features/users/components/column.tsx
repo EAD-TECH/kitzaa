@@ -21,7 +21,11 @@ import { cn } from "cn";
 
 const columnHelper = createColumnHelper<DataTableFeatures, AdminUserDTO>();
 
-export const columns = [
+export const createColumns = (handlers: {
+ 
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
+}) => [
   columnHelper.accessor("email", {
     id: "email",
     cell: ({ row }) => {
@@ -95,12 +99,12 @@ export const columns = [
           <DropdownMenuContent align="end">
             <DropdownMenuGroup>
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem>Görünütle</DropdownMenuItem>
+            
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>Düzenle</DropdownMenuItem>
-              <DropdownMenuItem>Sil</DropdownMenuItem>
+              <DropdownMenuItem onClick={()=>handlers.onEdit?.(user?._id)}>Düzenle</DropdownMenuItem>
+              <DropdownMenuItem onClick={()=>handlers.onDelete?.(user?._id)}>Sil</DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>

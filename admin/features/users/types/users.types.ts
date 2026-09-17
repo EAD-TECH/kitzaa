@@ -14,6 +14,7 @@ export interface AdminUserDTO {
   firstName: string;
   lastName: string;
   email: string;
+  phone: string | null;
   avatar: string | null;
   role: UserRole;
   language: string;
@@ -30,10 +31,10 @@ export interface ListAdminUsersResponse {
   user: AdminUserDTO[];
 }
 export interface CreateUserDTO {
-  username: string;
-  firstName: string;
-  lastName: string;
-  password: string;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+  password?: string;
   email: string;
   avatar?: string | null;
   role?: UserRole;
@@ -46,10 +47,11 @@ export interface UpdateUserDTO {
   firstName?: string;
   lastName?: string;
   email?: string;
+  phone?: string;
   avatar?: string | null;
   role?: UserRole;
   language?: string;
-  location?: UserLocation;
+  location?: Partial<UserLocation>;
 }
 export interface DeleteUser {
   _id: string;
@@ -65,4 +67,8 @@ export interface UpdateUserResponse {
   error: false;
   details: unknown;
   user: AdminUserDTO;
+}
+
+export interface UserCreateFormProps {
+  onSuccess: () => void;
 }
