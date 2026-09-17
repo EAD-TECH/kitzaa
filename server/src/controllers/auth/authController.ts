@@ -2,7 +2,10 @@
 
 import type { Request, Response } from "express";
 import User from "../../models/userModel.js";
-import { generateAccessToken, generateRefreshToken } from "../../helpers/generateJwt.js";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from "../../helpers/generateJwt.js";
 import type { RefreshTokenPayload } from "../../helpers/generateJwt.js";
 import CustomError from "../../helpers/customError.js";
 import jwt from "jsonwebtoken";
@@ -10,13 +13,17 @@ import { toUserDTO } from "../../helpers/toUserDTO.js";
 
 import { welcomeTemplate } from "../../mail/templates/welcome.template.js";
 import { sendMail } from "../../mail/mail.service.js";
-import { generateSecureToken, hashToken } from "../../helpers/generateSecureToken.js";
+import {
+  generateSecureToken,
+  hashToken,
+} from "../../helpers/generateSecureToken.js";
 import { resetPasswordTemplate } from "../../mail/templates/resetPassword.template.js";
 import type {
   CreateUserInput,
   LoginInput,
   ForgotPasswordInput,
   ResetPasswordInput,
+  SetupAccountInput,
 } from "../../validations/user.schema.js";
 
 const authController = {
@@ -40,7 +47,8 @@ const authController = {
       throw new CustomError("Invalid email or password.", 404);
     }
 
-    if (!user.isActive) throw new CustomError("The user status is not active", 401);
+    if (!user.isActive)
+      throw new CustomError("The user status is not active", 401);
 
     // if (!user.isEmailVerified)
     //   throw new CustomError("The user email is not verified", 401);
@@ -73,7 +81,10 @@ const authController = {
     // console.log('validate data', validatedData)
 
     const userExists = await User.findOne({
-      $or: [{ email: validatedData.email }, { username: validatedData.username }],
+      $or: [
+        { email: validatedData.email },
+        { username: validatedData.username },
+      ],
     });
 
     if (userExists) {
@@ -84,8 +95,9 @@ const authController = {
 
     // console.log('newUser', newUser)
 
-
-    const { rawToken, hashedToken, expires } = generateSecureToken(24 * 60 * 60 * 1000);
+    const { rawToken, hashedToken, expires } = generateSecureToken(
+      24 * 60 * 60 * 1000,
+    );
     newUser.emailVerifyToken = hashedToken;
     newUser.emailVerifyExp = expires;
 
@@ -100,15 +112,14 @@ const authController = {
         subject: "Willkommen bei Kitzaa",
         html: welcomeTemplate({ username: newUser.username, verifyUrl }),
       });
-
     } catch (error) {
       console.log("Failed to send email.", error);
     }
 
-
     res.status(201).send({
       error: false,
-      message: "Ihr Konto wurde erstellt. Bitte bestätigen Sie Ihre E-Mail-Adresse."
+      message:
+        "Ihr Konto wurde erstellt. Bitte bestätigen Sie Ihre E-Mail-Adresse.",
     });
   },
 
@@ -136,11 +147,15 @@ const authController = {
     if (!refreshToken) throw new CustomError("Refresh token is missing.", 400);
 
     try {
-      const refreshData = jwt.verify(refreshToken, process.env.REFRESH_KEY!) as RefreshTokenPayload;
+      const refreshData = jwt.verify(
+        refreshToken,
+        process.env.REFRESH_KEY!,
+      ) as RefreshTokenPayload;
       const user = await User.findById(refreshData.id).select("+refreshToken"); // refreshtoken in basina arti koymamin sebebi schemada bu kisim select:false oldugu cin.
       if (!user) throw new CustomError("Refresh data is not valid.", 401);
       if (!user.isActive) throw new CustomError("This account is banned.", 401);
-      if (user.refreshToken !== refreshToken) throw new CustomError("Refresh token is not valid.", 401);
+      if (user.refreshToken !== refreshToken)
+        throw new CustomError("Refresh token is not valid.", 401);
 
       const accessToken = generateAccessToken(user);
       const newRefreshToken = generateRefreshToken(user);
@@ -166,12 +181,16 @@ const authController = {
     }
   },
 
-  forgotPassword: async (req: Request<{}, any, ForgotPasswordInput>, res: Response) => {
+  forgotPassword: async (
+    req: Request<{}, any, ForgotPasswordInput>,
+    res: Response,
+  ) => {
     const { email } = req.body;
 
     const genericResponse = {
       error: "false",
-      message: "Falls die E-Mail-Adresse existiert, wurde ein Link zum Zurücksetzen des Passworts gesendet.",
+      message:
+        "Falls die E-Mail-Adresse existiert, wurde ein Link zum Zurücksetzen des Passworts gesendet.",
     };
 
     const user = await User.findOne({ email: email.toLowerCase() });
@@ -180,7 +199,9 @@ const authController = {
       return res.status(200).json(genericResponse);
     }
 
-    const { rawToken, hashedToken, expires } = generateSecureToken(30 * 60 * 1000);
+    const { rawToken, hashedToken, expires } = generateSecureToken(
+      30 * 60 * 1000,
+    );
 
     user.passwordResetToken = hashedToken;
     user.passwordResetExp = expires;
@@ -200,13 +221,19 @@ const authController = {
       await user.save();
 
       console.log("Failed to send email.", mailError);
-      throw new CustomError("E-Mail konnte nicht gesendet werden. Bitte versuche es später erneut.", 500);
+      throw new CustomError(
+        "E-Mail konnte nicht gesendet werden. Bitte versuche es später erneut.",
+        500,
+      );
     }
 
     res.status(200).json(genericResponse);
   },
 
-  resetPassword: async (req: Request<{ token: string }, any, ResetPasswordInput>, res: Response) => {
+  resetPassword: async (
+    req: Request<{ token: string }, any, ResetPasswordInput>,
+    res: Response,
+  ) => {
     const { token } = req.params;
     const { newPassword } = req.body;
 
@@ -215,7 +242,7 @@ const authController = {
     const user = await User.findOne({
       passwordResetToken: hashedToken,
       passwordResetExp: { $gt: new Date() },
-    }).select("+resetPasswordToken +resetPasswordExpires +password");
+    }).select("+passwordResetToken +passwordResetExp +password");
 
     if (!user) {
       throw new CustomError("Der Link ist ungültig oder abgelaufen.", 400);
@@ -233,7 +260,6 @@ const authController = {
   },
 
   verifyEmail: async (req: Request<{ token: string }>, res: Response) => {
-    
     const { token } = req.params;
 
     const hashedToken = hashToken(token);
@@ -265,6 +291,72 @@ const authController = {
     // tarayıcı navigasyonu bu — JSON değil, frontend'e redirect ediyoruz.
     // accessToken'ı frontend orada mount olunca /refresh çağrısıyla alacak.
     res.redirect(302, `${process.env.CLIENT_URL}/`);
+  },
+
+  setupAccount: async (
+    req: Request<{ token: string }, any, SetupAccountInput>,res: Response
+  ) => {
+    const { token } = req.params;
+
+    /* bodyden verılerı alıyorm */
+    const {
+      username,
+      firstName,
+      lastName,
+      newPassword,
+      phone,
+      language,
+      location,
+    } = req.body;
+
+    /* tokenı karsılastırma kilidi acıyrom */
+    const hashedToken = hashToken(token);
+
+    /* kullanıcıyı veritabanından buluyorö */
+    const user = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExp: { $gt: new Date() },
+    }).select("+passwordResetToken +passwordResetExp +password");
+
+    if (!user) {
+      throw new CustomError(
+        "Der Einladungslink ist ungültig oder abgelaufen.",
+        400,
+      );
+    }
+
+    if (username) user.username = username;
+    if (firstName) user.firstName = firstName;
+    if (lastName) user.lastName = lastName;
+
+    user.password = newPassword;
+
+    // Yeni eklenen alanlar
+    if (phone) user.phone = phone;
+    if (language) user.language = language;
+    if (location) {
+      if (location.state) user.location!.state = location.state;
+      if (location.city) user.location!.city = location.city;
+      if (location.district) user.location!.district = location.district;
+      if (location.zipCode) user.location!.zipCode = location.zipCode;
+      if (location.country) user.location!.country = location.country;
+    }
+
+    /* davet linkinden geldiğine göre emaili doğrula */
+    user.isEmailVerified = true;
+
+    /* geçici tokenı geçersiz kılıyorum */
+    user.passwordResetToken = null;
+    user.passwordResetExp = null;
+
+    /* kullanıcıyı kaydet */
+    await user.save();
+
+    res.status(200).json({
+      error: false,
+      message:
+        "Dein Profil wurde erfolgreich erstellt. Du kannst dich jetzt einloggen!",
+    });
   },
 };
 
