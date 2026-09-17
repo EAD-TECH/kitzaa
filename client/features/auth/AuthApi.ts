@@ -9,6 +9,7 @@ import type {
 import type { RegisterPayload } from "./validations/register.schema";
 import type { ForgotPasswordValues } from "./validations/forgotpassword.schema";
 import type { ResetPasswordValues } from "./validations/resetpassword.schema";
+import { SetupAccountPayload } from "./validations/setup-account.schema";
 
 export async function login(payload: LoginPayload): Promise<LoginResponse> {
   return apiFetch<LoginResponse>("/api/v1/auth/login", {
@@ -68,5 +69,16 @@ export async function resetPassword(token: string, payload: ResetPasswordValues)
     body: payload,
     skipAuthRefresh: true,
     skipAuthHeaders: true,
+  });
+}
+
+
+export async function setupAccount(token: string, payload: SetupAccountPayload) {
+ 
+  return apiFetch(`/api/v1/auth/setup-account/${token}`, { 
+    method: "POST",
+    body: payload,
+    skipAuthRefresh: true, // Login olmadan yapılan işlem, kimlik sorma
+    skipAuthHeaders: true, // Header ekleme
   });
 }

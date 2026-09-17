@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createAdminUser, updateAdminUser } from "../api/getUsers";
-import { CreateUserDTO, UpdateUserDTO } from "../types/users.types";
+import { updateAdminUser } from "../api/getUsers";
+import {  UpdateUserDTO } from "../types/users.types";
 
 export const useUpdateUser = () => {
   /* santıye sefımın telsı */
