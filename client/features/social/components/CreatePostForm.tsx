@@ -20,19 +20,28 @@ import {
   ComboboxList,
 } from "@/components/ui/combobox";
 import { usePlaceSearch } from "../hooks/usePlaceSearch";
-import { useCreatePost } from "../hooks/socialHooks";
+import { useCreatePost, useUpdatePost } from "../hooks/socialHooks";
 import { useUploadPostImage } from "../hooks/useUploadPostImage";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import type { PostDTO } from "../types/post.types";
 
 // uploadRouter.socialImage (server/src/configs/uploadthing.ts) ile birebir aynı limit.
 const MAX_POST_IMAGE_SIZE_MB = 8;
 
-export default function CreatePostForm({ onCreated }: { onCreated?: () => void }) {
+interface CreatePostFormProps {
+  onCreated?: () => void;
+  post?: PostDTO;
+}
+
+export default function CreatePostForm({ onCreated, post }: CreatePostFormProps) {
+  const isEditMode = Boolean(post);
+
   const { data } = useEvents();
   const events = data?.events ?? [];
   const [placeQuery, setPlaceQuery] = useState("");
   const { data: places = [] } = usePlaceSearch(placeQuery);
   const createPost = useCreatePost();
+  const updatePost = useUpdatePost();
   const uploadImage = useUploadPostImage();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -51,6 +60,31 @@ export default function CreatePostForm({ onCreated }: { onCreated?: () => void }
       location: null,
     },
   });
+
+  useEffect(() => {
+    if (!post) return;
+
+    form.reset({
+      text: post.text,
+      imageUrl: post.imageUrl,
+      eventId: post.event?._id ?? null,
+      placeName: post.placeName,
+      city: post.city,
+      location: post.location,
+    });
+
+    setPlaceQuery(
+      post.city && post.placeName
+        ? `${post.placeName}, ${post.city}`
+        : (post.placeName ?? ""),
+    );
+
+    if (post.imageUrl) {
+      setPreviewUrl(post.imageUrl);
+      setImageStatus("done");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [post]);
 
   const text =
     useWatch({
@@ -101,6 +135,14 @@ export default function CreatePostForm({ onCreated }: { onCreated?: () => void }
   const onSubmit = (data: CreatePostInput) => {
     if (imageStatus === "uploading" || imageStatus === "error") return;
 
+    if (isEditMode && post) {
+      updatePost.mutate(
+        { id: post._id, payload: data },
+        { onSuccess: () => onCreated?.() },
+      );
+      return;
+    }
+
     createPost.mutate(data, {
       onSuccess: () => {
         clearImage();
@@ -112,7 +154,8 @@ export default function CreatePostForm({ onCreated }: { onCreated?: () => void }
   };
 
   const isImageBusy = imageStatus === "uploading";
-  const canSubmit = !createPost.isPending && imageStatus !== "uploading" && imageStatus !== "error";
+  const isPending = createPost.isPending || updatePost.isPending;
+  const canSubmit = !isPending && imageStatus !== "uploading" && imageStatus !== "error";
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -125,7 +168,7 @@ export default function CreatePostForm({ onCreated }: { onCreated?: () => void }
             type="file"
             accept="image/*"
             className="sr-only"
-            disabled={isImageBusy || createPost.isPending}
+            disabled={isImageBusy || isPending}
             onChange={(event) => {
               const file = event.target.files?.[0];
               event.target.value = "";
@@ -157,7 +200,7 @@ export default function CreatePostForm({ onCreated }: { onCreated?: () => void }
               <button
                 type="button"
                 onClick={clearImage}
-                disabled={isImageBusy}
+                disabled={isImageBusy || isPending}
                 aria-label="Bild entfernen"
                 className="absolute top-3 right-3 flex size-8 cursor-pointer items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm disabled:opacity-50"
               >
@@ -171,7 +214,7 @@ export default function CreatePostForm({ onCreated }: { onCreated?: () => void }
                   size="sm"
                   className="absolute bottom-4 left-1/2 -translate-x-1/2"
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={createPost.isPending}
+                  disabled={isPending}
                 >
                   Bild ändern
                 </Button>
@@ -193,7 +236,7 @@ export default function CreatePostForm({ onCreated }: { onCreated?: () => void }
                 size="sm"
                 className="mt-4"
                 onClick={() => fileInputRef.current?.click()}
-                disabled={createPost.isPending}
+                disabled={isPending}
               >
                 Auswählen
               </Button>
@@ -369,7 +412,7 @@ export default function CreatePostForm({ onCreated }: { onCreated?: () => void }
             </p>
 
             <Button type="submit" className="mt-4 w-full" disabled={!canSubmit}>
-              {createPost.isPending ? "Wird veröffentlicht..." : "Beitrag veröffentlichen"}
+              {isEditMode ? (updatePost.isPending ? "Wird aktualisiert..." : "Beitrag aktualisieren") : (createPost.isPending ? "Wird veröffentlicht..." : "Beitrag veröffentlichen")}
             </Button>
           </div>
         </section>

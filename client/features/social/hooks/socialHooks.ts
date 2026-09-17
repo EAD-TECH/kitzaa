@@ -24,20 +24,22 @@ import {
   likeSocialPost,
   listSocialPosts,
   myPosts,
+  updateSocialPost,
 } from "../api/postApi";
 import type { PostCommentListResponse } from "../types/postComment.types";
 import type { PostListResponse, UsePostsParams } from "../types/post.types";
 import type { CreatePostCommentInput } from "../validations/postComment.schema";
-import type { CreatePostInput } from "../validations/post.schema";
+import type { CreatePostInput, UpdatePostInput } from "../validations/post.schema";
 
 const POST_CREATE_ERROR_MESSAGES: Record<string, string> = {};
+const POST_UPDATE_ERROR_MESSAGES: Record<string, string> = {};
 const COMMENT_CREATE_ERROR_MESSAGES: Record<string, string> = {};
+const COMMENT_DELETE_ERROR_MESSAGES: Record<string, string> = {};
 
 // Backend CustomError.message → kullanıcıya gösterilen Almanca metin.
 // Key'ler sunucudaki string ile birebir aynı olmalı (isOwnerOrAdmin + comment deletee).
 const POST_DELETE_ERROR_MESSAGES: Record<string, string> = {
-  "You do not have permission to perform this action.":
-    "Du darfst diesen Beitrag nicht löschen.",
+  "You do not have permission to perform this action.": "Du darfst diesen Beitrag nicht löschen.",
   "Post not found": "Beitrag wurde nicht gefunden.",
   "Resource not found": "Beitrag wurde nicht gefunden.",
   "Invalid resource id.": "Ungültige Beitrags-ID.",
@@ -144,6 +146,27 @@ export const useCreatePost = () => {
     onSuccess: () => {
       toast.success("Beitrag erfolgreich erstellt.");
       queryClient.invalidateQueries({ queryKey: ["social-posts"] });
+    },
+  });
+};
+
+export const useUpdatePost = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: UpdatePostInput }) => updateSocialPost(id, payload),
+    onError: (error) => {
+      const message =
+        error instanceof ApiError
+          ? (POST_UPDATE_ERROR_MESSAGES[error.message] ??
+            "Beitrag konnte nicht aktualisiert werden. Bitte versuche es erneut.")
+          : "Beitrag konnte nicht aktualisiert werden. Bitte versuche es erneut.";
+      toast.error(message);
+    },
+    onSuccess: (_response, variables) => {
+      toast.success("Beitrag erfolgreich aktualisiert.");
+      queryClient.invalidateQueries({ queryKey: ["social-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["social-post", variables.id] });
     },
   });
 };
