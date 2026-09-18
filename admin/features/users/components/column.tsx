@@ -56,8 +56,9 @@ export const createColumns = (handlers: {
 
       return (
         <Badge
+        variant="secondary"
           className={cn(
-            "w-24  p-3 font-heading justify-center border-0 rounded-full text-xs font-normal",
+            "w-24  p-3 font-heading  justify-center border-0 rounded-full text-xs font-normal",
           )}
         >
           {user.role}

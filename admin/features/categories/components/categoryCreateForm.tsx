@@ -30,6 +30,8 @@ import {
   CategoryFormValues,
 } from "@/features/validations/CategoryForm";
 import DynamicIcon from "@/components/shared/table/DynamicIcon";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 
 export function CategoryCreateForm({ onSuccess }: CategoryCreateFormProps) {
   const { mutate: createCategory, isPending } = useCreateCategory();
@@ -60,7 +62,7 @@ export function CategoryCreateForm({ onSuccess }: CategoryCreateFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-4">
         <ReusableFormInput
           control={form.control}
           name="name"
@@ -68,21 +70,53 @@ export function CategoryCreateForm({ onSuccess }: CategoryCreateFormProps) {
           type="name"
           placeholder="Category olustur.."
         />
-        <ReusableFormInput
+        <FormField
           control={form.control}
           name="description"
-          label="Description"
-          type="description"
-          placeholder="Kısa bir açıklama gir"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Kısa bir açıklama gir"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-        <ReusableFormInput
-          control={form.control}
-          name="icon"
-          label="Lucide Icon Adı"
-          placeholder="Örn: Leaf, Music, Palette"
-        />
-        <DynamicIcon name={form.watch("icon") || "HelpCircle"} />
+        <div className="flex min-w-0 items-end gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted">
+            <DynamicIcon name={form.watch("icon") || "HelpCircle"} />
+          </div>
 
+          <div className="min-w-0 flex-1">
+            <ReusableFormInput
+              control={form.control}
+              name="icon"
+              label="Lucide Icon Adı"
+              placeholder="Örn: Leaf, Music, Palette"
+            />
+          </div>
+
+          <FormField
+            control={form.control}
+            name="isActive"
+            render={({ field }) => (
+              <FormItem className="flex flex-col gap-2">
+                <FormLabel>Durum</FormLabel>
+                <div className="flex h-9 items-center">
+                  <Switch
+                    checked={field.value ?? false}
+                    onCheckedChange={field.onChange}
+                  />
+                </div>
+              </FormItem>
+            )}
+          />
+        </div>
 
         <Button
           type="button"

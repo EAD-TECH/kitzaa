@@ -34,12 +34,12 @@ export function ResponsiveModal({
   description,
   children,
 }: ResponsiveModalProps) {
-  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   if (isDesktop) {
     return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-(600px) veya sm:max-w-2xl">
+      <Dialog  open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="flex max-h-[90dvh] flex-col gap-4 overflow-hidden sm:max-w-2xl">
           <DialogHeader>
           
             <DialogTitle>{title}</DialogTitle>
@@ -51,7 +51,9 @@ export function ResponsiveModal({
               </DialogDescription>
             )}
           </DialogHeader>
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
             {children}
+          </div>
         </DialogContent>
       </Dialog>
     );
@@ -66,9 +68,9 @@ export function ResponsiveModal({
               <DrawerDescription>{description}</DrawerDescription>
             )}
           </DrawerHeader>
-        
-              {children}
-         
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            {children}
+          </div>
         </DrawerContent>
       </Drawer>
     );

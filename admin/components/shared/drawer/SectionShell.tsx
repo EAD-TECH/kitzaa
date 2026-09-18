@@ -8,7 +8,7 @@ export default function SectionShell({ title, children }: SectionShellProps) {
       </h2>
 
       {/* burda ıcıne gelen her bılesenı basıcak*/}
-      <div className="grid grid-cols-2 gap-x-6 gap-y-5">{children}</div>
+      <div className="grid grid-cols- gap-x-6 gap-y-5">{children}</div>
     </section>
   );
 }

@@ -120,9 +120,6 @@ export default function UserActionDrawer() {
           delete (payload.location as any)[locKey];
         }
       });
-      if (Object.keys(payload.location).length === 0) {
-        delete payload.location;
-      }
     }
 
     updateUser(payload, {
@@ -151,14 +148,14 @@ export default function UserActionDrawer() {
     >
       <Form {...form}>
         <form
-          className="flex flex-col min-h-0 overflow-hidden"
+          className="flex min-h-0 flex-1 flex-col overflow-hidden"
           onSubmit={form.handleSubmit(onSubmit)}
         >
-          <div className="flex flex-col flex-1 gap-4 overflow-y-auto px-4 py-4 tablet:px-6 tablet:py-6 bg-kanban-column-bg">
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 tablet:px-6 tablet:py-6 bg-kanban-column-bg">
             {isLoading ? (
               <div className="p-10 text-center">(Yükleniyor)...</div>
             ) : (
-              <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 tablet:grid-cols-2 min-w-0 gap-2">
                 <SectionShell title="Kişisel Bilgiler">
                   <ReusableFormInput
                     control={form.control}
@@ -183,7 +180,7 @@ export default function UserActionDrawer() {
                     control={form.control}
                     name="phone"
                     label="Telefon"
-                    placeholder="+90..."
+                    placeholder="+49..."
                   />
                 </SectionShell>
 
@@ -252,7 +249,7 @@ export default function UserActionDrawer() {
             )}
           </div>
 
-          <div className="flex justify-end gap-2 px-4 py-4 tablet:px-6">
+          <div className="shrink-0 flex justify-end gap-2 border-t px-4 py-4 tablet:px-6">
             <Button type="submit" disabled={isUpdating}>
               {isUpdating ? "Kaydediliyor..." : "Kaydet"}
             </Button>

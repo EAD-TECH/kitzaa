@@ -18,6 +18,7 @@ import { useDeleteCategory } from "../hooks/useDeleteCategory";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { createCategoryColumns } from "./columns";
+import UpdateCategoryForm from "./UpdateCategoryForm";
 
 export default function CategoriesBoard() {
   /* telsizi acıp verimi cagırıyorm */
@@ -28,6 +29,7 @@ export default function CategoriesBoard() {
   const params = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+  
 
   console.log(data);
 
@@ -143,6 +145,8 @@ export default function CategoriesBoard() {
           </Button>
         </div>
       </ResponsiveModal>
+
+      <UpdateCategoryForm />
     </Card>
   );
 }

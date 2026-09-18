@@ -1,7 +1,7 @@
 export interface CategoryDTO {
   _id: string;
   name: string;
-  slug: string;
+  slug: string | undefined;
   description: string | null;
   icon: string;
   isActive: boolean;
@@ -33,4 +33,17 @@ export interface CategoryCreateFormProps {
 
 export interface DeleteUser {
   _id: string;
+}
+
+export interface UpdateCategoryDTO {
+  _id: string;
+  name?: string;
+  description?: string | null;
+  icon?: string;
+  isActive?: boolean;
+}
+
+export interface UpdateCategoryResponse {
+  error: false;
+  category: CategoryDTO;
 }

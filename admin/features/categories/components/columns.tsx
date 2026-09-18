@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { CategoryDTO } from "../types/categories";
 import { Switch } from "@/components/ui/switch";
 import DynamicIcon from "@/components/shared/table/DynamicIcon";
+import { cn } from "@/lib/utils";
 
 const columnHelper = createColumnHelper<DataTableFeatures, CategoryDTO>();
 
@@ -31,7 +32,7 @@ export const createCategoryColumns = (handlers: {
       const category = row.original;
 
       return (
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-foreground">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-kanban-card-bg">
           <DynamicIcon name={category.icon} />
         </div>
       );
@@ -78,8 +79,8 @@ export const createCategoryColumns = (handlers: {
       const category = row.original;
 
       return (
-        <div className="flex flex-col min-w-0">
-          <Switch disabled checked={category.isActive} />
+        <div className="flex flex-col  min-w-0">
+          <Switch className={cn("bg-secondary")} checked={category.isActive} />
         </div>
       );
     },
@@ -102,11 +103,14 @@ export const createCategoryColumns = (handlers: {
           <DropdownMenuContent align="end">
             <DropdownMenuGroup>
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem>Görünütle</DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>Düzenle</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => handlers.onEdit?.(category?._id)}
+              >
+                Düzenle
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => handlers.onDelete?.(category?._id)}
               >
