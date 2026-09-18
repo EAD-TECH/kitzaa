@@ -11,10 +11,14 @@ import { useListCategories } from "../hooks/useListCategories";
 import { columns } from "./columns";
 import { KanbanCard } from "@/components/shared/KanbanCard";
 import DynamicIcon from "@/components/shared/table/DynamicIcon";
+import { ResponsiveModal } from "@/components/shared/modal/ResponsiveModal";
+import { useState } from "react";
+import { CategoryCreateForm } from "./categoryCreateForm";
 
 export default function CategoriesBoard() {
   /* telsizi acıp verimi cagırıyorm */
   const { data, isLoading, isError } = useListCategories();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   console.log(data);
 
   if (isLoading)
@@ -29,7 +33,8 @@ export default function CategoriesBoard() {
           title="Kategori Yönetimi"
           description="Eventlara ait kategorileri yönetin"
           actionButton={
-            <Button className="w-full shrink-0 border border-border bg-primary p-4 text-accent hover:bg-foreground tablet:w-auto tablet:p-2">
+            <Button
+            onClick={()=>setIsModalOpen(true)} className="w-full shrink-0 border border-border bg-primary p-4 text-accent hover:bg-foreground tablet:w-auto tablet:p-2">
               <PlusIcon size={16} />
               Kategori ekle
             </Button>
@@ -54,7 +59,7 @@ export default function CategoriesBoard() {
                   })
                 : undefined,
               status: category.isActive ? "Aktif" : "Pasif",
-              description: category.description,
+              description: category.description ?? undefined,
               icon: (
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-foreground">
                   <DynamicIcon name={category.icon} />
@@ -82,6 +87,15 @@ export default function CategoriesBoard() {
           </div>
         )}
       </DataTable>
+
+      <ResponsiveModal
+        isOpen={isModalOpen}
+        onClose={setIsModalOpen}
+        title="Yeni Kategori Ekle"
+        description="Oluşturulacak Eventlar için alternatif kategoriler eklenecektir  "
+      >
+        <CategoryCreateForm onSuccess={() => setIsModalOpen(false)} />
+      </ResponsiveModal>
     </Card>
   );
 }
