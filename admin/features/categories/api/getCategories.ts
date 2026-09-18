@@ -21,3 +21,10 @@ export async function createAadminCategories(
     body: payload,
   });
 }
+
+
+export async function deleteAdminCategory(id: string): Promise<void> {
+  return apiFetch(`${BASE}/${id}`, {
+    method: "DELETE",
+  });
+}

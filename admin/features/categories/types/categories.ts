@@ -27,7 +27,10 @@ export interface CreateCategoryResponse {
   category: CategoryDTO;
 }
 
-
 export interface CategoryCreateFormProps {
   onSuccess: () => void;
+}
+
+export interface DeleteUser {
+  _id: string;
 }
