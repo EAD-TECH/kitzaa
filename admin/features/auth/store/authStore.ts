@@ -1,9 +1,14 @@
-import { create } from "zustand";
-import { AuthTokenState } from "../types/authTypes";
 
-export const useAuthStore = create<AuthTokenState>()((set) => ({
+import { create } from "zustand";
+import { AuthTokenState, isSocketState } from "../types/authTypes"; 
+
+
+export const useAuthStore = create<AuthTokenState & isSocketState>((set) => ({
   accessToken: null,
-  setAccessToken: (accessToken) => set({ accessToken }),
   isReady: false,
-  setIsReady: (value) => set({ isReady: value }),
+  isSocketConnected: false,
+  
+  setAccessToken: (token) => set({ accessToken: token }),
+  setIsReady: (val) => set({ isReady: val }),
+  setIsSocketConnected: (val) => set({ isSocketConnected: val }),
 }));

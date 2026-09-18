@@ -24,3 +24,10 @@ export interface AuthTokenState {
   isReady: boolean;
   setIsReady: (value: boolean) => void;
 }
+
+
+/* zustandın aklında tutması lazım  */
+export interface isSocketState {
+  isSocketConnected: boolean;
+  setIsSocketConnected: (value: boolean) => void;
+}

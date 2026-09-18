@@ -6,6 +6,7 @@ import RequireAuth from "@/features/auth/components/RequireAuth";
 import SideBar from "@/components/layout/sidebar";
 import Header from "@/components/layout/header";
 import { ThemeProvider } from "@/providers/theme-provider";
+import AuthSocketProvider from "@/providers/auth.socket.providers";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -46,12 +47,14 @@ export default function RootLayout({
           <QueryProvider>
             <RequireAuth roles="admin">
               <div className="min-h-dvh">
+                <AuthSocketProvider>
                 <SideBar />
                 <div className="min-h-dvh pb-24 pl-0 desktop:pb-0 desktop:pl-28">
                   <Header />
 
                   {children}
                 </div>
+                </AuthSocketProvider>
               </div>
             </RequireAuth>
           </QueryProvider>
