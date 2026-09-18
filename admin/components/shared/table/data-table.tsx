@@ -58,7 +58,7 @@ export function DataTable<TData extends RowData>({
         <div className={renderMobileCard ? "hidden tablet:block" : "block"}>
           <Table>
             {!hideheader && (
-              <TableHeader className="bg-muted">
+              <TableHeader className="bg-sidebar">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (

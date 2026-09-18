@@ -22,7 +22,7 @@ export function ReusableFormInput({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem>
+        <FormItem className="flex gap-2 flex-col">
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <Input type={type} placeholder={placeholder} {...field} />

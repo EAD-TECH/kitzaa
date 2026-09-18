@@ -2,26 +2,13 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import {
   userFormSchema,
   UserFormValues,
 } from "@/features/validations/ReviewApplicationForm";
 import { ReusableFormInput } from "@/components/shared/form/ReusableFormInput";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { useCreateUser } from "../hooks/useCreateUser";
 import { UserCreateFormProps } from "../types/users.types";
 import { Loader2 } from "lucide-react";
@@ -51,8 +38,11 @@ export function UserCreateForm({ onSuccess }: UserCreateFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {/* 2. İsim için ReusableFormInput prizini tak */}
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col gap-6 px-4 pb-4 tablet:px-6 tablet:pb-6"
+      >
+     
         {/*   <ReusableFormInput
           control={form.control}
           name="name"
@@ -105,7 +95,7 @@ export function UserCreateForm({ onSuccess }: UserCreateFormProps) {
         <Button
           type="button"
           onClick={form.handleSubmit(onSubmit)}
-          className="w-full"
+          className="mt-2 w-full"
           disabled={isPending}
         >
           {isPending && <Loader2 className="animate-spin" />}

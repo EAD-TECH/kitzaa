@@ -114,7 +114,7 @@ export default function UsersPage() {
             />
 
             <Input
-              placeholder="Ad, e-posta veya ID..."
+              placeholder="Ad, e-posta .."
               value={
                 (table.getColumn("email")?.getFilterValue() as string) ?? ""
               }
