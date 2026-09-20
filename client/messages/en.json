@@ -4,8 +4,9 @@
     "heroTitle": "Discover family-friendly events near you",
     "heroSubtitle": "We curate the loveliest experiences for you and your children – from forest adventures to creative workshops in your neighbourhood.",
     "discoverEvents": "Discover events",
-    "learnMore": "Learn more",
-    "heroImageAlt": "Family playing together in the park"
+    "heroImageAlt": "Family playing together in the park",
+    "upcomingEventsTitle": "Upcoming events",
+    "viewAllEvents": "Discover all events"
   },
   "Nav": {
     "home": "Home",

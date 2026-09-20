@@ -28,7 +28,7 @@ const Standort = ({ location }: StandortProps) => {
             alt={`Karte: ${location.addressLine}, ${location.city}`}
             fill
             sizes="(min-width: 768px) 256px, 100vw"
-            className="object-cover transition-transform duration-200 group-hover:scale-105"
+            className="scale-110 object-cover transition-transform duration-200 group-hover:scale-125"
           />
           <span className="absolute right-2 bottom-2 flex items-center gap-1 rounded-full bg-background/90 px-2 py-1 text-xs font-medium text-foreground opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
             Route

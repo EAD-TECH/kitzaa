@@ -6,6 +6,9 @@
   --card: var(--cream-100);
   --card-foreground: var(--brown-900);
 
+  --surface-accent: var(--latte-300);
+  --surface-accent-foreground: var(--brown-900);
+
   --primary: var(--terracotta-600);
   --primary-foreground: var(--cream-50);
 

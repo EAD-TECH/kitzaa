@@ -14,6 +14,7 @@ import { useEventsStore } from "../store/EventStore"
 import useToggleSaveEvent from "../hooks/useToggleSaveEvent"
 import { toast } from "sonner"
 import { useAuthStore } from "@/features/auth/store/authStore"
+import { formatAgeRange } from "../utils/ageRange"
 
 function getDateParts(startDate: string) {
   const date = new Date(startDate)
@@ -21,19 +22,6 @@ function getDateParts(startDate: string) {
     day: date.toLocaleDateString("de-DE", { day: "2-digit" }),
     month: date.toLocaleDateString("de-DE", { month: "short" }),
   }
-}
-
-const AGE_RANGE_LABELS: Record<EventDTO["ageRange"], string> = {
-  "0-3": "0-3 Jahre",
-  "4-6": "4-6 Jahre",
-  "7-10": "7-10 Jahre",
-  "10-14": "10-14 Jahre",
-  parents: "Für Eltern",
-  "all-ages": "Alle Alter",
-}
-
-function formatAgeRange(ageRange: EventDTO["ageRange"]) {
-  return AGE_RANGE_LABELS[ageRange]
 }
 
 function getCategoryName(categoryId: EventDTO["categoryId"]) {
