@@ -18,6 +18,20 @@ export const getOrganizerEventCountServer = async (organizerId: string) => {
 }
 
 
+export const getUpcomingEventsServer = async (limit = 3) => {
+    const params = new URLSearchParams()
+    params.set("limit", String(limit))
+    params.set("sort[schedule.startDate]", "1")
+    params.set("filter[schedule.startDate][$gte]", new Date().toISOString())
+
+    return apiFetchServer<EventListResponse>(`/api/v1/events?${params.toString()}`, {
+        method: "GET",
+        revalidate: 60,
+        tags: ["events"],
+    })
+}
+
+
 export const getEventsServer = async (searchParams: EventSearchParams = {}) => {
 
     const params = buildEventQuery(searchParams)

@@ -65,191 +65,202 @@ const Navbar = () => {
     });
   };
 
+  const isHome = pathname === "/";
+
   return (
-    <div className="flex h-16 items-center justify-between px-3 tablet:px-5 desktop:px-8 bg-card/40 border-b border-border sticky top-0 z-50 backdrop-blur-sm">
-      {/* logo  */}
+    <div
+      className={cn(
+        "mb-3 z-50",
+        isHome
+          ? "absolute inset-x-0 top-2 bg-transparent tablet:top-3"
+          : "sticky top-2 border-b border-border bg-background pb-3 tablet:top-3",
+      )}
+    >
+      <div className="mx-auto grid h-14 max-w-400 grid-cols-[1fr_auto_1fr] items-center px-3 tablet:px-5 desktop:px-8">
+        {/* logo  */}
 
-      <Link href="/" className="flex items-center">
-        <Image
-          className="w-34 py-2 tablet:py-1 "
-          src={logo}
-          alt="Kitzaa logo"
-        />
-      </Link>
+        <Link href="/" className="flex items-center justify-self-start">
+          <Image
+            className="w-26 py-2 tablet:py-1 "
+            src={logo}
+            alt="Kitzaa logo"
+          />
+        </Link>
 
-      {/* navigation menu  */}
+        {/* navigation menu  */}
 
-      <div className="hidden tablet:flex items-center tablet:gap-12 desktop:gap-20 font-heading text-lg">
-        {navLinks.map((link) => {
-          const isActive = pathname === link.href;
+        <div className="hidden tablet:flex items-center tablet:gap-8 desktop:gap-14 font-heading text-base">
+          {navLinks.map((link) => {
+            const isActive = pathname === link.href;
 
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "group relative py-1 transition-colors duration-300",
-                isActive
-                  ? "text-primary"
-                  : "text-foreground/70 hover:text-foreground",
-              )}
-            >
-              {link.label}
-              <span
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
                 className={cn(
-                  "absolute -bottom-1 left-0 h-0.5 w-full origin-left scale-x-0 rounded-full bg-primary transition-transform duration-300 ease-spring",
+                  "group relative py-1 transition-colors duration-300",
                   isActive
-                    ? "scale-x-100"
-                    : "group-hover:scale-x-100 group-hover:bg-primary/40",
+                    ? "text-primary"
+                    : "text-foreground/70 hover:text-foreground",
+                )}
+              >
+                {link.label}
+                <span
+                  className={cn(
+                    "absolute -bottom-1 left-0 h-0.5 w-full origin-left scale-x-0 rounded-full bg-primary transition-transform duration-300 ease-spring",
+                    isActive
+                      ? "scale-x-100"
+                      : "group-hover:scale-x-100 group-hover:bg-primary/40",
+                  )}
+                />
+              </Link>
+            );
+          })}
+        </div>
+
+        <div className="my-auto flex items-center gap-3 justify-self-end">
+          {/* Theme and notification buttons  */}
+          <div className="flex items-center gap-1 mt-2 tablet:mt-0">
+
+
+            <Button
+              variant="ghost"
+              size="icon"
+              type="button"
+              onClick={handleLanguageToggle}
+              disabled={isLanguagePending}
+              aria-label={t("language")}
+              className="rounded-full text-muted-foreground hover:text-foreground cursor-pointer"
+            >
+              <span className="text-xs font-semibold tracking-wide">
+                {locale.toUpperCase()}
+              </span>
+            </Button>
+          {currentUser && <NotificationBellMenu />}
+
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              aria-label="Theme change"
+              className="relative overflow-hidden rounded-full text-muted-foreground hover:text-foreground cursor-pointer -mt-1 tablet:me-2"
+            >
+              <MdSunny
+                className={cn(
+                  "absolute inset-0 m-auto size-5 text-primary transition-all duration-500 ease-spring",
+                  isLight
+                    ? "scale-100 rotate-0 opacity-100"
+                    : "scale-50 -rotate-90 opacity-0",
                 )}
               />
-            </Link>
-          );
-        })}
-      </div>
-
-      <div className="my-auto flex items-center gap-3">
-        {/* Theme and notification buttons  */}
-        <div className="flex items-center gap-1 mt-2 tablet:mt-0">
-
-         
-          <Button
-            variant="ghost"
-            size="icon"
-            type="button"
-            onClick={handleLanguageToggle}
-            disabled={isLanguagePending}
-            aria-label={t("language")}
-            className="rounded-full text-muted-foreground hover:text-foreground cursor-pointer"
-          >
-            <span className="text-xs font-semibold tracking-wide">
-              {locale.toUpperCase()}
-            </span>
-          </Button>
-        {currentUser && <NotificationBellMenu />}
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            aria-label="Theme change"
-            className="relative overflow-hidden rounded-full text-muted-foreground hover:text-foreground cursor-pointer -mt-1 tablet:me-2"
-          >
-            <MdSunny
-              className={cn(
-                "absolute inset-0 m-auto size-5 text-primary transition-all duration-500 ease-spring",
-                isLight
-                  ? "scale-100 rotate-0 opacity-100"
-                  : "scale-50 -rotate-90 opacity-0",
-              )}
-            />
-            <IoMoon
-              className={cn(
-                "absolute inset-0 m-auto size-5 text-primary transition-all duration-500 ease-spring",
-                !isLight
-                  ? "scale-100 rotate-0 opacity-100"
-                  : "scale-50 rotate-90 opacity-0",
-              )}
-            />
-          </Button>
-        </div>
-        {/* login button  */} {/* dropdown menu  */}
-
-        {!isReady ? (
-          <div className="flex size-10 items-center justify-center" aria-hidden="true">
-            <Avatar className="hidden size-9 tablet:block">
-              <AvatarImage src={userImage.src} alt="user Image" />
-              <AvatarFallback className="bg-[#e4e7e9] text-[#adb5b9]">
-                <FaUser className="size-5" />
-              </AvatarFallback>
-            </Avatar>
-            <div className="size-10 animate-pulse rounded-sm bg-muted tablet:hidden" />
-          </div>
-        ) : !currentUser ? (
-          <div>
-            <Button nativeButton={false} render={<Link href="/login" />}>
-              Login
+              <IoMoon
+                className={cn(
+                  "absolute inset-0 m-auto size-5 text-primary transition-all duration-500 ease-spring",
+                  !isLight
+                    ? "scale-100 rotate-0 opacity-100"
+                    : "scale-50 rotate-90 opacity-0",
+                )}
+              />
             </Button>
           </div>
-        ) : (
-          <div className="">
-            <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
-              <DropdownMenuTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="tablet:rounded-full cursor-pointer size-10 hover:bg-transparent aria-expanded:bg-transparent tablet:hover:bg-muted tablet:aria-expanded:bg-muted"
-                  >
-                    <Avatar className="hidden tablet:block size-9">
-                      <AvatarImage src={userImage.src} alt="user Image" />
-                      <AvatarFallback className="bg-[#e4e7e9] text-[#adb5b9]">
-                        <FaUser className="size-5" />
-                      </AvatarFallback>
-                    </Avatar>
+          {/* login button  */} {/* dropdown menu  */}
 
-                    {/* hamburger menu  */}
+          {!isReady ? (
+            <div className="flex size-10 items-center justify-center" aria-hidden="true">
+              <Avatar className="hidden size-9 tablet:block">
+                <AvatarImage src={userImage.src} alt="user Image" />
+                <AvatarFallback className="bg-[#e4e7e9] text-[#adb5b9]">
+                  <FaUser className="size-5" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="size-10 animate-pulse rounded-sm bg-muted tablet:hidden" />
+            </div>
+          ) : !currentUser ? (
+            <div>
+              <Button nativeButton={false} render={<Link href="/login" />}>
+                Login
+              </Button>
+            </div>
+          ) : (
+            <div className="">
+              <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="tablet:rounded-full cursor-pointer size-10 hover:bg-transparent aria-expanded:bg-transparent tablet:hover:bg-muted tablet:aria-expanded:bg-muted"
+                    >
+                      <Avatar className="hidden tablet:block size-9">
+                        <AvatarImage src={userImage.src} alt="user Image" />
+                        <AvatarFallback className="bg-[#e4e7e9] text-[#adb5b9]">
+                          <FaUser className="size-5" />
+                        </AvatarFallback>
+                      </Avatar>
 
-                    <span className="relative flex tablet:hidden h-10 w-10 items-center justify-center rounded-sm border border-stone-200/60 bg-stone-100/80 shadow-xs transition-all duration-300 hover:shadow-md active:scale-95 dark:border-zinc-700/60 dark:bg-zinc-800/80">
-                      <span className="relative flex h-3.5 w-4.5 flex-col items-center justify-between">
-                        <span
-                          className={cn(
-                            "h-0.5 w-full origin-center rounded-full bg-foreground transition-all duration-300 ease-spring",
-                            menuOpen && "translate-y-1.5 rotate-45",
-                          )}
-                        />
-                        <span
-                          className={cn(
-                            "h-0.5 w-full rounded-full bg-foreground transition-all duration-300 ease-spring",
-                            menuOpen && "scale-x-0 opacity-0",
-                          )}
-                        />
-                        <span
-                          className={cn(
-                            "h-0.5 w-full origin-center rounded-full bg-foreground transition-all duration-300 ease-spring",
-                            menuOpen && "-translate-y-1.5 -rotate-45",
-                          )}
-                        />
+                      {/* hamburger menu  */}
+
+                      <span className="relative flex tablet:hidden h-10 w-10 items-center justify-center rounded-sm border border-stone-200/60 bg-stone-100/80 shadow-xs transition-all duration-300 hover:shadow-md active:scale-95 dark:border-zinc-700/60 dark:bg-zinc-800/80">
+                        <span className="relative flex h-3.5 w-4.5 flex-col items-center justify-between">
+                          <span
+                            className={cn(
+                              "h-0.5 w-full origin-center rounded-full bg-foreground transition-all duration-300 ease-spring",
+                              menuOpen && "translate-y-1.5 rotate-45",
+                            )}
+                          />
+                          <span
+                            className={cn(
+                              "h-0.5 w-full rounded-full bg-foreground transition-all duration-300 ease-spring",
+                              menuOpen && "scale-x-0 opacity-0",
+                            )}
+                          />
+                          <span
+                            className={cn(
+                              "h-0.5 w-full origin-center rounded-full bg-foreground transition-all duration-300 ease-spring",
+                              menuOpen && "-translate-y-1.5 -rotate-45",
+                            )}
+                          />
+                        </span>
                       </span>
-                    </span>
-                  </Button>
-                }
-              />
-              <DropdownMenuContent align="end">
-                <DropdownMenuGroup className="tablet:hidden">
-                  <DropdownMenuItem>
-                    <AiFillHome />
-                    <Link href="/">{t("home")}</Link>
+                    </Button>
+                  }
+                />
+                <DropdownMenuContent align="end">
+                  <DropdownMenuGroup className="tablet:hidden">
+                    <DropdownMenuItem>
+                      <AiFillHome />
+                      <Link href="/">{t("home")}</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <AiFillCalendar />
+                      <Link href="/events">{t("events")}</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <IoShareSocial />
+                      <Link href="/social">{t("social")}</Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem render={<Link href="/profile" />}>
+                      <FaUser />
+                      Profil
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="font-semibold text-primary focus:text-primary"
+                    onClick={handleLogout}
+                  >
+                    <LogOutIcon />
+                    Sign Out
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <AiFillCalendar />
-                    <Link href="/events">{t("events")}</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <IoShareSocial />
-                    <Link href="/social">{t("social")}</Link>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem render={<Link href="/profile" />}>
-                    <FaUser />
-                    Profil
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="font-semibold text-primary focus:text-primary"
-                  onClick={handleLogout}
-                >
-                  <LogOutIcon />
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        )}
-        
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
+
+        </div>
       </div>
     </div>
   );
