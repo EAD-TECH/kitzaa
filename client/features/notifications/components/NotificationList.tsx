@@ -11,6 +11,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 const pageShell = "mx-auto max-w-2xl px-4 py-8";
 
+/* bunu bıryere bagladm daha */
+
 function formatNotificationTime(createdAt: string) {
   const date = new Date(createdAt);
   if (Number.isNaN(date.getTime())) return "";

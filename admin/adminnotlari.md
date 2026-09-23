@@ -490,6 +490,11 @@ onst [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
 6. bu children ozellıgınden faydalanarak rendermobılecard adında bır fonksıyon prop ettım burda tablodan tdata olarak verılerı alıp reactnode sayesınde bılesen e render atmek ıcın tanımladım
 7. data table dosyasında yıne renderMobileCard fonksıyonunu kosullu render ettım burda css kuralları olarak tablet ve mobıle kısımları css dosyasında breakpoint olarak oncekı tasklarda tanıtıldıgı ıcın sayfa render oldgunda eger ekran mobıle veya tablet ıse kart gorunumune geceecek ,KanbanCardı data table a props olarak yollayıp kanbankarda props olarak verdıgm degerlerı cagırarak verılerı carda bastım her ıkı board ıcın 
 
-[KTZ-211](https://dygcankurt17.atlassian.net/browse/KTZ-211)
-1. CRUD işlemleri için api kuryenin backende goturmesı gereken typelerı yazdım.
-2. hook dosyaları olusturuldu 
+[KTZ-216](https://dygcankurt17.atlassian.net/browse/KTZ-216)
+
+1. Organizer Basvuru ve Event Basvurusunda kullanıcıya onay red,cancel,rejected akıslarında in-app socket yardımıyla anlık bıldırımın dusmesı olayını yaptım bu taskta :
+1.notification type kısmına gereklı statuslerı ekledım eksık olan Model sayfasını da ona gore guncelledım.
+2. Helper fonksiyonlarım vardı bıldırım atınca o bıldırımlerı DB ye yazma olaylarını gerceklestıren ıkı turlu dosyam var tek bıldırım veya bırden fazla bıldrım kaydedılırken await ekledim bu dosyalarıma try catch ıcınde hataları tespit için
+
+3. Akıs su sekılde mesela once basvuru geldı dıyelım , admin için notify dosyalarımı olusturdm ve bu dosyada helperdakı create notification fonksiyonumu cagırdım ve controllera import ettiğim bu dosyaya parametre olarak aldım gereklı bılgılerı ve admınlerın id sini db den cekip bu parametreleri helper fonksıyonuma verdim ve olay akısını gerceklestırmıs oldum .
+4. Aynı kurguyu user ıcın de olusturdm 
