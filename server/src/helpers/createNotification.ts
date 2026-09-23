@@ -6,6 +6,7 @@ import type {
 } from "../types/notifications.types.js";
 import { emitNotificationToUser } from "../sockets/emitNotification.js";
 import { toNotificationDTO } from "./toNotificationDTO.js";
+import CustomError from "./customError.js";
 
 /* fe gideck payload ıcerıgı */
 interface NotificationPayload {
@@ -45,10 +46,14 @@ export const createNotification = async (
     if (dto && !Array.isArray(dto)) {
       emitNotificationToUser(String(recipientId), dto);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.log(
       "bıldırım olusurma sırasında olusan hatayı logla ve coz",
       error,
+    );
+    throw new CustomError(
+      `Sistem Hatası: Bildirimler oluşturulamadı. (${error.message || "Bilinmeyen hata"})`,
+      500,
     );
   }
 };

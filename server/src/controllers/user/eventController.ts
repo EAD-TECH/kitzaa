@@ -16,6 +16,7 @@ import type {
 import { assertValidTransition } from "../../helpers/eventStateMachine.js";
 import { notifyUsersForCancelledEvent } from "../../services/notificationService.js";
 import User from "../../models/userModel.js";
+import { notifyAdminsForNewEvent } from "../../services/notifyAdminsForNewEvent.js";
 
 const eventController = {
   list: async (req: Request, res: Response) => {
@@ -153,6 +154,12 @@ const eventController = {
       coverImage: validatedData.coverImage ?? validatedData.images[0] ?? null,
       createdBy: req.user._id,
     });
+
+    await notifyAdminsForNewEvent(
+      req.user.username, 
+      newEvent.title, 
+      newEvent._id
+    );
 
     res.status(201).send({
       error: false,

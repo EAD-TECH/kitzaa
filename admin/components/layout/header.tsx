@@ -20,6 +20,7 @@ import DynamicBreadCrumb from "./dynamic.breadcrumb";
 
 import { Separator } from "../ui/separator";
 import { useLogout } from "@/features/auth/hooks/useLogout";
+import { NotificationBellMenu } from "@/features/notifications/components/NotifictionBellMenu";
 
 export default function Header() {
   const { data: user } = useCurrentUser();
@@ -67,15 +68,8 @@ export default function Header() {
             <Moon className="size-5" />
           )}
         </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Bildirimler — yakında"
-          disabled
-          className="rounded-full disabled:opacity-100"
-        >
-          <Bell className="size-5" />
-        </Button>
+     
+        {user && <NotificationBellMenu />}
 
         <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
           <DropdownMenuTrigger

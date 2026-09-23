@@ -15,6 +15,7 @@ import type {
 import { assertValidTransition } from "../../helpers/eventStateMachine.js";
 import type { UserDocument } from "../../types/user.types.js";
 import { notifyUsersForNearbyEvent } from "../../services/notificationService.js";
+import { notifyUserForEventStatus } from "../../services/notifyUserForEventStatus.js";
 
 const CREATED_BY_POPULATE = {
   path: "createdBy",
@@ -58,15 +59,16 @@ const adminEventController = {
     if (!event) {
       throw new CustomError("Event not found", 404);
     }
-    
+
     assertValidTransition(event.status, "approved");
     const createdBy = event.createdBy as unknown as UserDocument;
 
     event.status = "approved";
-    await event.save({validateModifiedOnly:true});
+    await event.save({ validateModifiedOnly: true });
 
-    notifyUsersForNearbyEvent(event);
+  await  notifyUserForEventStatus(createdBy._id, event.title, "approved", event._id);
 
+   await notifyUsersForNearbyEvent(event);
 
     try {
       await sendMail({
@@ -99,14 +101,15 @@ const adminEventController = {
     if (!event) {
       throw new CustomError("Event not found", 404);
     }
-    
+
     assertValidTransition(event.status, "rejected");
     const createdBy = event.createdBy as unknown as UserDocument;
 
     event.status = "rejected";
     event.rejectedReason = req.body.rejectedReason;
-    await event.save({validateModifiedOnly:true});
+    await event.save({ validateModifiedOnly: true });
 
+    await notifyUserForEventStatus(createdBy._id, event.title, "rejected", event._id,event?.rejectedReason);
 
     try {
       await sendMail({
@@ -139,14 +142,21 @@ const adminEventController = {
     if (!event) {
       throw new CustomError("Event not found", 404);
     }
-    
+
     assertValidTransition(event.status, "cancelled");
-    
+
     event.status = "cancelled";
     const createdBy = event.createdBy as unknown as UserDocument;
     event.cancelledReason = req.body.cancelledReason;
-    await event.save({validateModifiedOnly:true});
+    await event.save({ validateModifiedOnly: true });
 
+    await notifyUserForEventStatus(
+      createdBy._id,
+      event.title,
+      "cancelled",
+      event._id,
+      event?.cancelledReason
+    );
 
     try {
       await sendMail({

@@ -11,6 +11,7 @@ import Institution from "../../models/institutionModel.js";
 import OrganizerApplication from "../../models/organizerApplicationModel.js";
 import User from "../../models/userModel.js";
 import type { RejectApplicationInput } from "../../validations/organizerApplication.schema.js";
+import { notifyUserForAppStatus } from "../../services/NotifyUserForAppStatus.js";
 
 const organizerApplicationController = {
   list: async (req: Request, res: Response) => {
@@ -122,6 +123,13 @@ const organizerApplicationController = {
     user.refreshToken = null;
     await user.save();
 
+    await notifyUserForAppStatus(
+      user._id,
+      institution.name,
+      "approved",
+      application._id,
+    );
+
     try {
       await sendMail({
         to: user.email,
@@ -194,6 +202,14 @@ const organizerApplicationController = {
       note: rejectedReason,
     });
     await application.save();
+
+   await notifyUserForAppStatus(
+      user._id,
+      application.institutionData.name,
+      "rejected",
+      application._id,
+      rejectedReason,
+    );
 
     try {
       await sendMail({
