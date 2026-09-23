@@ -17,6 +17,7 @@ import { swaggerSpec } from "./src/docs/swagger.js";
 const app = express()
 
 app.use(express.json());
+
 app.use(helmet());
 
 const allowedOrigins = [process.env.CLIENT_URL, process.env.ADMIN_URL].filter(

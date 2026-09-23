@@ -21,7 +21,7 @@ export interface OnlineUser {
   firstName: string;
   lastName: string;
   avatarUrl?: string;
-  currentPath:string
+  currentPath: string;
 }
 
 export interface ChatMessage {
@@ -31,4 +31,21 @@ export interface ChatMessage {
   text: string;
   timestamp: string;
   roomId: string;
+}
+
+/* burda aksıyonları tanımlıyorm */
+
+export interface LiveWidgetStore {
+  activities: ActivityLog[];
+  onlineUsers: OnlineUser[];
+  chatMessages: ChatMessage[];
+  isSocketConnected: boolean;
+
+  /* fonksıyon kalıplarım */
+  addActivity: (activity: ActivityLog) => void;
+  addChatMessage: (message: ChatMessage) => void;
+  setOnlineUsers: (users: OnlineUser[]) => void;
+  setSocketStatus: (isConnected: boolean) => void;
+  markActivityAsRead: (id: string) => void;
+  clearActivities: () => void;
 }
