@@ -1,5 +1,6 @@
 import User from "../models/userModel.js";
 import { sendBulknotificaitons } from "../helpers/sendBulkNotifications.js";
+import CustomError from "../helpers/customError.js";
 
 export const notifyAdminsForNewApplication = async (
   applicantUsername: string,
@@ -28,7 +29,12 @@ export const notifyAdminsForNewApplication = async (
 
       /* ekstra mail attırmak istersem adminlere bu satırlara yazılabilri */
     }
-  } catch (error) {
+  } catch (error:any) {
     console.error("Admin bildirimleri gönderilirken hata oluştu:", error);
+    throw new CustomError(
+      `Sistem Hatası: Bildirimler oluşturulamadı. (${error.message || "Bilinmeyen hata"})`, 
+      500
+    );
   }
+  
 };
