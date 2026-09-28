@@ -1,5 +1,6 @@
+// null: sayı yüklenemedi (API hatası) — header bu istatistiği gizler.
 export interface ProfileStats {
-  createdEventsCount: number
-  registeredEventsCount: number
-  postsCount: number
+  createdEventsCount: number | null
+  registeredEventsCount: number | null
+  postsCount: number | null
 }

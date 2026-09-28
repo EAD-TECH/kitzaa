@@ -1,13 +1,25 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { useInfiniteQuery } from "@tanstack/react-query"
+import { flattenPages, getNextPageParam } from "@/lib/api/pagination"
 import { myEvents } from "../api/eventApi"
 
-export function useMyEvents() {
-    const { data, isLoading, isError } = useQuery({
+export function useMyEvents({ enabled = true }: { enabled?: boolean } = {}) {
+    const { data, isLoading, isError, hasNextPage, isFetchingNextPage, fetchNextPage } = useInfiniteQuery({
         queryKey: ["events", "my-events"],
-        queryFn: myEvents,
+        queryFn: ({ pageParam }) => myEvents(pageParam),
+        initialPageParam: 1,
+        getNextPageParam,
+        enabled,
     })
 
-    return { events: data?.events ?? [], isLoading, isError }
+    return {
+        events: flattenPages(data?.pages, (page) => page.events),
+        count: data?.pages[0]?.details.count,
+        isLoading,
+        isError,
+        hasNextPage,
+        isFetchingNextPage,
+        fetchNextPage,
+    }
 }

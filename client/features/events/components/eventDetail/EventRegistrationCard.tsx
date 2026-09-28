@@ -4,6 +4,16 @@ import { useState } from "react"
 import { ArrowRight, Minus, Plus, Users } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { cn } from "@/lib/utils"
 import type { EventDTO } from "../../types/event.types"
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser"
@@ -53,25 +63,36 @@ const EventRegistrationCard = ({ event, onEventChange }: EventRegistrationCardPr
   const leaveMutation = useLeaveEvent(event._id)
   const isPending = joinMutation.isPending || leaveMutation.isPending
 
+  // Onaylanacak işlem dialog açılırken sabitlenir: başarıdan sonra isJoined hemen
+  // değiştiği için içerik isJoined'a bağlı olsaydı kapanma animasyonunda metin atlardı.
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [confirmAction, setConfirmAction] = useState<"join" | "leave">("join")
 
-  const handleJoin = () => {
-    joinMutation.mutate(participantCount, {
-      onSuccess: (data) => {
-        onEventChange(data.event)
-        revalidateEventTag(event.slug)
-      },
-    })
+  const openConfirm = () => {
+    setConfirmAction(isJoined ? "leave" : "join")
+    setConfirmOpen(true)
   }
 
-  const handleLeave = () => {
-    leaveMutation.mutate(undefined, {
-      onSuccess: (data) => {
-        onEventChange(data.event)
-        revalidateEventTag(event.slug)
-      },
-    })
+  // İstek sürerken dialog kapatılamaz; hata olursa açık kalır (toast hook'ta gösteriliyor).
+  const handleConfirmOpenChange = (next: boolean) => {
+    if (!isPending) setConfirmOpen(next)
   }
 
+  const handleSuccess = (updatedEvent: EventDTO) => {
+    onEventChange(updatedEvent)
+    revalidateEventTag(event.slug)
+    setConfirmOpen(false)
+  }
+
+  const handleConfirm = () => {
+    if (confirmAction === "join") {
+      joinMutation.mutate(participantCount, { onSuccess: (data) => handleSuccess(data.event) })
+    } else {
+      leaveMutation.mutate(undefined, { onSuccess: (data) => handleSuccess(data.event) })
+    }
+  }
+
+  const isJoinConfirm = confirmAction === "join"
 
 
   return (
@@ -143,7 +164,7 @@ const EventRegistrationCard = ({ event, onEventChange }: EventRegistrationCardPr
         size="lg"
         className="w-full cursor-pointer"
         disabled={(isFull && !isJoined) || isPending || !isAuthReady}
-        onClick={isJoined ? handleLeave : handleJoin}
+        onClick={openConfirm}
         variant={isJoined ? "outline" : "default"}
       >
         {isFull && !isJoined
@@ -166,6 +187,43 @@ const EventRegistrationCard = ({ event, onEventChange }: EventRegistrationCardPr
           ? "Keine freien Plätze mehr verfügbar"
           : `${freeSpots} von ${event.capacity.max} Plätzen frei`}
       </span>
+
+      <AlertDialog open={confirmOpen} onOpenChange={handleConfirmOpenChange}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {isJoinConfirm ? "Anmeldung bestätigen" : "Teilnahme stornieren?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {isJoinConfirm ? (
+                <>
+                  Du meldest {participantCount} {participantCount === 1 ? "Person" : "Personen"} für
+                  „{event.title}“ an.
+                  {price && ` Gesamtpreis: ${totalPrice} €.`}
+                </>
+              ) : (
+                <>
+                  Deine Anmeldung für „{event.title}“ wird storniert und deine Plätze werden
+                  freigegeben. Ist das Event danach ausgebucht, kannst du dich eventuell nicht
+                  erneut anmelden.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPending}>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction
+              variant={isJoinConfirm ? "default" : "destructive"}
+              disabled={isPending}
+              onClick={handleConfirm}
+            >
+              {isJoinConfirm
+                ? isPending ? "Wird angemeldet…" : "Verbindlich anmelden"
+                : isPending ? "Wird storniert…" : "Teilnahme stornieren"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
