@@ -56,7 +56,6 @@ export default function OrganizerApplicationBoard() {
   const [sakinKelime] = useDebounce(inputValue, 400);
   const [seciliStatus, setSeciliStatus] = useState<string[]>([]);
   const [siralama, setSiralama] = useState<string>("sort_newest");
- 
 
   /*  // pendıng*/
   const pendingEvent = useOrganizerApplications({
@@ -172,12 +171,11 @@ export default function OrganizerApplicationBoard() {
 
       {isLoading && <KanbanSkeleton />}
 
-     
       {!isLoading && isError && (
         <KanbanErrorState
           onRetry={() => {
             pendingEvent.refetch();
-            underReviewEvent.refetch()
+            underReviewEvent.refetch();
             approvedEvent.refetch();
             rejectedEvent.refetch();
           }}
@@ -186,10 +184,11 @@ export default function OrganizerApplicationBoard() {
 
       {/* --- KANBAN KOLONLARI --- */}
       {!isLoading && !isError && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 desktop:flex desktop:overflow-x-auto">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 desktop:flex desktop:items-stretch desktop:overflow-x-auto">
           {/* 1. YENİ */}
           {(seciliStatus.length === 0 || seciliStatus.includes("pending")) && (
             <KanbanColumn
+              scrollable
               title="Yeni"
               count={pendingEvents.length}
               dotColor="bg-yellow-500"
@@ -210,6 +209,7 @@ export default function OrganizerApplicationBoard() {
           {(seciliStatus.length === 0 ||
             seciliStatus.includes("under_review")) && (
             <KanbanColumn
+              scrollable
               title="İncelemede"
               count={underReviewEvents.length}
               dotColor="bg-blue-500"
@@ -229,6 +229,7 @@ export default function OrganizerApplicationBoard() {
           {/* 3. ONAYLANDI */}
           {(seciliStatus.length === 0 || seciliStatus.includes("approved")) && (
             <KanbanColumn
+              scrollable
               title="Onaylandı"
               count={approvedEvents.length}
               dotColor="bg-green-500"
@@ -248,7 +249,9 @@ export default function OrganizerApplicationBoard() {
           {/* 4. REDDEDİLDİ */}
           {(seciliStatus.length === 0 || seciliStatus.includes("rejected")) && (
             <KanbanColumn
-              title="Reddedildi"
+              scrollable
+              title="Reddedil
+              di"
               count={rejectedEvents.length}
               dotColor="bg-red-500"
               fetchNextPage={rejectedEvent.fetchNextPage}
