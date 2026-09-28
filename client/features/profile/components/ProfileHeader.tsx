@@ -6,6 +6,7 @@ import { FaUser } from "react-icons/fa"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Link } from "@/i18n/navigation"
 import type { AuthUser } from "@/features/auth/types/authTypes"
 import type { ProfileStats } from "../types/profile.types"
@@ -25,9 +26,10 @@ const LANGUAGE_LABELS: Record<string, string> = {
 interface ProfileHeaderProps {
   user: AuthUser
   stats: ProfileStats
+  isStatsLoading: boolean
 }
 
-const ProfileHeader = ({ user, stats }: ProfileHeaderProps) => {
+const ProfileHeader = ({ user, stats, isStatsLoading }: ProfileHeaderProps) => {
   const fullName = `${user.firstName} ${user.lastName}`
 
   const metaItems = [
@@ -36,11 +38,12 @@ const ProfileHeader = ({ user, stats }: ProfileHeaderProps) => {
     { icon: Globe, label: LANGUAGE_LABELS[user.language] ?? user.language },
   ]
 
+  // Yüklenemeyen (null) sayılar uydurma bir değer yerine hiç gösterilmez.
   const statItems = [
     { label: "Erstellte Events", value: stats.createdEventsCount },
     { label: "Registrierte Events", value: stats.registeredEventsCount },
     { label: "Geteilte Beiträge", value: stats.postsCount },
-  ]
+  ].filter((stat) => isStatsLoading || stat.value !== null)
 
   const handleShare = async () => {
     const shareData = { title: fullName, url: window.location.href }
@@ -109,16 +112,22 @@ const ProfileHeader = ({ user, stats }: ProfileHeaderProps) => {
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-3 border-t border-border pt-6 ">
-        {statItems.map((stat) => (
-          <div key={stat.label} className="flex flex-col items-center gap-0.5 text-center">
-            <span className="font-heading text-xl font-bold text-primary tablet:text-2xl">
-              {stat.value}
-            </span>
-            <span className="text-xs text-muted-foreground">{stat.label}</span>
-          </div>
-        ))}
-      </div>
+      {statItems.length > 0 && (
+        <div className="mt-6 flex border-t border-border pt-6">
+          {statItems.map((stat) => (
+            <div key={stat.label} className="flex flex-1 flex-col items-center gap-0.5 text-center">
+              {isStatsLoading ? (
+                <Skeleton className="my-1 h-6 w-8 tablet:h-7" />
+              ) : (
+                <span className="font-heading text-xl font-bold text-primary tablet:text-2xl">
+                  {stat.value}
+                </span>
+              )}
+              <span className="text-xs text-muted-foreground">{stat.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

@@ -1,15 +1,13 @@
 
 import FilterSidebar from '@/features/events/components/filterSidebar/FilterSidebar'
-import EventCard from '@/features/events/components/EventCard'
 import { EventSearch } from '@/features/events/components/EventSearch'
 import CreateEventCard from '@/features/events/components/CreateEventCard'
 import AgeFilter from '@/features/events/components/AgeFilter'
 
 import EventSheet from '@/features/events/components/filterSidebar/EventSheet'
 import EventList from '@/features/events/components/EventList'
-import { ErrorBoundary } from 'next/dist/client/components/error-boundary'
 import { Suspense } from 'react'
-import EventListError from '@/features/events/components/EventListError'
+import EventListErrorBoundary from '@/features/events/components/EventListErrorBoundary'
 import EventListSkeleton from '@/features/events/components/EventListSkeleton'
 import FilterSidebarSkeleton from '@/features/events/components/filterSidebar/FilterSidebarSkeleton'
 import ScrollToTopButton from '@/features/events/components/ScrollToTopButton'
@@ -43,11 +41,11 @@ const EventsPage = async ({ searchParams }: EventsPageProps) => {
           id="event-list-scroll"
           className='desktop:col-start-2 desktop:h-230 desktop:overflow-y-auto desktop:pr-2 scrollbar-subtle mt-12'
         >
-          <ErrorBoundary fallback={<EventListError />}>
+          <EventListErrorBoundary>
             <Suspense fallback={<EventListSkeleton />}>
               <EventList searchParams={params} />
             </Suspense>
-          </ErrorBoundary>
+          </EventListErrorBoundary>
 
           <div className='mt-25 desktop:mt-10 desktop:hidden'>
             <div className='mb-6 flex items-center gap-3 text-muted-foreground '>

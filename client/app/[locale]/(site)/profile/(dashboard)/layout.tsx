@@ -7,14 +7,7 @@ import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser"
 import ProfileHeader from "@/features/profile/components/ProfileHeader"
 import ProfileHeaderSkeleton from "@/features/profile/components/ProfileHeaderSkeleton"
 import ProfileTabs from "@/features/profile/components/ProfileTabs"
-import type { ProfileStats } from "@/features/profile/types/profile.types"
-
-// TODO: İstatistik API'si bağlanınca gerçek verilerle değiştirilecek
-const PLACEHOLDER_STATS: ProfileStats = {
-  createdEventsCount: 12,
-  registeredEventsCount: 45,
-  postsCount: 8,
-}
+import { useProfileStats } from "@/features/profile/hooks/useProfileStats"
 
 interface DashboardLayoutProps {
   children: ReactNode
@@ -27,14 +20,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { data: user } = useCurrentUser()
 
   const isLoading = !isReady || !user
+  const { stats, isLoading: isStatsLoading } = useProfileStats({ enabled: !isLoading })
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6 px-6 py-10 tablet:px-10">
       {isLoading ? (
         <ProfileHeaderSkeleton />
       ) : (
-        <div className="flex flex-col gap-6">
-          <ProfileHeader user={user} stats={PLACEHOLDER_STATS} />
+        <>
+          <ProfileHeader user={user} stats={stats} isStatsLoading={isStatsLoading} />
           <ProfileTabs />
           {Children.toArray(children)}
         </div>
