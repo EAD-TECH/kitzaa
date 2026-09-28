@@ -31,7 +31,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <ProfileHeader user={user} stats={stats} isStatsLoading={isStatsLoading} />
           <ProfileTabs />
           {Children.toArray(children)}
-        </div>
+        </>
       )}
     </div>
   )
