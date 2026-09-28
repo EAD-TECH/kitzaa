@@ -1,6 +1,6 @@
 "use client"
 
-import type { ReactNode } from "react"
+import { Children, type ReactNode } from "react"
 
 import { useAuthStore } from "@/features/auth/store/authStore"
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser"
@@ -30,8 +30,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <>
           <ProfileHeader user={user} stats={stats} isStatsLoading={isStatsLoading} />
           <ProfileTabs />
-          {children}
-        </>
+          {Children.toArray(children)}
+        </div>
       )}
     </div>
   )

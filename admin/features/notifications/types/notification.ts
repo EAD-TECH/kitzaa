@@ -3,10 +3,13 @@ export type NotificationType =
   | "post_comment"
   | "new_event"
   | "event_reminder"
+  | "event_approved"
+  | "event_rejected"
   | "event_cancelled"
   | "post_reply"
   | "nearby_event"
   | "organizer_approved"
+  | "organizer_rejected"
   | "organizer_application"
   | "event_review"
   | "organizer_prep_summary"
@@ -15,7 +18,6 @@ export type NotificationType =
   | "post_mention"
   | "system";
 
-/** Matches backend toNotificationDTO (JSON wire format). */
 export interface NotificationDTO {
   _id: string;
   type: NotificationType;

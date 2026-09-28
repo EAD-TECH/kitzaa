@@ -3,6 +3,7 @@ import { Notification } from "../models/notificationModel.js";
 import type { NotificationDocument } from "../types/notifications.types.js";
 import { emitNotificationToUser } from "../sockets/emitNotification.js";
 import { toNotificationDTO } from "./toNotificationDTO.js";
+import CustomError from "./customError.js";
 
 interface sendBulknotificaitonPayload {
   userIdsArray: Types.ObjectId[] | string[];
@@ -56,10 +57,14 @@ export const sendBulknotificaitons = async ({
     }
 
     return result;
-  } catch (error) {
+  } catch (error:any) {
     console.log(
       "bıldırım olusurma sırasında olusan hatayı logla ve coz",
       error,
+    );
+    throw new CustomError(
+      `Sistem Hatası: Bildirimler oluşturulamadı. (${error.message || "Bilinmeyen hata"})`, 
+      500
     );
   }
 };

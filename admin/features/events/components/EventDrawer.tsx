@@ -4,7 +4,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -126,9 +125,7 @@ export default function EventDrawer() {
             <div className="min-h-0 flex flex-1 flex-col gap-8 overflow-y-auto overscroll-contain px-4 py-4 tablet:px-6 tablet:py-6">
               <SectionShell title="Etkinlik Bilgileri">
                 {isLoading ? (
-                  <div className="p-4 text-sm text-primary">
-                    Yükleniyor...
-                  </div>
+                  <div className="p-4 text-sm text-primary">Yükleniyor...</div>
                 ) : (
                   <>
                     <InfoSection label="Başlık">
@@ -195,32 +192,33 @@ export default function EventDrawer() {
                     <InfoSection label="Ücret">
                       {eventData?.price?.amount || "Belirtilmemiş"}
                     </InfoSection>
-
-                    
                   </>
                 )}
               </SectionShell>
 
               <div className="flex flex-col gap-3">
-                <FormField
-                  control={form.control}
-                  name="note"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-heading text-primary">
-                        İşlem Notu / Red & İptal Sebebi
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Red veya İptal ediyorsanız sebebini yazmak zorunludur."
-                          className="focus-visible:ring-0 bg-muted border-none resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {(eventData?.status === "pending" ||
+                  eventData?.status === "approved") && (
+                  <FormField
+                    control={form.control}
+                    name="note"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-heading text-primary">
+                          İşlem Notu / Red & İptal Sebebi
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Bir Sebep yaz."
+                            className="focus-visible:ring-0 bg-muted border-none resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
             </div>
 
@@ -252,6 +250,16 @@ export default function EventDrawer() {
                     className="bg-muted text-foreground hover:bg-muted/80"
                   >
                     {isRejecting ? "Reddediliyor..." : "Reddet"}
+                  </Button>
+                )}
+                {eventData?.status === "pending" && (
+                  <Button
+                    disabled={isWorking}
+                    type="submit"
+                    onClick={() => form.setValue("status", "cancelled")}
+                    className="bg-muted text-foreground hover:bg-muted/80"
+                  >
+                    {isCanceling ? "Cancel ediliyor..." : "Cancel"}
                   </Button>
                 )}
 
