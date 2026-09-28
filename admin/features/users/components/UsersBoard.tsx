@@ -9,11 +9,11 @@ import { useDeleteUser } from "../hooks/useDelete";
 import PageHeader from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { PlusIcon } from "lucide-react";
+import { Loader2, PlusIcon } from "lucide-react";
 import FilterPills from "@/components/shared/FilterPills";
 import { Input } from "@/components/ui/input";
 import { KanbanCard } from "@/components/shared/KanbanCard";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ResponsiveModal } from "@/components/shared/modal/ResponsiveModal";
 import { UserCreateForm } from "./UserCreateForm";
 import UserActionDrawer from "./UserActionDrawer";
@@ -21,15 +21,42 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export default function UsersPage() {
   /* telsizi açıp verimi çağırıyorum */
-  const { data, isLoading, isError } = useListUsers();
+  const {
+    data: usersData,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useListUsers();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
-  
+
+  const users = usersData?.pages.flatMap((p) => p.user || []) || [];
+
   const { mutate: deleteUser, isPending: isDeleting } = useDeleteUser();
 
   const params = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+
+  const sensorRef = useRef<HTMLDivElement>(null);
+
+  /* kamera */
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          if (fetchNextPage) fetchNextPage();
+        }
+      },
+      { threshold: 0.1 },
+    );
+    if (sensorRef.current) {
+      observer.observe(sensorRef.current);
+    }
+    return () => observer.disconnect(); // Bileşen kapandığında kamerayı kapat
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   if (isLoading)
     return <div className="p-10 text-center"> (Yükleniyor)...</div>;
@@ -73,11 +100,10 @@ export default function UsersPage() {
       <DataTable
         hideheader
         columns={createColumns({
-          
           onEdit: handleOpenDrawer,
           onDelete: (id: string) => setUserToDelete(id),
         })}
-        data={data?.user || []}
+        data={users}
         renderMobileCard={(user) => (
           <KanbanCard
             data={{
@@ -126,6 +152,21 @@ export default function UsersPage() {
           </div>
         )}
       </DataTable>
+
+      {hasNextPage ? (
+        <div
+          ref={sensorRef}
+          className="flex w-full items-center justify-center p-4"
+        >
+          {isFetchingNextPage ? (
+            <Loader2 className="h-6 w-6 animate-spin text-terracotta-500" />
+          ) : (
+            <span className="text-xs text-muted-foreground">
+              Daha fazla yükleniyor...
+            </span>
+          )}
+        </div>
+      ) : null}
 
       {/* Yeni Kullanıcı Ekleme Modalı */}
       <ResponsiveModal

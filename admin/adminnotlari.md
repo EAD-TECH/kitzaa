@@ -524,3 +524,6 @@ sonrasinda aciklama ve adres gibi satrilara props olarak gectim
 {appData?.institutionData?.address || "Belirtilmemiş"}
 
 limit guncellendı :6
+
+USER VE CATEGORY SAYFALARINDA PAGINATION EKLIYORM:
+ONCELIKLE TYPES DOSYAMA PAGINATIONUN DETAYLARINI VE DONEN CEVABIN TIPLERINI BELIRTIYORUM

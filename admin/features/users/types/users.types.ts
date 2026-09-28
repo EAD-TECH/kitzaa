@@ -25,11 +25,7 @@ export interface AdminUserDTO {
   updatedAt: string;
 }
 
-export interface ListAdminUsersResponse {
-  error: false;
-  details: unknown;
-  user: AdminUserDTO[];
-}
+
 export interface CreateUserDTO {
   username?: string;
   firstName?: string;
@@ -71,4 +67,24 @@ export interface UpdateUserResponse {
 
 export interface UserCreateFormProps {
   onSuccess: () => void;
+}
+
+export interface ListDetails {
+  count: number;
+  page: number;
+  limit: number;
+  pages:
+    | false
+    | {
+        previous: number | false;
+        current: number;
+        next: number | false;
+        total: number;
+      };
+}
+
+export interface ListAdminUsersResponse {
+  error: false;
+  details: ListDetails;
+  user: AdminUserDTO[];
 }

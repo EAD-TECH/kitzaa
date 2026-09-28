@@ -9,8 +9,16 @@ import {
 
 const BASE = "/api/v1/admin/categories";
 
-export async function listAdminCategories(): Promise<ListCategoriesResponse> {
-  return apiFetch<ListCategoriesResponse>(`${BASE}?sort[createdAt]=-1`, {
+export async function listAdminCategories(
+  page = 1,
+  limit = 6,
+): Promise<ListCategoriesResponse> {
+  const params = new URLSearchParams();
+  params.append("sort[updatedAt]", "-1");
+  params.append("page", String(page));
+  params.append("limit", String(limit));
+
+  return apiFetch<ListCategoriesResponse>(`${BASE}?${params.toString()}`, {
     method: "GET",
   });
 }
@@ -41,7 +49,9 @@ export async function updateAdminCategory(
   });
 }
 
-export async function getCategoryById(id: string): Promise<UpdateCategoryResponse> {
+export async function getCategoryById(
+  id: string,
+): Promise<UpdateCategoryResponse> {
   return apiFetch<UpdateCategoryResponse>(`${BASE}/${id}`, {
     method: "GET",
   });

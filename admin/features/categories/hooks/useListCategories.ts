@@ -1,12 +1,21 @@
 'use client'
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { listAdminCategories } from "../api/getCategories";
 
 /* api kuryemı cagırdm */
-
 export const useListCategories = () => {
-  return useQuery({
-    queryKey: ["categories"] /* kargo etiketi */,
-    queryFn: listAdminCategories /* kurye fonksiyonu */,
+  const limit=6
+
+  return useInfiniteQuery({
+    queryKey: ["categories",limit], 
+    initialPageParam:1,
+    queryFn: ({ pageParam }) => listAdminCategories(pageParam, limit),
+    getNextPageParam:(lastPage,allPages)=>{
+      const categories = lastPage.categories || []
+      if(categories.length<limit) return undefined
+      return allPages.length+1
+      
+    }
+    
   });
 };
