@@ -1,8 +1,12 @@
 "use client";
 
 import { useAuthStore } from "@/features/auth/store/authStore";
-import { NotificationDTO } from "@/features/notifications/types";
-import { useQueryClient } from "@tanstack/react-query";
+import type {
+  ListNotificationsResponse,
+  NotificationDTO,
+  UnreadCountResponse,
+} from "@/features/notifications/types";
+import { type InfiniteData, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { io } from "socket.io-client";
@@ -66,9 +70,9 @@ export default function AuthSocketProvider({
         console.log("Yeni bildirim yakalandı!", yenibildirim);
 
         /* sayac guncellem (Badge) */
-        queryClient.setQueryData(
+        queryClient.setQueryData<UnreadCountResponse>(
           ["notifications", "unread-count"],
-          (eskiData: any) => {
+          (eskiData) => {
             // Eğer raf boşsa (henüz API çekilmediyse):
             if (!eskiData || !eskiData.data) {
               return { error: false, data: { count: 1 } };
@@ -86,18 +90,23 @@ export default function AuthSocketProvider({
         );
 
         /* list güncelle (Inbox) */
-        queryClient.setQueryData(["notifications", "list"], (eskiData: any) => {
-          /*  Eğer raf boşsa (henüz API çekilmediyse) */
-          if (!eskiData || !eskiData.result) {
-            return { error: false, result: [yenibildirim] };
-          }
+        /* liste sayfalı (useInfiniteQuery): yeni bildirim ilk sayfanın en başına eklenir */
+        queryClient.setQueryData<InfiniteData<ListNotificationsResponse>>(
+          ["notifications", "list"],
+          (eskiData) => {
+            /* Raf boşsa dokunma — liste açıldığında API'den güncel hâliyle çekilir */
+            if (!eskiData || eskiData.pages.length === 0) return eskiData;
 
-          /*    Kutunun yapısını koruyarak yeni bildirimi result dizisinin en başına ekle */
-          return {
-            ...eskiData,
-            result: [yenibildirim, ...eskiData.result],
-          };
-        });
+            const [ilkSayfa, ...digerSayfalar] = eskiData.pages;
+            return {
+              ...eskiData,
+              pages: [
+                { ...ilkSayfa, result: [yenibildirim, ...ilkSayfa.result] },
+                ...digerSayfalar,
+              ],
+            };
+          },
+        );
       });
     } else {
       /* token yoksa hattı kes */

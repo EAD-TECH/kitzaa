@@ -1,3 +1,5 @@
+import type { PaginatedResponse } from "@/lib/api/pagination";
+
 export type NotificationType =
   | "post_like"
   | "post_comment"
@@ -46,7 +48,7 @@ export interface NotificationDTO {
 /** GET /notifications */
 export interface ListNotificationsResponse {
   error: false;
-  details: unknown;
+  details: PaginatedResponse["details"];
   result: NotificationDTO[];
 }
 

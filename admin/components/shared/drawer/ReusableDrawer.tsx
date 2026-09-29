@@ -114,7 +114,7 @@ console.log("zod hatası almalıym bossa rejected kısmım")
       onOpenChange={handleDrawerClose}
       swipeDirection="right"
     >
-      <DrawerContent className="h-full max-w-none w-[min(30rem,75vw)] rounded-r-none rounded-l-xl [--drawer-inset:0px]">
+      <DrawerContent>
         <ReusableDrawerHeader
           title="Başvuru Detayı"
           tag={appData?.institutionData?.name ?? "Yeni Başvuru Detayı"}
@@ -127,7 +127,7 @@ console.log("zod hatası almalıym bossa rejected kısmım")
             className="flex min-h-0 flex-1 flex-col"
           >
             <div className="min-h-0 flex flex-col gap-8  flex-1 overflow-y-auto px-6 py-6">
-              <SectionShell title="Kurum bilgisi">
+              <SectionShell title="Kurum bilgisi" columns={2}>
                 {isLoading ? (
                   <div className="p-4 text-sm text-primary">
                     Yükleniyor...
@@ -137,10 +137,10 @@ console.log("zod hatası almalıym bossa rejected kısmım")
                     <InfoSection label="Kategori">
                       {appData?.institutionData?.category || "Belirtilmemiş"}
                     </InfoSection>
-                    <InfoSection label="Açıklama">
+                    <InfoSection label="Açıklama" wide>
                       {appData?.institutionData?.description || "Belirtilmemiş"}
                     </InfoSection>
-                    <InfoSection label="Adres">
+                    <InfoSection label="Adres" wide>
                       {appData?.institutionData?.address || "Belirtilmemiş"}
                     </InfoSection>
                     <InfoSection label="Web Sitesi">

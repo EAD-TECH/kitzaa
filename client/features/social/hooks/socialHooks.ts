@@ -10,6 +10,7 @@ import {
 import { toast } from "sonner";
 
 import { ApiError } from "@/lib/api/client";
+import { flattenPages, getNextPageParam } from "@/lib/api/pagination";
 
 import {
   createSocialPostComment,
@@ -66,13 +67,26 @@ export const usePosts = ({ city, eventId, sort, search }: UsePostsParams = {}) =
   });
 };
 
-export function useMyPosts() {
-  const { data, isLoading, isError } = useQuery({
+// Infinite olması ayrıca şart: useTogglePostLike ["social-posts"] önekindeki tüm
+// cache'leri InfiniteData varsayarak (oldData.pages) günceller.
+export function useMyPosts({ enabled = true }: { enabled?: boolean } = {}) {
+  const { data, isLoading, isError, hasNextPage, isFetchingNextPage, fetchNextPage } = useInfiniteQuery({
     queryKey: ["social-posts", "my-posts"],
-    queryFn: myPosts,
+    queryFn: ({ pageParam }) => myPosts(pageParam),
+    initialPageParam: 1,
+    getNextPageParam,
+    enabled,
   });
 
-  return { posts: data?.posts ?? [], isLoading, isError };
+  return {
+    posts: flattenPages(data?.pages, (page) => page.posts),
+    count: data?.pages[0]?.details.count,
+    isLoading,
+    isError,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  };
 }
 
 export function usePostById(postId: string) {

@@ -259,7 +259,6 @@ isFetchingNextPage // Şu an yeni sayfa yükleniyor mu?
 
 ## PopOver Filter Mantıgı :
 
-
 ```js faceted filter mantıgı
 const filtreSecenekleri = [
   {
@@ -289,16 +288,17 @@ const filtreSecenekleri = [
 ];
 ```
 
-1. bu sekılde nested mantıkta bır dizi ıcınde nesne gruplarına ayırdım  fıltreleme mantıgı ıcın :
+1. bu sekılde nested mantıkta bır dizi ıcınde nesne gruplarına ayırdım fıltreleme mantıgı ıcın :
    status ve asıgnee ekledım ılk olarak oncelıkle status kısmını halledıcem
 
 2. Filter kısmı tıklandıgında oncelıkle hangı menude oldugumu bılmem ve hafızaya almam gerek useState ile (status,asignee..)
 
 3. const [aktifMenu, setAktifMenu] = useState<string | null>(null); olarak ayarladım.
-null oldugu ıcın hepsını gorebılıyorm .
+   null oldugu ıcın hepsını gorebılıyorm .
 
-4. sonrasında kosullu renderıng yaparak eger herhangı bır aktıfmenu yoksa state te hepsını goster dedım 
-```js 
+4. sonrasında kosullu renderıng yaparak eger herhangı bır aktıfmenu yoksa state te hepsını goster dedım
+
+```js
  {!aktifMenu ? (
                 <CommandGroup>
                   {/* dınamık filter dongusu */}
@@ -315,12 +315,13 @@ null oldugu ıcın hepsını gorebılıyorm .
                         {kategori.label}
                       </span>
                     </CommandItem>
-                    
+
                   ))}
                 </CommandGroup>
 ```
 
 - Eger ki secilmişse yanı usestate hafızasında varsa ve olusturdugm array ıd sı ıle esse bul ve ciz
+
 ```js
 
 : (
@@ -345,37 +346,35 @@ null oldugu ıcın hepsını gorebılıyorm .
                 </CommandGroup>
               )}
 ```
+
 - array olarak ayarladıgm ıcın types dosyasında bılesene geleck propsları da o sekılde duzelttım
 
 5. Tıklama algoritması ıcın daha oncekı taskta props olarak verdıgım fonksıyonu yazıyorum
- filterOptions={filtreSecenekleri}
-          selectedValues={seciliStatus} <!-- state i bilesene yolladm badge içic -->
-          onFilterSelect={onFilterSelect}
-        />  props olarak gonderıyorm
+   filterOptions={filtreSecenekleri}
+   selectedValues={seciliStatus} <!-- state i bilesene yolladm badge içic -->
+   onFilterSelect={onFilterSelect}
+   /> props olarak gonderıyorm
 
 <!-- onFilterSelect fonksıyonuna parametre kullanıcının tıkladıgıdegerı olarak yolladım
  -->
  <!-- Gelen veriyi yakaladm secilistatus olarak tuttugm hafıza dızısınde varmı dıye ıncludes ıle arattm sonrada kosula bagladm.Eger varsa filter ile sildim yoksa else blogunda spread ıle ekledım -->
 
-
 6. Son olarak yıne aynı mantıkla hook ve api içerisine parametre olarak yolladım.Api kısmında foreachle donerek url e bastım
 
 7. Son olarak Temizle butonunu ekleyerek butona tıklandıgında dızıyı bosalttm
 
-## Sort kısmını ekleme Adımı : 
-
+## Sort kısmını ekleme Adımı :
 
 1. iziye en yenı ve eneskıye gore fıltrelemek ıcın ekledım yenı bır nesne elemanı
-2. Sonrasında sıralama ıcın bır state mantıgı olusturmak gerekıyor :Backendde -1 en yeni ,eski 1 
-const [siralama,setSiralama]=useState<string>("sort_newest") hafızayı bu sekılde baslatıyorm 
-3. tiklanan degeri diziye gondermeden return ettırmem lazım 
-4. onFilterSelect   fonksıyona if (tiklananDeger.startsWith("sort_")) {
-      setSiralama(tiklananDeger);
-      return;
-    } tiklanan deger 
+2. Sonrasında sıralama ıcın bır state mantıgı olusturmak gerekıyor :Backendde -1 en yeni ,eski 1
+   const [siralama,setSiralama]=useState<string>("sort_newest") hafızayı bu sekılde baslatıyorm
+3. tiklanan degeri diziye gondermeden return ettırmem lazım
+4. onFilterSelect fonksıyona if (tiklananDeger.startsWith("sort\_")) {
+   setSiralama(tiklananDeger);
+   return;
+   } tiklanan deger
 
-    Burda amacım siralamayı dızıye pushlamamak bu sayede fıltreleın bırbırıne karısmasını engellemıs oldm
-
+   Burda amacım siralamayı dızıye pushlamamak bu sayede fıltreleın bırbırıne karısmasını engellemıs oldm
 
 [KTZ-202](https://dygcankurt17.atlassian.net/browse/KTZ-202)
 
@@ -383,8 +382,8 @@ const [siralama,setSiralama]=useState<string>("sort_newest") hafızayı bu sekı
 2. Clienttan logout fonksıyonunu kopyaladım
 3. onclıck olarak bagladm dropdowndan
 4. export const redirectExternal = (url: string) => {
-  window.location.assign(url);
-};  tum sayfayı url e goturur
+   window.location.assign(url);
+   }; tum sayfayı url e goturur
 
 [KTZ-206](https://dygcankurt17.atlassian.net/browse/KTZ-206)
 
@@ -392,48 +391,49 @@ const [siralama,setSiralama]=useState<string>("sort_newest") hafızayı bu sekı
 - **Jira Kartı:** `KTZ-204`
 - **Mimari Kararlar & Ne Yaptım:**
 
-1. KanbanColumn kısmında 
-types olarak 
-export interface KanbanColumnProps {
-  title: string;
-  count: number;
-  dotColor?: string;
-  children?: ReactNode;
-  fetchNextPage?: () => void;
-  hasNextPage?: boolean;
-  isFetchingNextPage?: boolean; /* {children} diyerek, "Bana ne verirsen onu bu boşluğa dizeceğim" diyor. */
-}  tanıttım 
+1. KanbanColumn kısmında
+   types olarak
+   export interface KanbanColumnProps {
+   title: string;
+   count: number;
+   dotColor?: string;
+   children?: ReactNode;
+   fetchNextPage?: () => void;
+   hasNextPage?: boolean;
+   isFetchingNextPage?: boolean; /_ {children} diyerek, "Bana ne verirsen onu bu boşluğa dizeceğim" diyor. _/
+   } tanıttım
 2. Kolon bazlı cekıcegım ıcın mımarıyı degıstırıdm
-ve shared olarak tasarladıgm kanban kolona parametre olarak getirdm .Her kolon kendı statuundekılerı ınfınıte queries mantıgında cekecek.Bu yuzden kolona canlı bır kamera gorevı gorecek olan useRef hook u ıle html divini yakalaması ıcın bu sekılde tanıtıyorm en son dıvı algılaması ıcın sayfanın en altındakı burda useref nasıl calısıyor arkadakı muhendıslık mantıgı nedr cpu ram de ne oluyor tam hakım degılım ama useeffect ıle kamera gorevı gorecek sekılde ıcerısıne bır gozlemleyıcı tanıtıyorm muhtemelen burda mantık su : tarayıcının domunda baslangıcı null olan bır sensorref tanıttmm bu pc nın ram bolgesınde aldı adresını sensorref ıle sonrasında reactın hook u olan useeffect bu nasıl calısıyordu tam hatırlamıyorm ama ıcerısıne yıne ramde bır adres vererek bır gozlemelyıcı ye yer ayırdm.sonrasında new dıyerek js ın ıntersectıonobserver metodunu kullanrak bu metod ram demı heap te mı yer alıyor bılmıyorm muhtemelen basıt bır tanımlama olmadıgı ıcın fonk dızı nesne mantıgında oldugu ıcın karmasık verı yapısı syesınde heap te buna bır slot acılmıstır ve bu metod ya da fonksıyon aynı mantık ıcerınıe bır callback alıyor buna hıgh order functıon dıyoruz oncelıkle bu fonk calısıyor ve alu bolgesınde bu fonk parametre alıyor ama bu parametre nerden gelıyor buna bılmıyorm burda bır kosul donusyor burda da aslında hasnextpage ısfetchingnext page ddedık sanırm bunlarda tam oturmadı  bunlar ıle ılgılı anladıgm hazrı olarak tan tack query ullandgm ıcın manuel olarak hangı sayfadayım backende snrakı sayfa varmı bunları benım ıcın arka planda hesaplayıp oylesı be ıle haberlesıp getırıyor ben sadece useınfınıtequerıes kullandgm ıcın bu parametrelerı aldıgını bılıyorm ve bu mantıgı olustururken kosullandırıyorm eger son sayfadaysan return yap ve baska sayfa yoksa return yap gıbı returnler vermesem api kilitlenir sonsuz donguye gırer cunku bılmedıgı ıcın sureklı apıye ıstek atıp duracak . burdakı entrıes sorgulaması tam olarak sanırm ıste sayfa sonuna geldıysen ve eger yolda bır ıstek yoksa halı hazırda gıt verıyı getır demek oluyr.eger bu esıgı gecıp verıyı cekıp getırırse alt satıra gecıyor burdakı trshold degerı nedır tam olarak bılmıyorm 0.1 neyı temsıl edılıyor nerde tutuluyor bılmıyorm.sonrasında yıne zaten sensorref ıle bır dıv degerı tutuyordk onun current metodunu sorgulayıp varsa verı ceksın yoksa verı bıttı deyıp disconnect dıyerek useeffectın calısmanını durduyuroz ama tam oturmadı bu ksım baska mesela hangı durumarda kullanabılırm bu mtodu
-const sensorRef = useRef<HTMLDivElement>(null);
+   ve shared olarak tasarladıgm kanban kolona parametre olarak getirdm .Her kolon kendı statuundekılerı ınfınıte queries mantıgında cekecek.Bu yuzden kolona canlı bır kamera gorevı gorecek olan useRef hook u ıle html divini yakalaması ıcın bu sekılde tanıtıyorm en son dıvı algılaması ıcın sayfanın en altındakı burda useref nasıl calısıyor arkadakı muhendıslık mantıgı nedr cpu ram de ne oluyor tam hakım degılım ama useeffect ıle kamera gorevı gorecek sekılde ıcerısıne bır gozlemleyıcı tanıtıyorm muhtemelen burda mantık su : tarayıcının domunda baslangıcı null olan bır sensorref tanıttmm bu pc nın ram bolgesınde aldı adresını sensorref ıle sonrasında reactın hook u olan useeffect bu nasıl calısıyordu tam hatırlamıyorm ama ıcerısıne yıne ramde bır adres vererek bır gozlemelyıcı ye yer ayırdm.sonrasında new dıyerek js ın ıntersectıonobserver metodunu kullanrak bu metod ram demı heap te mı yer alıyor bılmıyorm muhtemelen basıt bır tanımlama olmadıgı ıcın fonk dızı nesne mantıgında oldugu ıcın karmasık verı yapısı syesınde heap te buna bır slot acılmıstır ve bu metod ya da fonksıyon aynı mantık ıcerınıe bır callback alıyor buna hıgh order functıon dıyoruz oncelıkle bu fonk calısıyor ve alu bolgesınde bu fonk parametre alıyor ama bu parametre nerden gelıyor buna bılmıyorm burda bır kosul donusyor burda da aslında hasnextpage ısfetchingnext page ddedık sanırm bunlarda tam oturmadı bunlar ıle ılgılı anladıgm hazrı olarak tan tack query ullandgm ıcın manuel olarak hangı sayfadayım backende snrakı sayfa varmı bunları benım ıcın arka planda hesaplayıp oylesı be ıle haberlesıp getırıyor ben sadece useınfınıtequerıes kullandgm ıcın bu parametrelerı aldıgını bılıyorm ve bu mantıgı olustururken kosullandırıyorm eger son sayfadaysan return yap ve baska sayfa yoksa return yap gıbı returnler vermesem api kilitlenir sonsuz donguye gırer cunku bılmedıgı ıcın sureklı apıye ıstek atıp duracak . burdakı entrıes sorgulaması tam olarak sanırm ıste sayfa sonuna geldıysen ve eger yolda bır ıstek yoksa halı hazırda gıt verıyı getır demek oluyr.eger bu esıgı gecıp verıyı cekıp getırırse alt satıra gecıyor burdakı trshold degerı nedır tam olarak bılmıyorm 0.1 neyı temsıl edılıyor nerde tutuluyor bılmıyorm.sonrasında yıne zaten sensorref ıle bır dıv degerı tutuyordk onun current metodunu sorgulayıp varsa verı ceksın yoksa verı bıttı deyıp disconnect dıyerek useeffectın calısmanını durduyuroz ama tam oturmadı bu ksım baska mesela hangı durumarda kullanabılırm bu mtodu
+   const sensorRef = useRef<HTMLDivElement>(null);
 
-  /* kamera */
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          if (fetchNextPage) fetchNextPage();
-        }
-      },
-      { threshold: 0.1 },
-    );
-    if (sensorRef.current) {
-      observer.observe(sensorRef.current);
-    }
-    return () => observer.disconnect(); // Bileşen kapandığında kamerayı kapat
+/_ kamera _/
+useEffect(() => {
+const observer = new IntersectionObserver(
+(entries) => {
+if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+if (fetchNextPage) fetchNextPage();
+}
+},
+{ threshold: 0.1 },
+);
+if (sensorRef.current) {
+observer.observe(sensorRef.current);
+}
+return () => observer.disconnect(); // Bileşen kapandığında kamerayı kapat
 
     1. useRef ve RAM (Hafıza) Mantığı
+
 "başlangıcı null olan bir sensorref tanıttım... RAM bölgesinde adresini aldı"
 
 Analizin %100 Doğru! useRef aslında { current: null } şeklinde bir JavaScript nesnesi (Object) yaratır. Nesneler basit veri (primitive) olmadıkları için Heap (Yığın) bellekte tutulurlar. React, bu nesnenin Heap'teki "Referans (Pointer) adresini" sıkıca tutar. Sayfa ekrana çizildiği (Render edildiği) an, React o en alttaki <div>'in fiziksel adresini alır ve bizim Heap'teki sensorRef.current alanına yazar. Artık elimizde o div'e giden doğrudan bir otoban (Pointer) vardır.
 
 2. new IntersectionObserver ve Heap/ALU Mantığı
-"karmaşık veri yapısı sayesinde heap'te buna bir slot açılmıştır... içine callback alıyor buna high order function diyoruz... entries parametresi nerden geliyor bilmiyorum"
+   "karmaşık veri yapısı sayesinde heap'te buna bir slot açılmıştır... içine callback alıyor buna high order function diyoruz... entries parametresi nerden geliyor bilmiyorum"
 
 Analizin Kusursuz! new anahtar kelimesiyle oluşturulan her şey Heap'te bir slot (Instance) açar. İçine senin yazdığın o fonksiyonu (Callback) alır. Fonksiyon alan fonksiyonlara evet, Higher-Order Function denir. Peki entries nereden geliyor? Sen bu kamerayı kurduğunda, Google Chrome'un (veya Safari'nin) C++ ile yazılmış derin motoru bu div'i izlemeye başlar. Görüş açısına girdiği an Chrome motoru senin fonksiyonunu tetikler (ALU'ya işlem gönderir) ve o anki durumu bir dizi (entries) olarak senin fonksiyonunun eline zorla tutuşturur. Tıpkı butona basınca gelen (e) => içindeki event (e) gibi!
 
 3. TanStack Query ve Sonsuz Döngü (Spam) Koruması
-"TanStack arka planda hesaplayıp... returnler vermesem api kilitlenir sonsuz döngüye girer"
+   "TanStack arka planda hesaplayıp... returnler vermesem api kilitlenir sonsuz döngüye girer"
 
 Harika bir tespit! hasNextPage ve !isFetchingNextPage şartlarını koymasaydık; kurye (API) daha yoldayken kamera saniyede 60 kere "Hadi çek, hadi çek!" diyecekti ve arka planda binlerce istek birikip sunucuyu (Backend) felç edecekti (DDOS atacaktı). isFetchingNextPage aslında "Kurye yolda, lütfen ikinci bir sipariş verme, bekle" demektir.
 
@@ -445,58 +445,57 @@ threshold: 0.1 -> Sensör görevi gören o div'in sadece %10'u ekranda görünü
 Eğer 1.0 yapsaydık, div'in tamamının (%100'ünün) ekrana girmesini beklerdi. Sayfa kaydırmada çok gecikme olmasın diye %10 (0.1) görünmesi bizim için yeterlidir. Eklendiği yer de Observer'ın "Ayarlar (Options)" objesidir.
 
 5. Cleanup (Temizlik) Mantığı: return () => observer.disconnect()
-"veri bitti deyip disconnect diyerek useeffectin çalışmasını durduruyoruz ama tam oturmadı bu kısım"
+   "veri bitti deyip disconnect diyerek useeffectin çalışmasını durduruyoruz ama tam oturmadı bu kısım"
 
 Burada ufak bir düzeltme yapalım: Bu kod "Veri bittiğinde" çalışmaz. useEffect içindeki return () => ... fonksiyonuna Cleanup (Temizlik) denir. Kullanıcı başka bir sayfaya geçtiğinde (Örn: Profil sayfasına tıkladığında) bu Kanban tahtası ekrandan silinir. Eğer sen kamerayı fişten çekmezsen (disconnect), kamera RAM'de açık kalmaya devam eder ve artık ekranda olmayan bir div'i izlemeye çalışır. Buna Memory Leak (Hafıza Sızıntısı) denir. RAM şişer ve tarayıcı çöker. Yani bu kod: "Kullanıcı bu sayfadan çıkıp bileşen (Component) öldüğünde, lütfen Heap'teki kamerayı da imha et" demektir.
 
-----
+---
+
 Sonrasında hook yapımı her kolonda kolonstatus olcak sekılde guncelledm api yi de aynı sekılde url e append ederek kolonstatuse gore getırmesı ıcın kurguladm bu kısmı
-secilistatuse gore deıl kolonstatuse gore getır dedım 
-3. Kanban Mimarisinin Kolon Bazlı (Per-Column) Parçalanması ve MongoDB Çakışma Bug'ının Çözümü:
+secilistatuse gore deıl kolonstatuse gore getır dedım 3. Kanban Mimarisinin Kolon Bazlı (Per-Column) Parçalanması ve MongoDB Çakışma Bug'ının Çözümü:
 
 Sorun: Eski yapıda sayfa açıldığında tek bir devasa useInfiniteQuery çalışıyor ve tüm veriyi çekip Client (Tarayıcı) tarafında filtreliyordu. Ayrıca Popover'dan seçilen durumlar (seciliStatus) API'ye gittiğinde, Backend status=["pending", "approved"] gibi çakışan iki filtre alıyor ve MongoDB eşleşme bulamadığı için tahta boş dönüyordu.
 Çözüm (API ve Hook): seciliStatus parametresini API'ye giden (queryFn) isteklerin içinden tamamen kopardım. API'nin sadece kolonStatus'a (Örn: Sadece "pending") odaklanmasını sağladım.
 Çözüm (Board): Tahtadaki o devasa tek kancayı sildim. Yerine 4 farklı kolon için 4 ayrı kanca (Örn: pendingEvent, approvedEvent) oluşturdum.
 Şalter Mantığı (Performance Optimization): Popover'dan gelen seciliStatus dizisini veritabanını filtrelemek için DEĞİL, kolonları açıp kapatan bir Şalter olarak kullandım. Kancanın içine enabled: kolonAcik şartını ekledim. Böylece kullanıcı Popover'dan bir kolon gizlediğinde, o kolon için arkada boşuna API isteği atılmamasını (Ağ tasarrufu - Network Optimization) sağladım
 
-
 [KTZ-208](https://dygcankurt17.atlassian.net/browse/KTZ-208)
 
-1. shared klasorunde ortak bır kalıp olusturdm categorıes ı de burdan besleyecegm.
-data-table motoruma yenı bır slot actım ve daha once olusturdugum reusable yapımı entegre etmek ıcın React.ReactNode reactin ekrana cızdıgı herseydırburdakı mantık aslında tanstack table mantıgını kendı free bılesenlerımle entegre etme adımı burda buyuk sırketler nasıl yapıyor bılmıyorm .
-onst [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],  bu kısım tanstack table ın arka planda yaptıgı calıstırdıgı fıltre mantıgı.
-2. backendle haberlesme adına kuryemın yolunu hook yapımı ve types kısmını userları lıstelemek ıcın olusturdm .
+1.  shared klasorunde ortak bır kalıp olusturdm categorıes ı de burdan besleyecegm.
+    data-table motoruma yenı bır slot actım ve daha once olusturdugum reusable yapımı entegre etmek ıcın React.ReactNode reactin ekrana cızdıgı herseydırburdakı mantık aslında tanstack table mantıgını kendı free bılesenlerımle entegre etme adımı burda buyuk sırketler nasıl yapıyor bılmıyorm .
+    onst [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [], bu kısım tanstack table ın arka planda yaptıgı calıstırdıgı fıltre mantıgı.
+2.  backendle haberlesme adına kuryemın yolunu hook yapımı ve types kısmını userları lıstelemek ıcın olusturdm .
 
-3. Tanstack table ıcın kolon dosyası olusturdm ve tanstack in columnHelper metodu nu kullanrak kolon ların ıcını dolduracak verıyı tanımlayıp render ettim
+3.  Tanstack table ıcın kolon dosyası olusturdm ve tanstack in columnHelper metodu nu kullanrak kolon ların ıcını dolduracak verıyı tanımlayıp render ettim
 
-4. UsersBoard kısmında resuable yapımı cagırdm. Data table a hook sayesınde cagırdgm verılerı props plarak verdım yanı akıs su sekılde beyın data-table.tsx olusturdgm column ve board bılesenlerı verıyı beyne ıletıyor beyın ıslıyor ve bılesenler render edılıp ekrana basılıyor
-3 ve 4. Beyin, Kurye ve Veri Akışı (Mükemmel Analiz)
+4.  UsersBoard kısmında resuable yapımı cagırdm. Data table a hook sayesınde cagırdgm verılerı props plarak verdım yanı akıs su sekılde beyın data-table.tsx olusturdgm column ve board bılesenlerı verıyı beyne ıletıyor beyın ıslıyor ve bılesenler render edılıp ekrana basılıyor
+    3 ve 4. Beyin, Kurye ve Veri Akışı (Mükemmel Analiz)
 
+        Kurye (Hooks): Depoya (Backend'e) gidip veriyi alır. Sayfa (UsersBoard) kuryeyi karşılar.
 
+        Kalıp Ustası (Columns): Gelen verinin (DTO) içinden ismin, resmin, tarihin nasıl bir tuğla dizilimiyle (Avatar, Badge) ekranda duracağını çizer.
 
-    Kurye (Hooks): Depoya (Backend'e) gidip veriyi alır. Sayfa (UsersBoard) kuryeyi karşılar.
-
-    Kalıp Ustası (Columns): Gelen verinin (DTO) içinden ismin, resmin, tarihin nasıl bir tuğla dizilimiyle (Avatar, Badge) ekranda duracağını çizer.
-
-    Beyin (DataTable): Sayfadan aldığı veriyi ve kalıp ustasından aldığı kuralları yutar. Kendi içindeki motoru (filtreleme, sayfalama) çalıştırıp HTML çıktısını ekrana basar.
+        Beyin (DataTable): Sayfadan aldığı veriyi ve kalıp ustasından aldığı kuralları yutar. Kendi içindeki motoru (filtreleme, sayfalama) çalıştırıp HTML çıktısını ekrana basar.
 
 [KTZ-210](https://dygcankurt17.atlassian.net/browse/KTZ-210)
+
 1. UserBoardu olusturma adımlarını CategoryBoard ıcın olusturdm api ,types kısımlarını yaptım .
 2. sonrasında kolon dosyamı categorıes ıcın duzenledım
 3. hook olusturp verılerı tabloya bastım.
-4. categoryboardunda baslık gorunsun user da gorunmesın ıstıyorum. data-table dosyam shared oldugu ıcın burda data table dosyama bır hideheader adında bır props yolladım ve baslangıcta gorunur olsun dedım ve bu yuzden false olarak belırttım .  {children && children(table)}  data tablosuna verdıgım bu chıldren sayesınde custom olarak ıstedıgım bılesenı render edebılıyorm.
+4. categoryboardunda baslık gorunsun user da gorunmesın ıstıyorum. data-table dosyam shared oldugu ıcın burda data table dosyama bır hideheader adında bır props yolladım ve baslangıcta gorunur olsun dedım ve bu yuzden false olarak belırttım . {children && children(table)} data tablosuna verdıgım bu chıldren sayesınde custom olarak ıstedıgım bılesenı render edebılıyorm.
 5. Aynı sayfada hideheader kosullu render ettım ve user tablosundan header ı saklamak ıstedıgım ıcın userboarddakı data table'a prop polarak yolladım
 6. bu children ozellıgınden faydalanarak rendermobılecard adında bır fonksıyon prop ettım burda tablodan tdata olarak verılerı alıp reactnode sayesınde bılesen e render atmek ıcın tanımladım
-7. data table dosyasında yıne renderMobileCard fonksıyonunu kosullu render ettım burda css kuralları olarak tablet ve mobıle kısımları css dosyasında breakpoint olarak oncekı tasklarda tanıtıldıgı ıcın sayfa render oldgunda eger ekran mobıle veya tablet ıse kart gorunumune geceecek ,KanbanCardı data table a props olarak yollayıp kanbankarda props olarak verdıgm degerlerı cagırarak verılerı carda bastım her ıkı board ıcın 
+7. data table dosyasında yıne renderMobileCard fonksıyonunu kosullu render ettım burda css kuralları olarak tablet ve mobıle kısımları css dosyasında breakpoint olarak oncekı tasklarda tanıtıldıgı ıcın sayfa render oldgunda eger ekran mobıle veya tablet ıse kart gorunumune geceecek ,KanbanCardı data table a props olarak yollayıp kanbankarda props olarak verdıgm degerlerı cagırarak verılerı carda bastım her ıkı board ıcın
 
 [KTZ-216](https://dygcankurt17.atlassian.net/browse/KTZ-216)
 
 1. Organizer Basvuru ve Event Basvurusunda kullanıcıya onay red,cancel,rejected akıslarında in-app socket yardımıyla anlık bıldırımın dusmesı olayını yaptım bu taskta :
-1.notification type kısmına gereklı statuslerı ekledım eksık olan Model sayfasını da ona gore guncelledım.
+   1.notification type kısmına gereklı statuslerı ekledım eksık olan Model sayfasını da ona gore guncelledım.
 2. Helper fonksiyonlarım vardı bıldırım atınca o bıldırımlerı DB ye yazma olaylarını gerceklestıren ıkı turlu dosyam var tek bıldırım veya bırden fazla bıldrım kaydedılırken await ekledim bu dosyalarıma try catch ıcınde hataları tespit için
 
 3. Akıs su sekılde mesela once basvuru geldı dıyelım , admin için notify dosyalarımı olusturdm ve bu dosyada helperdakı create notification fonksiyonumu cagırdım ve controllera import ettiğim bu dosyaya parametre olarak aldım gereklı bılgılerı ve admınlerın id sini db den cekip bu parametreleri helper fonksıyonuma verdim ve olay akısını gerceklestırmıs oldum .
+<<<<<<< HEAD
 4. Aynı kurguyu user ıcın de olusturdm 
 
 [KTZ-232](https://dygcankurt17.atlassian.net/browse/KTZ-232)
@@ -512,3 +511,37 @@ onst [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
 
 6. Bu aslında api baglantısı gıbı degıl artık ben koparana kadar bu baglantı ayakta kalacak ve bu kanaldan backend bana verıyı akıtıck      
 
+=======
+4. Aynı kurguyu user ıcın de olusturdm
+
+KTZ-241
+:KANBAN KOLONLARINA SCROLLABLE PROPSUNU VERDIM SCROLLAREA KULLANDM.scrollable kolonlara props olarak gectım ve board sayfalarında sabıt yukseklık verdm.
+
+kolon mantıgı da aynı kosullu render mantıgı : columns === 2
+? "grid min-w-0 grid-cols-2 gap-x-6 gap-y-5"
+: "flex flex-col gap-5"
+}
+
+drawer yapısı kotu duruyor :
+Info section bılesenımın propsuna genıslık ekledım props : wide?:boolean sonrada cagırdıgım yerlerde kosullu render mantıgıyla css uyguladm
+label,
+children,
+wide = false,
+}: InfoSectionProps) {
+return (
+
+<div className={wide ? "col-span-2 min-w-0" : "min-w-0"}>
+<div className="flex flex-col gap-1">
+
+sonrasinda aciklama ve adres gibi satrilara props olarak gectim
+<InfoSection label="Açıklama" wide>
+{appData?.institutionData?.description || "Belirtilmemiş"}
+</InfoSection>
+<InfoSection label="Adres" wide>
+{appData?.institutionData?.address || "Belirtilmemiş"}
+
+limit guncellendı :6
+
+USER VE CATEGORY SAYFALARINDA PAGINATION EKLIYORM:
+ONCELIKLE TYPES DOSYAMA PAGINATIONUN DETAYLARINI VE DONEN CEVABIN TIPLERINI BELIRTIYORUM
+>>>>>>> dev

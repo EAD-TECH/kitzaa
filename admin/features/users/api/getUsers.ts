@@ -9,8 +9,16 @@ import {
 
 const BASE = "/api/v1/admin/users";
 
-export async function listAdminUsers(): Promise<ListAdminUsersResponse> {
-  return apiFetch<ListAdminUsersResponse>(`${BASE}?sort[createdAt]=-1`, {
+export async function listAdminUsers(
+  page = 1,
+  limit = 6,
+): Promise<ListAdminUsersResponse> {
+  const params = new URLSearchParams();
+  params.append("sort[updatedAt]", "-1");
+  params.append("page", String(page));
+  params.append("limit", String(limit));
+
+  return apiFetch<ListAdminUsersResponse>(`${BASE}?${params.toString()}`, {
     method: "GET",
   });
 }

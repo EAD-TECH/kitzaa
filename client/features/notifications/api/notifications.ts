@@ -1,4 +1,5 @@
 import { apiFetch } from "@/lib/api/client";
+import { buildPageQuery } from "@/lib/api/pagination";
 import type {
   ListNotificationsResponse,
   MarkAllNotificationsReadResponse,
@@ -9,11 +10,17 @@ import type {
 const BASE = "/api/v1/notifications";
 
 /** GET / — listNotificationsById */
-export async function listNotifications(params?: { isRead?: boolean }) {
-  const search =
-    params?.isRead === undefined ? "" : `?isRead=${String(params.isRead)}`;
+export async function listNotifications({
+  page,
+  isRead,
+}: {
+  page: number;
+  isRead?: boolean;
+}) {
+  const search = buildPageQuery(page);
+  if (isRead !== undefined) search.set("isRead", String(isRead));
 
-  return apiFetch<ListNotificationsResponse>(`${BASE}${search}`, {
+  return apiFetch<ListNotificationsResponse>(`${BASE}?${search}`, {
     method: "GET",
   });
 }

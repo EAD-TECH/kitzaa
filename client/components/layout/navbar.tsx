@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import logo from "../../public/images/kitzaa-terracotta-transparent.png";
-import userImage from "../../public/images/user-image.png";
 import Image from "next/image";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 
@@ -40,6 +39,9 @@ const Navbar = () => {
   const router = useRouter();
   const [isLanguagePending, startLanguageTransition] = useTransition();
   const { data: currentUser } = useCurrentUser();
+  const initials = currentUser
+    ? `${currentUser.firstName.trim().charAt(0)}${currentUser.lastName.trim().charAt(0)}`.toLocaleUpperCase("de")
+    : "";
   const t = useTranslations("Nav");
   const locale = useLocale();
   const { isReady } = useAuthStore();
@@ -168,7 +170,6 @@ const Navbar = () => {
           {!isReady ? (
             <div className="flex size-10 items-center justify-center" aria-hidden="true">
               <Avatar className="hidden size-9 tablet:block">
-                <AvatarImage src={userImage.src} alt="user Image" />
                 <AvatarFallback className="bg-[#e4e7e9] text-[#adb5b9]">
                   <FaUser className="size-5" />
                 </AvatarFallback>
@@ -192,9 +193,14 @@ const Navbar = () => {
                       className="tablet:rounded-full cursor-pointer size-10 hover:bg-transparent aria-expanded:bg-transparent tablet:hover:bg-muted tablet:aria-expanded:bg-muted"
                     >
                       <Avatar className="hidden tablet:block size-9">
-                        <AvatarImage src={userImage.src} alt="user Image" />
-                        <AvatarFallback className="bg-[#e4e7e9] text-[#adb5b9]">
-                          <FaUser className="size-5" />
+                        {currentUser.avatar ? (
+                          <AvatarImage
+                            src={currentUser.avatar}
+                            alt={`${currentUser.firstName} ${currentUser.lastName}`}
+                          />
+                        ) : null}
+                        <AvatarFallback className="bg-primary text-xs font-semibold text-primary-foreground">
+                          {initials}
                         </AvatarFallback>
                       </Avatar>
 

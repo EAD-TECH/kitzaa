@@ -1,4 +1,5 @@
 import { apiFetch } from "@/lib/api/client"
+import { buildPageQuery } from "@/lib/api/pagination"
 import type {
     EventListResponse,
     NearbyEventsResponse,
@@ -66,21 +67,21 @@ export const likeEvent = async (id: string) => {
 }
 
 
-export const myEvents = async () => {
+export const myEvents = async (page: number) => {
 
-    return apiFetch<EventListResponse>(`/api/v1/events/my-events`, { method: "GET" })
+    return apiFetch<EventListResponse>(`/api/v1/events/my-events?${buildPageQuery(page)}`, { method: "GET" })
 }
 
 
-export const myParticipations = async () => {
+export const myParticipations = async (page: number) => {
 
-    return apiFetch<EventListResponse>(`/api/v1/events/my-participations`, { method: "GET" })
+    return apiFetch<EventListResponse>(`/api/v1/events/my-participations?${buildPageQuery(page)}`, { method: "GET" })
 }
 
 
-export const savedEvents = async () => {
+export const savedEvents = async (page: number) => {
 
-    return apiFetch<EventListResponse>(`/api/v1/events/saved-events`, { method: "GET" })
+    return apiFetch<EventListResponse>(`/api/v1/events/saved-events?${buildPageQuery(page)}`, { method: "GET" })
 }
 
 
