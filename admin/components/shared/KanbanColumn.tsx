@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import type { KanbanColumnProps } from "./types";
 import { useEffect, useRef } from "react";
 import { Loader2 } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function KanbanColumn({
   title,
@@ -11,6 +12,7 @@ export default function KanbanColumn({
   fetchNextPage,
   hasNextPage,
   isFetchingNextPage,
+  scrollable = false,
 }: KanbanColumnProps) {
   /* sensor olustr */
   const sensorRef = useRef<HTMLDivElement>(null);
@@ -30,9 +32,27 @@ export default function KanbanColumn({
     }
     return () => observer.disconnect(); // Bileşen kapandığında kamerayı kapat
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const loadMore = hasNextPage ? (
+    <div ref={sensorRef} className="flex w-full items-center justify-center p-4">
+      {isFetchingNextPage ? (
+        <Loader2 className="h-6 w-6 animate-spin text-terracotta-500" />
+      ) : (
+        <span className="text-xs text-muted-foreground">
+          Daha fazla yükleniyor...
+        </span>
+      )}
+    </div>
+  ) : null;
+
   return (
-    <div className="flex min-h-0 min-w-0 w-full shrink-0 flex-col gap-4 rounded-2xl border border-border bg-kanban-column-bg p-3 sm:min-h-80 desktop:w-80 desktop:max-w-none">
-      <div className="flex w-full items-center gap-2 border-b border-border pb-3">
+    <div
+      className={cn(
+        "flex min-h-0 min-w-0 w-full shrink-0 flex-col gap-4 rounded-2xl border border-border bg-kanban-column-bg p-3 desktop:w-80 desktop:max-w-none",
+        scrollable ? "h-[calc(100vh-4rem)]" : "sm:min-h-80",
+      )}
+    >
+      <div className="flex w-full shrink-0 items-center gap-2 border-b border-border pb-3">
         <div className="flex min-w-0 items-center gap-2">
           <span
             className={cn(
@@ -48,20 +68,18 @@ export default function KanbanColumn({
           {count}
         </span>
       </div>
-      {children}
-      {hasNextPage && (
-        <div
-          ref={sensorRef}
-          className="flex w-full items-center justify-center p-4"
-        >
-          {isFetchingNextPage ? (
-            <Loader2 className="h-6 w-6 animate-spin text-terracotta-500" />
-          ) : (
-            <span className="text-xs text-muted-foreground">
-              Daha fazla yükleniyor...
-            </span>
-          )}
-        </div>
+      {scrollable ? (
+        <ScrollArea className="min-h-0 flex-1">
+          <div className="flex flex-col gap-4 pr-3">
+            {children}
+            {loadMore}
+          </div>
+        </ScrollArea>
+      ) : (
+        <>
+          {children}
+          {loadMore}
+        </>
       )}
     </div>
   );

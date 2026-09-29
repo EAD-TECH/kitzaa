@@ -5,16 +5,16 @@ import { DataTable } from "@/components/shared/table/data-table";
 import PageHeader from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { PlusIcon } from "lucide-react";
+import { Loader2, PlusIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useListCategories } from "../hooks/useListCategories";
 
 import { KanbanCard } from "@/components/shared/KanbanCard";
 import DynamicIcon from "@/components/shared/table/DynamicIcon";
 import { ResponsiveModal } from "@/components/shared/modal/ResponsiveModal";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CategoryCreateForm } from "./categoryCreateForm";
 import { useDeleteCategory } from "../hooks/useDeleteCategory";
+import { useListCategories } from "../hooks/useListCategories";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { createCategoryColumns } from "./columns";
@@ -22,16 +22,41 @@ import UpdateCategoryForm from "./UpdateCategoryForm";
 
 export default function CategoriesBoard() {
   /* telsizi acıp verimi cagırıyorm */
-  const { data, isLoading, isError } = useListCategories();
+  const {
+    data,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useListCategories();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
   const { mutate: deleteCategory, isPending: isDeleting } = useDeleteCategory();
   const params = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  
 
-  console.log(data);
+  const sensorRef = useRef<HTMLDivElement>(null);
+
+  /* kamera */
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          if (fetchNextPage) fetchNextPage();
+        }
+      },
+      { threshold: 0.1 },
+    );
+    if (sensorRef.current) {
+      observer.observe(sensorRef.current);
+    }
+    return () => observer.disconnect(); // Bileşen kapandığında kamerayı kapat
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const categories = data?.pages.flatMap((page) => page.categories || []) ?? [];
+  console.log(categories);
 
   const handleOpenDrawer = (id: string) => {
     const currentParams = new URLSearchParams(params.toString());
@@ -74,7 +99,7 @@ export default function CategoriesBoard() {
           onEdit: handleOpenDrawer,
           onDelete: setCategoryToDelete,
         })}
-        data={data?.categories || []}
+        data={categories}
         renderMobileCard={(category) => (
           <KanbanCard
             data={{
@@ -117,6 +142,21 @@ export default function CategoriesBoard() {
           </div>
         )}
       </DataTable>
+
+      {hasNextPage ? (
+        <div
+          ref={sensorRef}
+          className="flex w-full items-center justify-center p-4"
+        >
+          {isFetchingNextPage ? (
+            <Loader2 className="h-6 w-6 animate-spin text-terracotta-500" />
+          ) : (
+            <span className="text-xs text-muted-foreground">
+              Daha fazla yükleniyor...
+            </span>
+          )}
+        </div>
+      ) : null}
 
       <ResponsiveModal
         isOpen={isModalOpen}

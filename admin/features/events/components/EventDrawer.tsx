@@ -108,7 +108,7 @@ export default function EventDrawer() {
       onOpenChange={handleDrawerClose}
       swipeDirection="right"
     >
-      <DrawerContent className="h-dvh max-h-dvh min-h-0  max-w-full overflow-hidden tablet:w-(30rem) w-[min(30rem,75vw)] rounded-r-none rounded-l-xl [--drawer-inset:0px]">
+      <DrawerContent>
         <ReusableDrawerHeader
           title="Etkinlik Detayı"
           tag={eventData?.title ?? "Yükleniyor..."}
@@ -123,7 +123,7 @@ export default function EventDrawer() {
             className="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
           >
             <div className="min-h-0 flex flex-1 flex-col gap-8 overflow-y-auto overscroll-contain px-4 py-4 tablet:px-6 tablet:py-6">
-              <SectionShell title="Etkinlik Bilgileri">
+              <SectionShell title="Etkinlik Bilgileri" columns={2}>
                 {isLoading ? (
                   <div className="p-4 text-sm text-primary">Yükleniyor...</div>
                 ) : (
@@ -145,6 +145,7 @@ export default function EventDrawer() {
                     {(eventData?.status === "rejected" ||
                       eventData?.status === "cancelled") && (
                       <InfoSection
+                        wide
                         label={
                           eventData.status === "rejected"
                             ? "Red sebebi"
@@ -167,7 +168,7 @@ export default function EventDrawer() {
                       {eventData?.ageRange || "Belirtilmemiş"}
                     </InfoSection>
 
-                    <InfoSection label="Açıklama">
+                    <InfoSection label="Açıklama" wide>
                       {eventData?.description || "Belirtilmemiş"}
                     </InfoSection>
 

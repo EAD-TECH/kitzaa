@@ -24,6 +24,7 @@ export interface KanbanColumnProps {
   fetchNextPage?: () => void;
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean; /* {children} diyerek, "Bana ne verirsen onu bu boşluğa dizeceğim" diyor. */
+  scrollable?: boolean;
 }
 
 export interface PageHeaderProps {
@@ -98,11 +99,13 @@ export interface InfoSectionProps {
   */
   label: string;
   children: React.ReactNode;
+  wide?: boolean;
 }
 
 export interface SectionShellProps {
   title: string;
   children: React.ReactNode; //* içine ne gelırse grıd onu dızeek */
+  columns?: 1 | 2;
 }
 
 export interface ActionSheetAiBoxProps {
