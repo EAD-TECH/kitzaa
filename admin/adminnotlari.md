@@ -495,7 +495,7 @@ Sorun: Eski yapıda sayfa açıldığında tek bir devasa useInfiniteQuery çal�
 2. Helper fonksiyonlarım vardı bıldırım atınca o bıldırımlerı DB ye yazma olaylarını gerceklestıren ıkı turlu dosyam var tek bıldırım veya bırden fazla bıldrım kaydedılırken await ekledim bu dosyalarıma try catch ıcınde hataları tespit için
 
 3. Akıs su sekılde mesela once basvuru geldı dıyelım , admin için notify dosyalarımı olusturdm ve bu dosyada helperdakı create notification fonksiyonumu cagırdım ve controllera import ettiğim bu dosyaya parametre olarak aldım gereklı bılgılerı ve admınlerın id sini db den cekip bu parametreleri helper fonksıyonuma verdim ve olay akısını gerceklestırmıs oldum .
-<<<<<<< HEAD
+
 4. Aynı kurguyu user ıcın de olusturdm 
 
 [KTZ-232](https://dygcankurt17.atlassian.net/browse/KTZ-232)

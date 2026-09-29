@@ -1,7 +1,9 @@
-import AdminLiveWidget from "@/features/live-widget/components/AdminLiveWidget";
+import Dashboard from "@/features/dashboard/components/Dashboard";
 
-export default function Dashboard() {
-  return <div>Admin Ana Sayfası - Bakımda
-    <AdminLiveWidget/>
-  </div>;
+export default function page() {
+  return (
+    <div className="min-h-screen bg-background">
+      <Dashboard />
+    </div>
+  );
 }
