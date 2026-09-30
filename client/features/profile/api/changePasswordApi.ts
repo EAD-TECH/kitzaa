@@ -10,3 +10,4 @@ export async function changePassword(
     body: payload,
   });
 }
+
