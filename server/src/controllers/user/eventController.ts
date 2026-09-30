@@ -1,6 +1,7 @@
 "use strict";
 
 import type { Request, Response } from "express";
+import mongoose from "mongoose";
 import CustomError from "../../helpers/customError.js";
 import { toEventDTO } from "../../helpers/toEventDTO.js";
 import Event from "../../models/eventModel.js";
@@ -16,6 +17,7 @@ import type {
 import { assertValidTransition } from "../../helpers/eventStateMachine.js";
 import { notifyUsersForCancelledEvent } from "../../services/notificationService.js";
 import User from "../../models/userModel.js";
+import { notifyAdminsForNewEvent } from "../../services/notifyAdminsForNewEvent.js";
 
 const eventController = {
   list: async (req: Request, res: Response) => {
@@ -154,6 +156,12 @@ const eventController = {
       createdBy: req.user._id,
     });
 
+    await notifyAdminsForNewEvent(
+      req.user.username, 
+      newEvent.title, 
+      newEvent._id
+    );
+
     res.status(201).send({
       error: false,
       event: toEventDTO(newEvent),
@@ -184,14 +192,57 @@ const eventController = {
       );
     }
 
-    // Onaylanmış bir event düzenlendiğinde içerik değiştiği için tekrar admin
-    // onayına düşer — moderasyon bypass edilmemiş olur.
-    if (event.status === "approved") {
-      event.status = "pending";
+    // create'teki kuralın aynısı: body'de isFree yoksa event'in mevcut değeri geçerlidir,
+    // böylece ücretsiz açılıp sonradan ücretliye çevrilerek kural atlanamaz.
+    const isFree = req.body.isFree ?? event.isFree;
+    if (!isFree && req.user.role === "user") {
+      throw new CustomError(
+        "You must be an organizer to create paid events.",
+        403,
+      );
     }
 
-    Object.assign(event, req.body);
-    await event.save();
+    // Onaylanmış bir event düzenlendiğinde içerik değiştiği için tekrar admin
+    // onayına düşer — moderasyon bypass edilmemiş olur. Reddedilmiş bir event
+    // düzeltildiğinde de aynı şekilde yeniden incelemeye gönderilir.
+    if (event.status === "approved" || event.status === "rejected") {
+      assertValidTransition(event.status, "pending");
+      event.status = "pending";
+      // Eski red gerekçesi yeni incelemeye ait değil; admin panelinde ve
+      // sonradan onaylanan event'te eskimiş bir gerekçe görünmesin.
+      event.rejectedReason = null;
+    }
+
+    // capacity ayrı ele alınır: Object.assign alt dokümanı bütünüyle değiştirir ve
+    // body'de olmayan capacity.current şema default'u (0) ile sıfırlanırdı.
+    const { capacity, ...rest } = req.body;
+    Object.assign(event, rest);
+
+    if (capacity) {
+      if (capacity.max < event.capacity.current) {
+        throw new CustomError(
+          `Capacity cannot be lower than the current participant count (${event.capacity.current}).`,
+          400,
+        );
+      }
+
+      event.capacity.max = capacity.max;
+      // Okuma ile kayıt arasında gelen bir join, current'ı yeni max'ın üstüne
+      // çıkarmış olabilir; bu koşul kayıt anında DB'de tekrar kontrol edilir.
+      event.$where = { "capacity.current": { $lte: capacity.max } };
+    }
+
+    try {
+      await event.save();
+    } catch (err) {
+      if (err instanceof mongoose.Error.DocumentNotFoundError) {
+        throw new CustomError(
+          "Participant count changed in the meantime and exceeds the new capacity. Please try again.",
+          409,
+        );
+      }
+      throw err;
+    }
 
     res.status(200).send({
       error: false,
@@ -379,14 +430,31 @@ const eventController = {
   },
 
   participants: async (req: Request<{ id: string }>, res: Response) => {
-    // Artik owner/admin'e ozel degil — herhangi bir giris yapmis kullanici cagirabilir,
-    // bu yuzden event'i (isOwnerOrAdmin'in yaptigi gibi) kendimiz cekiyoruz.
+    // Onaylı event'in katılımcıları her giriş yapmış kullanıcıya açık; onaylanmamış
+    // (pending/rejected/cancelled/completed) event'inkiler sadece sahibine, admin'e
+    // ve event'in kendi katılımcılarına.
+    // Bu yüzden isOwnerOrAdmin middleware'i yerine kontrol burada yapılıyor.
     const event = await Event.findById(req.params.id).populate(
       "participants.userId",
       "username avatarUrl",
     );
 
     if (!event) {
+      throw new CustomError("Event not found", 404);
+    }
+
+    const isOwner = event.createdBy.equals(req.user._id);
+    const isAdmin = req.user.role === "admin";
+    // join sadece onaylı event'e izin verdiği için katılımcı olmak, event'in yayınlanmış
+    // olduğunu gösterir; event sonradan completed/cancelled/pending olsa da liste açık kalır.
+    // userId populate edildi: dolu doküman ya da (silinmiş kullanıcı) null olabilir.
+    const isParticipant = (event.participants ?? []).some(
+      (p) => p.status === "confirmed" && p.userId?._id.equals(req.user._id),
+    );
+
+    // Yetkisiz kullanıcıya 403 yerine 404: public read ile aynı davranış, böylece
+    // id deneyerek onaylanmamış bir event'in var olup olmadığı öğrenilemez.
+    if (event.status !== "approved" && !isOwner && !isAdmin && !isParticipant) {
       throw new CustomError("Event not found", 404);
     }
 

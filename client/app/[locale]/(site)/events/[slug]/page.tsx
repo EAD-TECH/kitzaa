@@ -49,8 +49,8 @@ const EventDetailPage = async ({ params }: EventDetailPageProps) => {
       </nav>
 
       <div className="grid gap-10 desktop:grid-cols-[1fr_360px]">
-        <div className="flex min-w-0 flex-col gap-8">
-          <div className="relative aspect-(5/2) w-full overflow-hidden rounded-2xl">
+        <div className="animate-fade-in-up-sm flex min-w-0 flex-col gap-8">
+          <div className="relative aspect-5/2 w-full overflow-hidden rounded-2xl">
             {event.coverImage ? (
               <Image
                 src={event.coverImage}
@@ -93,7 +93,10 @@ const EventDetailPage = async ({ params }: EventDetailPageProps) => {
           <Standort location={event.location} />
         </div>
 
-        <aside className="flex flex-col gap-6 tablet:grid tablet:grid-cols-2 desktop:flex desktop:flex-col desktop:sticky desktop:top-24 desktop:self-start">
+        <aside
+          className="animate-fade-in-up-sm flex flex-col gap-6 tablet:grid tablet:grid-cols-2 desktop:flex desktop:flex-col desktop:sticky desktop:top-24 desktop:self-start"
+          style={{ animationDelay: "150ms" }}
+        >
           <EventDetailSidebar
             event={event}
             organizerCreatedBy={event.createdBy}

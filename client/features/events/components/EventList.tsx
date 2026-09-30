@@ -5,6 +5,7 @@ import type { EventDTO } from '@/features/events/types/event.types'
 import EventListRow from './EventListRow'
 import { getEventsServer } from '../api/eventApi.server'
 import LoadMoreEvents from './LoadMoreEvents'
+import { FadeInOnView } from '@/components/motion/FadeInOnView'
 
 
 interface EventListProps {
@@ -33,8 +34,10 @@ const EventList = async ({ searchParams }: EventListProps) => {
     return (
         <>
             <div className={`mb-15 ${EVENT_LIST_CLASSNAME}`}>
-                {events.map((event) => (
-                    <EventListRow key={event._id} event={event} />
+                {events.map((event, index) => (
+                    <FadeInOnView key={event._id} delay={(index % 4) * 100} duration={700}>
+                        <EventListRow event={event} />
+                    </FadeInOnView>
                 ))}
             </div>
             <LoadMoreEvents initialNextPage={nextPage} />

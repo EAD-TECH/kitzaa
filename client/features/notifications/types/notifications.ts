@@ -1,12 +1,17 @@
+import type { PaginatedResponse } from "@/lib/api/pagination";
+
 export type NotificationType =
   | "post_like"
   | "post_comment"
   | "new_event"
   | "event_reminder"
   | "event_cancelled"
+  | "event_approved"
+  | "event_rejected"
   | "post_reply"
   | "nearby_event"
   | "organizer_approved"
+  | "organizer_rejected"
   | "organizer_application"
   | "event_review"
   | "organizer_prep_summary"
@@ -43,7 +48,7 @@ export interface NotificationDTO {
 /** GET /notifications */
 export interface ListNotificationsResponse {
   error: false;
-  details: unknown;
+  details: PaginatedResponse["details"];
   result: NotificationDTO[];
 }
 

@@ -10,6 +10,7 @@ import {
 import { toast } from "sonner";
 
 import { ApiError } from "@/lib/api/client";
+import { flattenPages, getNextPageParam } from "@/lib/api/pagination";
 
 import {
   createSocialPostComment,
@@ -24,20 +25,22 @@ import {
   likeSocialPost,
   listSocialPosts,
   myPosts,
+  updateSocialPost,
 } from "../api/postApi";
 import type { PostCommentListResponse } from "../types/postComment.types";
 import type { PostListResponse, UsePostsParams } from "../types/post.types";
 import type { CreatePostCommentInput } from "../validations/postComment.schema";
-import type { CreatePostInput } from "../validations/post.schema";
+import type { CreatePostInput, UpdatePostInput } from "../validations/post.schema";
 
 const POST_CREATE_ERROR_MESSAGES: Record<string, string> = {};
+const POST_UPDATE_ERROR_MESSAGES: Record<string, string> = {};
 const COMMENT_CREATE_ERROR_MESSAGES: Record<string, string> = {};
+const COMMENT_DELETE_ERROR_MESSAGES: Record<string, string> = {};
 
 // Backend CustomError.message → kullanıcıya gösterilen Almanca metin.
 // Key'ler sunucudaki string ile birebir aynı olmalı (isOwnerOrAdmin + comment deletee).
 const POST_DELETE_ERROR_MESSAGES: Record<string, string> = {
-  "You do not have permission to perform this action.":
-    "Du darfst diesen Beitrag nicht löschen.",
+  "You do not have permission to perform this action.": "Du darfst diesen Beitrag nicht löschen.",
   "Post not found": "Beitrag wurde nicht gefunden.",
   "Resource not found": "Beitrag wurde nicht gefunden.",
   "Invalid resource id.": "Ungültige Beitrags-ID.",
@@ -64,13 +67,26 @@ export const usePosts = ({ city, eventId, sort, search }: UsePostsParams = {}) =
   });
 };
 
-export function useMyPosts() {
-  const { data, isLoading, isError } = useQuery({
+// Infinite olması ayrıca şart: useTogglePostLike ["social-posts"] önekindeki tüm
+// cache'leri InfiniteData varsayarak (oldData.pages) günceller.
+export function useMyPosts({ enabled = true }: { enabled?: boolean } = {}) {
+  const { data, isLoading, isError, hasNextPage, isFetchingNextPage, fetchNextPage } = useInfiniteQuery({
     queryKey: ["social-posts", "my-posts"],
-    queryFn: myPosts,
+    queryFn: ({ pageParam }) => myPosts(pageParam),
+    initialPageParam: 1,
+    getNextPageParam,
+    enabled,
   });
 
-  return { posts: data?.posts ?? [], isLoading, isError };
+  return {
+    posts: flattenPages(data?.pages, (page) => page.posts),
+    count: data?.pages[0]?.details.count,
+    isLoading,
+    isError,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  };
 }
 
 export function usePostById(postId: string) {
@@ -144,6 +160,27 @@ export const useCreatePost = () => {
     onSuccess: () => {
       toast.success("Beitrag erfolgreich erstellt.");
       queryClient.invalidateQueries({ queryKey: ["social-posts"] });
+    },
+  });
+};
+
+export const useUpdatePost = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: UpdatePostInput }) => updateSocialPost(id, payload),
+    onError: (error) => {
+      const message =
+        error instanceof ApiError
+          ? (POST_UPDATE_ERROR_MESSAGES[error.message] ??
+            "Beitrag konnte nicht aktualisiert werden. Bitte versuche es erneut.")
+          : "Beitrag konnte nicht aktualisiert werden. Bitte versuche es erneut.";
+      toast.error(message);
+    },
+    onSuccess: (_response, variables) => {
+      toast.success("Beitrag erfolgreich aktualisiert.");
+      queryClient.invalidateQueries({ queryKey: ["social-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["social-post", variables.id] });
     },
   });
 };

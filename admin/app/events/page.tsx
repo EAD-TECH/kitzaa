@@ -1,5 +1,5 @@
 "use client";
-import EventsBoard from "@/features/admin/components/events/EventsBoard";
+import EventsBoard from "@/features/events/components/EventsBoard";
 
 export default function page() {
   return (

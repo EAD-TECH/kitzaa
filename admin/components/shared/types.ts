@@ -4,9 +4,11 @@ export interface KanbanCardProps {
   id: string;
   title: string;
   category?: string;
-  time: string;
+  time?: string;
   description?: string;
-  status: string;
+  status?: string;
+  subtitle?: string;
+  icon?: ReactNode;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
   onReview?: (id: string) => void;
@@ -18,7 +20,11 @@ export interface KanbanColumnProps {
   title: string;
   count: number;
   dotColor?: string;
-  children?: ReactNode; /* {children} diyerek, "Bana ne verirsen onu bu boşluğa dizeceğim" diyor. */
+  children?: ReactNode;
+  fetchNextPage?: () => void;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean; /* {children} diyerek, "Bana ne verirsen onu bu boşluğa dizeceğim" diyor. */
+  scrollable?: boolean;
 }
 
 export interface PageHeaderProps {
@@ -53,7 +59,7 @@ export interface FilterOption {
   label: string;
   value: string;
   icon?: ReactNode;
-  options:FilterSubOption[]
+  options: FilterSubOption[];
 }
 
 export interface FilterDropDownProps {
@@ -93,11 +99,13 @@ export interface InfoSectionProps {
   */
   label: string;
   children: React.ReactNode;
+  wide?: boolean;
 }
 
 export interface SectionShellProps {
   title: string;
   children: React.ReactNode; //* içine ne gelırse grıd onu dızeek */
+  columns?: 1 | 2;
 }
 
 export interface ActionSheetAiBoxProps {

@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
+import { CreatePostDialog } from "./CreatePostDialog";
 
 const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
 
@@ -55,6 +56,7 @@ export function MyPostCard({ post }: MyPostCardProps) {
   const dateLabel = formatPostDate(post.createdAt);
   const placeLabel = [...new Set([post.placeName, post.city].filter(Boolean))].join(", ");
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [updateOpen, setUpdateOpen] = useState(false);
 
   const { mutate: deletePost, isPending } = useDeletePost();
 
@@ -113,10 +115,15 @@ export function MyPostCard({ post }: MyPostCardProps) {
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          <Button type="button" size="sm">
+          <Button 
+            type="button" 
+            size="sm"
+            onClick={() => setUpdateOpen(true)}
+            >
             <Pencil className="size-3.5" />
             Bearbeiten
           </Button>
+          <CreatePostDialog open={updateOpen} onOpenChange={setUpdateOpen} post={post} />
           <Button
             type="button"
             variant="outline"

@@ -7,6 +7,7 @@ import OrganizerApplication from "../../models/organizerApplicationModel.js";
 import type { ApplyOrganizerInput } from "../../validations/organizerApplication.schema.js";
 import { sendMail } from "../../mail/mail.service.js";
 import { organizerApplicationReceivedTemplate } from "../../mail/templates/organizerApplicationReceived.template.js";
+import { notifyAdminsForNewApplication } from "../../services/notifyAdminsForNewApplication.js";
 
 const OrganizerApplicationController = {
   apply: async (req: Request<{}, any, ApplyOrganizerInput>, res: Response) => {
@@ -28,14 +29,20 @@ const OrganizerApplicationController = {
       status: { $in: ["pending", "under_review", "needs_more_info"] },
     });
 
-    if (activeApplication) throw new CustomError("You already have an application in progress.", 409);
+    if (activeApplication)
+      throw new CustomError(
+        "You already have an application in progress.",
+        409,
+      );
 
     const application = await OrganizerApplication.create({
       userId,
       institutionData,
       message,
       status: "pending",
-      statusHistory: [{ status: "pending", changedBy: userId, changedAt: new Date() }],
+      statusHistory: [
+        { status: "pending", changedBy: userId, changedAt: new Date() },
+      ],
     });
 
     //mail
@@ -52,6 +59,11 @@ const OrganizerApplicationController = {
       console.log("Failed to send email.", error);
     }
 
+    await notifyAdminsForNewApplication(
+      req?.user.username,
+      institutionData.name,
+      application._id,
+    );
     res.status(201).send({
       error: false,
       message: "Your application has been submitted.",
@@ -60,7 +72,9 @@ const OrganizerApplicationController = {
   },
 
   me: async (req: Request, res: Response) => {
-    const applications = await OrganizerApplication.find({ userId: req.user._id }).sort({
+    const applications = await OrganizerApplication.find({
+      userId: req.user._id,
+    }).sort({
       createdAt: -1,
     });
 

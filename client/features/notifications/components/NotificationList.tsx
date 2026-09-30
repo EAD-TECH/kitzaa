@@ -8,8 +8,11 @@ import { cn } from "@/lib/utils";
 import { AlertCircle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
+import { LoadMoreButton } from "@/components/shared/LoadMoreButton";
 
 const pageShell = "mx-auto max-w-2xl px-4 py-8";
+
+/* bunu bıryere bagladm daha */
 
 function formatNotificationTime(createdAt: string) {
   const date = new Date(createdAt);
@@ -23,9 +26,8 @@ function formatNotificationTime(createdAt: string) {
 }
 
 export default function NotificationList() {
-  const { data, isPending, isError } = useNotifications();
-
-  const notifications = Array.isArray(data?.result) ? data.result : [];
+  const { notifications, isPending, isError, hasNextPage, isFetchingNextPage, fetchNextPage } =
+    useNotifications();
 
   if (isPending)
     return (
@@ -133,6 +135,12 @@ export default function NotificationList() {
           </li>
         ))}
       </ul>
+
+      <LoadMoreButton
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        onLoadMore={() => fetchNextPage()}
+      />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { apiFetch } from "@/lib/api/client";
+import { buildPageQuery } from "@/lib/api/pagination";
 import type { ListSocialPostsParams, NearbyPostsResponse, PostLikeResponse, PostListResponse, PostResponse } from "../types/post.types";
 import { CreatePostInput, UpdatePostInput } from "../validations/post.schema";
 
@@ -63,9 +64,9 @@ export const likeSocialPost = async (id: string) => {
   return apiFetch<PostLikeResponse>(`/api/v1/posts/${id}/like`, { method: "POST" });
 };
 
-export const myPosts = async () => {
+export const myPosts = async (page: number) => {
 
-    return apiFetch<PostListResponse>(`/api/v1/posts/my-posts`, { method: "GET" })
+    return apiFetch<PostListResponse>(`/api/v1/posts/my-posts?${buildPageQuery(page)}`, { method: "GET" })
 }
 
 export const nearbyPosts = async (lat: number, lng: number, radius?: number) => {

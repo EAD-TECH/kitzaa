@@ -88,6 +88,8 @@
   --color-kanban-card-border: var(--kanban-card-border);
   --color-kanban-card-title: var(--kanban-card-title);
   --color-kanban-card-bg: var(--kanban-card-bg);
+  --color-kanban-card-muted: var(--kanban-card-muted);
+  --color-kanban-column-bg: var(--kanban-column-bg);
   --shadow-kanban-card: var(--kanban-card-shadow);
 }
 
@@ -119,7 +121,7 @@
   }
 
   .kanban-card [data-slot="card-description"] {
-    color: var(--brown-800);
+    color: var(--muted-foreground);
   }
 
   /*  .kanban-status {

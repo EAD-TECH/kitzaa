@@ -3,12 +3,13 @@
 import { MessageSquare } from "lucide-react"
 
 import { Skeleton } from "@/components/ui/skeleton"
+import { LoadMoreButton } from "@/components/shared/LoadMoreButton"
 import ProfileEmptyState from "@/features/profile/components/ProfileEmptyState"
 import { MyPostCard } from "@/features/social/components/MyPostCard"
 import { useMyPosts } from "@/features/social/hooks/socialHooks"
 
 const MeineBeitraegePage = () => {
-  const { posts, isLoading, isError } = useMyPosts()
+  const { posts, isLoading, isError, hasNextPage, isFetchingNextPage, fetchNextPage } = useMyPosts()
 
   if (isLoading) {
     return (
@@ -39,10 +40,17 @@ const MeineBeitraegePage = () => {
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      {posts.map((post) => (
-        <MyPostCard key={post._id} post={post} />
-      ))}
+    <div>
+      <div className="flex flex-col gap-3">
+        {posts.map((post) => (
+          <MyPostCard key={post._id} post={post} />
+        ))}
+      </div>
+      <LoadMoreButton
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        onLoadMore={() => fetchNextPage()}
+      />
     </div>
   )
 }
