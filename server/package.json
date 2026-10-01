@@ -22,6 +22,12 @@
   },
   "homepage": "https://github.com/EAD-TECH/kitzaa#readme",
   "dependencies": {
+    "@ai-sdk/google": "^4.0.85",
+    "@ai-sdk/groq": "^4.0.52",
+    "@ai-sdk/openai": "^4.0.80",
+    "@google/generative-ai": "^0.24.1",
+    "@lmnr-ai/lmnr": "^0.8.49",
+    "ai": "^7.0.122",
     "bcrypt": "^6.0.0",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
