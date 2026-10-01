@@ -1,0 +1,35 @@
+import { Router } from "express";
+import authentication from "../../middlewares/authentication.js";
+import { validateObjectIdParam } from "../../middlewares/validateObjectId.js";
+import {
+  getUnReadNotificationCount,
+  listNotificationsById,
+  patchAllNotificationAsRead,
+  patchNotification,
+} from "../../controllers/user/notificationController.js";
+import { sendPostEventSummaries } from "../../services/eventSummary.js";
+
+const router = Router();
+router.get("/test-post-event-summary", async (_req, res) => {
+  await sendPostEventSummaries();
+  res.status(200).json({ error: false, message: "KTZ-72 job ran" });
+});
+
+/* kullanici giris yaptmi */
+router.use(authentication);
+
+router.param("id", validateObjectIdParam);
+
+/* statik rotalarım */
+router.route("/unread-count").get(getUnReadNotificationCount);
+router.route("/mark-all-read").patch(patchAllNotificationAsRead);
+
+/* kok rotada listeleme yapması ıcın rota */
+
+router.route("/").get(listNotificationsById);
+
+/* id ye tek bildirmin gore okundu yapmak ısterse  */
+
+router.route("/:id").patch(patchNotification);
+
+export default router;

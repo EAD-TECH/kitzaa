@@ -1,0 +1,38 @@
+"use client"
+
+import { Children, type ReactNode } from "react"
+
+import { useAuthStore } from "@/features/auth/store/authStore"
+import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser"
+import ProfileHeader from "@/features/profile/components/ProfileHeader"
+import ProfileHeaderSkeleton from "@/features/profile/components/ProfileHeaderSkeleton"
+import ProfileTabs from "@/features/profile/components/ProfileTabs"
+import { useProfileStats } from "@/features/profile/hooks/useProfileStats"
+
+interface DashboardLayoutProps {
+  children: ReactNode
+}
+
+// Giriş zorunluluğu üst düzey profile/layout.tsx'te — burası sadece dashboard
+// sekmelerine (Profil, Meine Events, ...) özel chrome'u (header + tabs) ekliyor.
+export default function DashboardLayout({ children }: DashboardLayoutProps) {
+  const isReady = useAuthStore((state) => state.isReady)
+  const { data: user } = useCurrentUser()
+
+  const isLoading = !isReady || !user
+  const { stats, isLoading: isStatsLoading } = useProfileStats({ enabled: !isLoading })
+
+  return (
+    <div className="mx-auto flex max-w-5xl flex-col gap-6 px-6 py-10 tablet:px-10">
+      {isLoading ? (
+        <ProfileHeaderSkeleton />
+      ) : (
+        <>
+          <ProfileHeader user={user} stats={stats} isStatsLoading={isStatsLoading} />
+          <ProfileTabs />
+          {Children.toArray(children)}
+        </>
+      )}
+    </div>
+  )
+}
