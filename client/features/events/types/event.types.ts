@@ -72,7 +72,7 @@ export interface EventDTO {
   images: string[];
   categoryId: string | EventCategoryRef;
   locationType: EventLocationType;
-  ageRange: AgeRange;
+  ageRanges: AgeRange[];
   createdBy: string | EventCreatedByRef;
   status: EventStatus;
   isFree: boolean;

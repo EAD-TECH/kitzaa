@@ -14,7 +14,7 @@ import { useEventsStore } from "../store/EventStore"
 import useToggleSaveEvent from "../hooks/useToggleSaveEvent"
 import { toast } from "sonner"
 import { useAuthStore } from "@/features/auth/store/authStore"
-import { formatAgeRange } from "../utils/ageRange"
+import { formatAgeRanges } from "../utils/ageRange"
 
 function getDateParts(startDate: string) {
   const date = new Date(startDate)
@@ -80,7 +80,7 @@ const EventListRow = ({ event }: EventListRowProps) => {
         )}
         <Badge className="h-5 gap-1 border-none bg-accent px-2 text-[10px] font-medium text-accent-foreground">
           <Baby className="size-2.5" />
-          {formatAgeRange(event.ageRange)}
+          {formatAgeRanges(event.ageRanges)}
         </Badge>
       </div>
 

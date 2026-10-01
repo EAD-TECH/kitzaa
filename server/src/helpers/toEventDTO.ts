@@ -92,7 +92,7 @@ export function toEventDTO(event: EventDocument | EventDocument[] | null): Event
     images: event.images ?? [],
     categoryId: toCategoryRef(event),
     locationType: event.locationType,
-    ageRange: event.ageRange,
+    ageRanges: event.ageRanges ?? [],
     createdBy: toCreatedByRef(event),
     status: event.status,
     isFree: event.isFree,
@@ -132,7 +132,7 @@ export function toAdminEventDTO(event: EventDocument | EventDocument[] | null): 
     images: event.images ?? [],
     categoryId: toCategoryRef(event),
     locationType: event.locationType,
-    ageRange: event.ageRange,
+    ageRanges: event.ageRanges ?? [],
     createdBy: createdBy
       ? {
         _id: createdBy._id!.toString(),

@@ -15,14 +15,15 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { cn } from "@/lib/utils"
-import type { EventDTO } from "../../types/event.types"
+import type { AgeRange, EventDTO } from "../../types/event.types"
+import { sortAgeRanges } from "../../utils/ageRange"
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser"
 import { useAuthStore } from "@/features/auth/store/authStore"
 import { useJoinEvent } from "../../hooks/useJoinEvent"
 import { useLeaveEvent } from "../../hooks/useLeaveEvent"
 import { revalidateEventTag } from "../../actions/revalidateEvent"
 
-const AGE_RANGE_SHORT_LABELS: Record<Exclude<EventDTO["ageRange"], "parents">, string> = {
+const AGE_RANGE_SHORT_LABELS: Record<Exclude<AgeRange, "parents">, string> = {
   "0-3": "0-3 J.",
   "4-6": "4-6 J.",
   "7-10": "7-10 J.",
@@ -30,10 +31,17 @@ const AGE_RANGE_SHORT_LABELS: Record<Exclude<EventDTO["ageRange"], "parents">, s
   "all-ages": "Alle Alter",
 }
 
-function getParticipantLabel(ageRange: EventDTO["ageRange"]) {
-  if (ageRange === "parents") return "Eltern"
-  const shortLabel = AGE_RANGE_SHORT_LABELS[ageRange]
-  return shortLabel ? `Kinder (${shortLabel})` : "Kinder"
+function getParticipantLabel(ageRanges: EventDTO["ageRanges"]) {
+  const childRanges = sortAgeRanges(ageRanges ?? []).filter(
+    (r): r is Exclude<AgeRange, "parents"> => r !== "parents"
+  )
+  const includesParents = ageRanges?.includes("parents") ?? false
+
+  if (includesParents && childRanges.length === 0) return "Eltern"
+  // Hem ebeveyn hem çocuk gruplarına açık event'te tek bir kişi tipi yok.
+  if (includesParents) return "Teilnehmer"
+  if (childRanges.length === 0) return "Kinder"
+  return `Kinder (${childRanges.map((r) => AGE_RANGE_SHORT_LABELS[r]).join(", ")})`
 }
 
 interface EventRegistrationCardProps {
@@ -105,7 +113,7 @@ const EventRegistrationCard = ({ event, onEventChange }: EventRegistrationCardPr
             {price.amount},00 €
           </span>
           <span className="text-sm text-muted-foreground">
-            / {getParticipantLabel(event.ageRange)}
+            / {getParticipantLabel(event.ageRanges)}
           </span>
         </div>
       )}
@@ -118,7 +126,7 @@ const EventRegistrationCard = ({ event, onEventChange }: EventRegistrationCardPr
 
         <div className="flex items-center justify-between gap-3 rounded-full border border-border bg-input/30 py-1.5 pr-1.5 pl-3">
           <span className="text-sm text-foreground">
-            {getParticipantLabel(event.ageRange)}
+            {getParticipantLabel(event.ageRanges)}
           </span>
 
           <div className="flex items-center gap-2">

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { FadeInOnView } from "@/components/motion/FadeInOnView";
 import { Link } from "@/i18n/navigation";
 import { getUpcomingEventsServer } from "@/features/events/api/eventApi.server";
-import { formatAgeRange } from "@/features/events/utils/ageRange";
+import { formatAgeRanges } from "@/features/events/utils/ageRange";
 import type { EventDTO } from "@/features/events/types/event.types";
 
 function getCategoryName(categoryId: EventDTO["categoryId"]) {
@@ -90,7 +90,7 @@ export async function UpcomingEvents() {
                       {formatEventDate(event.schedule.startDate)}
                     </span>
                     <span aria-hidden="true">·</span>
-                    <span>{event.ageRange ? formatAgeRange(event.ageRange) : "Alle Alter"}</span>
+                    <span>{formatAgeRanges(event.ageRanges)}</span>
                   </span>
                 </NextLink>
               </FadeInOnView>

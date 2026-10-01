@@ -6,6 +6,14 @@
  *     enum: ["0-3", "4-6", "7-10", "10-14", parents, all-ages]
  *     example: "7-10"
  *
+ *   AgeRanges:
+ *     type: array
+ *     minItems: 1
+ *     uniqueItems: true
+ *     description: At least one age range; "all-ages" cannot be combined with others.
+ *     items: { $ref: '#/definitions/AgeRange' }
+ *     example: ["4-6", "7-10"]
+ *
  *   Price:
  *     type: object
  *     required: [amount]
@@ -68,7 +76,7 @@
  *               name: { type: string }
  *               slug: { type: string }
  *               icon: { type: string }
- *       ageRange: { $ref: '#/definitions/AgeRange' }
+ *       ageRanges: { $ref: '#/definitions/AgeRanges' }
  *       createdBy:
  *         description: id string if not populated, { _id, username, avatarUrl } if populated
  *         oneOf:
@@ -99,14 +107,14 @@
  *
  *   CreateEventInput:
  *     type: object
- *     required: [title, description, categoryId, ageRange, isFree, schedule, location, capacity]
+ *     required: [title, description, categoryId, ageRanges, isFree, schedule, location, capacity]
  *     properties:
  *       title: { type: string, maxLength: 100 }
  *       description: { type: string, maxLength: 2000 }
  *       coverImage: { type: string, nullable: true }
  *       images: { type: array, items: { type: string } }
  *       categoryId: { type: string }
- *       ageRange: { $ref: '#/definitions/AgeRange' }
+ *       ageRanges: { $ref: '#/definitions/AgeRanges' }
  *       isFree: { type: boolean }
  *       price:
  *         description: required if isFree is false

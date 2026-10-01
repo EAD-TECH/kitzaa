@@ -165,7 +165,9 @@ export default function EventDrawer() {
                     </InfoSection>
 
                     <InfoSection label="Yaş Aralığı">
-                      {eventData?.ageRange || "Belirtilmemiş"}
+                      {eventData?.ageRanges?.length
+                        ? eventData.ageRanges.join(", ")
+                        : "Belirtilmemiş"}
                     </InfoSection>
 
                     <InfoSection label="Açıklama" wide>

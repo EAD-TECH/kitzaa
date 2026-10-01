@@ -677,7 +677,7 @@ async function run() {
       images: e.images,
       categoryId,
       locationType: e.locationType,
-      ageRange: e.ageRange,
+      ageRanges: [e.ageRange],
       createdBy: creator._id,
       status: "approved",
       isFree: e.isFree,

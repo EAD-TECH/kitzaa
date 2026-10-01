@@ -150,17 +150,27 @@ const eventController = {
       );
     }
 
+    // Admin'in oluşturduğu event moderasyondan geçmiş sayılır ve direkt yayınlanır.
+    // status body'den değil sunucudaki rolden belirlenir (createEventSchema .strict()
+    // olduğu için client status gönderemez), yani normal kullanıcı bunu tetikleyemez.
+    const isAdmin = req.user.role === "admin";
+
     const newEvent = await Event.create({
       ...validatedData,
       coverImage: validatedData.coverImage ?? validatedData.images[0] ?? null,
       createdBy: req.user._id,
+      // approvedAt eventModel'deki pre("save") hook'u tarafından otomatik doldurulur.
+      status: isAdmin ? "approved" : "pending",
     });
 
-    await notifyAdminsForNewEvent(
-      req.user.username, 
-      newEvent.title, 
-      newEvent._id
-    );
+    // Onay bekleyen bir şey yoksa admin'lere "yeni event onay bekliyor" bildirimi gitmesin.
+    if (!isAdmin) {
+      await notifyAdminsForNewEvent(
+        req.user.username,
+        newEvent.title,
+        newEvent._id
+      );
+    }
 
     res.status(201).send({
       error: false,
@@ -205,7 +215,11 @@ const eventController = {
     // Onaylanmış bir event düzenlendiğinde içerik değiştiği için tekrar admin
     // onayına düşer — moderasyon bypass edilmemiş olur. Reddedilmiş bir event
     // düzeltildiğinde de aynı şekilde yeniden incelemeye gönderilir.
-    if (event.status === "approved" || event.status === "rejected") {
+    // Admin'in kendi düzenlemesi ise zaten moderasyon sayılır; status'a dokunulmaz.
+    if (
+      req.user.role !== "admin" &&
+      (event.status === "approved" || event.status === "rejected")
+    ) {
       assertValidTransition(event.status, "pending");
       event.status = "pending";
       // Eski red gerekçesi yeni incelemeye ait değil; admin panelinde ve
