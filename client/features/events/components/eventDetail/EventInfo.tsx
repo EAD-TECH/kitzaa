@@ -1,15 +1,7 @@
 import { Baby, CalendarDays, Clock, Euro } from "lucide-react"
 
 import type { EventDTO } from "../../types/event.types"
-
-const AGE_RANGE_LABELS: Record<EventDTO["ageRange"], string> = {
-  "0-3": "0-3 Jahre",
-  "4-6": "4-6 Jahre",
-  "7-10": "7-10 Jahre",
-  "10-14": "10-14 Jahre",
-  parents: "Für Eltern",
-  "all-ages": "Alle Alter",
-}
+import { formatAgeRanges } from "../../utils/ageRange"
 
 function formatDate(startDate: string) {
   return new Date(startDate).toLocaleDateString("de-DE", {
@@ -43,7 +35,7 @@ const EventInfo = ({ event }: EventInfoProps) => {
     {
       icon: Baby,
       label: "Alter",
-      value: AGE_RANGE_LABELS[event.ageRange],
+      value: formatAgeRanges(event.ageRanges),
     },
     {
       icon: Euro,

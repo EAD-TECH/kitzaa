@@ -1,12 +1,12 @@
 "use client"
 
 import React from 'react'
-import type { EventDTO } from '../types/event.types';
+import type { AgeRange } from '../types/event.types';
 import { useQueryParams } from '../hooks/useQueryParams';
 import { cn } from '@/lib/utils';
 
 
-const AGE_RANGES: { value: EventDTO["ageRange"]; label: string }[] = [
+const AGE_RANGES: { value: AgeRange; label: string }[] = [
   { value: "0-3", label: "0-3 Jahre" },
   { value: "4-6", label: "4-6 Jahre" },
   { value: "7-10", label: "7-10 Jahre" },

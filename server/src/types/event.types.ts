@@ -59,7 +59,7 @@ export interface IEvent {
   images?: string[];
   categoryId: Types.ObjectId;
   locationType: EventLocationType;
-  ageRange: AgeRange;
+  ageRanges: AgeRange[];
   createdBy: Types.ObjectId;
   status: EventStatus;
   rejectedReason?: string | null;
@@ -118,7 +118,7 @@ export interface EventDTO {
   images: string[];
   categoryId: string | EventCategoryRef;
   locationType: EventLocationType;
-  ageRange: AgeRange;
+  ageRanges: AgeRange[];
   createdBy: string | EventCreatedByRef;
   status: EventStatus;
   isFree: boolean;

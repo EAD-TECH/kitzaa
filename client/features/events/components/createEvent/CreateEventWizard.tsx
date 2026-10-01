@@ -40,7 +40,7 @@ const STEPS: CreateEventStepMeta[] = [
 
 const STEP_ICONS = { 1: PenLine, 2: CalendarClock, 3: Wallet } as const
 
-const STEP_1_FIELDS: CreateEventFieldName[] = ["title", "categoryId", "locationType", "ageRange", "description"]
+const STEP_1_FIELDS: CreateEventFieldName[] = ["title", "categoryId", "locationType", "ageRanges", "description"]
 
 const STEP_2_FIELDS: CreateEventFieldName[] = [
   "schedule.startDate",
@@ -64,7 +64,7 @@ const DEFAULT_VALUES: CreateEventFormInput = {
   images: [],
   categoryId: "",
   locationType: "indoor",
-  ageRange: "all-ages",
+  ageRanges: ["all-ages"],
   isFree: true,
   price: null,
   schedule: {
@@ -99,9 +99,9 @@ function eventToFormInput(event: EventDTO): CreateEventFormInput {
     categoryId: typeof event.categoryId === "string" ? event.categoryId : event.categoryId._id,
     locationType: event.locationType,
     // Bazı eski (Altersgruppe-Feld'i modele eklenmeden önce oluşturulmuş) Events'lerde
-    // ageRange fehlt — Formular bu durumda "Alle Alter" varsayılanına düşer, aksi halde
+    // ageRanges fehlt/leer — Formular bu durumda "Alle Alter" varsayılanına düşer, aksi halde
     // Zod-Validierung geçersiz/undefined bir değerle sessizce takılı kalır.
-    ageRange: event.ageRange ?? "all-ages",
+    ageRanges: event.ageRanges?.length ? event.ageRanges : ["all-ages"],
     isFree: event.isFree,
     price: event.price,
     schedule: {

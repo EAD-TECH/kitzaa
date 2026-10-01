@@ -3,6 +3,17 @@ import { stripHtml } from "@/lib/utils"
 
 const ageRangeSchema = z.enum(["0-3", "4-6", "7-10", "10-14", "parents", "all-ages"])
 
+// Backend'deki ageRangesSchema ile aynı kurallar: en az bir grup, tekrar yok,
+// "all-ages" tek başına seçilmeli.
+const ageRangesSchema = z
+  .array(ageRangeSchema)
+  .min(1, "Bitte wähle mindestens eine Altersgruppe")
+  .refine((v) => new Set(v).size === v.length, "Altersgruppen dürfen nicht doppelt vorkommen")
+  .refine(
+    (v) => !v.includes("all-ages") || v.length === 1,
+    '"Alle Alter" kann nicht mit anderen Altersgruppen kombiniert werden'
+  )
+
 const priceSchema = z.object({
   amount: z.number().min(0),
   currency: z.string().trim().min(1).default("EUR"),
@@ -66,7 +77,7 @@ const baseEventSchema = z.object({
   images: z.array(z.string().url()).optional().default([]),
   categoryId: z.string().min(1, "Kategorie ist erforderlich"),
   locationType: z.enum(["indoor", "outdoor", "online"]),
-  ageRange: ageRangeSchema,
+  ageRanges: ageRangesSchema,
   isFree: z.boolean(),
   price: priceSchema.optional().nullable(),
   schedule: scheduleSchema,
