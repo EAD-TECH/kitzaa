@@ -109,7 +109,7 @@ export default function AdminEventsBoard() {
 
     siralama,
     kolonStatus: "pending",
-    limit: 3,
+    limit: 6,
   });
 
   const pendingEvents =
@@ -121,7 +121,7 @@ export default function AdminEventsBoard() {
     seciliStatus: seciliStatus,
     siralama,
     kolonStatus: "approved",
-    limit: 3,
+    limit: 6,
   });
 
   const approvedEvents =
@@ -133,7 +133,7 @@ export default function AdminEventsBoard() {
     seciliStatus: seciliStatus,
     siralama,
     kolonStatus: "rejected",
-    limit: 3,
+    limit: 6,
   });
 
   const rejectedEvents =
@@ -145,7 +145,7 @@ export default function AdminEventsBoard() {
     seciliStatus: seciliStatus,
     siralama,
     kolonStatus: "cancelled",
-    limit: 3,
+    limit: 6,
   });
 
   const cancelledEvents =
@@ -157,7 +157,7 @@ export default function AdminEventsBoard() {
     seciliStatus: seciliStatus,
     siralama,
     kolonStatus: "completed",
-    limit: 3,
+    limit: 6,
   });
 
   const completedEvents =
@@ -253,10 +253,11 @@ export default function AdminEventsBoard() {
 
       {/* hata yoksa  */}
       {!isLoading && !isError && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 desktop:flex desktop:items-start desktop:overflow-x-auto">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 desktop:flex desktop:items-stretch desktop:overflow-x-auto">
           {/* pendıng*/}
           {(seciliStatus.length === 0 || seciliStatus.includes("pending")) && (
             <KanbanColumn
+              scrollable
               title="Onay Bekliyor"
               count={pendingEvents.length}
               dotColor="bg-yellow-500"
@@ -273,6 +274,7 @@ export default function AdminEventsBoard() {
           {/* onaylı */}
           {(seciliStatus.length === 0 || seciliStatus.includes("approved")) && (
             <KanbanColumn
+              scrollable
               title="Yayında"
               count={approvedEvents.length}
               dotColor="bg-green-500"
@@ -288,6 +290,7 @@ export default function AdminEventsBoard() {
           {/*  Rejected */}
           {(seciliStatus.length === 0 || seciliStatus.includes("rejected")) && (
             <KanbanColumn
+              scrollable
               title="Rejected"
               count={rejectedEvents.length}
               dotColor="bg-red-500"
@@ -305,6 +308,7 @@ export default function AdminEventsBoard() {
           {(seciliStatus.length === 0 ||
             seciliStatus.includes("cancelled")) && (
             <KanbanColumn
+              scrollable
               title="Cancelled"
               count={cancelledEvents.length}
               dotColor="bg-gray-500"
@@ -322,6 +326,7 @@ export default function AdminEventsBoard() {
           {(seciliStatus.length === 0 ||
             seciliStatus.includes("completed")) && (
             <KanbanColumn
+              scrollable
               title="Completed"
               count={completedEvents.length}
               dotColor="bg-blue-500"

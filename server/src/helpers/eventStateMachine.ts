@@ -6,8 +6,9 @@ const ALLOWED_TRANSITIONS: Record<EventStatus, EventStatus[]> = {
   // 'cancelled' hier auch für 'pending' erlaubt — ein User muss sein eigenes, noch
   // nicht geprüftes Event zurückziehen können, nicht nur ein bereits genehmigtes.
   pending: ['approved', 'rejected', 'cancelled'],
-  approved: ['completed', 'cancelled'],
-  rejected: [],
+  // 'pending': der Besitzer bearbeitet das Event -> es muss erneut geprüft werden.
+  approved: ['pending', 'completed', 'cancelled'],
+  rejected: ['pending'],
   cancelled: [],
   completed: [],
 };

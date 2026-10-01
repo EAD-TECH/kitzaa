@@ -17,6 +17,11 @@ type OurFileRouter = {
     output: null
     errorShape: unknown
   }>
+  profileImage: FileRoute<{
+    input: {}
+    output: null
+    errorShape: unknown
+  }>
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL

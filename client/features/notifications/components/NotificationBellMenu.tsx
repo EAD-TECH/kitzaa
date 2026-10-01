@@ -37,7 +37,8 @@ function getNotificationHref(not: NotificationDTO) {
 
 export function NotificationBellMenu() {
   const router = useRouter();
-  const { data: listData, isPending, isError } = useNotifications();
+  // Dropdown sadece yüklenmiş sayfaları gösterir; tüm geçmiş /notifications sayfasında.
+  const { notifications, isPending, isError } = useNotifications();
   const { data: unreadData } = useUnreadCount();
 
   const { mutate: markAsRead } = useMarkNotificationRead();
@@ -45,9 +46,6 @@ export function NotificationBellMenu() {
     useMarkAllNotificationsRead();
 
   const unreadCount = unreadData?.data?.count || 0;
-  /*   Hem okunan hem okunmayan TÜM bildirimler */
-
-  const notifications = Array.isArray(listData?.result) ? listData.result : [];
 
   return (
     <DropdownMenu>
