@@ -4,7 +4,10 @@ import type {
   IConversation,
 } from "../types/conversation.types.js";
 
-const conversationSchema = new mongoose.Schema<IConversation, ConversationModel>(
+const conversationSchema = new mongoose.Schema<
+  IConversation,
+  ConversationModel
+>(
   {
     participants: [
       {
@@ -14,13 +17,18 @@ const conversationSchema = new mongoose.Schema<IConversation, ConversationModel>
     ],
     status: {
       type: String,
-      enum: ["pending" ,"active", "closed"],
+      enum: ["pending", "active", "closed"],
       default: "pending",
     },
     roomtype: {
       type: String,
       enum: ["direct", "support"],
       default: "direct",
+    },
+
+    isAgentActive: {
+      type: Boolean,
+      default: true,
     },
   },
   { timestamps: true },

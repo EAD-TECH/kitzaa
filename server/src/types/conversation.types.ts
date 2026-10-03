@@ -10,6 +10,7 @@ export interface IConversation {
   participants: Types.ObjectId[];
   status: ConversationStatus;
   roomtype: ConversationRoomTypes;
+  isAgentActive: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
