@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { joinEvent } from '../api/eventApi'
 import { toast } from 'sonner'
 import { ApiError } from '@/lib/api/client'
+import { useTrackActions } from "@/features/socket/hooks/useTrackActions"
 
 const JOIN_ERROR_MESSAGES: Record<string, string> = {
   "Event not found": "Veranstaltung nicht gefunden.",
@@ -15,12 +16,31 @@ const JOIN_ERROR_MESSAGES: Record<string, string> = {
 
 export const useJoinEvent = (eventId: string) => {
   const queryClient = useQueryClient()
+  const {handleTrackActions}=useTrackActions()
 
   return useMutation({
     mutationFn: (participantCount: number) => joinEvent(eventId, participantCount),
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Erfolgreich für das Event angemeldet!")
       queryClient.invalidateQueries({ queryKey: ["events", "my-participations"] })
+      const user = queryClient.getQueryData<{
+          firstName?: string;
+          lastName?: string;
+        }>(["currentUser"]);
+        const userName = user ? `${user.firstName} ${user.lastName}` : "Biri";
+
+        handleTrackActions({
+        type: "event_join",
+        title: "Kullnıcı etkinliğe katıldı",
+        description: `"${userName}" başlıklı etkinlige katıldı.`,
+        relatedId: data.event._id,
+        linkUrl: `/events/${data.event._id}`,
+      })
+
+
+
+
+
     },
     onError: (err) => {
       const message = err instanceof ApiError

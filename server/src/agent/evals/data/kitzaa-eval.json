@@ -1,0 +1,32 @@
+[
+  {
+    "data": {
+      "prompt": "Merhaba, 3 gün önce oluşturduğum Kitzaa etkinliğim hala pending durumunda. Bir yetkili ile görüşebilir miyim?",
+      "tools": ["transferToAdmin", "dateTime"]
+    },
+    "target": {
+      "expectedTools": ["transferToAdmin"],
+      "category": "golden"
+    }
+  },
+  {
+    "data": {
+      "prompt": "Şu an saat kaç acaba?",
+      "tools": ["transferToAdmin", "dateTime"]
+    },
+    "target": {
+      "expectedTools": ["dateTime"],
+      "category": "golden"
+    }
+  },
+  {
+    "data": {
+      "prompt": "Kitzaa üzerinden yeni bir etkinlik oluşturmak istiyorum, nasıl yapabilirim?",
+      "tools": ["transferToAdmin", "dateTime"]
+    },
+    "target": {
+      "expectedTools": [],
+      "category": "negative"
+    }
+  }
+]

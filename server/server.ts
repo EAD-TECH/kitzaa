@@ -17,11 +17,18 @@ import { swaggerSpec } from "./src/docs/swagger.js";
 const app = express()
 
 app.use(express.json());
+
 app.use(helmet());
 
-const allowedOrigins = [process.env.CLIENT_URL, process.env.ADMIN_URL].filter(
-  (origin): origin is string => Boolean(origin),
-);
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  process.env.ADMIN_URL,
+  "http://localhost:3000",
+  "http://localhost:3001",
+]
+  .filter((origin): origin is string => Boolean(origin))
+  .map((origin) => origin.trim().replace(/\/$/, ""));
+console.log(" CORS İzin verilen adresler:", allowedOrigins);
 
 app.use(cors({
   origin(origin, callback) {
