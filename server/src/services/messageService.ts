@@ -1,3 +1,4 @@
+import type { ModelMessage } from "ai";
 import Message from "../models/Message.js";
 import type {
   MessageDocument,
@@ -10,6 +11,8 @@ export const SaveMessage = async (
   senderType: MessageSenderType,
   content: string,
 ): Promise<MessageDocument> => {
+
+  
   const newMessage = Message.create({
     conversationId,
     senderId,
@@ -19,4 +22,17 @@ export const SaveMessage = async (
   });
 
   return newMessage;
+};
+
+export const getConversationHistory = async (
+  conversationId: string,
+): Promise<ModelMessage[]> => {
+  const messages = await Message.find({ conversationId })
+    .sort({ createdAt: 1 })
+    .limit(20);
+
+  return messages.slice(0, -1).map((message) => ({
+    role: message.senderType === "user" ? "user" : "assistant",
+    content: message.content,
+  }));
 };
