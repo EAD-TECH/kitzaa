@@ -6,6 +6,8 @@ import type { EvalData, MultiTurnEvalData } from "../types.js";
 export const buildMockedTools = (
   mockTools: MultiTurnEvalData["mockTools"],
 ): ToolSet => {
+
+  /* tools dongusu burda bır kısıtlama var json da yazdıgm hangı toolslar varsa senaryoma gore onları cagırıyr tum tooları calıstırmıyorm */
   const tools: ToolSet = {};
 
   for (const [name, config] of Object.entries(mockTools)) {
@@ -26,6 +28,10 @@ export const buildMockedTools = (
   return tools;
 };
 
+
+/* bu benım jsondakı  promptu alır(Etkinliğim pending durumda) ve kullanıcı yazmıs gıbı agenta verir.Asistana gonderdıgımız mesajı hazırlayan fonksıyonum */
+
+/* mesela currentDate toolunda saat kac promptu var bunu role ve prompta gore bır mesaj paketı yapıyo gondermek ıcın */
 export const buildMessages = (
   data: EvalData | { prompt?: string; systemPrompt?: string },
 ): ModelMessage[] => [

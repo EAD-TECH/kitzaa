@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { evaluate } from "@lmnr-ai/lmnr";
 import { tools } from "../tools/index.js";
 import { toolSelectionScore } from "./evaluators.js";

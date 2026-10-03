@@ -6,6 +6,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
+    "eval": "npx lmnr eval",
+    "eval:file-tools": "npx lmnr eval src/ai-sandbox/evals/file-tools.eval.ts",
     "dev": "tsx watch index.ts",
     "test": "jest"
   },
