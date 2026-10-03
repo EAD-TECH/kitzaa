@@ -9,6 +9,7 @@ export const useLiveWidgetStore = create<LiveWidgetStore>((set) => ({
   isSocketConnected: false,
   selectedUser: null,
   activeConversationRoomId: null,
+  clearChatMessages: [],
   /* eskı mesajları koruyorm ustune yenılerı ekledım */
 
   addActivity: (activity) =>
@@ -19,7 +20,7 @@ export const useLiveWidgetStore = create<LiveWidgetStore>((set) => ({
   setActivities: (activitiesPayload) => {
     set({ activities: activitiesPayload });
   },
-    
+
   addChatMessage: (message) =>
     set((state) => ({
       chatMessages: [...state.chatMessages, message],
@@ -45,5 +46,9 @@ export const useLiveWidgetStore = create<LiveWidgetStore>((set) => ({
   clearActivities: () =>
     set({
       activities: [],
+    }),
+  clearChatMessage: () =>
+    set({
+      chatMessages: [],
     }),
 }));

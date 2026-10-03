@@ -29,7 +29,6 @@ import {
   X,
   UserPlus,
   Send,
-  Share2,
   MapPin,
   CalendarCheck,
 } from "lucide-react";
@@ -109,6 +108,10 @@ export default function AdminLiveWidget() {
   const setOnlineUsers = useLiveWidgetStore((state) => state.setOnlineUsers);
   const setSelectedUser = useLiveWidgetStore((state) => state.setSelectedUser);
   const selectedUser = useLiveWidgetStore((state) => state.selectedUser);
+  const clearChatMessages = useLiveWidgetStore(
+    (state) => state.clearChatMessage,
+  );
+
   const activeConversationRoomId = useLiveWidgetStore(
     (state) => state.activeConversationRoomId,
   );
@@ -126,6 +129,7 @@ export default function AdminLiveWidget() {
 
   const handleSendMessage = () => {
     console.log("click calısıyormu enterlayınca");
+    if (!messageInput.trim() || !activeConversationRoomId) return;
     if (!messageInput.trim()) return;
 
     /* eger doluysa emitle  */
@@ -140,20 +144,43 @@ export default function AdminLiveWidget() {
   };
 
   useEffect(() => {
-    socket.on("chat_session_ready", (data) => {
-      console.log("odanın idsi geldi backendden", data.conversationId);
-      setActiveConversationRoomId(data.conversationId);
-    });
+    const handleChatReady = (data: any) => {
+      /* tıkladıgm kısının id simi */
+      const currentSelectedUser = useLiveWidgetStore.getState().selectedUser;
+      if (currentSelectedUser && data.targetId === currentSelectedUser.id) {
+        console.log(" EŞLEŞME BAŞARILI! Odaya giriliyor:", data.conversationId);
+        setActiveConversationRoomId(data.conversationId);
+      } else {
+        console.log("EŞLEŞME HATASI var");
+      }
+    };
 
-    socket.on("receive_message", (newMessage) => {
-      addMessage(newMessage);
-    });
+    const handleReceiveMessage = (newMessage: any) => {
+      /* gelen mesaj acık olan odaya mı ait */
+      const currentRoomId =
+        useLiveWidgetStore.getState().activeConversationRoomId;
+      if (newMessage.roomId === currentRoomId) {
+        addMessage(newMessage);
+      }
+    };
+
+    const handleLoadHistory=(historyData:any[])=>{
+      /* once ekranı temızleme */
+      clearChatMessages()
+      historyData.map((msg)=>{
+        addMessage(msg)
+      })
+    }
+
+    socket.on("chat_session_ready", handleChatReady);
+    socket.on("receive_message", handleReceiveMessage);
+    socket.on("load_chat_history",handleLoadHistory)
 
     return () => {
-      socket.off("chat_session_ready");
-      socket.off("receive_message");
+      socket.off("chat_session_ready", handleChatReady);
+      socket.off("receive_message", handleReceiveMessage);
     };
-  }, [setActiveConversationRoomId, addMessage]);
+  }, []);
 
   console.log(
     "GÜNCEL DURUM - Seçili Kullanıcı:",
@@ -161,6 +188,15 @@ export default function AdminLiveWidget() {
     "Oda Şifresi:",
     activeConversationRoomId,
   );
+  const closeChat = () => {
+    if (activeConversationRoomId) {
+      socket.emit("leave_chat_room", { roomId: activeConversationRoomId });
+    }
+    clearChatMessages();
+    setSelectedUser(null);
+    setActiveConversationRoomId(null);
+  };
+
   return (
     <>
       <div className="flex shrink-0 items-center justify-between border-b border-border bg-card px-4 py-3">
@@ -176,10 +212,7 @@ export default function AdminLiveWidget() {
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                onClick={() => {
-                  setSelectedUser(null);
-                  setActiveConversationRoomId(null);
-                }}
+                onClick={closeChat}
                 aria-label="Canlı akışa geri dön"
                 title="Geri dön"
               >
@@ -193,10 +226,7 @@ export default function AdminLiveWidget() {
               type="button"
               variant="ghost"
               size="icon-sm"
-              onClick={() => {
-                setSelectedUser(null);
-                setActiveConversationRoomId(null);
-              }}
+              onClick={closeChat}
               aria-label="Sohbeti kapat"
               title="Sohbeti kapat"
             >
@@ -209,7 +239,9 @@ export default function AdminLiveWidget() {
                 <MessageScrollerViewport>
                   <MessageScrollerContent className="gap-3 px-3 py-3 ">
                     {messages.map((msg) => {
-                      const isMe = msg.senderType === "admin";
+                      const isMe =
+                        msg.senderType === "admin" &&
+                        msg.senderId !== "Kitzaa-ai";
 
                       return (
                         <Message key={msg.id} align={isMe ? "end" : "start"}>
@@ -291,14 +323,23 @@ export default function AdminLiveWidget() {
                       const type = notify.type as string;
 
                       if (type === "system-alert" || type === "system_alert") {
+                        if (activeConversationRoomId) {
+                          socket.emit("leave_chat_room", {
+                            roomId: activeConversationRoomId,
+                          });
+                        }
+                        clearChatMessages();
                         setSelectedUser({
-                          id: "pending-user",
+                          id: notify.userId,
                           firstName: "Destek",
                           lastName: "Talebi",
                           currentPath: "",
                           role: "user",
                         });
                         setActiveConversationRoomId(notify.relatedId);
+                        socket.emit("join_chat_room", {
+                          roomId: notify.relatedId,
+                        });
                         return;
                       }
 
@@ -337,6 +378,7 @@ export default function AdminLiveWidget() {
                 <button
                   key={user.id}
                   onClick={() => {
+                    closeChat();
                     setSelectedUser(user);
                     socket.emit("request_chat_session", { targetId: user.id });
                   }}

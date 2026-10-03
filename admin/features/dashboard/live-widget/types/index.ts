@@ -1,6 +1,7 @@
 export interface ActivityLog {
   /* bıldırım tabı ıcın tanımladm su an sadece path ve comment dusuyor */
   id: string;
+  userId: string ;
   title: string;
   description: string;
   time: string;
@@ -14,7 +15,7 @@ export interface ActivityLog {
     | "new_comment"
     | "system_alert"
     | "system-alert"
-    | "approved"
+    | "approved";
   isRead: boolean;
 }
 
@@ -58,4 +59,5 @@ export interface LiveWidgetStore {
   clearActivities: () => void;
   setSelectedUser: (selectedUser: OnlineUser | null) => void;
   setactiveConversationRoomId: (id: string | null) => void;
+  clearChatMessage:()=>void
 }
