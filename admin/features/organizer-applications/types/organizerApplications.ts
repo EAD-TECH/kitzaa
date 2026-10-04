@@ -28,6 +28,12 @@ export interface OrganizerApplicationDTO {
   userId: string;
   institutionData: InstitutionDataDTO;
   message: string | null;
+  aiAnalysis?: {
+    riskLevel: string | null | undefined;
+    summary: string | null | undefined;
+    recommendation: string | null | undefined;
+    analyzedAt: string | Date | null;
+  };
   status: ApplicationStatus;
   reviewedBy: string | null;
   reviewerType: ReviewerType | null;

@@ -158,7 +158,7 @@ console.log("zod hatası almalıym bossa rejected kısmım")
                 )}
               </SectionShell>
 
-              <SectionAIBox />
+              <SectionAIBox aiAnalysis={appData?.aiAnalysis} />
 
               <div className="flex flex-col gap-3">
                 <h2 className="font-heading uppercase text-xs text-primary">
