@@ -27,17 +27,30 @@ export function toOrganizerApplicationDTO(
   application: OrganizerApplicationDocument[],
 ): OrganizerApplicationDTO[];
 export function toOrganizerApplicationDTO(
-  application: OrganizerApplicationDocument | OrganizerApplicationDocument[] | null,
+  application:
+    | OrganizerApplicationDocument
+    | OrganizerApplicationDocument[]
+    | null,
 ): OrganizerApplicationDTO | OrganizerApplicationDTO[] | null;
 
 export function toOrganizerApplicationDTO(
-  application: OrganizerApplicationDocument | OrganizerApplicationDocument[] | null,
+  application:
+    | OrganizerApplicationDocument
+    | OrganizerApplicationDocument[]
+    | null,
 ): OrganizerApplicationDTO | OrganizerApplicationDTO[] | null {
   if (!application) return null;
 
   if (Array.isArray(application)) {
     return application.map((item) => toOrganizerApplicationDTO(item));
   }
+
+  const aiAnalysis = application.aiAnalysis as unknown as {
+    riskLevel?: string | null;
+    summary?: string | null;
+    recommendation?: string | null;
+    analyzedAt?: Date | null;
+  } | null;
 
   return {
     _id: application._id.toString(),
@@ -51,6 +64,14 @@ export function toOrganizerApplicationDTO(
       category: application.institutionData.category ?? null,
     },
     message: application.message ?? null,
+    aiAnalysis: aiAnalysis
+      ? {
+          riskLevel: aiAnalysis.riskLevel ?? null,
+          summary: aiAnalysis.summary ?? null,
+          recommendation: aiAnalysis.recommendation ?? null,
+          analyzedAt: aiAnalysis.analyzedAt ?? null,
+        }
+      : null,
     status: application.status,
     reviewedBy: toObjectIdString(application.reviewedBy),
     reviewerType: application.reviewerType ?? null,
