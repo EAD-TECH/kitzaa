@@ -9,7 +9,13 @@ export type EventStatus =
 
 export type EventLocationType = "indoor" | "outdoor" | "online";
 
-export type AgeRange = "0-3" | "4-6" | "7-10" | "10-14" | "parents" | "all-ages";
+export type AgeRange =
+  | "0-3"
+  | "4-6"
+  | "7-10"
+  | "10-14"
+  | "parents"
+  | "all-ages";
 
 export interface IPrice {
   amount: number;
@@ -81,6 +87,12 @@ export interface IEvent {
     | "post_event_summary"
     | "event_reminder_2hour"
   )[];
+    aiAnalysis?: {
+    status: "approved" | "pending" | "rejected";
+    summary: string;
+    recommendation: string;
+    analyzedAt: Date;
+  } | null;
 }
 
 export type EventModel = Model<IEvent>;
@@ -130,6 +142,12 @@ export interface EventDTO {
   viewCount: number;
   createdAt: Date;
   updatedAt: Date;
+  aiAnalysis?: {
+    status: "approved" | "pending" | "rejected";
+    summary: string;
+    recommendation: string;
+    analyzedAt: Date;
+  } | null;
 }
 
 // omit createdBy haric tum alanlari al demek ve yazilanlari ekle

@@ -7,7 +7,14 @@ import type {
 } from "../types/event.types.js";
 import Event from "./eventModel.js";
 
-const AGE_RANGES = ["0-3", "4-6", "7-10", "10-14", "parents", "all-ages"] as const;
+const AGE_RANGES = [
+  "0-3",
+  "4-6",
+  "7-10",
+  "10-14",
+  "parents",
+  "all-ages",
+] as const;
 
 const priceSchema = new mongoose.Schema(
   {
@@ -169,6 +176,19 @@ const eventSchema = new mongoose.Schema<IEvent, EventModel>(
         ],
       },
     ],
+    aiAnalysis: {
+      type: {
+       status: {
+          type: String,
+          enum: ["approved", "pending", "rejected"],
+          default: null,
+        },
+        summary: { type: String, default: null },
+        recommendation: { type: String, default: null },
+        analyzedAt: { type: Date, default: null },
+      },
+      default: null,
+    },
   },
   { collection: "events", timestamps: true },
 );

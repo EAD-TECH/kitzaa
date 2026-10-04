@@ -1,12 +1,18 @@
-
-import type { EventDocument, EventDTO, AdminEventDTO, EventCategoryRef, EventCreatedByRef, EventParticipantRef } from "../types/event.types.js";
+import type {
+  EventDocument,
+  EventDTO,
+  AdminEventDTO,
+  EventCategoryRef,
+  EventCreatedByRef,
+  EventParticipantRef,
+} from "../types/event.types.js";
 import type { EventCategoryDocument } from "../types/eventCategory.types.js";
 import type { UserDocument } from "../types/user.types.js";
 
 // categoryId sadece populate edilmisse zengin obje olarak, aksi halde duz id string'i olarak doner.
 // Referans verilen kategori silinmisse (dangling ref) populate sonucu null olur; bu durumda orijinal id'ye geri duser.
 function toCategoryRef(event: EventDocument): string | EventCategoryRef {
-  const populatedId = event.populated('categoryId');
+  const populatedId = event.populated("categoryId");
 
   if (!populatedId) {
     return event.categoryId.toString();
@@ -29,7 +35,7 @@ function toCategoryRef(event: EventDocument): string | EventCategoryRef {
 // createdBy sadece populate edilmisse zengin obje olarak, aksi halde duz id string'i olarak doner.
 // Referans verilen kullanici silinmisse (dangling ref) populate sonucu null olur; bu durumda orijinal id'ye geri duser.
 function toCreatedByRef(event: EventDocument): string | EventCreatedByRef {
-  const populatedId = event.populated('createdBy');
+  const populatedId = event.populated("createdBy");
 
   if (!populatedId) {
     return event.createdBy.toString();
@@ -53,7 +59,7 @@ function toCreatedByRef(event: EventDocument): string | EventCreatedByRef {
 // sadece populate edilmiş (username/avatarUrl) olanlar döner. Silinmiş kullanıcı (dangling ref)
 // ya da populate edilmemiş participants sessizce listeden düşer.
 function toParticipantsPreview(event: EventDocument): EventParticipantRef[] {
-  const isPopulated = event.populated('participants.userId');
+  const isPopulated = event.populated("participants.userId");
 
   if (!isPopulated) {
     return [];
@@ -73,14 +79,18 @@ function toParticipantsPreview(event: EventDocument): EventParticipantRef[] {
 // Function overloads
 export function toEventDTO(event: EventDocument): EventDTO;
 export function toEventDTO(event: EventDocument[]): EventDTO[];
-export function toEventDTO(event: EventDocument | EventDocument[] | null): EventDTO | EventDTO[] | null;
+export function toEventDTO(
+  event: EventDocument | EventDocument[] | null,
+): EventDTO | EventDTO[] | null;
 
 // Implementation
-export function toEventDTO(event: EventDocument | EventDocument[] | null): EventDTO | EventDTO[] | null {
+export function toEventDTO(
+  event: EventDocument | EventDocument[] | null,
+): EventDTO | EventDTO[] | null {
   if (!event) return null;
 
   if (Array.isArray(event)) {
-    return event.map(item => toEventDTO(item));
+    return event.map((item) => toEventDTO(item));
   }
 
   return {
@@ -104,6 +114,7 @@ export function toEventDTO(event: EventDocument | EventDocument[] | null): Event
     viewCount: event.viewCount,
     createdAt: event.createdAt!,
     updatedAt: event.updatedAt!,
+    aiAnalysis: event.aiAnalysis || null,
   };
 }
 
@@ -111,17 +122,21 @@ export function toEventDTO(event: EventDocument | EventDocument[] | null): Event
 // (select: 'username avatarUrl role'), ayrica public DTO'da olmayan rejectedReason/approvedAt'i ekler.
 export function toAdminEventDTO(event: EventDocument): AdminEventDTO;
 export function toAdminEventDTO(event: EventDocument[]): AdminEventDTO[];
-export function toAdminEventDTO(event: EventDocument | EventDocument[] | null): AdminEventDTO | AdminEventDTO[] | null;
+export function toAdminEventDTO(
+  event: EventDocument | EventDocument[] | null,
+): AdminEventDTO | AdminEventDTO[] | null;
 
-export function toAdminEventDTO(event: EventDocument | EventDocument[] | null): AdminEventDTO | AdminEventDTO[] | null {
+export function toAdminEventDTO(
+  event: EventDocument | EventDocument[] | null,
+): AdminEventDTO | AdminEventDTO[] | null {
   if (!event) return null;
 
   if (Array.isArray(event)) {
-    return event.map(item => toAdminEventDTO(item));
+    return event.map((item) => toAdminEventDTO(item));
   }
 
   const createdBy = event.createdBy as unknown as UserDocument | null;
-  const createdByPopulatedId = event.populated('createdBy');
+  const createdByPopulatedId = event.populated("createdBy");
 
   return {
     _id: event._id.toString(),
@@ -135,11 +150,11 @@ export function toAdminEventDTO(event: EventDocument | EventDocument[] | null): 
     ageRanges: event.ageRanges ?? [],
     createdBy: createdBy
       ? {
-        _id: createdBy._id!.toString(),
-        username: createdBy.username,
-        avatarUrl: createdBy.avatarUrl ?? null,
-        role: createdBy.role,
-      }
+          _id: createdBy._id!.toString(),
+          username: createdBy.username,
+          avatarUrl: createdBy.avatarUrl ?? null,
+          role: createdBy.role,
+        }
       : (createdByPopulatedId ?? event.createdBy).toString(),
     status: event.status,
     rejectedReason: event.rejectedReason ?? null,
@@ -154,5 +169,6 @@ export function toAdminEventDTO(event: EventDocument | EventDocument[] | null): 
     viewCount: event.viewCount,
     createdAt: event.createdAt!,
     updatedAt: event.updatedAt!,
+    aiAnalysis: event.aiAnalysis || null,
   };
 }
