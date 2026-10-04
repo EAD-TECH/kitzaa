@@ -41,9 +41,9 @@ export default function ReusableDrawer() {
   const pathname = usePathname();
   const router = useRouter();
   const cardId = params.get("applicationId");
-  console.log("cardid geldimi",cardId)
+ /*  console.log("cardid geldimi",cardId) */
   const isOpen = Boolean(cardId);
-  console.log(isOpen,"kontrol et isopen kısmını cekmece acılmalı ")
+ /*  console.log(isOpen,"kontrol et isopen kısmını cekmece acılmalı ") */
 
   const { data: response, isLoading } = useOrganızarApplicationById(cardId);
   const appData = response?.application;
@@ -60,27 +60,27 @@ export default function ReusableDrawer() {
     defaultValues: reviewFormDefaults,
   });
 
-console.log("zod hatası almalıym bossa rejected kısmım")
+/* console.log("zod hatası almalıym bossa rejected kısmım") */
   function onSubmit(data: ReviewFormValues) {
     
     /*  console.log(data); */
     if (!cardId) return;
     if (data.status === "approved") {
-      console.log("onay kamyonu yola cıktımı id:" ,cardId)
+      /* console.log("onay kamyonu yola cıktımı id:" ,cardId) */
       approveApplication(cardId, {
         onSuccess: () => {
           /* basarılı olduysa drawerı kapa */
-          console.log("islm basarılımı cekmece kapanıyormu")
+         /*  console.log("islm basarılımı cekmece kapanıyormu") */
           handleDrawerClose(false);
         },
       });
     } else if (data.status === "rejected") {
-      console.log("reject kamyonum yola cıktı  Sebebi ve id ",data.note,cardId )
+      /* console.log("reject kamyonum yola cıktı  Sebebi ve id ",data.note,cardId ) */
       rejectApplication(
         { id: cardId, body: { rejectedReason: data.note } },
         {
           onSuccess: () => {
-            console.log("cekmece kapanıyrmu ıslem tamam")
+            /* console.log("cekmece kapanıyrmu ıslem tamam") */
             handleDrawerClose(false);
           },
         },

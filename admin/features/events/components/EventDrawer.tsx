@@ -35,6 +35,7 @@ import {
   eventActionSchema,
   type ReviewEventFormValues,
 } from "@/features/validations/ReviewApplicationForm";
+import SectionAIBox from "@/components/shared/drawer/SectionAIBox";
 
 const formDefaults = {
   status: undefined,
@@ -64,12 +65,68 @@ export default function EventDrawer() {
     defaultValues: formDefaults,
   });
   const formattedDate = eventData?.createdAt
-    ? new Date(eventData.createdAt).toLocaleDateString("tr-TR", {
+    ? new Date(eventData.createdAt).toLocaleString("tr-TR", {
         day: "numeric",
-        month: "long",
-        year: "numeric",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
       })
     : null;
+
+  const organizerName =
+    typeof eventData?.createdBy === "object"
+      ? eventData.createdBy?.username
+      : eventData?.createdBy;
+
+  const categoryName =
+    typeof eventData?.categoryId === "object"
+      ? eventData.categoryId?.name
+      : eventData?.categoryId;
+
+  const scheduleLabel = (() => {
+    const schedule = eventData?.schedule;
+    if (!schedule?.startDate) return null;
+
+    const dateObj = new Date(schedule.startDate);
+    if (Number.isNaN(dateObj.getTime())) return null;
+
+    const dayMonth = dateObj.toLocaleDateString("tr-TR", {
+      day: "numeric",
+      month: "long",
+    });
+    const timeRange = [schedule.startTime, schedule.endTime]
+      .filter(Boolean)
+      .join(" - ");
+    const recurring = schedule.isRecurring ? " (Tekrarlı)" : "";
+
+    return `${dayMonth}${timeRange ? ` • ${timeRange}` : ""}${recurring}`;
+  })();
+
+  const locationLabel = (() => {
+    const location = eventData?.location;
+    if (!location) return null;
+
+    return (
+      [location.venueName, location.addressLine, location.city]
+        .filter(Boolean)
+        .join(", ") || null
+    );
+  })();
+
+  const locationTypeLabel =
+    eventData?.locationType === "indoor"
+      ? "İç mekan"
+      : eventData?.locationType === "outdoor"
+        ? "Açık hava"
+        : eventData?.locationType === "online"
+          ? "Online"
+          : null;
+
+  const priceLabel = eventData?.isFree
+    ? "Ücretsiz"
+    : eventData?.price?.amount
+      ? `${eventData.price.amount} ${eventData.price.currency ?? ""}`.trim()
+      : null;
 
   function onSubmit(data: ReviewEventFormValues) {
     if (!eventId) return;
@@ -112,35 +169,52 @@ export default function EventDrawer() {
         <ReusableDrawerHeader
           title="Etkinlik Detayı"
           tag={eventData?.title ?? "Yükleniyor..."}
-          subtitle={
-            formattedDate ? `Oluşturulma: ${formattedDate}` : "Operasyon"
-          }
+          subtitle={formattedDate ? `Operasyon · ${formattedDate}` : "Operasyon"}
         />
 
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+            className="flex min-h-0 flex-1 flex-col"
           >
-            <div className="min-h-0 flex flex-1 flex-col gap-8 overflow-y-auto overscroll-contain px-4 py-4 tablet:px-6 tablet:py-6">
-              <SectionShell title="Etkinlik Bilgileri" columns={2}>
+            <div className="min-h-0 flex flex-col gap-8 flex-1 overflow-y-auto px-6 py-6">
+              <SectionShell title="Etkinlik bilgileri" columns={2}>
                 {isLoading ? (
                   <div className="p-4 text-sm text-primary">Yükleniyor...</div>
                 ) : (
                   <>
-                    <InfoSection label="Başlık">
-                      {eventData?.title || "Belirtilmemiş"}
-                    </InfoSection>
-
                     <InfoSection label="Organizatör">
-                      {typeof eventData?.createdBy === "object"
-                        ? eventData.createdBy?.username
-                        : eventData?.createdBy || "Belirtilmemiş"}
+                      {organizerName || "Belirtilmemiş"}
                     </InfoSection>
                     <InfoSection label="Durum">
                       <span className="capitalize">
                         {eventData?.status || "Belirtilmemiş"}
                       </span>
+                    </InfoSection>
+                    <InfoSection label="Kategori">
+                      {categoryName || "Belirtilmemiş"}
+                    </InfoSection>
+                    <InfoSection label="Yaş aralığı">
+                      {eventData?.ageRanges?.length
+                        ? eventData.ageRanges.join(", ")
+                        : "Belirtilmemiş"}
+                    </InfoSection>
+                    <InfoSection label="Tarih / saat" wide>
+                      {scheduleLabel || "Belirtilmemiş"}
+                    </InfoSection>
+                    <InfoSection label="Konum" wide>
+                      {locationLabel || "Belirtilmemiş"}
+                    </InfoSection>
+                    <InfoSection label="Mekan tipi">
+                      {locationTypeLabel || "Belirtilmemiş"}
+                    </InfoSection>
+                    <InfoSection label="Kapasite">
+                      {eventData?.capacity
+                        ? `${eventData.capacity.current} / ${eventData.capacity.max}`
+                        : "Belirtilmemiş"}
+                    </InfoSection>
+                    <InfoSection label="Ücret">
+                      {priceLabel || "Belirtilmemiş"}
                     </InfoSection>
                     {(eventData?.status === "rejected" ||
                       eventData?.status === "cancelled") && (
@@ -157,47 +231,23 @@ export default function EventDrawer() {
                           : eventData.cancelledReason || "Sebep yok"}
                       </InfoSection>
                     )}
-
-                    <InfoSection label="Kategori">
-                      {typeof eventData?.categoryId === "object"
-                        ? eventData.categoryId?.name || "Belirtilmemiş"
-                        : eventData?.categoryId || "Belirtilmemiş"}
-                    </InfoSection>
-
-                    <InfoSection label="Yaş Aralığı">
-                      {eventData?.ageRanges?.length
-                        ? eventData.ageRanges.join(", ")
-                        : "Belirtilmemiş"}
-                    </InfoSection>
-
-                    <InfoSection label="Açıklama" wide>
-                      {eventData?.description || "Belirtilmemiş"}
-                    </InfoSection>
-
-                    <InfoSection label="Katılım">
-                      {eventData?.capacity
-                        ? `${eventData.capacity.current} Kişi`
-                        : "Sınırsız/Belirtilmemiş"}
-                    </InfoSection>
-
-                    <InfoSection label="Kapasite">
-                      {eventData?.capacity
-                        ? `${eventData.capacity.max} Kişi`
-                        : "Sınırsız/Belirtilmemiş"}
-                    </InfoSection>
-
-                    <InfoSection label="Ücretli/Ücretsiz">
-                      <span className="capitalize">
-                        {eventData?.isFree ? "Ücretsiz" : "Ücretli"}
-                      </span>
-                    </InfoSection>
-
-                    <InfoSection label="Ücret">
-                      {eventData?.price?.amount || "Belirtilmemiş"}
-                    </InfoSection>
                   </>
                 )}
               </SectionShell>
+
+              <SectionAIBox aiAnalysis={eventData?.aiAnalysis} />
+
+              <div className="flex flex-col gap-3">
+                <h2 className="font-heading uppercase text-xs text-primary">
+                  Etkinlik açıklaması
+                </h2>
+                <div className="pl-4 flex flex-col gap-2 rounded-l border-l-2 border-l-primary bg-muted p-2">
+                  <p className="font-body text-xs leading-7 italic">
+                    {eventData?.description ||
+                      "Etkinlik için özel bir açıklama iletilmemiş."}
+                  </p>
+                </div>
+              </div>
 
               <div className="flex flex-col gap-3">
                 {(eventData?.status === "pending" ||
@@ -208,11 +258,17 @@ export default function EventDrawer() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="font-heading text-primary">
-                          İşlem Notu / Red & İptal Sebebi
+                          {eventData?.status === "pending"
+                            ? "Reddetme sebebi (zorunlu)"
+                            : "İptal sebebi (zorunlu)"}
                         </FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Bir Sebep yaz."
+                            placeholder={
+                              eventData?.status === "pending"
+                                ? "İşlemi neden reddettiğini yaz"
+                                : "Etkinliği neden iptal ettiğini yaz"
+                            }
                             className="focus-visible:ring-0 bg-muted border-none resize-none"
                             {...field}
                           />
@@ -225,7 +281,7 @@ export default function EventDrawer() {
               </div>
             </div>
 
-            <DrawerFooter className="bg-sidebar flex flex-col gap-2 border-t px-4 py-4 tablet:flex-row tablet:items-center tablet:justify-between tablet:px-6">
+            <DrawerFooter className="bg-sidebar flex-row items-center justify-between border-t px-6 py-4">
               <DrawerClose
                 render={
                   <Button type="button" variant="ghost">
@@ -255,16 +311,6 @@ export default function EventDrawer() {
                     {isRejecting ? "Reddediliyor..." : "Reddet"}
                   </Button>
                 )}
-                {eventData?.status === "pending" && (
-                  <Button
-                    disabled={isWorking}
-                    type="submit"
-                    onClick={() => form.setValue("status", "cancelled")}
-                    className="bg-muted text-foreground hover:bg-muted/80"
-                  >
-                    {isCanceling ? "Cancel ediliyor..." : "Cancel"}
-                  </Button>
-                )}
 
                 {eventData?.status === "approved" && (
                   <Button
@@ -273,7 +319,7 @@ export default function EventDrawer() {
                     onClick={() => form.setValue("status", "cancelled")}
                     className="bg-muted text-foreground hover:bg-muted/80"
                   >
-                    {isCanceling ? "İptal Ediliyor..." : "İptal Et"}
+                    {isCanceling ? "İptal ediliyor..." : "İptal et"}
                   </Button>
                 )}
               </div>
