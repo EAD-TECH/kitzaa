@@ -2,7 +2,7 @@ import { generateObject } from "ai";
 import { z } from "zod";
 import { groq } from "@ai-sdk/groq";
 
-const DEFAULT_MODEL = "openai/gpt-oss-20b";
+const DEFAULT_MODEL = "openai/gpt-oss-120b";
 export const analyzeApplicationRisk = async ({
   institutionData,
   UserMessage,
