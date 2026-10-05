@@ -1,11 +1,10 @@
-import Image from "next/image";
-import NextLink from "next/link";
-import { ArrowRight, Calendar, PartyPopper } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { FadeInOnView } from "@/components/motion/FadeInOnView";
 import { Link } from "@/i18n/navigation";
 import { getUpcomingEventsServer } from "@/features/events/api/eventApi.server";
+import { UpcomingEventCard } from "./UpcomingEventCard";
 import { formatAgeRanges } from "@/features/events/utils/ageRange";
 import type { EventDTO } from "@/features/events/types/event.types";
 
@@ -33,7 +32,7 @@ export async function UpcomingEvents() {
 
   return (
     <section className="pb-16 tablet:pb-20">
-      <div className="bg-surface-accent pt-16 pb-10 tablet:pt-20 tablet:pb-14">
+      <div className="bg-surface-accent pt-14 pb-10 tablet:pt-16 tablet:pb-14">
         <div className="mx-auto mb-10 flex max-w-7xl flex-wrap items-end justify-between gap-4 px-6 tablet:mb-14 tablet:px-10 desktop:px-10">
           <h2 className="font-heading text-2xl font-semibold text-foreground tablet:text-3xl">
             {t("upcomingEventsTitle")}
@@ -49,6 +48,11 @@ export async function UpcomingEvents() {
         </div>
 
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-x-8 gap-y-10 px-6 tablet:grid-cols-2 tablet:px-10 desktop:grid-cols-4 desktop:px-10">
+          {events.map((event, index) => (
+            <FadeInOnView key={event._id} delay={index * 260}>
+              <UpcomingEventCard event={event} />
+            </FadeInOnView>
+          ))}
           {events.map((event, index) => {
             const categoryName = getCategoryName(event.categoryId);
 

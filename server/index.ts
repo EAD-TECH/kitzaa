@@ -3,6 +3,7 @@ import { createServer } from "http";
 import app from "./server.js";
 
 import { dbConnection } from "./src/configs/dbConnection.js";
+import { connectRedis } from "./src/configs/redis.js";
 import { errorHandler, notFound } from "./src/middlewares/errorHandler.js";
 import { startEventStatusJob } from "./src/jobs/eventStatus.job.js";
 import { initializeAllJobs } from "./src/jobs/index.js";
@@ -19,6 +20,7 @@ app.all("/health", (req, res) => {
 app.use(notFound).use(errorHandler);
 
 await dbConnection();
+await connectRedis();
 
 startEventStatusJob();
 
