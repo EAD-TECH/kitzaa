@@ -1,12 +1,17 @@
 import type { Types, Model, HydratedDocument } from "mongoose";
 
-
 // as const ile yazdigimizda TypeScript tipi: readonly ['pending', 'approved'] yani readOnly tuple olarak algiliyor
-export const APPLICATION_STATUSES = ['pending','under_review','approved','rejected','needs_more_info'] as const;
+export const APPLICATION_STATUSES = [
+  "pending",
+  "under_review",
+  "approved",
+  "rejected",
+  "needs_more_info",
+] as const;
 
 export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number];
 
-export const REVIEWER_TYPES = ['admin','ai','system'] as const;
+export const REVIEWER_TYPES = ["admin", "ai", "system"] as const;
 export type ReviewerType = (typeof REVIEWER_TYPES)[number];
 
 //Basvuru sürecinde kurum bilgisini tutacagimiz datanin interface'ini olusturuyoruz
@@ -28,21 +33,35 @@ export interface IStatusHistory {
 
 export interface IOrganizerApplication {
   _id?: Types.ObjectId;
-  userId: Types.ObjectId;              // ref User
+  userId: Types.ObjectId; // ref User
   institutionData: IInstitutionData;
   message?: string | null;
   status: ApplicationStatus;
-  reviewedBy?: Types.ObjectId | null;  // kararı veren admin
-  reviewerType?: ReviewerType | null;  // AI-ready
+  reviewedBy?: Types.ObjectId | null; // kararı veren admin
+  reviewerType?: ReviewerType | null; // AI-ready
   rejectedReason?: string | null;
   reviewedAt?: Date | null;
   statusHistory: IStatusHistory[];
   createdAt?: Date;
   updatedAt?: Date;
+  aiAnalysis: {
+    type: {
+      riskLevel: {
+        type: String;
+        enum: ["LOW", "MEDIUM", "HIGH"];
+        default: null;
+      };
+      summary: { type: String; default: null };
+      recommendation: { type: String; default: null };
+      analyzedAt: { type: Date; default: null };
+    };
+    default: null;
+  };
 }
 
 export type OrganizerApplicationModel = Model<IOrganizerApplication>;
-export type OrganizerApplicationDocument = HydratedDocument<IOrganizerApplication>;
+export type OrganizerApplicationDocument =
+  HydratedDocument<IOrganizerApplication>;
 
 export interface InstitutionDataDTO {
   name: string;
@@ -65,6 +84,7 @@ export interface OrganizerApplicationDTO {
   userId: string;
   institutionData: InstitutionDataDTO;
   message: string | null;
+
   status: ApplicationStatus;
   reviewedBy: string | null;
   reviewerType: ReviewerType | null;
@@ -73,4 +93,10 @@ export interface OrganizerApplicationDTO {
   statusHistory: StatusHistoryDTO[];
   createdAt: Date;
   updatedAt: Date;
+  aiAnalysis?: {
+    riskLevel: string | null;
+    summary: string | null;
+    recommendation: string | null;
+    analyzedAt: Date | null;
+  } | null;
 }

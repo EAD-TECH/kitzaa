@@ -495,6 +495,22 @@ Sorun: Eski yapıda sayfa açıldığında tek bir devasa useInfiniteQuery çal�
 2. Helper fonksiyonlarım vardı bıldırım atınca o bıldırımlerı DB ye yazma olaylarını gerceklestıren ıkı turlu dosyam var tek bıldırım veya bırden fazla bıldrım kaydedılırken await ekledim bu dosyalarıma try catch ıcınde hataları tespit için
 
 3. Akıs su sekılde mesela once basvuru geldı dıyelım , admin için notify dosyalarımı olusturdm ve bu dosyada helperdakı create notification fonksiyonumu cagırdım ve controllera import ettiğim bu dosyaya parametre olarak aldım gereklı bılgılerı ve admınlerın id sini db den cekip bu parametreleri helper fonksıyonuma verdim ve olay akısını gerceklestırmıs oldum .
+
+4. Aynı kurguyu user ıcın de olusturdm 
+
+[KTZ-232](https://dygcankurt17.atlassian.net/browse/KTZ-232)
+1. Type ve klasor alt yapısı olusturdm dashboard sayfasındakı canlı akıs ıcın
+2. sonrasında bu canlı akıs vreılerını tutmak ıcın zustanda ıhtıyacım oldugu ıcın canlı akıs boardumdakı verılerımın ılk hallerını tutacak ve herhangı bır guncelleme oldugunda ıse guncelleyeck fonksıyonlarımı tanımladım.
+3. simdi socket baglantılarım ıcın custom bır hook olusturmam gerekıyor kı sunucu ayaga kalktıgında baglanmak gelen,akan verılerı zustanda paslıycak ben zustanddan cekıp uı ya basıcm ve baglantı kapandıgında dısconnect olmak
+4. bu custom hook ıcınde bır useeffect olmalı kı useeffect bıldırım veya verı aktıkca tetıkleneck baglantı koptugunda cleanup mantıgıyla dısconnect olsun yoksa arka planda dısconnect olmaz ve verı sızıntısı yasanır
+5. zustandan tokenı cekıyorum ve frontend motorum backendın kapısına gısıyor ben bir telefon hattı cekmek ıstıyorum,al bu da kımlıgım dedım const socket = io(process.env.NEXT_PUBLIC_API_URL, {
+      auth: {
+        token: token,  /* backendın bekledıgı tokenı gondermem lazım kı ıcerı alsın benı */
+      },
+      Backend ise bu benım admınım deyp baglantıyı okeyledı.
+
+6. Bu aslında api baglantısı gıbı degıl artık ben koparana kadar bu baglantı ayakta kalacak ve bu kanaldan backend bana verıyı akıtıck      
+
 4. Aynı kurguyu user ıcın de olusturdm
 
 KTZ-241

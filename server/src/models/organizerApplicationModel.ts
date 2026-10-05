@@ -1,5 +1,8 @@
 import { mongoose } from "../configs/dbConnection.js";
-import { APPLICATION_STATUSES, REVIEWER_TYPES } from "../types/organizerApplication.types.js";
+import {
+  APPLICATION_STATUSES,
+  REVIEWER_TYPES,
+} from "../types/organizerApplication.types.js";
 import type {
   IOrganizerApplication,
   OrganizerApplicationModel,
@@ -64,7 +67,10 @@ const statusHistorySchema = new mongoose.Schema<IStatusHistory>(
   { _id: false },
 );
 
-const organizerApplicationSchema = new mongoose.Schema<IOrganizerApplication, OrganizerApplicationModel>(
+const organizerApplicationSchema = new mongoose.Schema<
+  IOrganizerApplication,
+  OrganizerApplicationModel
+>(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -109,6 +115,19 @@ const organizerApplicationSchema = new mongoose.Schema<IOrganizerApplication, Or
     statusHistory: {
       type: [statusHistorySchema],
       default: [],
+    },
+    aiAnalysis: {
+      type: {
+        riskLevel: {
+          type: String,
+          enum: ["LOW", "MEDIUM", "HIGH"],
+          default: null,
+        },
+        summary: { type: String, default: null },
+        recommendation: { type: String, default: null },
+        analyzedAt: { type: Date, default: null },
+      },
+      default: null,
     },
   },
   { collection: "organizerApplications", timestamps: true },

@@ -8,6 +8,7 @@ import type { ApplyOrganizerInput } from "../../validations/organizerApplication
 import { sendMail } from "../../mail/mail.service.js";
 import { organizerApplicationReceivedTemplate } from "../../mail/templates/organizerApplicationReceived.template.js";
 import { notifyAdminsForNewApplication } from "../../services/notifyAdminsForNewApplication.js";
+import { analyzeApplicationRisk } from "../../services/aiRiskAnalysisService.js";
 
 const OrganizerApplicationController = {
   apply: async (req: Request<{}, any, ApplyOrganizerInput>, res: Response) => {
@@ -35,10 +36,17 @@ const OrganizerApplicationController = {
         409,
       );
 
+      const aiReport=await analyzeApplicationRisk({
+        institutionData,
+        UserMessage:message || "",
+
+      })
+
     const application = await OrganizerApplication.create({
       userId,
       institutionData,
       message,
+      aiAnalysis:aiReport,
       status: "pending",
       statusHistory: [
         { status: "pending", changedBy: userId, changedAt: new Date() },

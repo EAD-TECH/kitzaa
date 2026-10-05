@@ -37,6 +37,10 @@ yarn-error.log*
 
 # vercel
 .vercel
+.claude/
+.cursor/
+AGENTS.md
+.admin/adminnotlari.md
 
 # typescript
 *.tsbuildinfo

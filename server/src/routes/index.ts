@@ -10,6 +10,7 @@ import institutionRoute from "./user/institutionRoute.js";
 import notificationRoute from "./user/notificationRoute.js";
 import socialPostRoute from "./user/socialPostRoute.js";
 import socialPostCommentRoute from "./user/socialPostCommentRoute.js";
+import aiRoutes from "./ai/ai.routes.js";
 
 const router = Router();
 
@@ -23,5 +24,6 @@ router.use("/institutions", institutionRoute);
 router.use("/notifications", notificationRoute);
 router.use("/posts", socialPostRoute);
 router.use("/comments", socialPostCommentRoute);
+router.use("/ai", aiRoutes);
 
 export default router;

@@ -17,7 +17,11 @@ import type {
 import { assertValidTransition } from "../../helpers/eventStateMachine.js";
 import { notifyUsersForCancelledEvent } from "../../services/notificationService.js";
 import User from "../../models/userModel.js";
-import { notifyAdminsForNewEvent } from "../../services/notifyAdminsForNewEvent.js";
+import {
+  notifyAdminsForNewEvent,
+  notifyUserForApprovedEvent,
+} from "../../services/notifyAdminsForNewEvent.js";
+import { aiRiskAnalysisForEvents } from "../../services/aiRiskAnalysisForEvenrs.js";
 
 const eventController = {
   list: async (req: Request, res: Response) => {
@@ -155,20 +159,46 @@ const eventController = {
     // olduğu için client status gönderemez), yani normal kullanıcı bunu tetikleyemez.
     const isAdmin = req.user.role === "admin";
 
+    /* yapay zeka ile otomasyon kısmı */
+
+    let finalStatus = isAdmin ? "approved" : "pending";
+    let finalAnalysis = undefined;
+    if (!isAdmin) {
+      const aiResponse = await aiRiskAnalysisForEvents({
+        title: validatedData.title,
+        description: validatedData.description,
+        isFree: validatedData.isFree,
+        ageRanges: validatedData.ageRanges,
+        location: validatedData.location.city,
+        locationType: validatedData.locationType,
+        categoryId: validatedData.categoryId,
+      });
+      finalStatus = aiResponse?.status || "pending";
+      finalAnalysis = aiResponse;
+    }
+
     const newEvent = await Event.create({
       ...validatedData,
       coverImage: validatedData.coverImage ?? validatedData.images[0] ?? null,
       createdBy: req.user._id,
       // approvedAt eventModel'deki pre("save") hook'u tarafından otomatik doldurulur.
-      status: isAdmin ? "approved" : "pending",
+      status: finalStatus as EventDocument["status"],
+      aiAnalysis: finalAnalysis as EventDocument["aiAnalysis"],
     });
 
     // Onay bekleyen bir şey yoksa admin'lere "yeni event onay bekliyor" bildirimi gitmesin.
-    if (!isAdmin) {
+    if (!isAdmin && newEvent.status === "pending") {
       await notifyAdminsForNewEvent(
         req.user.username,
         newEvent.title,
-        newEvent._id
+        newEvent._id,
+      );
+    } else if (!isAdmin && newEvent.status === "approved") {
+      await notifyUserForApprovedEvent(
+        req.user._id,
+        newEvent.title,
+        newEvent._id,
+        newEvent.slug
       );
     }
 
