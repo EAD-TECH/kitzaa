@@ -3,6 +3,16 @@ import { z } from 'zod';
 
 const ageRangeSchema = z.enum(['0-3', '4-6', '7-10', '10-14', 'parents', 'all-ages']);
 
+// En az bir yaş grubu, tekrar yok; "all-ages" zaten hepsini kapsadığı için tek başına seçilmeli.
+const ageRangesSchema = z
+    .array(ageRangeSchema)
+    .min(1, 'At least one age range is required')
+    .max(ageRangeSchema.options.length)
+    .refine((v) => new Set(v).size === v.length, { message: 'Age ranges must be unique' })
+    .refine((v) => !v.includes('all-ages') || v.length === 1, {
+        message: '"all-ages" cannot be combined with other age ranges',
+    });
+
 const priceSchema = z.object({
     amount: z.number().min(0),
     currency: z.string().trim().min(1).default('EUR'),
@@ -73,7 +83,7 @@ const baseEventSchema = z.object({
     images: z.array(z.string().url()).optional().default([]),
     categoryId: z.string().min(1, 'Category is required'),
     locationType: z.enum(['indoor', 'outdoor', 'online']),
-    ageRange: ageRangeSchema,
+    ageRanges: ageRangesSchema,
     isFree: z.boolean(),
     price: priceSchema.optional().nullable(),
     schedule: scheduleSchema,

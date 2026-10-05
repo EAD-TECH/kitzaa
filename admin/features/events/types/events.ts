@@ -7,7 +7,13 @@ export type EventStatus =
 
 export type EventLocationType = "indoor" | "outdoor" | "online";
 
-export type AgeRange = "0-3" | "4-6" | "7-10" | "10-14" | "parents" | "all-ages";
+export type AgeRange =
+  | "0-3"
+  | "4-6"
+  | "7-10"
+  | "10-14"
+  | "parents"
+  | "all-ages";
 
 export interface Price {
   amount: number;
@@ -70,7 +76,7 @@ export interface EventDTO {
   images: string[];
   categoryId: string | EventCategoryRef;
   locationType: EventLocationType;
-  ageRange: AgeRange;
+  ageRanges: AgeRange[];
   createdBy: string | EventCreatedByRef;
   status: EventStatus;
   isFree: boolean;
@@ -82,6 +88,12 @@ export interface EventDTO {
   viewCount: number;
   createdAt: string;
   updatedAt: string;
+  aiAnalysis?: {
+    status: "approved" | "pending" | "rejected";
+    summary: string;
+    recommendation: string;
+    analyzedAt: Date;
+  } | null;
 }
 
 export interface AdminEventDTO extends Omit<EventDTO, "createdBy"> {

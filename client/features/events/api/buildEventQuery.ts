@@ -15,8 +15,10 @@ export const buildEventQuery = (searchParams: EventSearchParams) => {
     }
 
     const ageRange = searchParams.ageRange
+    // ageRanges bir dizi: MongoDB { ageRanges: "7-10" } sorgusunu "dizi bu değeri içeriyor mu"
+    // olarak yorumlar, yani tek bir yaş grubuyla filtrelemek çok gruplu event'leri de bulur.
     if (typeof ageRange === "string") {
-        params.set("filter[ageRange]", ageRange)
+        params.set("filter[ageRanges]", ageRange)
     }
 
     const dateFrom = searchParams.dateFrom

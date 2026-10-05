@@ -23,6 +23,7 @@ import {
 import { cn, stripHtml } from "@/lib/utils"
 import type { EventCategoryDTO } from "../../types/eventCategory.types"
 import type { CreateEventFormInput } from "../../types/createEvent.types"
+import type { AgeRange } from "../../types/event.types"
 import { AGE_RANGE_OPTIONS, LOCATION_TYPE_OPTIONS, MAX_EVENT_IMAGES, MAX_EVENT_IMAGE_SIZE_MB } from "../../constants/eventFormOptions"
 import { useUploadEventImages } from "../../hooks/useUploadEventImages"
 import { toast } from "sonner"
@@ -231,6 +232,50 @@ function SegmentedField({
   )
 }
 
+// SegmentedField'ın çoklu seçim versiyonu. "all-ages" diğer gruplarla birleştirilemez:
+// o seçilince diğerleri temizlenir, başka bir grup seçilince "all-ages" kalkar.
+function AgeRangeMultiSelect({
+  value,
+  onChange,
+}: {
+  value: AgeRange[]
+  onChange: (value: AgeRange[]) => void
+}) {
+  const toggle = (option: AgeRange) => {
+    if (value.includes(option)) {
+      onChange(value.filter((v) => v !== option))
+    } else if (option === "all-ages") {
+      onChange(["all-ages"])
+    } else {
+      onChange([...value.filter((v) => v !== "all-ages"), option])
+    }
+  }
+
+  return (
+    <div role="group" className="flex flex-wrap gap-2">
+      {AGE_RANGE_OPTIONS.map((option) => {
+        const isSelected = value.includes(option.value)
+        return (
+          <button
+            key={option.value}
+            type="button"
+            aria-pressed={isSelected}
+            onClick={() => toggle(option.value)}
+            className={cn(
+              "cursor-pointer rounded-4xl border px-4 py-1.5 text-sm font-medium transition-colors",
+              isSelected
+                ? "border-transparent bg-(--green-500)/20 text-[color-mix(in_oklch,var(--green-500),black_35%)]"
+                : "border-border bg-background text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {option.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 export function EventDetailsStep({ form, categories }: EventDetailsStepProps) {
   const description = form.watch("description") ?? ""
   // Select (Base UI) seçili değerin etiketini <SelectItem> çocuklarından otomatik çıkarmıyor —
@@ -309,12 +354,13 @@ export function EventDetailsStep({ form, categories }: EventDetailsStepProps) {
 
       <FormField
         control={form.control}
-        name="ageRange"
+        name="ageRanges"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Altersgruppe *</FormLabel>
+            <FormLabel>Altersgruppen *</FormLabel>
+            <p className="text-xs text-muted-foreground">Mehrfachauswahl möglich</p>
             <FormControl>
-              <SegmentedField options={AGE_RANGE_OPTIONS} value={field.value} onChange={field.onChange} />
+              <AgeRangeMultiSelect value={field.value ?? []} onChange={field.onChange} />
             </FormControl>
             <FormMessage />
           </FormItem>

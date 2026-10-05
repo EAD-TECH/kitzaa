@@ -6,16 +6,12 @@ import type {
   NotificationDTO,
   UnreadCountResponse,
 } from "@/features/notifications/types";
-import { type InfiniteData, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+
+import { socket } from "@/features/socket/socket";
+import { InfiniteData, useQueryClient } from "@tanstack/react-query";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { io } from "socket.io-client";
 import { toast } from "sonner";
-
-// "undefined" means the URL will be computed from the `window.location` object
-const URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-
-export const socket = io(URL, { autoConnect: false });
 
 export default function AuthSocketProvider({
   children,
@@ -23,6 +19,8 @@ export default function AuthSocketProvider({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+
   const accessToken = useAuthStore((state) => state.accessToken);
   const setIsSocketConnected = useAuthStore(
     (state) => state.setIsSocketConnected,
@@ -37,13 +35,21 @@ export default function AuthSocketProvider({
       socket.connect();
 
       socket.on("connect", () => {
-        console.log("Socket bağlandı, Polling durdurulacak!");
+        /* console.log("Socket bağlandı, Polling durdurulacak!"); */
         setIsSocketConnected(true);
+        socket.emit("update_path", pathname);
       });
 
       socket.on("disconnect", () => {
         console.log("Socket koptu, Polling (Yedekleme) devreye giriyor!");
         setIsSocketConnected(false);
+      });
+
+      /* kullanıcının admının davetını duyması ıcın */
+      socket.on("chat_invite", (payload) => {
+        console.log("admın benı cagırdı odaya katılıyorm", payload.roomId);
+        /* backende emıt benı odaya al */
+        socket.emit("join_chat_room", { roomId: payload.roomId });
       });
 
       // Hata olursa da koptu sayıyoruz
@@ -125,10 +131,19 @@ export default function AuthSocketProvider({
       socket.off("connect");
       socket.off("disconnect");
       socket.off("connect_error");
+      socket.off("join_chat_room");
       setIsSocketConnected(false);
       socket.disconnect();
     };
   }, [accessToken, queryClient]);
+
+  const isSocketConnected = useAuthStore((state) => state.isSocketConnected);
+
+  useEffect(() => {
+    if (isSocketConnected) {
+      socket.emit("update_path", pathname);
+    }
+  }, [pathname, isSocketConnected]);
 
   //* cocukları ekrana bas */
   return <>{children}</>;

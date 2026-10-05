@@ -1,3 +1,5 @@
+import { AdminEventDTO } from "@/features/events/types";
+import { OrganizerApplicationDTO } from "@/features/organizer-applications/types";
 import { ReactNode } from "react";
 
 export interface KanbanCardProps {
@@ -30,7 +32,9 @@ export interface KanbanColumnProps {
 export interface PageHeaderProps {
   title: string;
   description?: string;
-  actionButton?: ReactNode; /* sagda belkı buton koyarım event ıcın emın degılm children mantıgıyla bıraktm bunu da yıne */
+  actionButton?: ReactNode;
+  dateText?: string; /* sagda belkı buton koyarım event ıcın emın degılm children mantıgıyla bıraktm bunu da yıne */
+  machineDate?: string;
 }
 
 export interface SearchInputProps {
@@ -113,4 +117,11 @@ export interface ActionSheetAiBoxProps {
   text?: string;
   riskLabel?: string;
   suggestion?: string;
+}
+
+export interface SectionAIBoxProps {
+  // Ya kurumsal başvuru analizi gelsin, YA DA etkinlik analizi gelsin:
+  aiAnalysis?:
+    | OrganizerApplicationDTO["aiAnalysis"]
+    | AdminEventDTO["aiAnalysis"];
 }

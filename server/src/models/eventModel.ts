@@ -7,7 +7,14 @@ import type {
 } from "../types/event.types.js";
 import Event from "./eventModel.js";
 
-const AGE_RANGES = ["0-3", "4-6", "7-10", "10-14", "parents", "all-ages"] as const;
+const AGE_RANGES = [
+  "0-3",
+  "4-6",
+  "7-10",
+  "10-14",
+  "parents",
+  "all-ages",
+] as const;
 
 const priceSchema = new mongoose.Schema(
   {
@@ -115,11 +122,26 @@ const eventSchema = new mongoose.Schema<IEvent, EventModel>(
       required: [true, "Location type is required"],
       index: true,
     },
-    ageRange: {
-      type: String,
-      enum: AGE_RANGES,
-      required: [true, "Age range is required"],
+    // Bir event birden fazla yaş grubuna hitap edebilir (örn. "4-6" + "7-10").
+    // Dizi alanında index "multikey" olur: filter[ageRanges]=7-10 sorgusu,
+    // dizisinde "7-10" bulunan tüm event'leri eşleştirir.
+    ageRanges: {
+      type: [{ type: String, enum: AGE_RANGES }],
       index: true,
+      validate: [
+        {
+          validator: (v: string[]) => Array.isArray(v) && v.length > 0,
+          message: "At least one age range is required",
+        },
+        {
+          validator: (v: string[]) => new Set(v).size === v.length,
+          message: "Age ranges must be unique",
+        },
+        {
+          validator: (v: string[]) => !v.includes("all-ages") || v.length === 1,
+          message: '"all-ages" cannot be combined with other age ranges',
+        },
+      ],
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -154,6 +176,19 @@ const eventSchema = new mongoose.Schema<IEvent, EventModel>(
         ],
       },
     ],
+    aiAnalysis: {
+      type: {
+       status: {
+          type: String,
+          enum: ["approved", "pending", "rejected"],
+          default: null,
+        },
+        summary: { type: String, default: null },
+        recommendation: { type: String, default: null },
+        analyzedAt: { type: Date, default: null },
+      },
+      default: null,
+    },
   },
   { collection: "events", timestamps: true },
 );

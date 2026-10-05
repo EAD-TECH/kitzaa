@@ -11,6 +11,7 @@ export const setIO=(ioInstance:Server)  =>{
 
 }
 
+
 export const getIO = (): Server => {
   if (!io) {
    throw  new CustomError("Socket.io henüz init edilmedi. Önce initSocket çağır.");

@@ -14,14 +14,17 @@ import type {
   GetMyOrganizerApplicationsResponse,
 } from "../types/organizerApplication.types";
 import type { ApplyOrganizerInput } from "../validations/organizerApplication.schema";
+import { useTrackActions } from "@/features/socket/hooks/useTrackActions";
 
 const ORGANIZER_QUERY_KEY = ["organizer-application"] as const;
 
 const ORGANIZER_CREATE_ERROR_MESSAGES: Record<string, string> = {
-  "You are already an organizer or admin.": "Du bist bereits Organisator oder Admin.",
+  "You are already an organizer or admin.":
+    "Du bist bereits Organisator oder Admin.",
   "Please verify your email before applying.":
     "Bitte bestätige zuerst deine E-Mail-Adresse, bevor du dich bewirbst.",
-  "You already have an application in progress.": "Du hast bereits einen Antrag in Prüfung.",
+  "You already have an application in progress.":
+    "Du hast bereits einen Antrag in Prüfung.",
 };
 
 export const useMyOrganizerApplications = (enabled = true) => {
@@ -34,6 +37,7 @@ export const useMyOrganizerApplications = (enabled = true) => {
 
 export const useCreateOrganizerApplication = () => {
   const queryClient = useQueryClient();
+  const {handleTrackActions}=useTrackActions()
 
   return useMutation({
     mutationFn: (organizerApplicationData: ApplyOrganizerInput) =>
@@ -48,11 +52,30 @@ export const useCreateOrganizerApplication = () => {
     },
     onSuccess: (response: ApplyOrganizerResponse) => {
       toast.success("Dein Antrag wurde eingereicht.");
-      queryClient.setQueryData<GetMyOrganizerApplicationsResponse>(ORGANIZER_QUERY_KEY, (current) => ({
-        error: false,
-        applications: [response.application, ...(current?.applications ?? [])],
-      }));
+      queryClient.setQueryData<GetMyOrganizerApplicationsResponse>(
+        ORGANIZER_QUERY_KEY,
+        (current) => ({
+          error: false,
+          applications: [
+            response.application,
+            ...(current?.applications ?? []),
+          ],
+        }),
+      );
       queryClient.invalidateQueries({ queryKey: ORGANIZER_QUERY_KEY });
+
+      const user = queryClient.getQueryData<{
+        firstName?: string;
+        lastName?: string;
+      }>(["currentUser"]);
+      const userName = user ? `${user.firstName} ${user.lastName}` : "Biri";
+
+      handleTrackActions({
+        type: "application",
+        title: "Yeni organizatör başvurusu",
+        description: `${userName} "${response.application.institutionData.name}" için organizatör başvurusu gönderdi.`,
+        relatedId: response.application._id,
+      });
     },
   });
 };

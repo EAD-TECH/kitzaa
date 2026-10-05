@@ -30,7 +30,11 @@ import {
 import type { PostCommentListResponse } from "../types/postComment.types";
 import type { PostListResponse, UsePostsParams } from "../types/post.types";
 import type { CreatePostCommentInput } from "../validations/postComment.schema";
-import type { CreatePostInput, UpdatePostInput } from "../validations/post.schema";
+import type {
+  CreatePostInput,
+  UpdatePostInput,
+} from "../validations/post.schema";
+import { useTrackActions } from "@/features/socket/hooks/useTrackActions";
 
 const POST_CREATE_ERROR_MESSAGES: Record<string, string> = {};
 const POST_UPDATE_ERROR_MESSAGES: Record<string, string> = {};
@@ -40,14 +44,20 @@ const COMMENT_DELETE_ERROR_MESSAGES: Record<string, string> = {};
 // Backend CustomError.message → kullanıcıya gösterilen Almanca metin.
 // Key'ler sunucudaki string ile birebir aynı olmalı (isOwnerOrAdmin + comment deletee).
 const POST_DELETE_ERROR_MESSAGES: Record<string, string> = {
-  "You do not have permission to perform this action.": "Du darfst diesen Beitrag nicht löschen.",
+  "You do not have permission to perform this action.":
+    "Du darfst diesen Beitrag nicht löschen.",
   "Post not found": "Beitrag wurde nicht gefunden.",
   "Resource not found": "Beitrag wurde nicht gefunden.",
   "Invalid resource id.": "Ungültige Beitrags-ID.",
   "Invalid id.": "Ungültige Beitrags-ID.",
 };
 
-export const usePosts = ({ city, eventId, sort, search }: UsePostsParams = {}) => {
+export const usePosts = ({
+  city,
+  eventId,
+  sort,
+  search,
+}: UsePostsParams = {}) => {
   return useInfiniteQuery({
     queryKey: ["social-posts", { city, eventId, sort, search }],
     queryFn: ({ pageParam }) =>
@@ -146,6 +156,7 @@ export function usePostComments(postId: string) {
 
 export const useCreatePost = () => {
   const queryClient = useQueryClient();
+  const { handleTrackActions } = useTrackActions();
 
   return useMutation({
     mutationFn: (postData: CreatePostInput) => createSocialPost(postData),
@@ -157,9 +168,22 @@ export const useCreatePost = () => {
           : "Beitrag konnte nicht erstellt werden. Bitte versuche es erneut.";
       toast.error(message);
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
       toast.success("Beitrag erfolgreich erstellt.");
       queryClient.invalidateQueries({ queryKey: ["social-posts"] });
+
+      const user = queryClient.getQueryData<{
+        firstName?: string;
+        lastName?: string;
+      }>(["currentUser"]);
+      const userName = user ? `${user.firstName} ${user.lastName}` : "Biri";
+
+      handleTrackActions({
+        type: "post_create",
+        title: "Yeni Gönderi Yorumu",
+        description: `${userName} platformda yeni bir gönderi yayınladı.`,
+        linkUrl: `/post/${response.post._id}`,
+      });
     },
   });
 };
@@ -168,7 +192,8 @@ export const useUpdatePost = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: UpdatePostInput }) => updateSocialPost(id, payload),
+    mutationFn: ({ id, payload }: { id: string; payload: UpdatePostInput }) =>
+      updateSocialPost(id, payload),
     onError: (error) => {
       const message =
         error instanceof ApiError
@@ -180,7 +205,9 @@ export const useUpdatePost = () => {
     onSuccess: (_response, variables) => {
       toast.success("Beitrag erfolgreich aktualisiert.");
       queryClient.invalidateQueries({ queryKey: ["social-posts"] });
-      queryClient.invalidateQueries({ queryKey: ["social-post", variables.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["social-post", variables.id],
+      });
     },
   });
 };
@@ -189,8 +216,13 @@ export const useDeletePostComment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ commentId, postId }: { commentId: string; postId: string }) =>
-      deleteSocialPostComment(commentId),
+    mutationFn: ({
+      commentId,
+      postId,
+    }: {
+      commentId: string;
+      postId: string;
+    }) => deleteSocialPostComment(commentId),
     onError: (error) => {
       const message =
         error instanceof ApiError
@@ -205,16 +237,20 @@ export const useDeletePostComment = () => {
         queryKey: ["social-post-comments", variablesId.postId],
       });
       queryClient.invalidateQueries({ queryKey: ["social-posts"] });
-      queryClient.invalidateQueries({ queryKey: ["social-post", variablesId.postId] });
+      queryClient.invalidateQueries({
+        queryKey: ["social-post", variablesId.postId],
+      });
     },
   });
 };
 
 export const useCreatePostComment = () => {
   const queryClient = useQueryClient();
+  const { handleTrackActions } = useTrackActions();
 
   return useMutation({
-    mutationFn: (commentData: CreatePostCommentInput) => createSocialPostComment(commentData),
+    mutationFn: (commentData: CreatePostCommentInput) =>
+      createSocialPostComment(commentData),
     onError: (error) => {
       const message =
         error instanceof ApiError
@@ -228,20 +264,42 @@ export const useCreatePostComment = () => {
       queryClient.invalidateQueries({
         queryKey: ["social-post-comments", submittedComment.postId],
       });
+
+      const shortComment = submittedComment.text
+        ? submittedComment.text.substring(0, 30) + "..."
+        : "bir yorum yaptı.";
+
+      const user = queryClient.getQueryData<{
+        firstName?: string;
+        lastName?: string;
+      }>(["currentUser"]);
+      const userName = user ? `${user.firstName} ${user.lastName}` : "Biri";
+
       queryClient.invalidateQueries({ queryKey: ["social-posts"] });
+
+      handleTrackActions({
+        type: "comment",
+        title: "Yeni Gönderi Yorumu",
+        description: `${userName}: "${shortComment}"`,
+        relatedId: submittedComment.postId,
+        linkUrl: `/post/${submittedComment.postId}`,
+      });
     },
   });
 };
 
 export const useTogglePostLike = () => {
   const queryClient = useQueryClient();
+  const { handleTrackActions } = useTrackActions();
 
   return useMutation({
     mutationFn: (id: string) => likeSocialPost(id),
     onMutate: async (postId: string) => {
       await queryClient.cancelQueries({ queryKey: ["social-posts"] });
 
-      const previousQueries = queryClient.getQueriesData<InfiniteData<PostListResponse>>({
+      const previousQueries = queryClient.getQueriesData<
+        InfiniteData<PostListResponse>
+      >({
         queryKey: ["social-posts"],
       });
 
@@ -260,7 +318,9 @@ export const useTogglePostLike = () => {
                 return {
                   ...post,
                   isLikedByMe: !post.isLikedByMe,
-                  likesCount: post.isLikedByMe ? post.likesCount - 1 : post.likesCount + 1,
+                  likesCount: post.isLikedByMe
+                    ? post.likesCount - 1
+                    : post.likesCount + 1,
                 };
               }),
             })),
@@ -270,6 +330,7 @@ export const useTogglePostLike = () => {
 
       return { previousQueries };
     },
+
     onError: (_error, _postId, context) => {
       context?.previousQueries.forEach(([queryKey, previousData]) => {
         queryClient.setQueryData(queryKey, previousData);
@@ -285,11 +346,28 @@ export const useTogglePostLike = () => {
             ...oldData,
             pages: oldData.pages.map((page) => ({
               ...page,
-              posts: page.posts.map((post) => (post._id === data.post._id ? data.post : post)),
+              posts: page.posts.map((post) =>
+                post._id === data.post._id ? data.post : post,
+              ),
             })),
           };
         },
       );
+      if (data.post.isLikedByMe) {
+        const user = queryClient.getQueryData<{
+          firstName?: string;
+          lastName?: string;
+        }>(["currentUser"]);
+        const userName = user ? `${user.firstName} ${user.lastName}` : "Biri";
+
+        handleTrackActions({
+          type: "like",
+          title: "Gönderi Beğenildi",
+          description: `${userName} bir gönderiyi beğendi.`,
+          relatedId: data.post._id,
+          linkUrl: `/post/${data.post._id}`,
+        });
+      }
     },
   });
 };
@@ -298,15 +376,17 @@ export const useToggleCommentLike = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ commentId }: { commentId: string; postId: string }) => likeSocialPostComment(commentId),
+    mutationFn: ({ commentId }: { commentId: string; postId: string }) =>
+      likeSocialPostComment(commentId),
     onMutate: async ({ commentId, postId }) => {
       const queryKey = ["social-post-comments", postId];
 
       await queryClient.cancelQueries({ queryKey });
 
-      const previousQueries = queryClient.getQueriesData<PostCommentListResponse>({
-        queryKey,
-      });
+      const previousQueries =
+        queryClient.getQueriesData<PostCommentListResponse>({
+          queryKey,
+        });
 
       queryClient.setQueryData<PostCommentListResponse>(queryKey, (oldData) => {
         if (!oldData) return oldData;
@@ -319,7 +399,9 @@ export const useToggleCommentLike = () => {
             return {
               ...comment,
               isLikedByMe: !comment.isLikedByMe,
-              likesCount: comment.isLikedByMe ? comment.likesCount - 1 : comment.likesCount + 1,
+              likesCount: comment.isLikedByMe
+                ? comment.likesCount - 1
+                : comment.likesCount + 1,
             };
           }),
         };
@@ -333,16 +415,19 @@ export const useToggleCommentLike = () => {
       });
     },
     onSuccess: (data, { postId }) => {
-      queryClient.setQueryData<PostCommentListResponse>(["social-post-comments", postId], (oldData) => {
-        if (!oldData) return oldData;
+      queryClient.setQueryData<PostCommentListResponse>(
+        ["social-post-comments", postId],
+        (oldData) => {
+          if (!oldData) return oldData;
 
-        return {
-          ...oldData,
-          comments: oldData.comments.map((comment) =>
-            comment._id === data.comment._id ? data.comment : comment,
-          ),
-        };
-      });
+          return {
+            ...oldData,
+            comments: oldData.comments.map((comment) =>
+              comment._id === data.comment._id ? data.comment : comment,
+            ),
+          };
+        },
+      );
     },
   });
 };

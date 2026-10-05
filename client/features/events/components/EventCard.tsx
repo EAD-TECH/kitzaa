@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import type { EventDTO } from "../types/event.types"
+import { formatAgeRanges } from "../utils/ageRange"
 import { useEventsStore } from "../store/EventStore"
 import useToggleSaveEvent from "../hooks/useToggleSaveEvent"
 import { toast } from "sonner"
@@ -37,19 +38,6 @@ function formatEventDate(startDate: string, startTime: string) {
       : date.toLocaleDateString("de-DE", { day: "2-digit", month: "short" })
 
   return `${day}, ${startTime} Uhr`
-}
-
-const AGE_RANGE_LABELS: Record<EventDTO["ageRange"], string> = {
-  "0-3": "0-3 Jahre",
-  "4-6": "4-6 Jahre",
-  "7-10": "7-10 Jahre",
-  "10-14": "10-14 Jahre",
-  parents: "Für Eltern",
-  "all-ages": "Alle Alter",
-}
-
-function formatAgeRange(ageRange: EventDTO["ageRange"]) {
-  return AGE_RANGE_LABELS[ageRange]
 }
 
 const STATUS_LABELS: Record<EventDTO["status"], string> = {
@@ -188,7 +176,7 @@ const EventCard = ({ event, className, variant = "public", onDelete }: EventCard
           </span>
           <span className="flex shrink-0 items-center gap-1 rounded-full bg-accent px-1.5 py-0.5 text-foreground">
             <Baby className="size-3 shrink-0" />
-            {formatAgeRange(event.ageRange)}
+            {formatAgeRanges(event.ageRanges)}
           </span>
         </div>
 

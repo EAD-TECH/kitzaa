@@ -5,6 +5,19 @@ import { FadeInOnView } from "@/components/motion/FadeInOnView";
 import { Link } from "@/i18n/navigation";
 import { getUpcomingEventsServer } from "@/features/events/api/eventApi.server";
 import { UpcomingEventCard } from "./UpcomingEventCard";
+import { formatAgeRanges } from "@/features/events/utils/ageRange";
+import type { EventDTO } from "@/features/events/types/event.types";
+
+function getCategoryName(categoryId: EventDTO["categoryId"]) {
+  return typeof categoryId === "string" ? null : categoryId.name;
+}
+
+function formatEventDate(startDate: string) {
+  return new Date(startDate).toLocaleDateString("de-DE", {
+    day: "2-digit",
+    month: "long",
+  });
+}
 
 // Wellenförmige Kante statt einer geraden Linie zwischen Seiten- und
 // Panel-Hintergrund.
@@ -40,6 +53,53 @@ export async function UpcomingEvents() {
               <UpcomingEventCard event={event} />
             </FadeInOnView>
           ))}
+          {events.map((event, index) => {
+            const categoryName = getCategoryName(event.categoryId);
+
+            return (
+              <FadeInOnView key={event._id} delay={index * 260}>
+                <NextLink
+                  href={`/events/${event.slug}`}
+                  className="group flex flex-col gap-3"
+                >
+                  <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-secondary/15">
+                    {event.coverImage ? (
+                      <Image
+                        src={event.coverImage}
+                        alt={event.title}
+                        fill
+                        sizes="(min-width: 64rem) 25vw, (min-width: 40rem) 50vw, 100vw"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex size-full items-center justify-center">
+                        <PartyPopper className="size-6 text-muted-foreground/40" />
+                      </div>
+                    )}
+
+                    {categoryName && (
+                      <span className="absolute top-3 left-3 rounded-full border border-white/30 bg-white/15 px-2.5 py-1 text-[10px] font-semibold tracking-wide text-white uppercase backdrop-blur-md">
+                        {categoryName}
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="truncate font-heading text-xl leading-snug font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary">
+                    {event.title}
+                  </h3>
+
+                  <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1.5">
+                      <Calendar className="size-3.5 shrink-0" />
+                      {formatEventDate(event.schedule.startDate)}
+                    </span>
+                    <span aria-hidden="true">·</span>
+                    <span>{formatAgeRanges(event.ageRanges)}</span>
+                  </span>
+                </NextLink>
+              </FadeInOnView>
+            );
+          })}
         </div>
       </div>
 

@@ -75,10 +75,10 @@ const Navbar = () => {
         "mb-3 z-50",
         isHome
           ? "absolute inset-x-0 top-2 bg-transparent tablet:top-3"
-          : "sticky top-2 border-b border-border bg-background pb-3 tablet:top-3",
+          : "sticky top-0 border-b border-border bg-background pt-2 pb-3 tablet:pt-3",
       )}
     >
-      <div className="mx-auto grid h-14 max-w-400 grid-cols-[1fr_auto_1fr] items-center px-3 tablet:px-5 desktop:px-8">
+      <div className="mx-auto grid h-14 max-w-400 grid-cols-[1fr_auto] tablet:grid-cols-[1fr_auto_1fr] items-center px-3 tablet:px-5 desktop:px-8">
         {/* logo  */}
 
         <Link href="/" className="flex items-center justify-self-start">
@@ -122,7 +122,7 @@ const Navbar = () => {
 
         <div className="my-auto flex items-center gap-3 justify-self-end">
           {/* Theme and notification buttons  */}
-          <div className="flex items-center gap-1 mt-2 tablet:mt-0">
+          <div className="flex items-center gap-1">
 
 
             <Button
@@ -145,7 +145,7 @@ const Navbar = () => {
               size="icon"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               aria-label="Theme change"
-              className="relative overflow-hidden rounded-full text-muted-foreground hover:text-foreground cursor-pointer -mt-1 tablet:me-2"
+              className="relative overflow-hidden rounded-full text-muted-foreground hover:text-foreground cursor-pointer tablet:me-2"
             >
               <MdSunny
                 className={cn(
