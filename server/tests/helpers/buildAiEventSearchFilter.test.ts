@@ -17,9 +17,12 @@ const createFilters = (
 describe("buildAiEventSearchFilter", () => {
   test("tek çocuk için uygun yaş aralığını ve all-ages etkinlikleri bulur", () => {
     const query = buildAiEventSearchFilter(createFilters());
+    const andConditions = query.$and as Array<{
+      $or: Array<Record<string, unknown>>;
+    }>;
 
-    expect(query.ageRange).toEqual({
-      $in: ["all-ages", "4-6", null],
+    expect(andConditions[0]?.$or[0]).toEqual({
+      ageRanges: { $in: ["all-ages", "4-6"] },
     });
   });
 
@@ -27,19 +30,27 @@ describe("buildAiEventSearchFilter", () => {
     const query = buildAiEventSearchFilter(
       createFilters({ childAges: [5, 8] }),
     );
+    const andConditions = query.$and as Array<{
+      $or: Array<Record<string, unknown>>;
+    }>;
 
-    expect(query.ageRange).toEqual({
-      $in: ["all-ages", null],
+    expect(andConditions[0]?.$or[0]).toEqual({
+      ageRanges: { $in: ["all-ages"] },
     });
   });
 
   test("yaş aralığı belirtilmemiş legacy etkinlikleri dışlamaz", () => {
     const query = buildAiEventSearchFilter(createFilters());
+    const andConditions = query.$and as Array<{
+      $or: Array<Record<string, unknown>>;
+    }>;
 
-    expect(query.ageRange).toEqual(
-      expect.objectContaining({
-        $in: expect.arrayContaining([null]),
-      }),
+    expect(andConditions[0]?.$or).toEqual(
+      expect.arrayContaining([
+        { ageRanges: { $exists: false } },
+        { ageRanges: null },
+        { ageRanges: { $size: 0 } },
+      ]),
     );
   });
 
@@ -62,8 +73,14 @@ describe("buildAiEventSearchFilter", () => {
     const query = buildAiEventSearchFilter(
       createFilters({ maxPrice: 15 }),
     );
+    const andConditions = query.$and as Array<{
+      $or: Array<Record<string, unknown>>;
+    }>;
+    const priceCondition = andConditions.find((condition) =>
+      condition.$or.some((item) => "isFree" in item),
+    );
 
-    expect(query.$or).toEqual([
+    expect(priceCondition?.$or).toEqual([
       { isFree: true },
       {
         isFree: false,

@@ -511,7 +511,6 @@ Sorun: Eski yapıda sayfa açıldığında tek bir devasa useInfiniteQuery çal�
 
 6. Bu aslında api baglantısı gıbı degıl artık ben koparana kadar bu baglantı ayakta kalacak ve bu kanaldan backend bana verıyı akıtıck      
 
-=======
 4. Aynı kurguyu user ıcın de olusturdm
 
 KTZ-241
@@ -544,4 +543,3 @@ limit guncellendı :6
 
 USER VE CATEGORY SAYFALARINDA PAGINATION EKLIYORM:
 ONCELIKLE TYPES DOSYAMA PAGINATIONUN DETAYLARINI VE DONEN CEVABIN TIPLERINI BELIRTIYORUM
->>>>>>> dev

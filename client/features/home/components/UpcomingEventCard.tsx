@@ -1,7 +1,7 @@
 import Image from "next/image";
 import NextLink from "next/link";
 import { Calendar, PartyPopper } from "lucide-react";
-import { formatAgeRange } from "@/features/events/utils/ageRange";
+import { formatAgeRanges } from "@/features/events/utils/ageRange";
 import type { EventDTO } from "@/features/events/types/event.types";
 
 interface UpcomingEventCardProps {
@@ -59,9 +59,7 @@ export function UpcomingEventCard({ event }: UpcomingEventCardProps) {
           {formatEventDate(event.schedule.startDate)}
         </span>
         <span aria-hidden="true">·</span>
-        <span>
-          {event.ageRange ? formatAgeRange(event.ageRange) : "Alle Alter"}
-        </span>
+        <span>{formatAgeRanges(event.ageRanges)}</span>
       </span>
     </NextLink>
   );

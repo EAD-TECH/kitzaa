@@ -163,13 +163,23 @@ export const buildAiEventSearchFilter = (filters: AiEventSearchOutput): Record<s
       $gte: berlinNow().startOf("day").toDate(),
     },
   };
+  const andConditions: Record<string, unknown>[] = [];
 
   if (filters.childAges !== null) {
-    query.ageRange = {
-      // Legacy events may not have an ageRange. Treat unspecified age as all-ages
-      // until those records are normalized.
-      $in: [...mapChildAgesToCommonAgeRanges(filters.childAges), null],
-    };
+    const compatibleAgeRanges = mapChildAgesToCommonAgeRanges(
+      filters.childAges,
+    );
+
+    andConditions.push({
+      $or: [
+        { ageRanges: { $in: compatibleAgeRanges } },
+        // Legacy events without the new array field are treated as all-ages
+        // until those records are normalized.
+        { ageRanges: { $exists: false } },
+        { ageRanges: null },
+        { ageRanges: { $size: 0 } },
+      ],
+    });
   }
 
   if (filters.cities) {
@@ -208,13 +218,19 @@ export const buildAiEventSearchFilter = (filters: AiEventSearchOutput): Record<s
   if (filters.maxPrice === 0) {
     query.isFree = true;
   } else if (filters.maxPrice !== null) {
-    query.$or = [
-      { isFree: true },
-      {
-        isFree: false,
-        "price.amount": { $lte: filters.maxPrice },
-      },
-    ];
+    andConditions.push({
+      $or: [
+        { isFree: true },
+        {
+          isFree: false,
+          "price.amount": { $lte: filters.maxPrice },
+        },
+      ],
+    });
+  }
+
+  if (andConditions.length > 0) {
+    query.$and = andConditions;
   }
 
   return query;

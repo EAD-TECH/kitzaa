@@ -69,7 +69,7 @@ const aiEventSearchController = {
     const events = await searchEvents(eventSearchFilter);
     const eventDtos = toEventDTO(events).map((event) => ({
       ...event,
-      ageRange: event.ageRange ?? "all-ages",
+      ageRanges: event.ageRanges.length > 0 ? event.ageRanges : ["all-ages"],
     }));
 
     if (incomingConversationId) {
