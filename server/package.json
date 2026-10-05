@@ -22,6 +22,9 @@
   },
   "homepage": "https://github.com/EAD-TECH/kitzaa#readme",
   "dependencies": {
+    "@ai-sdk/google": "^4.0.87",
+    "@ai-sdk/openai": "^4.0.83",
+    "ai": "^7.0.127",
     "bcrypt": "^6.0.0",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
@@ -36,6 +39,7 @@
     "morgan": "^1.11.0",
     "node-cron": "^4.6.0",
     "nodemailer": "^9.0.3",
+    "redis": "^6.3.0",
     "rotating-file-stream": "^3.2.9",
     "socket.io": "^4.8.3",
     "swagger-jsdoc": "^6.3.0",

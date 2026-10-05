@@ -8,6 +8,47 @@
     "upcomingEventsTitle": "Upcoming events",
     "viewAllEvents": "Discover all events"
   },
+  "AiSearch": {
+    "badge": "Ask Kitzaa",
+    "title": "What would you like to do with your child?",
+    "subtitle": "Describe it in your own words – we'll find matching events on Kitzaa. No filters needed.",
+    "inputLabel": "Describe what you are looking for",
+    "followUpPlaceholder": "Your answer …",
+    "example1": "Something for my 6-year-old daughter on Saturday in Pforzheim, max. €15, outdoors",
+    "example2": "Something creative for two kids (5 and 8) on Sunday indoors",
+    "example3": "Free activity tomorrow with my 4-year-old son",
+    "submit": "Search with AI",
+    "submitting": "Searching …",
+    "resultSummary": "{count, plural, one {We found # matching event for you.} other {We found # matching events for you.}}",
+    "noResults": "Unfortunately we couldn't find any matching events. Try a different day or place.",
+    "understoodAs": "Understood as",
+    "questions": {
+      "childAges": "How old is your child, or how old are your children?",
+      "datePreference": "When would you like to go – today, tomorrow, at the weekend or on a specific day?",
+      "specificDate": "On which date exactly?",
+      "cities": "Which city are you looking in?"
+    },
+    "chips": {
+      "childAges": "{ages} years",
+      "maxPrice": "up to €{price}",
+      "date": {
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "weekend": "Weekend",
+        "thisMonth": "This month"
+      },
+      "environment": {
+        "indoor": "Indoor",
+        "outdoor": "Outdoor",
+        "online": "Online"
+      },
+      "time": {
+        "morning": "Morning",
+        "afternoon": "Afternoon",
+        "evening": "Evening"
+      }
+    }
+  },
   "Nav": {
     "home": "Home",
     "events": "Events",
