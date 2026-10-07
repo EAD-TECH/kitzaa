@@ -72,23 +72,23 @@ export default function CategoriesBoard() {
   };
 
   if (isLoading)
-    return <div className="p-10 text-center"> (Yükleniyor)...</div>;
+    return <div className="p-10 text-center">Wird geladen...</div>;
   if (isError)
-    return <div className="p-10 text-center text-red-500">veri cekilemedi</div>;
+    return <div className="p-10 text-center text-red-500">Daten konnten nicht geladen werden.</div>;
 
   return (
     <Card className="flex flex-col min-w-0  p-4   gap-6 self-stretch rounded-2xl border border-border bg-background tablet:p-6 ring-0 shadow-none">
       <div className="flex min-w-0 flex-col gap-4">
         <PageHeader
-          title="Kategori Yönetimi"
-          description="Eventlara ait kategorileri yönetin"
+          title="Kategorieverwaltung"
+          description="Verwalte die Kategorien für Events"
           actionButton={
             <Button
               onClick={() => setIsModalOpen(true)}
               className="w-full shrink-0 border border-border bg-primary p-4 text-accent hover:bg-foreground tablet:w-auto tablet:p-2"
             >
               <PlusIcon size={16} />
-              Kategori ekle
+              Kategorie hinzufügen
             </Button>
           }
         />
@@ -107,13 +107,13 @@ export default function CategoriesBoard() {
               title: category.name,
               subtitle: category.slug,
               time: category.createdAt
-                ? new Date(category.createdAt).toLocaleDateString("tr-TR", {
+                ? new Date(category.createdAt).toLocaleDateString("de-DE", {
                     day: "numeric",
                     month: "short",
                     year: "numeric",
                   })
                 : undefined,
-              status: category.isActive ? "Aktif" : "Pasif",
+              status: category.isActive ? "Aktiv" : "Inaktiv",
               description: category.description ?? undefined,
               icon: (
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-foreground">
@@ -130,7 +130,7 @@ export default function CategoriesBoard() {
           <div className="flex w-full min-w-0 flex-col items-stretch gap-3 py-4 tablet:flex-row tablet:items-center tablet:justify-between">
             {/* children olarak data table a verdıgm bılesenlerım */}
             <Input
-              placeholder="Kategori ara ..."
+              placeholder="Kategorie suchen ..."
               value={
                 (table.getColumn("name")?.getFilterValue() as string) ?? ""
               }
@@ -152,7 +152,7 @@ export default function CategoriesBoard() {
             <Loader2 className="h-6 w-6 animate-spin text-terracotta-500" />
           ) : (
             <span className="text-xs text-muted-foreground">
-              Daha fazla yükleniyor...
+              Weitere werden geladen...
             </span>
           )}
         </div>
@@ -161,27 +161,27 @@ export default function CategoriesBoard() {
       <ResponsiveModal
         isOpen={isModalOpen}
         onClose={setIsModalOpen}
-        title="Yeni Kategori Ekle"
-        description="Oluşturulacak Eventlar için alternatif kategoriler eklenecektir  "
+        title="Neue Kategorie hinzufügen"
+        description="Füge weitere Kategorien hinzu, die beim Erstellen von Events zur Auswahl stehen."
       >
         <CategoryCreateForm onSuccess={() => setIsModalOpen(false)} />
       </ResponsiveModal>
       <ResponsiveModal
         isOpen={!!categoryToDelete}
         onClose={() => setCategoryToDelete(null)}
-        title="Category Sil"
-        description="Bu işlem geri alınamaz. Bu kategoriyi sistemden silmek istediğinize emin misiniz?"
+        title="Kategorie löschen"
+        description="Diese Aktion kann nicht rückgängig gemacht werden. Möchtest du diese Kategorie wirklich aus dem System löschen?"
       >
         <div className="flex w-full justify-end gap-3 mt-4">
           <Button variant="outline" onClick={() => setCategoryToDelete(null)}>
-            Vazgeç
+            Abbrechen
           </Button>
           <Button
             variant="destructive"
             onClick={handleDeleteConfirm}
             disabled={isDeleting}
           >
-            {isDeleting ? "Siliniyor..." : "Evet, Sil"}
+            {isDeleting ? "Wird gelöscht..." : "Ja, löschen"}
           </Button>
         </div>
       </ResponsiveModal>

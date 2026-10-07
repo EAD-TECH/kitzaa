@@ -18,6 +18,7 @@ import { ResponsiveModal } from "@/components/shared/modal/ResponsiveModal";
 import { UserCreateForm } from "./UserCreateForm";
 import UserActionDrawer from "./UserActionDrawer";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ROLE_LABELS, type UserRole } from "../types/users.types";
 
 export default function UsersPage() {
   /* telsizi açıp verimi çağırıyorum */
@@ -59,9 +60,9 @@ export default function UsersPage() {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   if (isLoading)
-    return <div className="p-10 text-center"> (Yükleniyor)...</div>;
+    return <div className="p-10 text-center">Wird geladen...</div>;
   if (isError)
-    return <div className="p-10 text-center text-red-500">veri çekilemedi</div>;
+    return <div className="p-10 text-center text-red-500">Daten konnten nicht geladen werden.</div>;
 
   /* Çekmeceyi açan ortak kumanda (Görüntüle & Düzenle) */
   const handleOpenDrawer = (id: string) => {
@@ -83,15 +84,15 @@ export default function UsersPage() {
     <Card className="flex flex-col min-w-0 p-4 gap-6 self-stretch rounded-2xl border border-border bg-background tablet:p-6 ring-0 shadow-none">
       <div className="flex min-w-0 flex-col gap-4">
         <PageHeader
-          title="Kullanıcı Yönetimi"
-          description="Ebeveyn, organizatör ve kişileri yönetin"
+          title="Benutzerverwaltung"
+          description="Verwalte Eltern, Organisatoren und weitere Personen"
           actionButton={
             <Button
               onClick={() => setIsModalOpen(true)}
               className="w-full shrink-0 border border-border bg-primary p-4 text-accent hover:bg-foreground tablet:w-auto tablet:p-2"
             >
               <PlusIcon size={16} />
-              Kullanıcı ekle
+              Benutzer hinzufügen
             </Button>
           }
         />
@@ -110,10 +111,10 @@ export default function UsersPage() {
               id: user._id,
               title:
                 `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
-                "İsimsiz",
+                "Ohne Namen",
               subtitle: user.email,
               time: user.createdAt
-                ? new Date(user.createdAt).toLocaleDateString("tr-TR", {
+                ? new Date(user.createdAt).toLocaleDateString("de-DE", {
                     day: "numeric",
                     month: "short",
                     year: "numeric",
@@ -129,18 +130,19 @@ export default function UsersPage() {
         {(table) => (
           <div className="flex w-full min-w-0 flex-col items-stretch gap-3 py-4 tablet:flex-row tablet:items-center tablet:justify-between">
             <FilterPills
-              kategoriler={["Hepsi", "user", "organizer", "admin"]}
+              kategoriler={["Alle", "user", "organizer", "admin"]}
+              getLabel={(kategori) => ROLE_LABELS[kategori as UserRole] ?? kategori}
               aktifKategori={
-                (table.getColumn("role")?.getFilterValue() as string) || "Hepsi"
+                (table.getColumn("role")?.getFilterValue() as string) || "Alle"
               }
               onKategoriSec={(kategori) => {
-                const filterValue = kategori === "Hepsi" ? "" : kategori;
+                const filterValue = kategori === "Alle" ? "" : kategori;
                 table.getColumn("role")?.setFilterValue(filterValue);
               }}
             />
 
             <Input
-              placeholder="Ad, e-posta .."
+              placeholder="Name, E-Mail ..."
               value={
                 (table.getColumn("email")?.getFilterValue() as string) ?? ""
               }
@@ -162,7 +164,7 @@ export default function UsersPage() {
             <Loader2 className="h-6 w-6 animate-spin text-terracotta-500" />
           ) : (
             <span className="text-xs text-muted-foreground">
-              Daha fazla yükleniyor...
+              Weitere werden geladen...
             </span>
           )}
         </div>
@@ -172,8 +174,8 @@ export default function UsersPage() {
       <ResponsiveModal
         isOpen={isModalOpen}
         onClose={setIsModalOpen}
-        title="Yeni Kullanıcı Ekle"
-        description="Kullanıcıya e-posta üzerinden bir sistem daveti gönderilecektir."
+        title="Neuen Benutzer hinzufügen"
+        description="Der Benutzer erhält eine Einladung per E-Mail."
       >
         <UserCreateForm onSuccess={() => setIsModalOpen(false)} />
       </ResponsiveModal>
@@ -182,19 +184,19 @@ export default function UsersPage() {
       <ResponsiveModal
         isOpen={!!userToDelete}
         onClose={() => setUserToDelete(null)}
-        title="Kullanıcıyı Sil"
-        description="Bu işlem geri alınamaz. Bu kullanıcıyı sistemden silmek istediğinize emin misiniz?"
+        title="Benutzer löschen"
+        description="Diese Aktion kann nicht rückgängig gemacht werden. Möchtest du diesen Benutzer wirklich aus dem System löschen?"
       >
         <div className="flex w-full justify-end gap-3 mt-4">
           <Button variant="outline" onClick={() => setUserToDelete(null)}>
-            Vazgeç
+            Abbrechen
           </Button>
           <Button
             variant="destructive"
             onClick={handleDeleteConfirm}
             disabled={isDeleting}
           >
-            {isDeleting ? "Siliniyor..." : "Evet, Sil"}
+            {isDeleting ? "Wird gelöscht..." : "Ja, löschen"}
           </Button>
         </div>
       </ResponsiveModal>

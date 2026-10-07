@@ -4,13 +4,13 @@ export const categoryFormSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(1, "Kategori adı zorunludur.")
-    .max(50, "Kategori adı en fazla 50 karakter olabilir."),
+    .min(1, "Kategoriename ist erforderlich.")
+    .max(50, "Der Kategoriename darf höchstens 50 Zeichen lang sein."),
 
   description: z
     .string()
     .trim()
-    .max(500, "Açıklama en fazla 500 karakter olabilir.")
+    .max(500, "Die Beschreibung darf höchstens 500 Zeichen lang sein.")
     .optional()
     .nullable(),
 
@@ -22,13 +22,13 @@ export const updateCategoryFormSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(1, "Kategori adı zorunludur.")
-    .max(50, "Kategori adı en fazla 50 karakter olabilir.").optional(),
+    .min(1, "Kategoriename ist erforderlich.")
+    .max(50, "Der Kategoriename darf höchstens 50 Zeichen lang sein.").optional(),
 
   description: z
     .string()
     .trim()
-    .max(500, "Açıklama en fazla 500 karakter olabilir.")
+    .max(500, "Die Beschreibung darf höchstens 500 Zeichen lang sein.")
     .optional()
     .nullable(),
 

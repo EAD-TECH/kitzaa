@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { AdminUserDTO } from "../types/users.types";
+import { AdminUserDTO, ROLE_LABELS } from "../types/users.types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { type DataTableFeatures } from "@/components/shared/table/data-table-features";
 import { Badge } from "@/components/ui/badge";
@@ -61,7 +61,7 @@ export const createColumns = (handlers: {
             "w-24  p-3 font-heading  justify-center border-0 rounded-full text-xs font-normal",
           )}
         >
-          {user.role}
+          {ROLE_LABELS[user.role] ?? user.role}
         </Badge>
       );
     },
@@ -71,14 +71,14 @@ export const createColumns = (handlers: {
     cell: ({ row }) => {
       const user = row.original;
       const createdAt = new Date(user.createdAt);
-      const dayMonth = createdAt.toLocaleDateString("tr-TR", {
+      const dayMonth = createdAt.toLocaleDateString("de-DE", {
         day: "numeric",
         month: "short",
         year: "numeric",
       });
       return (
         <span className="min-w-0 wrap-break-word text-sm text-muted-foreground">
-          {user.createdAt ? dayMonth : "Tarih belirtilmemiş"}
+          {user.createdAt ? dayMonth : "Kein Datum angegeben"}
         </span>
       );
     },
@@ -94,18 +94,18 @@ export const createColumns = (handlers: {
           <DropdownMenuTrigger
             render={<Button variant="ghost" className="h-8 w-8 p-0" />}
           >
-            <span className="sr-only">Open menu</span>
+            <span className="sr-only">Menü öffnen</span>
             <MoreHorizontal className="h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuGroup>
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel>Aktionen</DropdownMenuLabel>
             
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={()=>handlers.onEdit?.(user?._id)}>Düzenle</DropdownMenuItem>
-              <DropdownMenuItem onClick={()=>handlers.onDelete?.(user?._id)}>Sil</DropdownMenuItem>
+              <DropdownMenuItem onClick={()=>handlers.onEdit?.(user?._id)}>Bearbeiten</DropdownMenuItem>
+              <DropdownMenuItem onClick={()=>handlers.onDelete?.(user?._id)}>Löschen</DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>

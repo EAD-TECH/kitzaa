@@ -32,13 +32,14 @@ export function useLogin() {
   });
 }
 
-export function mapLoginError(error: unknown): string {
+// Returns a translation key under "Login.errors" so the message follows the active locale.
+export function mapLoginError(error: unknown): "invalidCredentials" | "failed" | "network" {
   if (error instanceof ApiError) {
     if (error.status === 401 || error.status === 404) {
-      return "Invalid email/username or password.";
+      return "invalidCredentials";
     }
-    return "Login failed. Please try again.";
+    return "failed";
   }
 
-  return "Unable to reach the server. Please try again.";
+  return "network";
 }

@@ -8,30 +8,30 @@ const institutionDataSchema = z
     name: z
       .string()
       .trim()
-      .min(2, "Institution name is required")
-      .max(120, "Institution name cannot exceed 120 characters"),
+      .min(2, "Name der Einrichtung ist erforderlich")
+      .max(120, "Der Name der Einrichtung darf höchstens 120 Zeichen lang sein"),
 
-    description: z.string().trim().max(1000, "Description is too long").nullable().optional(),
+    description: z.string().trim().max(1000, "Die Beschreibung ist zu lang").nullable().optional(),
 
-    address: z.string().trim().max(200, "Address is too long").nullable().optional(),
+    address: z.string().trim().max(200, "Die Adresse ist zu lang").nullable().optional(),
 
     phone: z
       .string()
       .trim()
-      .regex(PHONE_REGEX, "Please enter a valid phone number")
+      .regex(PHONE_REGEX, "Bitte gib eine gültige Telefonnummer ein")
       .nullable()
       .optional(),
 
-    website: z.string().trim().url("Please enter a valid URL").nullable().optional(),
+    website: z.string().trim().url("Bitte gib eine gültige URL ein").nullable().optional(),
 
-    category: z.string().trim().max(60, "Category is too long").nullable().optional(),
+    category: z.string().trim().max(60, "Die Kategorie ist zu lang").nullable().optional(),
   })
   .strict();
 
 export const applyOrganizerSchema = z
   .object({
     institutionData: institutionDataSchema,
-    message: z.string().trim().max(500, "Message is too long").nullable().optional(),
+    message: z.string().trim().max(500, "Die Nachricht ist zu lang").nullable().optional(),
   })
   .strict();
 

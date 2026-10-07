@@ -41,23 +41,23 @@ const formSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(2, "Institution name is required")
-    .max(120, "Institution name cannot exceed 120 characters"),
-  category: z.string().trim().max(60, "Category is too long"),
-  description: z.string().trim().max(1000, "Description is too long"),
-  address: z.string().trim().max(200, "Address is too long"),
+    .min(2, "Name der Einrichtung ist erforderlich")
+    .max(120, "Der Name der Einrichtung darf höchstens 120 Zeichen lang sein"),
+  category: z.string().trim().max(60, "Die Kategorie ist zu lang"),
+  description: z.string().trim().max(1000, "Die Beschreibung ist zu lang"),
+  address: z.string().trim().max(200, "Die Adresse ist zu lang"),
   phone: z
     .string()
     .trim()
-    .refine((value) => value === "" || PHONE_REGEX.test(value), "Please enter a valid phone number"),
+    .refine((value) => value === "" || PHONE_REGEX.test(value), "Bitte gib eine gültige Telefonnummer ein"),
   website: z
     .string()
     .trim()
     .refine(
       (value) => value === "" || z.string().url().safeParse(value).success,
-      "Please enter a valid URL",
+      "Bitte gib eine gültige URL ein",
     ),
-  message: z.string().trim().max(500, "Message is too long"),
+  message: z.string().trim().max(500, "Die Nachricht ist zu lang"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -184,7 +184,7 @@ export default function OrganizerApplicationForm({ onCancel }: OrganizerApplicat
                     />
                     <InputGroupAddon align="block-end">
                       <InputGroupText className="tabular-nums">
-                        {field.value.length}/1000 characters
+                        {field.value.length}/1000 Zeichen
                       </InputGroupText>
                     </InputGroupAddon>
                   </InputGroup>
@@ -264,7 +264,7 @@ export default function OrganizerApplicationForm({ onCancel }: OrganizerApplicat
                     />
                     <InputGroupAddon align="block-end">
                       <InputGroupText className="tabular-nums">
-                        {field.value.length}/500 characters
+                        {field.value.length}/500 Zeichen
                       </InputGroupText>
                     </InputGroupAddon>
                   </InputGroup>

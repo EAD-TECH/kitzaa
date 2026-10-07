@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ReusableFormSelect } from "@/components/shared/form/ReusableFormSelect";
-import { UpdateUserDTO } from "../types/users.types";
+import { ROLE_LABELS, UpdateUserDTO } from "../types/users.types";
 
 type UpdateUserFormInput = z.input<typeof updateUserSchema>;
 
@@ -142,9 +142,13 @@ export default function UserActionDrawer() {
     <ResponsiveModal
       isOpen={isOpen}
       onClose={handleDrawerClose}
-      title="Kullanıcı Detayı"
-      tag={userData?.role ? userData.role.toUpperCase() : "Yükleniyor..."}
-      description={userId ? `Kullanıcı ID: ${userId}` : "Operasyon"}
+      title="Benutzerdetails"
+      tag={
+        userData?.role
+          ? (ROLE_LABELS[userData.role] ?? userData.role).toUpperCase()
+          : "Wird geladen..."
+      }
+      description={userId ? `Benutzer-ID: ${userId}` : "Betrieb"}
     >
       <Form {...form}>
         <form
@@ -153,27 +157,27 @@ export default function UserActionDrawer() {
         >
           <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 tablet:px-6 tablet:py-6 bg-kanban-column-bg">
             {isLoading ? (
-              <div className="p-10 text-center">(Yükleniyor)...</div>
+              <div className="p-10 text-center">Wird geladen...</div>
             ) : (
               <div className="grid grid-cols-1 tablet:grid-cols-2 min-w-0 gap-2">
-                <SectionShell title="Kişisel Bilgiler">
+                <SectionShell title="Persönliche Daten">
                   <ReusableFormInput
                     control={form.control}
                     name="firstName"
-                    label="Ad"
-                    placeholder="Adı"
+                    label="Vorname"
+                    placeholder="Vorname"
                   />
                   <ReusableFormInput
                     control={form.control}
                     name="lastName"
-                    label="Soyad"
-                    placeholder="Soyadı"
+                    label="Nachname"
+                    placeholder="Nachname"
                   />
                   <ReusableFormInput
                     control={form.control}
                     name="email"
-                    label="Email"
-                    placeholder="ornek@mail.com"
+                    label="E-Mail"
+                    placeholder="beispiel@mail.de"
                     type="email"
                   />
                   <ReusableFormInput
@@ -184,58 +188,58 @@ export default function UserActionDrawer() {
                   />
                 </SectionShell>
 
-                <SectionShell title="Lokasyon Bilgileri">
+                <SectionShell title="Standortdaten">
                   <ReusableFormInput
                     control={form.control}
                     name="location.state"
-                    label="State"
-                    placeholder="State.."
+                    label="Bundesland"
+                    placeholder="Bundesland..."
                   />
                   <ReusableFormInput
                     control={form.control}
                     name="location.city"
-                    label="city"
-                    placeholder="city..."
+                    label="Stadt"
+                    placeholder="Stadt..."
                   />
                   <ReusableFormInput
                     control={form.control}
                     name="location.country"
-                    label="Country"
-                    placeholder="country..."
+                    label="Land"
+                    placeholder="Land..."
                   />
                   <ReusableFormInput
                     control={form.control}
                     name="location.zipCode"
-                    label="zipCode"
-                    placeholder="zipCode"
+                    label="Postleitzahl"
+                    placeholder="Postleitzahl"
                   />
                   <ReusableFormInput
                     control={form.control}
                     name="location.district"
-                    label="District"
-                    placeholder="district..."
+                    label="Bezirk"
+                    placeholder="Bezirk..."
                   />
                 </SectionShell>
-                <SectionShell title="Kullanıcı Rolü ve Dil Tercihi">
+                <SectionShell title="Benutzerrolle und Sprache">
                   <ReusableFormSelect
                     control={form.control}
                     name="role"
-                    label="Kullanıcı Rolu"
-                    placeholder="Bir rol sec.."
+                    label="Benutzerrolle"
+                    placeholder="Rolle auswählen..."
                     options={[
-                      { label: "Yönetici (Admin)", value: "admin" },
-                      { label: "Organizatör", value: "organizer" },
-                      { label: "Kullanıcı (User)", value: "user" },
+                      { label: "Administrator", value: "admin" },
+                      { label: "Organisator", value: "organizer" },
+                      { label: "Benutzer", value: "user" },
                     ]}
                   />
                   <ReusableFormSelect
                     control={form.control}
                     name="language"
-                    label="Kullanıcı Dil Secenegi"
-                    placeholder="Bir dil sec.."
+                    label="Sprache"
+                    placeholder="Sprache auswählen..."
                     options={[
-                      { label: "DE", value: "de" },
-                      { label: "EN", value: "en" },
+                      { label: "Deutsch", value: "de" },
+                      { label: "Englisch", value: "en" },
                     ]}
                   />
                   {/*    <ReusableFormInput
@@ -251,7 +255,7 @@ export default function UserActionDrawer() {
 
           <div className="shrink-0 flex justify-end gap-2 border-t px-4 py-4 tablet:px-6">
             <Button type="submit" disabled={isUpdating}>
-              {isUpdating ? "Kaydediliyor..." : "Kaydet"}
+              {isUpdating ? "Wird gespeichert..." : "Speichern"}
             </Button>
           </div>
         </form>

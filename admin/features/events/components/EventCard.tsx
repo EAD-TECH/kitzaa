@@ -18,14 +18,14 @@ function EventCard(application: { application: AdminEventDTO }) {
   };
 
   /*  tarihi formatlıyorm */
-  let formattedDate = "Tarih yok";
+  let formattedDate = "Kein Datum";
 
   if (application.application?.schedule?.startDate) {
     const dateObj = new Date(application.application.schedule.startDate);
 
     /* invalid hatasına karsı */
     if (!isNaN(dateObj.getTime())) {
-      const dayMonth = dateObj.toLocaleDateString("tr-TR", {
+      const dayMonth = dateObj.toLocaleDateString("de-DE", {
         day: "numeric",
         month: "long",
       });
@@ -39,7 +39,7 @@ function EventCard(application: { application: AdminEventDTO }) {
         : "";
 
       const recurringBadge = application.application.schedule.isRecurring
-        ? " (Tekrarlı)"
+        ? " (Wiederkehrend)"
         : "";
 
       formattedDate = `${dayMonth}${timeStr}${recurringBadge}`;

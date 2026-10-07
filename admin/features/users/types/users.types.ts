@@ -1,5 +1,11 @@
 export type UserRole = "user" | "organizer" | "admin";
 
+export const ROLE_LABELS: Record<UserRole, string> = {
+  user: "Benutzer",
+  organizer: "Organisator",
+  admin: "Administrator",
+};
+
 export interface UserLocation {
   state: string;
   city: string;

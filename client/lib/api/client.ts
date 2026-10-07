@@ -85,7 +85,7 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
           window.location.replace("/login");
         }
 
-        throw new ApiError("Session expired. Please log in again.", 401);
+        throw new ApiError("Sitzung abgelaufen. Bitte melde dich erneut an.", 401);
       } finally {
         refreshPromise = null;
       }
@@ -93,7 +93,7 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
 
     // 4xx: backend'in ürettiği anlamlı mesajı kullan
     const errorBody = await res.json().catch(() => null);
-    throw new ApiError(errorBody?.message ?? "Request failed", res.status);
+    throw new ApiError(errorBody?.message ?? "Anfrage fehlgeschlagen", res.status);
   }
 
   // 204 No Content'te body yok — res.json() boş string'i parse edemeyip hata fırlatır

@@ -26,20 +26,20 @@ const filtreSecenekleri = [
   {
     id: "status",
     value: "status",
-    label: "Status (Durum)",
+    label: "Status",
     icon: <CircleIcon />,
     options: [
-      { value: "pending", label: "Yeni Başvurular" },
-      { value: "approved", label: "Onaylananlar" },
-      { value: "rejected", label: "Reddeilenler" },
-      { value: "cancelled", label: "İptal Edilenler" },
-      { value: "completed", label: "Tamamlananlar" },
+      { value: "pending", label: "Ausstehend" },
+      { value: "approved", label: "Genehmigt" },
+      { value: "rejected", label: "Abgelehnt" },
+      { value: "cancelled", label: "Abgesagt" },
+      { value: "completed", label: "Abgeschlossen" },
     ],
   },
   {
     id: "assignee",
     value: "assignee",
-    label: "Assignee (Atanan Kişi)",
+    label: "Zuständige Person",
     icon: <UserIcon />,
     options: [
       { value: "elif", label: "Elif" },
@@ -50,17 +50,17 @@ const filtreSecenekleri = [
   {
     id: "sort",
     value: "sort",
-    label: "Tarihe Göre",
+    label: "Nach Datum",
     icon: <Calendar />,
     options: [
-      { value: "sort_newest", label: "En Yeniler" },
-      { value: "sort_oldest", label: "Eskiler" },
+      { value: "sort_newest", label: "Neueste zuerst" },
+      { value: "sort_oldest", label: "Älteste zuerst" },
     ],
   },
 ];
 
 export default function AdminEventsBoard() {
-  const [aktifKategori, SetAktifKategori] = useState("Tümü");
+  const [aktifKategori, SetAktifKategori] = useState("Alle");
   const { data: categoriesResponse } = useEventCategories();
   console.log(categoriesResponse);
   const [inputValue, setInputValue] = useState("");
@@ -79,7 +79,7 @@ export default function AdminEventsBoard() {
 
   const categoryNames = categories.map((cat: any) => cat.name);
   console.log(categoryNames);
-  const benzersizkategoriler = ["Tümü", ...categoryNames];
+  const benzersizkategoriler = ["Alle", ...categoryNames];
 
   const seciliKategoriObj = categories.find(
     (cat: any) => cat.name === aktifKategori,
@@ -200,8 +200,8 @@ export default function AdminEventsBoard() {
     <Card className="flex flex-col gap-6 self-stretch rounded-2xl border border-border bg-background p-4 ring-0 shadow-none tablet:p-6">
       {/* baslik*/}
       <PageHeader
-        title="Etkinlikler"
-        description="Etkinlikleri durumlarına göre yönetin ve yayın akışını takip edin."
+        title="Events"
+        description="Verwalte Events nach ihrem Status und behalte den Veröffentlichungsablauf im Blick."
       />
       <div className="flex w-full min-w-0 flex-col gap-2 tablet:flex-row tablet:items-center">
         <FilterAndSearch
@@ -224,7 +224,7 @@ export default function AdminEventsBoard() {
               setSiralama("sort_newest");
             }}
           >
-            Temizle
+            Zurücksetzen
           </Button>
         )}
       </div>
@@ -258,7 +258,7 @@ export default function AdminEventsBoard() {
           {(seciliStatus.length === 0 || seciliStatus.includes("pending")) && (
             <KanbanColumn
               scrollable
-              title="Onay Bekliyor"
+              title="Wartet auf Freigabe"
               count={pendingEvents.length}
               dotColor="bg-yellow-500"
               fetchNextPage={pendingEvent.fetchNextPage}
@@ -275,7 +275,7 @@ export default function AdminEventsBoard() {
           {(seciliStatus.length === 0 || seciliStatus.includes("approved")) && (
             <KanbanColumn
               scrollable
-              title="Yayında"
+              title="Veröffentlicht"
               count={approvedEvents.length}
               dotColor="bg-green-500"
               fetchNextPage={approvedEvent.fetchNextPage}
@@ -291,7 +291,7 @@ export default function AdminEventsBoard() {
           {(seciliStatus.length === 0 || seciliStatus.includes("rejected")) && (
             <KanbanColumn
               scrollable
-              title="Rejected"
+              title="Abgelehnt"
               count={rejectedEvents.length}
               dotColor="bg-red-500"
               fetchNextPage={rejectedEvent.fetchNextPage}
@@ -309,7 +309,7 @@ export default function AdminEventsBoard() {
             seciliStatus.includes("cancelled")) && (
             <KanbanColumn
               scrollable
-              title="Cancelled"
+              title="Abgesagt"
               count={cancelledEvents.length}
               dotColor="bg-gray-500"
               fetchNextPage={cancelledEvent.fetchNextPage}
@@ -327,7 +327,7 @@ export default function AdminEventsBoard() {
             seciliStatus.includes("completed")) && (
             <KanbanColumn
               scrollable
-              title="Completed"
+              title="Abgeschlossen"
               count={completedEvents.length}
               dotColor="bg-blue-500"
               fetchNextPage={completedEvent.fetchNextPage}

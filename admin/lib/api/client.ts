@@ -65,7 +65,7 @@ export async function apiFetch<T>(
     const ErrorMessage =
       errorBody?.message ??
       (Array.isArray(errorBody?.errors) ? errorBody.errors[0]?.message : null) ??
-      "Request Failed";
+      "Anfrage fehlgeschlagen";
 
     throw new ApiError(ErrorMessage, res.status);
   }

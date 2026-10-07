@@ -11,6 +11,15 @@ import {
   BreadcrumbSeparator,
 } from "../ui/breadcrumb";
 
+// URL segments stay English; only the visible label is translated.
+const SEGMENT_LABELS: Record<string, string> = {
+  events: "Events",
+  "organizer-applications": "Anträge",
+  users: "Benutzer",
+  categories: "Kategorien",
+  notifications: "Benachrichtigungen",
+};
+
 export default function DynamicBreadCrumb() {
   const pathname = usePathname();
   const splitResult = pathname.split("/");
@@ -25,7 +34,7 @@ export default function DynamicBreadCrumb() {
     const href = `/${path}`;
 
     return {
-      segment,
+      segment: SEGMENT_LABELS[segment] ?? segment,
       href,
       isLast: index === segments.length - 1,
     };

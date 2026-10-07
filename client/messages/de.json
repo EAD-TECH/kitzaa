@@ -12,13 +12,17 @@
     "home": "Startseite",
     "events": "Events",
     "social": "Social",
-    "language": "Sprache"
+    "language": "Sprache",
+    "themeToggle": "Design wechseln",
+    "login": "Anmelden",
+    "profile": "Profil",
+    "signOut": "Abmelden"
   },
   "Footer": {
     "faq": "FAQ",
     "contact": "Kontakt",
-    "privacy": "Datenschutzpolitik",
-    "terms": "Zustellungsbedingungen",
+    "privacy": "Datenschutzerklärung",
+    "terms": "Nutzungsbedingungen",
     "rights": "Alle Rechte vorbehalten."
   },
   "Login": {
@@ -38,6 +42,11 @@
     "validation": {
       "loginRequired": "E-Mail oder Benutzername ist erforderlich.",
       "passwordRequired": "Passwort ist erforderlich."
+    },
+    "errors": {
+      "invalidCredentials": "E-Mail/Benutzername oder Passwort ist falsch.",
+      "failed": "Anmeldung fehlgeschlagen. Bitte versuche es erneut.",
+      "network": "Der Server konnte nicht erreicht werden. Bitte versuche es erneut."
     }
   },
   "Register": {

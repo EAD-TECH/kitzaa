@@ -29,6 +29,7 @@ import InfoSection from "@/components/shared/drawer/InfoSection";
 import { useEventReject } from "../hooks/useEventReject";
 import { useEventCancel } from "../hooks/useEventCancel";
 import { AdminEventDTO } from "../types";
+import { AGE_RANGE_LABELS, EVENT_STATUS_LABELS } from "../types/events";
 import { useEventById } from "../hooks/useEventByID";
 import { useApproveEvent } from "../hooks/useApproveEvent";
 import {
@@ -64,7 +65,7 @@ export default function EventDrawer() {
     defaultValues: formDefaults,
   });
   const formattedDate = eventData?.createdAt
-    ? new Date(eventData.createdAt).toLocaleDateString("tr-TR", {
+    ? new Date(eventData.createdAt).toLocaleDateString("de-DE", {
         day: "numeric",
         month: "long",
         year: "numeric",
@@ -110,10 +111,10 @@ export default function EventDrawer() {
     >
       <DrawerContent>
         <ReusableDrawerHeader
-          title="Etkinlik Detayı"
-          tag={eventData?.title ?? "Yükleniyor..."}
+          title="Event-Details"
+          tag={eventData?.title ?? "Wird geladen..."}
           subtitle={
-            formattedDate ? `Oluşturulma: ${formattedDate}` : "Operasyon"
+            formattedDate ? `Erstellt am: ${formattedDate}` : "Betrieb"
           }
         />
 
@@ -123,24 +124,24 @@ export default function EventDrawer() {
             className="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
           >
             <div className="min-h-0 flex flex-1 flex-col gap-8 overflow-y-auto overscroll-contain px-4 py-4 tablet:px-6 tablet:py-6">
-              <SectionShell title="Etkinlik Bilgileri" columns={2}>
+              <SectionShell title="Event-Informationen" columns={2}>
                 {isLoading ? (
-                  <div className="p-4 text-sm text-primary">Yükleniyor...</div>
+                  <div className="p-4 text-sm text-primary">Wird geladen...</div>
                 ) : (
                   <>
-                    <InfoSection label="Başlık">
-                      {eventData?.title || "Belirtilmemiş"}
+                    <InfoSection label="Titel">
+                      {eventData?.title || "Nicht angegeben"}
                     </InfoSection>
 
-                    <InfoSection label="Organizatör">
+                    <InfoSection label="Organisator">
                       {typeof eventData?.createdBy === "object"
                         ? eventData.createdBy?.username
-                        : eventData?.createdBy || "Belirtilmemiş"}
+                        : eventData?.createdBy || "Nicht angegeben"}
                     </InfoSection>
-                    <InfoSection label="Durum">
-                      <span className="capitalize">
-                        {eventData?.status || "Belirtilmemiş"}
-                      </span>
+                    <InfoSection label="Status">
+                      {eventData?.status
+                        ? EVENT_STATUS_LABELS[eventData.status]
+                        : "Nicht angegeben"}
                     </InfoSection>
                     {(eventData?.status === "rejected" ||
                       eventData?.status === "cancelled") && (
@@ -148,52 +149,52 @@ export default function EventDrawer() {
                         wide
                         label={
                           eventData.status === "rejected"
-                            ? "Red sebebi"
-                            : "İptal sebebi"
+                            ? "Ablehnungsgrund"
+                            : "Absagegrund"
                         }
                       >
                         {eventData.status === "rejected"
-                          ? eventData.rejectedReason || "Sebep yok"
-                          : eventData.cancelledReason || "Sebep yok"}
+                          ? eventData.rejectedReason || "Kein Grund angegeben"
+                          : eventData.cancelledReason || "Kein Grund angegeben"}
                       </InfoSection>
                     )}
 
-                    <InfoSection label="Kategori">
+                    <InfoSection label="Kategorie">
                       {typeof eventData?.categoryId === "object"
-                        ? eventData.categoryId?.name || "Belirtilmemiş"
-                        : eventData?.categoryId || "Belirtilmemiş"}
+                        ? eventData.categoryId?.name || "Nicht angegeben"
+                        : eventData?.categoryId || "Nicht angegeben"}
                     </InfoSection>
 
-                    <InfoSection label="Yaş Aralığı">
+                    <InfoSection label="Altersgruppen">
                       {eventData?.ageRanges?.length
-                        ? eventData.ageRanges.join(", ")
-                        : "Belirtilmemiş"}
+                        ? eventData.ageRanges
+                            .map((range) => AGE_RANGE_LABELS[range] ?? range)
+                            .join(", ")
+                        : "Nicht angegeben"}
                     </InfoSection>
 
-                    <InfoSection label="Açıklama" wide>
-                      {eventData?.description || "Belirtilmemiş"}
+                    <InfoSection label="Beschreibung" wide>
+                      {eventData?.description || "Nicht angegeben"}
                     </InfoSection>
 
-                    <InfoSection label="Katılım">
+                    <InfoSection label="Teilnehmer">
                       {eventData?.capacity
-                        ? `${eventData.capacity.current} Kişi`
-                        : "Sınırsız/Belirtilmemiş"}
+                        ? `${eventData.capacity.current} Personen`
+                        : "Unbegrenzt/Nicht angegeben"}
                     </InfoSection>
 
-                    <InfoSection label="Kapasite">
+                    <InfoSection label="Kapazität">
                       {eventData?.capacity
-                        ? `${eventData.capacity.max} Kişi`
-                        : "Sınırsız/Belirtilmemiş"}
+                        ? `${eventData.capacity.max} Personen`
+                        : "Unbegrenzt/Nicht angegeben"}
                     </InfoSection>
 
-                    <InfoSection label="Ücretli/Ücretsiz">
-                      <span className="capitalize">
-                        {eventData?.isFree ? "Ücretsiz" : "Ücretli"}
-                      </span>
+                    <InfoSection label="Kostenpflichtig/Kostenlos">
+                      {eventData?.isFree ? "Kostenlos" : "Kostenpflichtig"}
                     </InfoSection>
 
-                    <InfoSection label="Ücret">
-                      {eventData?.price?.amount || "Belirtilmemiş"}
+                    <InfoSection label="Preis">
+                      {eventData?.price?.amount || "Nicht angegeben"}
                     </InfoSection>
                   </>
                 )}
@@ -208,11 +209,11 @@ export default function EventDrawer() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="font-heading text-primary">
-                          İşlem Notu / Red & İptal Sebebi
+                          Notiz / Ablehnungs- oder Absagegrund
                         </FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Bir Sebep yaz."
+                            placeholder="Gib einen Grund ein."
                             className="focus-visible:ring-0 bg-muted border-none resize-none"
                             {...field}
                           />
@@ -229,7 +230,7 @@ export default function EventDrawer() {
               <DrawerClose
                 render={
                   <Button type="button" variant="ghost">
-                    Vazgeç
+                    Abbrechen
                   </Button>
                 }
               />
@@ -241,7 +242,7 @@ export default function EventDrawer() {
                     type="submit"
                     onClick={() => form.setValue("status", "approved")}
                   >
-                    {isApproving ? "Onaylanıyor..." : "Onayla"}
+                    {isApproving ? "Wird genehmigt..." : "Genehmigen"}
                   </Button>
                 )}
 
@@ -252,7 +253,7 @@ export default function EventDrawer() {
                     onClick={() => form.setValue("status", "rejected")}
                     className="bg-muted text-foreground hover:bg-muted/80"
                   >
-                    {isRejecting ? "Reddediliyor..." : "Reddet"}
+                    {isRejecting ? "Wird abgelehnt..." : "Ablehnen"}
                   </Button>
                 )}
                 {eventData?.status === "pending" && (
@@ -262,7 +263,7 @@ export default function EventDrawer() {
                     onClick={() => form.setValue("status", "cancelled")}
                     className="bg-muted text-foreground hover:bg-muted/80"
                   >
-                    {isCanceling ? "Cancel ediliyor..." : "Cancel"}
+                    {isCanceling ? "Wird abgesagt..." : "Absagen"}
                   </Button>
                 )}
 
@@ -273,7 +274,7 @@ export default function EventDrawer() {
                     onClick={() => form.setValue("status", "cancelled")}
                     className="bg-muted text-foreground hover:bg-muted/80"
                   >
-                    {isCanceling ? "İptal Ediliyor..." : "İptal Et"}
+                    {isCanceling ? "Wird abgesagt..." : "Absagen"}
                   </Button>
                 )}
               </div>

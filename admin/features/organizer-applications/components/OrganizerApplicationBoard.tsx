@@ -19,19 +19,19 @@ const filtreSecenekleri = [
   {
     id: "status",
     value: "status",
-    label: "Status (Durum)",
+    label: "Status",
     icon: <CircleIcon />,
     options: [
-      { value: "pending", label: "Yeni Başvurular" },
-      { value: "under_review", label: "İncelemedekiler" },
-      { value: "approved", label: "Onaylananlar" },
-      { value: "rejected", label: "Reddedilenler" },
+      { value: "pending", label: "Neue Anträge" },
+      { value: "under_review", label: "In Prüfung" },
+      { value: "approved", label: "Genehmigt" },
+      { value: "rejected", label: "Abgelehnt" },
     ],
   },
   {
     id: "assignee",
     value: "assignee",
-    label: "Assignee (Atanan Kişi)",
+    label: "Zuständige Person",
     icon: <UserIcon />,
     options: [
       { value: "elif", label: "Elif" },
@@ -42,11 +42,11 @@ const filtreSecenekleri = [
   {
     id: "sort",
     value: "sort",
-    label: "Tarihe Göre",
+    label: "Nach Datum",
     icon: <Calendar />,
     options: [
-      { value: "sort_newest", label: "En Yeniler" },
-      { value: "sort_oldest", label: "Eskiler" },
+      { value: "sort_newest", label: "Neueste zuerst" },
+      { value: "sort_oldest", label: "Älteste zuerst" },
     ],
   },
 ];
@@ -139,8 +139,8 @@ export default function OrganizerApplicationBoard() {
       {/* BAŞLIK VE FİLTRELER */}
       <div className="flex flex-col gap-4 desktop:flex-row desktop:items-center desktop:justify-between">
         <PageHeader
-          title="Organizatör Başvuruları"
-          description="Başvuruları yönetin"
+          title="Organisatoranträge"
+          description="Verwalte die eingegangenen Anträge"
         />
 
         <div className="flex w-full flex-wrap items-center gap-2 desktop:w-fit">
@@ -163,7 +163,7 @@ export default function OrganizerApplicationBoard() {
                 setSiralama("sort_newest");
               }}
             >
-              Temizle
+              Zurücksetzen
             </Button>
           )}
         </div>
@@ -189,7 +189,7 @@ export default function OrganizerApplicationBoard() {
           {(seciliStatus.length === 0 || seciliStatus.includes("pending")) && (
             <KanbanColumn
               scrollable
-              title="Yeni"
+              title="Neu"
               count={pendingEvents.length}
               dotColor="bg-yellow-500"
               fetchNextPage={pendingEvent.fetchNextPage}
@@ -210,7 +210,7 @@ export default function OrganizerApplicationBoard() {
             seciliStatus.includes("under_review")) && (
             <KanbanColumn
               scrollable
-              title="İncelemede"
+              title="In Prüfung"
               count={underReviewEvents.length}
               dotColor="bg-blue-500"
               fetchNextPage={underReviewEvent.fetchNextPage}
@@ -230,7 +230,7 @@ export default function OrganizerApplicationBoard() {
           {(seciliStatus.length === 0 || seciliStatus.includes("approved")) && (
             <KanbanColumn
               scrollable
-              title="Onaylandı"
+              title="Genehmigt"
               count={approvedEvents.length}
               dotColor="bg-green-500"
               fetchNextPage={approvedEvent.fetchNextPage}
@@ -250,8 +250,7 @@ export default function OrganizerApplicationBoard() {
           {(seciliStatus.length === 0 || seciliStatus.includes("rejected")) && (
             <KanbanColumn
               scrollable
-              title="Reddedil
-              di"
+              title="Abgelehnt"
               count={rejectedEvents.length}
               dotColor="bg-red-500"
               fetchNextPage={rejectedEvent.fetchNextPage}

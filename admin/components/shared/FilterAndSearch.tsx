@@ -38,7 +38,7 @@ export default function FilterAndSearch({
       {/* genel search alanım */}
       <InputGroup className="w-full   focus-visible:ring-0 max-w-xs min-w-0 sm:max-w-sm">
         <InputGroupInput
-          placeholder="Search..."
+          placeholder="Suchen..."
           value={searchValue} /* dinamik deger */
           onChange={(e) =>
             onSearchChange(e.target.value)
@@ -58,7 +58,7 @@ export default function FilterAndSearch({
               className="flex h-8 shrink-0 items-center border-dashed"
             >
               <ListFilter className="mr-2 h-4 w-4 text-muted-foreground" />
-              <span>Filtrele</span>
+              <span>Filtern</span>
 
               {selectedValues.length > 0 && (
                 <>
@@ -67,7 +67,7 @@ export default function FilterAndSearch({
                     variant="secondary"
                     className="rounded-sm px-1 font-normal"
                   >
-                    {selectedValues.length} seçili
+                    {selectedValues.length} ausgewählt
                   </Badge>
                 </>
               )}
@@ -79,12 +79,12 @@ export default function FilterAndSearch({
           {/* arama motoru bılesenı */}
           <Command>
             {/* liste cubugum */}
-            <CommandInput placeholder="ara..." />
+            <CommandInput placeholder="Suchen..." />
 
             {/* listele */}
             <CommandList>
               {/* search te bırsey cıkmazsa */}
-              <CommandEmpty>Sonuç bulunamadı.</CommandEmpty>
+              <CommandEmpty>Keine Ergebnisse gefunden.</CommandEmpty>
 
               {/*secenekleri grupluyorum */}
               {!aktifMenu ? (
@@ -109,7 +109,7 @@ export default function FilterAndSearch({
               ) : (
                 <CommandGroup>
                   <CommandItem onSelect={() => setAktifMenu(null)}>
-                    <span>Geri</span>
+                    <span>Zurück</span>
                   </CommandItem>
                   <Separator className="my-1" />
 

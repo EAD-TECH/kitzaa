@@ -21,12 +21,12 @@ type PersonalInfoFormInput = z.input<typeof schema>;
 
 const LANGUAGES = [
   { value: "de", label: "Deutsch" },
-  { value: "en", label: "English" },
+  { value: "en", label: "Englisch" },
 ] as const;
 
 const LANGUAGE_ITEMS = {
   de: "Deutsch",
-  en: "English",
+  en: "Englisch",
 };
 
 type UpdatePersonalInfoFormProps = {

@@ -34,12 +34,12 @@ export function useLogout() {
 
       if (err instanceof ApiError) {
         if (err.status === 401) {
-          setError("Session expired. You were signed out.");
+          setError("Sitzung abgelaufen. Du wurdest abgemeldet.");
         } else {
-          setError("Logout failed. Please try again.");
+          setError("Abmeldung fehlgeschlagen. Bitte versuche es erneut.");
         }
       } else {
-        setError("Unable to reach the server. Please try again.");
+        setError("Der Server konnte nicht erreicht werden. Bitte versuche es erneut.");
       }
     } finally {
       setIsLoading(false);

@@ -22,11 +22,11 @@ export default function OrganizerApplicationCard(application: {
     currentParams.set("applicationId", clickedId);
     router.push(`${pathname}?${currentParams.toString()}`);
   };
-  let formattedDate = "Tarih yok";
+  let formattedDate = "Kein Datum";
   if (application.application?.createdAt) {
     const dateObj = new Date(application.application.createdAt);
     if (!isNaN(dateObj.getTime())) {
-      formattedDate = dateObj.toLocaleDateString("tr-TR", {
+      formattedDate = dateObj.toLocaleDateString("de-DE", {
         day: "numeric",
         month: "long",
       });

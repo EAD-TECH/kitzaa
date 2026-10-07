@@ -53,12 +53,12 @@ export default function AuthSocketProvider({
         const targetPath = yenibildirim.linkNotification || "/notifications";
         console.log(targetPath);
 
-        toast("Yeni Bildirim ", {
+        toast("Neue Benachrichtigung", {
           description:
-            yenibildirim.title || "Sistemden yeni bir mesajınız var.",
+            yenibildirim.title || "Du hast eine neue Nachricht vom System.",
           action: yenibildirim.linkNotification
             ? {
-                label: "Görüntüle",
+                label: "Anzeigen",
                 onClick: () => router.push(targetPath),
               }
             : undefined,

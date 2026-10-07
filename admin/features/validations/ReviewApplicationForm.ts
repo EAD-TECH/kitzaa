@@ -16,14 +16,14 @@ const approveSchema = z.object({
 const rejectSchema = z.object({
   status: z.literal("rejected"),
   note: z.string().min(10, {
-    message: "Lütfen reddetme sebebini (en az 10 karakter) açıklayın.",
+    message: "Bitte gib einen Ablehnungsgrund an (mindestens 10 Zeichen).",
   }),
 });
 //* eventın cancelı ıcın */
 const cancelledSchema = z.object({
   status: z.literal("cancelled"),
   note: z.string().min(10, {
-    message: "Lütfen iptal sebebini (en az 10 karakter) açıklayın.",
+    message: "Bitte gib einen Absagegrund an (mindestens 10 Zeichen).",
   }),
 });
 
@@ -45,43 +45,43 @@ export type ReviewApplicationFormValues = z.infer<
 >;
 
 export const userFormSchema = z.object({
-  email: z.string().email({ message: "Geçerli bir e-posta adresi giriniz." }),
+  email: z.string().email({ message: "Bitte gib eine gültige E-Mail-Adresse ein." }),
   role: z.enum(["admin", "user", "organizer"], {
-    message: "Lütfen bir rol seçin.",
+    message: "Bitte wähle eine Rolle aus.",
   }),
 });
 
 export const updateUserSchema = z.object({
-  username: z.string().min(2, "En az 2 karakter olmalı").optional(),
-  firstName: z.string().min(2, "En az 2 karakter olmalı").optional(),
-  lastName: z.string().min(2, "En az 2 karakter olmalı").optional(),
+  username: z.string().min(2, "Mindestens 2 Zeichen erforderlich").optional(),
+  firstName: z.string().min(2, "Mindestens 2 Zeichen erforderlich").optional(),
+  lastName: z.string().min(2, "Mindestens 2 Zeichen erforderlich").optional(),
   email: z
     .string()
-    .email({ message: "Geçerli bir e-posta adresi giriniz." })
+    .email({ message: "Bitte gib eine gültige E-Mail-Adresse ein." })
     .optional(),
   phone: z.preprocess(
     (value) => (value === "" ? undefined : value),
     z
       .string()
       .trim()
-      .min(7, "Phone number is too short")
-      .max(20, "Phone number is too long")
+      .min(7, "Die Telefonnummer ist zu kurz")
+      .max(20, "Die Telefonnummer ist zu lang")
       .refine((value) => PHONE_REGEX.test(value), {
-        message: "Please enter a valid phone number",
+        message: "Bitte gib eine gültige Telefonnummer ein",
       })
       .optional(),
   ),
 
   role: z.enum(["user", "organizer", "admin"]).optional(),
-  language: z.string().min(2, "Dil seçimi zorunlu").optional(),
+  language: z.string().min(2, "Sprachauswahl ist erforderlich").optional(),
   isEmailVerified: z.boolean().optional(),
   location: z
     .object({
-      state: z.string().min(2, "Eyalet/Bölge zorunlu").optional(),
-      city: z.string().min(2, "Şehir zorunlu").optional(),
+      state: z.string().min(2, "Bundesland ist erforderlich").optional(),
+      city: z.string().min(2, "Stadt ist erforderlich").optional(),
       district: z.string().optional().nullable(),
-      zipCode: z.string().min(3, "Posta kodu geçersiz").optional(),
-      country: z.string().min(2, "Ülke zorunlu").optional(),
+      zipCode: z.string().min(3, "Ungültige Postleitzahl").optional(),
+      country: z.string().min(2, "Land ist erforderlich").optional(),
     })
     .optional(),
 });

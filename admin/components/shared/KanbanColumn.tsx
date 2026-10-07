@@ -39,7 +39,7 @@ export default function KanbanColumn({
         <Loader2 className="h-6 w-6 animate-spin text-terracotta-500" />
       ) : (
         <span className="text-xs text-muted-foreground">
-          Daha fazla yükleniyor...
+          Weitere werden geladen...
         </span>
       )}
     </div>

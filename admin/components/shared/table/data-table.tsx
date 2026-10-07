@@ -93,7 +93,7 @@ export function DataTable<TData extends RowData>({
                     colSpan={columns.length}
                     className="h-24 text-center font-heading"
                   >
-                    No results.
+                    Keine Ergebnisse.
                   </TableCell>
                 </TableRow>
               )}
@@ -113,7 +113,7 @@ export function DataTable<TData extends RowData>({
               ))
             ) : (
               <div className="h-24 text-center font-heading p-4">
-                No results.
+                Keine Ergebnisse.
               </div>
             )}
           </div>

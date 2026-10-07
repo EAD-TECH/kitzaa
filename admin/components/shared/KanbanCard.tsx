@@ -45,7 +45,7 @@ export function KanbanCard({ data }: { data: KanbanCardProps }) {
 
           {/* time*/}
           <CardDescription className="min-w-0 wrap-break-word text-sm text-muted-foreground">
-            {data.time || "Tarih belirtilmemiş"}
+            {data.time || "Kein Datum angegeben"}
           </CardDescription>
 
           {/* kategori */}
@@ -79,20 +79,20 @@ export function KanbanCard({ data }: { data: KanbanCardProps }) {
                 className="text-kanban-card-title focus:text-kanban-card-title"
                 onClick={() => data.onReview && data.onReview(data.id)}
               >
-                İncele
+                Prüfen
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-kanban-card-title focus:text-kanban-card-title"
                 onClick={() => data.onEdit && data.onEdit(data.id)}
               >
-                Düzenle
+                Bearbeiten
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 variant="destructive"
                 onClick={() => data.onDelete && data.onDelete(data.id)}
               >
-                Sil
+                Löschen
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -112,7 +112,7 @@ export function KanbanCard({ data }: { data: KanbanCardProps }) {
       <CardFooter>
         {data.progressPercentage != undefined && (
           <Progress value={data.progressPercentage} className="w-full max-w-sm">
-            <ProgressLabel>Doluluk oranı</ProgressLabel>
+            <ProgressLabel>Auslastung</ProgressLabel>
             <ProgressValue />
           </Progress>
         )}

@@ -54,7 +54,7 @@ export function CategoryCreateForm({ onSuccess }: CategoryCreateFormProps) {
     console.log("Backend'e gidecek veri:", data);
     createCategory(data, {
       onSuccess: () => {
-        toast.success("Category basarıyla olusturuldu.");
+        toast.success("Kategorie wurde erfolgreich erstellt.");
         onSuccess();
       },
     });
@@ -68,17 +68,17 @@ export function CategoryCreateForm({ onSuccess }: CategoryCreateFormProps) {
           name="name"
           label="Name"
           type="name"
-          placeholder="Category olustur.."
+          placeholder="Kategoriename..."
         />
         <FormField
           control={form.control}
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>Beschreibung</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Kısa bir açıklama gir"
+                  placeholder="Gib eine kurze Beschreibung ein"
                   {...field}
                   value={field.value ?? ""}
                 />
@@ -96,8 +96,8 @@ export function CategoryCreateForm({ onSuccess }: CategoryCreateFormProps) {
             <ReusableFormInput
               control={form.control}
               name="icon"
-              label="Lucide Icon Adı"
-              placeholder="Örn: Leaf, Music, Palette"
+              label="Lucide-Symbolname"
+              placeholder="z. B. Leaf, Music, Palette"
             />
           </div>
 
@@ -106,7 +106,7 @@ export function CategoryCreateForm({ onSuccess }: CategoryCreateFormProps) {
             name="isActive"
             render={({ field }) => (
               <FormItem className="flex flex-col gap-2">
-                <FormLabel>Durum</FormLabel>
+                <FormLabel>Status</FormLabel>
                 <div className="flex h-9 items-center">
                   <Switch
                     checked={field.value ?? false}
@@ -125,7 +125,7 @@ export function CategoryCreateForm({ onSuccess }: CategoryCreateFormProps) {
           disabled={isPending}
         >
           {isPending && <Loader2 className="animate-spin" />}
-          {isPending ? "Category oluşturuluyor..." : "Category oluştur"}
+          {isPending ? "Kategorie wird erstellt..." : "Kategorie erstellen"}
         </Button>
       </form>
     </Form>

@@ -12,7 +12,11 @@
     "home": "Home",
     "events": "Events",
     "social": "Social",
-    "language": "Language"
+    "language": "Language",
+    "themeToggle": "Toggle theme",
+    "login": "Login",
+    "profile": "Profile",
+    "signOut": "Sign out"
   },
   "Footer": {
     "faq": "FAQ",
@@ -38,6 +42,11 @@
     "validation": {
       "loginRequired": "Email or username is required.",
       "passwordRequired": "Password is required."
+    },
+    "errors": {
+      "invalidCredentials": "Invalid email/username or password.",
+      "failed": "Login failed. Please try again.",
+      "network": "Unable to reach the server. Please try again."
     }
   },
   "Register": {

@@ -27,7 +27,7 @@ export const createCategoryColumns = (handlers: {
   onDelete?: (id: string) => void;
 }) => [
   columnHelper.accessor("icon", {
-    header: "IKON",
+    header: "SYMBOL",
     cell: ({ row }) => {
       const category = row.original;
 
@@ -40,7 +40,7 @@ export const createCategoryColumns = (handlers: {
   }),
 
   columnHelper.accessor("name", {
-    header: "AD VE SLUG",
+    header: "NAME UND SLUG",
     cell: ({ row }) => {
       const category = row.original;
       return (
@@ -59,7 +59,7 @@ export const createCategoryColumns = (handlers: {
     },
   }),
   columnHelper.accessor("description", {
-    header: "AÇIKLAMA",
+    header: "BESCHREIBUNG",
 
     cell: ({ row }) => {
       const category = row.original;
@@ -74,7 +74,7 @@ export const createCategoryColumns = (handlers: {
     },
   }),
   columnHelper.accessor("isActive", {
-    header: "DURUM",
+    header: "STATUS",
     cell: ({ row }) => {
       const category = row.original;
 
@@ -87,7 +87,7 @@ export const createCategoryColumns = (handlers: {
   }),
 
   columnHelper.display({
-    header: "ISLEMLER",
+    header: "AKTIONEN",
     id: "actions",
     cell: ({ row }) => {
       const category = row.original;
@@ -97,24 +97,24 @@ export const createCategoryColumns = (handlers: {
           <DropdownMenuTrigger
             render={<Button variant="ghost" className="h-8 w-8 p-0" />}
           >
-            <span className="sr-only">Open menu</span>
+            <span className="sr-only">Menü öffnen</span>
             <MoreHorizontal className="h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuGroup>
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel>Aktionen</DropdownMenuLabel>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem
                 onClick={() => handlers.onEdit?.(category?._id)}
               >
-                Düzenle
+                Bearbeiten
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => handlers.onDelete?.(category?._id)}
               >
-                Sil
+                Löschen
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>

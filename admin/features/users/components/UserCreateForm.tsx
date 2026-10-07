@@ -30,7 +30,7 @@ export function UserCreateForm({ onSuccess }: UserCreateFormProps) {
     console.log("Backend'e gidecek veri:", data);
     createUser(data, {
       onSuccess: () => {
-        toast.success("Davet başarıyla gönderildi.");
+        toast.success("Einladung wurde erfolgreich gesendet.");
         onSuccess();
       },
     });
@@ -53,19 +53,19 @@ export function UserCreateForm({ onSuccess }: UserCreateFormProps) {
         <ReusableFormInput
           control={form.control}
           name="email"
-          label="Email"
+          label="E-Mail"
           type="email"
-          placeholder="Email i girin.."
+          placeholder="E-Mail-Adresse eingeben..."
         />
         <ReusableFormSelect
           control={form.control}
           name="role"
-          label="Kullanıcı Rolu"
-          placeholder="Bir rol sec.."
+          label="Benutzerrolle"
+          placeholder="Rolle auswählen..."
           options={[
-            { label: "Yönetici (Admin)", value: "admin" },
-            { label: "Organizatör", value: "organizer" },
-            { label: "Kullanıcı (User)", value: "user" },
+            { label: "Administrator", value: "admin" },
+            { label: "Organisator", value: "organizer" },
+            { label: "Benutzer", value: "user" },
           ]}
         />
 
@@ -99,7 +99,7 @@ export function UserCreateForm({ onSuccess }: UserCreateFormProps) {
           disabled={isPending}
         >
           {isPending && <Loader2 className="animate-spin" />}
-          {isPending ? "Davet gönderiliyor..." : "Davet Gönder"}
+          {isPending ? "Einladung wird gesendet..." : "Einladung senden"}
         </Button>
       </form>
     </Form>

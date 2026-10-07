@@ -11,9 +11,9 @@ const basePostSchema = z.object({
   text: z
     .string()
     .trim()
-    .min(1, 'Text is required')
-    .max(5000, 'Text cannot exceed 5000 characters'),
-  imageUrl: z.string().trim().url('Invalid image URL').optional().nullable(),
+    .min(1, 'Text ist erforderlich')
+    .max(5000, 'Der Text darf höchstens 5000 Zeichen lang sein'),
+  imageUrl: z.string().trim().url('Ungültige Bild-URL').optional().nullable(),
   eventId: z.string().trim().min(1).optional().nullable(),
   placeName: z.string().trim().min(1).optional().nullable(),
   city: z.string().trim().min(1).optional().nullable(),

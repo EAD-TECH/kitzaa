@@ -29,13 +29,13 @@ export default function QueryProvider({
 
               if (error.status === 403) {
                 toast.error(
-                  "Yetki Hatası: Bu işlemi yapmaya izniniz bulunmuyor.",
+                  "Keine Berechtigung: Du darfst diese Aktion nicht ausführen.",
                 );
               } else if (error.status === 400) {
                 /*ya zod dakı mesajı ya da backend mesajını basmam lazım kızlara sor
                  */
                 toast.error(
-                  error.message || "Eksik veya hatalı bilgi girdiniz.",
+                  error.message || "Deine Angaben sind unvollständig oder fehlerhaft.",
                 );
               } else {
                 // 403 veya 400 değilse, ApiError içindeki Almanca/İngilizce mesajı bas
@@ -43,7 +43,7 @@ export default function QueryProvider({
               }
             } else {
               /* farklı bır hata olması durumu statusten farklı */
-              toast.error("Beklenmeyen bir sistem hatası oluştu.");
+              toast.error("Ein unerwarteter Systemfehler ist aufgetreten.");
             }
           },
         }),

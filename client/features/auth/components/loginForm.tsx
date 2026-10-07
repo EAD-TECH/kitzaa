@@ -87,7 +87,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
 
           <FieldError>{form.formState.errors.password?.message}</FieldError>
         </Field>
-        {error ? <FieldError>{mapLoginError(error)}</FieldError> : null}
+        {error ? <FieldError>{t(`errors.${mapLoginError(error)}`)}</FieldError> : null}
         <Field>
           <Button type="submit" disabled={isPending}>
             {isPending ? t("submitting") : t("submit")}

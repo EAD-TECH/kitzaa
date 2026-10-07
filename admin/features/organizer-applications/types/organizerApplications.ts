@@ -5,6 +5,14 @@ export type ApplicationStatus =
   | "rejected"
   | "needs_more_info";
 
+export const APPLICATION_STATUS_LABELS: Record<ApplicationStatus, string> = {
+  pending: "Neu",
+  under_review: "In Prüfung",
+  approved: "Genehmigt",
+  rejected: "Abgelehnt",
+  needs_more_info: "Weitere Infos benötigt",
+};
+
 export type ReviewerType = "admin" | "ai" | "system";
 
 export interface InstitutionDataDTO {

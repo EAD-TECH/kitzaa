@@ -85,7 +85,7 @@ const Navbar = () => {
           <Image
             className="w-26 py-2 tablet:py-1 "
             src={logo}
-            alt="Kitzaa logo"
+            alt="Kitzaa Logo"
           />
         </Link>
 
@@ -144,7 +144,7 @@ const Navbar = () => {
               variant="ghost"
               size="icon"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              aria-label="Theme change"
+              aria-label={t("themeToggle")}
               className="relative overflow-hidden rounded-full text-muted-foreground hover:text-foreground cursor-pointer tablet:me-2"
             >
               <MdSunny
@@ -179,7 +179,7 @@ const Navbar = () => {
           ) : !currentUser ? (
             <div>
               <Button nativeButton={false} render={<Link href="/login" />}>
-                Login
+                {t("login")}
               </Button>
             </div>
           ) : (
@@ -250,7 +250,7 @@ const Navbar = () => {
                   <DropdownMenuGroup>
                     <DropdownMenuItem render={<Link href="/profile" />}>
                       <FaUser />
-                      Profil
+                      {t("profile")}
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
@@ -259,7 +259,7 @@ const Navbar = () => {
                     onClick={handleLogout}
                   >
                     <LogOutIcon />
-                    Sign Out
+                    {t("signOut")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

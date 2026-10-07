@@ -26,7 +26,7 @@ export default function ReusableDrawerHeader({title,tag,subtitle}:ReusableDrawer
             render={<Button variant="ghost" size="icon" className="shrink-0" />}
           >
             <X className="size-5" />
-            <span className="sr-only">Kapat</span>
+            <span className="sr-only">Schließen</span>
           </DrawerClose>
         </DrawerHeader>
     </>

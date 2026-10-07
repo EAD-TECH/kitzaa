@@ -10,23 +10,23 @@ export default function EventDetailPage() {
     try {
       const data = await getAdminEvent(id);
       console.log("admin event", data);
-      alert("OK — check Console");
+      alert("OK – siehe Konsole");
     } catch (e) {
       console.error(e);
-      alert("Failed — check Console");
+      alert("Fehlgeschlagen – siehe Konsole");
     }
   };
 
   return (
     <main className="p-8 space-y-4">
-      <h1 className="text-xl font-semibold">Event detail</h1>
-      <p className="text-sm">id: {id}</p>
+      <h1 className="text-xl font-semibold">Event-Details</h1>
+      <p className="text-sm">ID: {id}</p>
       <button
         type="button"
         className="rounded border px-3 py-2"
         onClick={onTest}
       >
-        Test getAdminEvent
+        getAdminEvent testen
       </button>
     </main>
   );

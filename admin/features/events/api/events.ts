@@ -37,7 +37,7 @@ export async function listAdminEvents({
     params.append("filter[status]", kolonStatus);
   }
 
-  if (secilenKategori && secilenKategori !== "Tümü") {
+  if (secilenKategori && secilenKategori !== "Alle") {
     params.append("filter[categoryId]", secilenKategori);
   }
   if (arananKelime) {

@@ -21,7 +21,7 @@ function formatMemberSince(createdAt: string) {
 
 const LANGUAGE_LABELS: Record<string, string> = {
   de: "Deutsch",
-  en: "English",
+  en: "Englisch",
 };
 
 interface ProfileHeaderProps {

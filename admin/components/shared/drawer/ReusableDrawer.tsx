@@ -28,6 +28,7 @@ import { useOrganızarApplicationById } from "@/features/organizer-applications/
 import SectionAIBox from "./SectionAIBox";
 import { useApproveApplication } from "@/features/organizer-applications/hooks/useApproveApplication";
 import { useRejectApplication } from "@/features/organizer-applications/hooks/useRejectApplication";
+import { APPLICATION_STATUS_LABELS } from "@/features/organizer-applications/types/organizerApplications";
 
 type ReviewFormValues = z.infer<typeof reviewApplicationSchema>;
 
@@ -100,7 +101,7 @@ console.log("zod hatası almalıym bossa rejected kısmım")
     }
   }
   const formatted = appData?.createdAt
-    ? new Date(appData.createdAt).toLocaleString("tr-TR", {
+    ? new Date(appData.createdAt).toLocaleString("de-DE", {
         day: "numeric",
         month: "short",
         hour: "2-digit",
@@ -116,9 +117,9 @@ console.log("zod hatası almalıym bossa rejected kısmım")
     >
       <DrawerContent>
         <ReusableDrawerHeader
-          title="Başvuru Detayı"
-          tag={appData?.institutionData?.name ?? "Yeni Başvuru Detayı"}
-          subtitle={formatted ? `Operasyon · ${formatted}` : "Operasyon"}
+          title="Antragsdetails"
+          tag={appData?.institutionData?.name ?? "Neuer Antrag"}
+          subtitle={formatted ? `Betrieb · ${formatted}` : "Betrieb"}
         />
 
         <Form {...form}>
@@ -127,32 +128,32 @@ console.log("zod hatası almalıym bossa rejected kısmım")
             className="flex min-h-0 flex-1 flex-col"
           >
             <div className="min-h-0 flex flex-col gap-8  flex-1 overflow-y-auto px-6 py-6">
-              <SectionShell title="Kurum bilgisi" columns={2}>
+              <SectionShell title="Angaben zur Einrichtung" columns={2}>
                 {isLoading ? (
                   <div className="p-4 text-sm text-primary">
-                    Yükleniyor...
+                    Wird geladen...
                   </div>
                 ) : (
                   <>
-                    <InfoSection label="Kategori">
-                      {appData?.institutionData?.category || "Belirtilmemiş"}
+                    <InfoSection label="Kategorie">
+                      {appData?.institutionData?.category || "Nicht angegeben"}
                     </InfoSection>
-                    <InfoSection label="Açıklama" wide>
-                      {appData?.institutionData?.description || "Belirtilmemiş"}
+                    <InfoSection label="Beschreibung" wide>
+                      {appData?.institutionData?.description || "Nicht angegeben"}
                     </InfoSection>
-                    <InfoSection label="Adres" wide>
-                      {appData?.institutionData?.address || "Belirtilmemiş"}
+                    <InfoSection label="Adresse" wide>
+                      {appData?.institutionData?.address || "Nicht angegeben"}
                     </InfoSection>
-                    <InfoSection label="Web Sitesi">
-                      {appData?.institutionData?.website || "Belirtilmemiş"}
+                    <InfoSection label="Website">
+                      {appData?.institutionData?.website || "Nicht angegeben"}
                     </InfoSection>
-                    <InfoSection label="Durum">
-                      <span className="capitalize">
-                        {appData?.status || "Belirtilmemiş"}
-                      </span>
+                    <InfoSection label="Status">
+                      {appData?.status
+                        ? APPLICATION_STATUS_LABELS[appData.status]
+                        : "Nicht angegeben"}
                     </InfoSection>
-                    <InfoSection label="Asignee">
-                      {appData?.reviewedBy || "Belirtilmemiş"}
+                    <InfoSection label="Zuständig">
+                      {appData?.reviewedBy || "Nicht angegeben"}
                     </InfoSection>
                   </>
                 )}
@@ -162,12 +163,12 @@ console.log("zod hatası almalıym bossa rejected kısmım")
 
               <div className="flex flex-col gap-3">
                 <h2 className="font-heading uppercase text-xs text-primary">
-                  Basvuru Mesajı
+                  Antragsnachricht
                 </h2>
                 <div className="pl-4 flex flex-col gap-2 rounded-l border-l-2 border-l-primary bg-muted p-2">
                   <p className="font-body text-xs leading-7 italic">
                     {appData?.message ||
-                      "Başvuru sırasında özel bir mesaj iletilmemiş."}
+                      "Beim Antrag wurde keine Nachricht hinterlassen."}
                   </p>
                 </div>
               </div>
@@ -179,11 +180,11 @@ console.log("zod hatası almalıym bossa rejected kısmım")
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="font-heading text-primary">
-                        Reddetme Sebebi (Zorunlu)
+                        Ablehnungsgrund (Pflichtfeld)
                       </FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="İşlemi neden reddettiğini yaz"
+                          placeholder="Beschreibe, warum du den Antrag ablehnst"
                           className="focus-visible:ring-0 bg-muted border-none resize-none"
                           {...field}
                         />
@@ -199,7 +200,7 @@ console.log("zod hatası almalıym bossa rejected kısmım")
               <DrawerClose
                 render={
                   <Button type="button" variant="ghost">
-                    Vazgeç
+                    Abbrechen
                   </Button>
                 }
               />
@@ -209,7 +210,7 @@ console.log("zod hatası almalıym bossa rejected kısmım")
                   type="submit"
                   onClick={() => form.setValue("status", "approved")}
                 >
-                  {isApproving ? "Onaylanıyor..." : "Onayla"}
+                  {isApproving ? "Wird genehmigt..." : "Genehmigen"}
                 </Button>
                 <Button
                  disabled={isRejecting}
@@ -217,7 +218,7 @@ console.log("zod hatası almalıym bossa rejected kısmım")
                   onClick={() => form.setValue("status", "rejected")}
                   className="bg-muted text-foreground hover:bg-muted/80"
                 >
-                {isRejecting ? "Reject Ediliyor..." : "Reject"}
+                {isRejecting ? "Wird abgelehnt..." : "Ablehnen"}
                 </Button>
               </div>
             </DrawerFooter>

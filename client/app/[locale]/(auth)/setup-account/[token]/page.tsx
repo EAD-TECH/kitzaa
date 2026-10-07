@@ -18,7 +18,7 @@ export default async function RegisterPage() {
       <div className="relative hidden bg-muted lg:block">
         <img
           src="/images/register-image.png"
-          alt="setup_account"
+          alt="Familie bei einem gemeinsamen Event"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
       </div>

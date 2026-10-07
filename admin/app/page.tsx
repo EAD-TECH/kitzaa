@@ -1,3 +1,3 @@
 export default function Dashboard() {
-  return <div>Admin Ana Sayfası - Bakımda</div>;
+  return <div>Admin-Startseite – in Wartung</div>;
 }

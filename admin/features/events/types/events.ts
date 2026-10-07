@@ -5,9 +5,26 @@ export type EventStatus =
   | "cancelled"
   | "completed";
 
+export const EVENT_STATUS_LABELS: Record<EventStatus, string> = {
+  pending: "Ausstehend",
+  approved: "Genehmigt",
+  rejected: "Abgelehnt",
+  cancelled: "Abgesagt",
+  completed: "Abgeschlossen",
+};
+
 export type EventLocationType = "indoor" | "outdoor" | "online";
 
 export type AgeRange = "0-3" | "4-6" | "7-10" | "10-14" | "parents" | "all-ages";
+
+export const AGE_RANGE_LABELS: Record<AgeRange, string> = {
+  "0-3": "0-3 Jahre",
+  "4-6": "4-6 Jahre",
+  "7-10": "7-10 Jahre",
+  "10-14": "10-14 Jahre",
+  parents: "Für Eltern",
+  "all-ages": "Alle Alter",
+};
 
 export interface Price {
   amount: number;
