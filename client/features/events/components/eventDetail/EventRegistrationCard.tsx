@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { ArrowRight, Minus, Plus, Users } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -77,6 +78,12 @@ const EventRegistrationCard = ({ event, onEventChange }: EventRegistrationCardPr
   const [confirmAction, setConfirmAction] = useState<"join" | "leave">("join")
 
   const openConfirm = () => {
+    // Giriş yapmamış kullanıcı onay modalına hiç ulaşmasın — backend zaten 401 döner.
+    if (!currentUser) {
+      // Kaydetme (EventCard / EventActions) ile aynı tür → giriş uyarıları hep aynı renkte.
+      toast.error("Bitte melde dich an, um an diesem Event teilzunehmen.")
+      return
+    }
     setConfirmAction(isJoined ? "leave" : "join")
     setConfirmOpen(true)
   }
