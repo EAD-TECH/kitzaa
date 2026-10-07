@@ -55,10 +55,25 @@ const locationSchema = z.object({
     .optional()
     .nullable(),
   country: z.string().trim().default("DE"),
-  coordinates: z.object({
-    lat: z.number().min(-90).max(90),
-    lng: z.number().min(-180).max(180),
-  }),
+  // Form state'inde null olabilir (adres henüz geocode edilmedi / bulunamadı), ama
+  // submit'te null'a izin vermiyoruz. transform + z.NEVER output tipini de {lat,lng}'ye
+  // daraltıyor — şekil aynı kalıyor, yani yukarıdaki "GeoJSON'a çevirmiyoruz" kuralı bozulmuyor.
+  coordinates: z
+    .object({
+      lat: z.number().min(-90).max(90),
+      lng: z.number().min(-180).max(180),
+    })
+    .nullable()
+    .transform((value, ctx) => {
+      if (!value) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Der Standort konnte nicht ermittelt werden. Bitte prüfe die Stadt.",
+        })
+        return z.NEVER
+      }
+      return value
+    }),
 })
 
 const capacitySchema = z.object({

@@ -24,13 +24,14 @@ import { cn } from "@/lib/utils"
 import { createEventSchema, editEventSchema, type CreateEventFormValues } from "../../validations/event.schema"
 import type { CreateEventFieldName, CreateEventFormInput, CreateEventStepMeta } from "../../types/createEvent.types"
 import type { EventCategoryDTO } from "../../types/eventCategory.types"
-import type { EventDTO } from "../../types/event.types"
+import type { EventDTO, EventStatus } from "../../types/event.types"
 import { useCreateEvent } from "../../hooks/useCreateEvent"
 import { useUpdateEvent } from "../../hooks/useUpdateEvent"
 import { useEvent } from "../../hooks/useEvent"
 import { EventDetailsStep } from "./EventDetailsStep"
 import { EventScheduleStep } from "./EventScheduleStep"
 import { EventPricingStep } from "./EventPricingStep"
+import { EventCreatedDialog } from "./EventCreatedDialog"
 
 const STEPS: CreateEventStepMeta[] = [
   { id: 1, label: "Details", title: "Event-Details" },
@@ -82,7 +83,8 @@ const DEFAULT_VALUES: CreateEventFormInput = {
     state: "",
     zipCode: "",
     country: "DE",
-    coordinates: { lat: 52.52, lng: 13.405 },
+    // EventScheduleStep'teki useAddressCoordinates, girilen adresten doldurur.
+    coordinates: null,
   },
   capacity: { max: NaN },
 }
@@ -136,6 +138,8 @@ interface CreateEventWizardProps {
 export function CreateEventWizard({ categories, eventId }: CreateEventWizardProps) {
   const isEditMode = !!eventId
   const [currentStep, setCurrentStep] = useState(1)
+  // Event oluşturulunca backend'in döndürdüğü status; null değilse başarı modalı açık.
+  const [createdStatus, setCreatedStatus] = useState<EventStatus | null>(null)
   const router = useRouter()
   const { mutate: createEvent, isPending: isCreating } = useCreateEvent()
   const { mutate: updateEvent, isPending: isUpdating } = useUpdateEvent()
@@ -178,12 +182,11 @@ export function CreateEventWizard({ categories, eventId }: CreateEventWizardProp
     }
 
     createEvent(data, {
-      onSuccess: () => {
-        toast.success("Event wurde erstellt und wartet auf Freigabe.")
-        router.push("/profile/meine-events")
-      },
+      onSuccess: ({ event }) => setCreatedStatus(event.status),
     })
   }
+
+  const goToMyEvents = () => router.push("/profile/meine-events")
 
   const activeStepMeta = STEPS[currentStep - 1]
   const ActiveIcon = STEP_ICONS[currentStep as 1 | 2 | 3]
@@ -281,7 +284,8 @@ export function CreateEventWizard({ categories, eventId }: CreateEventWizardProp
               <Button
                 type="button"
                 onClick={form.handleSubmit(onSubmit)}
-                disabled={isPending}
+                // Modal açıkken / yönlendirme sürerken aynı event'in ikinci kez gönderilmesini engeller.
+                disabled={isPending || !!createdStatus}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 <CheckIcon className="size-4" />
@@ -293,6 +297,8 @@ export function CreateEventWizard({ categories, eventId }: CreateEventWizardProp
           </div>
         </form>
       </Form>
+
+      <EventCreatedDialog status={createdStatus} onClose={goToMyEvents} />
     </div>
   )
 }
