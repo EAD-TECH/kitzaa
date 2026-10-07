@@ -219,12 +219,11 @@ const EventRegistrationCard = ({ event, onEventChange }: EventRegistrationCardPr
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Abbrechen</AlertDialogCancel>
-            <AlertDialogAction
-              variant={isJoinConfirm ? "default" : "destructive"}
-              disabled={isPending}
-              onClick={handleConfirm}
-            >
+            <AlertDialogCancel disabled={isPending} className="rounded-full">
+              Abbrechen
+            </AlertDialogCancel>
+            {/* Katılma ve ayrılma aynı ana renkte (terracotta) — projeyle uyumlu; ne yapıldığını buton metni anlatıyor. */}
+            <AlertDialogAction disabled={isPending} onClick={handleConfirm} className="rounded-full">
               {isJoinConfirm
                 ? isPending ? "Wird angemeldet…" : "Verbindlich anmelden"
                 : isPending ? "Wird storniert…" : "Teilnahme stornieren"}

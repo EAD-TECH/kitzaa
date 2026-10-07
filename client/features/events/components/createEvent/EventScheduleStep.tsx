@@ -3,7 +3,7 @@
 import type { UseFormReturn } from "react-hook-form"
 import { de } from "date-fns/locale"
 import { format } from "date-fns"
-import { CalendarIcon } from "lucide-react"
+import { AlertCircle, CalendarIcon, Loader2, MapPin } from "lucide-react"
 
 import {
   FormControl,
@@ -26,6 +26,7 @@ import {
 import { cn } from "@/lib/utils"
 import type { CreateEventFormInput } from "../../types/createEvent.types"
 import { RECURRENCE_OPTIONS } from "../../constants/eventFormOptions"
+import { useAddressCoordinates, type GeocodeStatus } from "../../hooks/useAddressCoordinates"
 
 interface EventScheduleStepProps {
   form: UseFormReturn<CreateEventFormInput>
@@ -39,8 +40,48 @@ function toDateOrUndefined(value: unknown): Date | undefined {
   return Number.isNaN(date.getTime()) ? undefined : date
 }
 
+// location.coordinates için ayrı bir input yok, bu yüzden <FormMessage /> hatayı kendiliğinden
+// göstermiyor — geocoding durumu ve submit hatası burada gösteriliyor.
+function GeocodeHint({ status, error }: { status: GeocodeStatus; error?: string }) {
+  if (status === "loading") {
+    return (
+      <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <Loader2 className="size-3.5 animate-spin" />
+        Standort wird ermittelt…
+      </p>
+    )
+  }
+
+  if (status === "found") {
+    return (
+      <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <MapPin className="size-3.5" />
+        Standort gefunden
+      </p>
+    )
+  }
+
+  const message =
+    status === "not-found"
+      ? "Wir konnten diese Stadt nicht finden. Bitte prüfe die Schreibweise."
+      : status === "failed"
+        ? "Der Standort konnte gerade nicht ermittelt werden. Bitte versuche es in einem Moment erneut."
+        : error
+
+  if (!message) return null
+
+  return (
+    <p role="alert" className="flex items-center gap-1.5 text-xs text-destructive">
+      <AlertCircle className="size-3.5 shrink-0" />
+      {message}
+    </p>
+  )
+}
+
 export function EventScheduleStep({ form }: EventScheduleStepProps) {
   const isRecurring = form.watch("schedule.isRecurring")
+  const geocodeStatus = useAddressCoordinates(form)
+  const coordinatesError = form.formState.errors.location?.coordinates?.message
 
   return (
     <div className="flex flex-col gap-6">
@@ -299,6 +340,8 @@ export function EventScheduleStep({ form }: EventScheduleStepProps) {
             )}
           />
         </div>
+
+        <GeocodeHint status={geocodeStatus} error={coordinatesError} />
 
         <FormField
           control={form.control}
