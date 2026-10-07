@@ -53,5 +53,13 @@ export const buildEventQuery = (searchParams: EventSearchParams) => {
         params.set("radius", radius)
     }
 
+    // En yakın tarihten en uzağa. Aynı gün → başlangıç saatine göre; o da aynıysa _id'ye göre.
+    // _id şart: skip/limit sayfalamasında sıralama anahtarı benzersiz değilse MongoDB aynı
+    // tarihli event'leri sayfalar arasında farklı sırada döndürebilir → infinite scroll'da
+    // bazı event'ler iki kez görünür, bazıları hiç görünmez.
+    params.set("sort[schedule.startDate]", "1")
+    params.set("sort[schedule.startTime]", "1")
+    params.set("sort[_id]", "1")
+
     return params
 }
