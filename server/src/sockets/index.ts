@@ -143,9 +143,9 @@ export const initSocket = (httpServer: HttpServer) => {
           senderName:
             msg.senderType === "admin"
               ? msg.senderId.toString() === "000000000000000000000000"
-                ? "Kitzaa Asistan"
+                ? "Kitzaa Assistent"
                 : "Admin"
-              : "Kullanıcı",
+              : "Nutzer",
           senderType: msg.senderType,
           text: msg.content,
           roomId: msg.conversationId.toString(),
