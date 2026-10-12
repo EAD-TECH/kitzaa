@@ -1,3 +1,4 @@
+import { DashboardTrendPoint } from "@/features/dashboard/dashboard";
 import { AdminEventDTO } from "@/features/events/types";
 import { OrganizerApplicationDTO } from "@/features/organizer-applications/types";
 import { ReactNode } from "react";
@@ -124,4 +125,17 @@ export interface SectionAIBoxProps {
   aiAnalysis?:
     | OrganizerApplicationDTO["aiAnalysis"]
     | AdminEventDTO["aiAnalysis"];
+}
+
+export interface StatsCardProps {
+  id?: string;
+  title?: string;
+  description?: string;
+  icon?: ReactNode;
+  subtitle?: string;
+  category?: string;
+  time?: string;
+  value?:string | number
+  trends?:DashboardTrendPoint[] 
+  trendKey?:string
 }
