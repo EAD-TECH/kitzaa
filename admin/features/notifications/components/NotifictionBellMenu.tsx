@@ -34,7 +34,7 @@ function formatNotificationTime(createdAt: string) {
 function getNotificationHref(not: NotificationDTO) {
   const link = not.linkNotification;
   if (link && link.startsWith("/")) return link;
-  return "/notifications";
+  return null;
 }
 
 export function NotificationBellMenu() {
@@ -107,7 +107,8 @@ export function NotificationBellMenu() {
                   if (!not.isRead) {
                     markAsRead(not._id);
                   }
-                  router.push(getNotificationHref(not));
+                  const href = getNotificationHref(not);
+                  if (href) router.push(href);
                 }}
               >
                 {/* okunmamıslara ısaretledm */}
