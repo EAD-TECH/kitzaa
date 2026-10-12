@@ -5,6 +5,7 @@ import adminEventCategoryRoute from "./admin.eventCategoryRoute.js";
 import adminEventRoute from "./admin.eventRoute.js";
 import adminOrganizerApplicationRoute from "./admin.organizerApplicationRoute.js";
 import adminNotificationRoute from "./admin.notificationRoute.js";
+import adminDashboardRoute from "./admin.dashboardRoute.js";
 
 const router = Router();
 
@@ -13,4 +14,5 @@ router.use("/notifications", adminNotificationRoute);
 router.use("/categories", adminEventCategoryRoute);
 router.use("/events", adminEventRoute);
 router.use("/organizer-applications", adminOrganizerApplicationRoute);
+router.use("/dashboard", adminDashboardRoute);
 export default router;

@@ -201,7 +201,7 @@ export default function AdminLiveWidget() {
     <>
       <div className="flex shrink-0 items-center justify-between border-b border-border bg-card px-4 py-3">
         <h3 className="font-heading text-sm font-medium text-foreground">
-          Canlı Akış
+          Live-Aktivität
         </h3>
       </div>
       {selectedUser ? (
@@ -213,8 +213,8 @@ export default function AdminLiveWidget() {
                 variant="ghost"
                 size="icon-sm"
                 onClick={closeChat}
-                aria-label="Canlı akışa geri dön"
-                title="Geri dön"
+                aria-label="Zurück zur Aktivität"
+                title="Zurück"
               >
                 <ArrowLeft className="size-4" />
               </Button>
@@ -227,8 +227,8 @@ export default function AdminLiveWidget() {
               variant="ghost"
               size="icon-sm"
               onClick={closeChat}
-              aria-label="Sohbeti kapat"
-              title="Sohbeti kapat"
+              aria-label="Chat schließen"
+              title="Chat schließen"
             >
               <X className="size-4" />
             </Button>
@@ -275,7 +275,7 @@ export default function AdminLiveWidget() {
             <div className="flex shrink-0 items-center gap-2 border-t border-border bg-card px-3 py-2.5">
               <Input
                 type="text"
-                placeholder="Mesajınızı yazın..."
+                placeholder="Nachricht schreiben…"
                 className="min-w-0 flex-1 "
                 value={messageInput}
                 onChange={(e) => setMessageInput(e.target.value)}
@@ -286,6 +286,7 @@ export default function AdminLiveWidget() {
                 onClick={() => handleSendMessage()}
                 variant="default"
                 size="icon"
+                aria-label="Senden"
               >
                 <Send className="size-4" />
               </Button>
@@ -302,7 +303,7 @@ export default function AdminLiveWidget() {
             className="w-full shrink-0 rounded-none border-b border-border bg-card px-2"
           >
             <TabsTrigger className="flex-1 py-2" value="bildirimler">
-              Bildirimler
+              Aktivitäten
             </TabsTrigger>
             <TabsTrigger className="flex-1 py-2" value="online">
               Online
@@ -331,8 +332,8 @@ export default function AdminLiveWidget() {
                         clearChatMessages();
                         setSelectedUser({
                           id: notify.userId,
-                          firstName: "Destek",
-                          lastName: "Talebi",
+                          firstName: "Support",
+                          lastName: "Anfrage",
                           currentPath: "",
                           role: "user",
                         });

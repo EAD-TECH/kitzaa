@@ -7,7 +7,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  BellCheckIcon,
   Calendar,
   FileCheck2,
   LayoutDashboardIcon,
@@ -23,16 +22,15 @@ export default function SideBar() {
   const pathname = usePathname();
   console.log(pathname);
   const menuItems = [
-    { icon: LayoutDashboardIcon, label: "Dashboard", href: "/" },
+    { icon: LayoutDashboardIcon, label: "Übersicht", href: "/" },
     { icon: Calendar, label: "Events", href: "/events" },
     {
       icon: FileCheck2,
-      label: "Applications",
+      label: "Bewerbungen",
       href: "/organizer-applications",
     },
-    { icon: Users, label: "Kullanıcılar", href: "/users" },
-    { icon: Tags, label: "Categoriler", href: "/categories" },
-    { icon: BellCheckIcon, label: "Bildirimler", href: "/notifications" },
+    { icon: Users, label: "Nutzer", href: "/users" },
+    { icon: Tags, label: "Kategorien", href: "/categories" },
   ];
   return (
     <aside className="fixed inset-x-3 bottom-3 z-40 flex translate-x-0 flex-row items-center justify-between gap-0 rounded-2xl border border-sidebar-border bg-sidebar px-1 py-1 shadow-xl desktop:inset-x-auto desktop:bottom-auto desktop:left-4 desktop:top-1/2 desktop:-translate-y-1/2 desktop:flex-col desktop:justify-center desktop:gap-6 desktop:rounded-full desktop:px-1.5 desktop:py-2">

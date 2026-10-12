@@ -17,7 +17,7 @@ export const runAgent = async (
   callbacks.onStart?.();
 
   try {
-    const dynamicSystemPrompt = `${SYSTEM_PROMPT}\n\nÖNEMLİ: Şu an konuştuğun kullanıcının oda ID'si (roomId): "${roomId}". Kullanıcının ID'si (userId): "${userId}". Eğer 'transferToAdmin' aracını kullanırsan, bu ID'leri 'roomId' ve 'userId' parametreleri olarak göndermek ZORUNDASIN.`;
+    const dynamicSystemPrompt = `${SYSTEM_PROMPT}\n\nWICHTIG: Die Raum-ID dieses Nutzers (roomId) ist "${roomId}". Die Nutzer-ID (userId) ist "${userId}". Wenn du transferToAdmin aufrufst, musst du genau diese Werte als roomId und userId senden.`;
 
     /* system ai a ozel olan prompt onun ogrenmesı gereken ben socket mimamrisi kullandıgm ıcın dınamık hale getırdm userid ve roomid degerleri sureklı degısken olucagndan dolayı */
     const { text } = await generateText({
