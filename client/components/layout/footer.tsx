@@ -15,7 +15,7 @@ const Footer = () => {
     { title: t("terms"), href: "#" },
   ];
   return (
-    <footer className="border-t bg-card mt-24">
+    <footer className="mt-10 border-t bg-card">
       <div className="flex flex-col items-center px-3 py-3 tablet:px-5 desktop:px-8">
         <Link href="/home" className="flex items-center">
           <Image className="w-30 py-1" src={logo} alt="Kitzaa" />
