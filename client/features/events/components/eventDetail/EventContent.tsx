@@ -7,15 +7,14 @@ interface EventContentProps {
   highlights?: string[]
 }
 
-const EventContent = async ({ description, highlights }: EventContentProps) => {
-  const t = await getTranslations("Events")
-  const paragraphs = description.split("\n").filter(Boolean)
 // Tailwind preflight liste/kalın yazı stillerini sıfırlıyor — editördeki görünümün aynısı
 // için HTML içindeki etiketlere burada stil veriyoruz. Boş <p>'ler editörde boş satır.
 const RICH_TEXT_CLASSNAME =
   "text-sm leading-6 text-muted-foreground [&_p]:my-1.5 [&_p:empty]:h-3 [&_strong]:font-semibold [&_strong]:text-foreground [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-5 [&_ol]:pl-5 [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2"
 
-const EventContent = ({ description, highlights }: EventContentProps) => {
+const EventContent = async ({ description, highlights }: EventContentProps) => {
+  const t = await getTranslations("Events")
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-3">
