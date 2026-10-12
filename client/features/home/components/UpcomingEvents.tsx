@@ -18,7 +18,7 @@ export async function UpcomingEvents() {
   if (events.length === 0) return null;
 
   return (
-    <section className="pb-16 tablet:pb-20">
+    <section className="pb-8 tablet:pb-10">
       <div className="bg-surface-accent pt-14 pb-10 tablet:pt-16 tablet:pb-14">
         <div className="mx-auto mb-10 flex max-w-7xl flex-wrap items-end justify-between gap-4 px-6 tablet:mb-14 tablet:px-10 desktop:px-10">
           <h2 className="font-heading text-2xl font-semibold text-foreground tablet:text-3xl">

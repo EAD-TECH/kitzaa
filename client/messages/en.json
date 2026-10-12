@@ -6,7 +6,14 @@
     "discoverEvents": "Discover events",
     "heroImageAlt": "Family playing together in the park",
     "upcomingEventsTitle": "Upcoming events",
-    "viewAllEvents": "Discover all events"
+    "viewAllEvents": "Discover all events",
+    "organizerEyebrow": "For organizers",
+    "organizerTitle": "Your event. Their families. More to experience together.",
+    "organizerSubtitle": "Reach families near you and bring your workshop, outing or meeting point to Kitzaa.",
+    "organizerNote": "Simple. Local. For families.",
+    "organizerCta": "Become an organizer",
+    "organizerImageAlt": "Children crafting together at an autumn table",
+    "organizerLoginPrompt": "Please sign in to become an organizer."
   },
   "AiSearch": {
     "badge": "Ask Kitzaa",
