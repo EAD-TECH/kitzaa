@@ -31,9 +31,9 @@ function formatNotificationTime(createdAt: string, locale: string) {
 }
 
 function getNotificationHref(not: NotificationDTO) {
-  const link = not.linkNotification;
-  if (link && link.startsWith("/")) return link;
-  return "/notifications";
+  const link = not.linkNotification?.trim();
+  if (!link) return "/notifications";
+  return link.startsWith("/") ? link : `/${link}`;
 }
 
 export function NotificationBellMenu() {

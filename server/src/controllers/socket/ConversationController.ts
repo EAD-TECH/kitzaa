@@ -1,4 +1,5 @@
 import { runAgent } from "../../agent/run.js";
+import { createNotification } from "../../helpers/createNotification.js";
 import Conversation from "../../models/Conversation.js";
 import { findOrCreateConversation } from "../../services/conversationService.js";
 import { createSupportRoom } from "../../services/createSupportRoom.js";
@@ -74,14 +75,31 @@ export const handleSendMessage = async (
       senderId: senderId,
       senderName:
         socket.data.firstName ||
-        (socket.data.role === "admin" ? "Admin" : "Kullanıcı"),
+        (socket.data.role === "admin" ? "Admin" : "Nutzer"),
       senderType: savedUserMessage.senderType,
       text: savedUserMessage.content,
       roomId: savedUserMessage.conversationId.toString(),
       timestamp: savedUserMessage.createdAt,
     };
-
     io.to(payload.roomId).emit("receive_message", frontendUserMessage);
+
+    if (socket.data.role === "admin") {
+      const room = await Conversation.findById(payload.roomId);
+      const recipientId = room?.participants[0];
+
+      if (room?.roomtype === "support" && recipientId) {
+        try {
+          await createNotification(recipientId, "system", {
+            title: "Antwort vom Support",
+            message: payload.text,
+            relatedId: room._id,
+            senderId,
+          });
+        } catch (error) {
+          console.error("Destek bildirimi yazılamadı:", error);
+        }
+      }
+    }
 
     /* musteri mesajini gordu eger role user ise yapay zekayi cagiriyorm */
     if (socket.data.role === "user") {
@@ -114,7 +132,7 @@ export const handleSendMessage = async (
           const frontendAiMessage = {
             id: savedAiMessage._id.toString(),
             senderId: "Kitzaa-ai",
-            senderName: "Kitzaa Asistan",
+            senderName: "Kitzaa Assistent",
             senderType: savedAiMessage.senderType,
             text: savedAiMessage.content,
             roomId: savedAiMessage.conversationId.toString(),
@@ -158,7 +176,7 @@ export const handleSupportRequest = async (
   const frontendMessage = {
     id: savedMessage._id.toString(),
     senderId: userId,
-    senderName: socket.data.firstName || "Kullanıcı",
+    senderName: socket.data.firstName || "Nutzer",
     senderType: savedMessage.senderType,
     text: savedMessage.content,
     roomId: savedMessage.conversationId.toString(),
@@ -202,7 +220,7 @@ export const handleSupportRequest = async (
       io.to(roomId).emit("receive_support_message", {
         id: savedAiRespond._id.toString(),
         senderId: "Kitzaa-ai",
-        senderName: "Kitzaa Asistan",
+        senderName: "Kitzaa Assistent",
         senderType: savedAiRespond.senderType,
         text: savedAiRespond.content,
         roomId: savedAiRespond.conversationId.toString(),
@@ -213,9 +231,9 @@ export const handleSupportRequest = async (
       io.to(roomId).emit("receive_support_message", {
         id: `error_${Date.now()}`,
         senderId: "Kitzaa-ai",
-        senderName: "Kitzaa Sistem",
+        senderName: "Kitzaa Assistent",
         senderType: "admin",
-        text: "Asistan sunucularımızda anlık bir yoğunluk var, sistem sizi yakında bir yetkiliye bağlayacaktır.",
+        text: "Der Assistent ist gerade nicht erreichbar. Eine Person aus dem Team meldet sich in Kürze.",
         roomId,
         timestamp: new Date().toISOString(),
       });

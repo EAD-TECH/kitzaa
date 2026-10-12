@@ -15,7 +15,7 @@ export const transferToAdmin = tool({
 
     getIO().to("admins_room").emit("new_activity", {
       id: ticketId,
-      title: " Yeni Destek Talebi",
+      title: "Neue Support-Anfrage",
       description: reason,
       time: new Date().toISOString(),
       relatedId: roomId,
@@ -24,6 +24,6 @@ export const transferToAdmin = tool({
       isRead: false,
     });
 
-    return `Sistem mesajı: Kullanıcının talebi "${reason}" sebebiyle başarıyla admin yetkililerine iletildi. Kullanıcıya işlemin tamamlandığını ve beklemesi gerektiğini söyle.`;
+    return `Systemhinweis: Die Anfrage wurde wegen "${reason}" an das Team weitergegeben. Sag dem Nutzer nur, dass die Anfrage beim Team liegt und sich bald jemand meldet.`;
   },
 });

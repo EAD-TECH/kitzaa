@@ -51,7 +51,7 @@ export const notifyUserForApprovedEvent = async (
       message: `Tebrikler! "${eventTitle}" başlıklı etkinliğiniz Kitzaa tarafından uygun bulundu ve yayına alındı. Keyifli bir etkinlik geçirmeniz dileğiyle `,
       relatedId: eventId,
       relatedModel: "Event",
-      linkNotification: `events/${slug}`,
+      linkNotification: `/events/${slug}`,
     });
 
     /* console.log(

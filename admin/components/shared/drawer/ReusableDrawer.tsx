@@ -100,7 +100,7 @@ export default function ReusableDrawer() {
     }
   }
   const formatted = appData?.createdAt
-    ? new Date(appData.createdAt).toLocaleString("tr-TR", {
+    ? new Date(appData.createdAt).toLocaleString("en-EN", {
         day: "numeric",
         month: "short",
         hour: "2-digit",

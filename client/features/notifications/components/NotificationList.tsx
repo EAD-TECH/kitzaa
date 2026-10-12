@@ -10,12 +10,16 @@ import { AlertCircle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { LoadMoreButton } from "@/components/shared/LoadMoreButton";
+import { useRouter } from "@/i18n/navigation";
+import { useMarkNotificationRead } from "@/features/notifications/hooks/useMarkNotificationRead";
+import type { NotificationDTO } from "@/features/notifications/types";
 
 const pageShell = "mx-auto max-w-2xl px-4 py-8";
 
 /* bunu bıryere bagladm daha */
 
-function formatNotificationTime(createdAt: string, locale: string) {
+function formatNotificationTime(createdAt: string) {
+
   const date = new Date(createdAt);
   if (Number.isNaN(date.getTime())) return "";
   return date.toLocaleString(locale, {
@@ -26,10 +30,18 @@ function formatNotificationTime(createdAt: string, locale: string) {
   });
 }
 
+function getNotificationHref(not: NotificationDTO) {
+  const link = not.linkNotification?.trim();
+  if (!link) return null;
+  return link.startsWith("/") ? link : `/${link}`;
+}
+
 export default function NotificationList() {
   const t = useTranslations("Notifications");
   const common = useTranslations("Common");
   const locale = useLocale();
+  const router = useRouter();
+  const { mutate: markAsRead } = useMarkNotificationRead();
   const { notifications, isPending, isError, hasNextPage, isFetchingNextPage, fetchNextPage } =
     useNotifications();
 
@@ -94,12 +106,21 @@ export default function NotificationList() {
         {notifications.map((not, i) => (
           <li key={not._id}>
             <div
+              role="link"
               className={cn(
-                "flex items-center  gap-3 px-3 py-2.5 transition-colors hover:bg-muted/50",
+                "flex cursor-pointer items-center gap-3 px-3 py-2.5 transition-colors hover:bg-muted/50",
                 !not.isRead && "border-l-2 border-l-primary",
               )}
+              onClick={() => {
+                if (!not.isRead) markAsRead(not._id);
+                const href = getNotificationHref(not);
+                if (href) router.push(href);
+              }}
             >
-              <Checkbox className="shrink-0 rounded-sm"></Checkbox>
+              <Checkbox
+                className="shrink-0 rounded-sm"
+                onClick={(event) => event.stopPropagation()}
+              />
 
               <Avatar className="mt-0.5 shrink-0">
                 {not.sender?.avatarUrl ? (

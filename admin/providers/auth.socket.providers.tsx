@@ -50,13 +50,12 @@ export default function AuthSocketProvider({
       /* backendın gonderdıgı verıyı socket.on la getırdm */
       /* burda socket baglantısı kurulduktan sonra socketın durumunu dınlıyorm ve zustanda yazıyorm */
       socket.on("notification:new", (yenibildirim: NotificationDTO) => {
-        const targetPath = yenibildirim.linkNotification || "/notifications";
-        console.log(targetPath);
+        const targetPath = yenibildirim.linkNotification;
 
         toast("Yeni Bildirim ", {
           description:
             yenibildirim.title || "Sistemden yeni bir mesajınız var.",
-          action: yenibildirim.linkNotification
+          action: targetPath
             ? {
                 label: "Görüntüle",
                 onClick: () => router.push(targetPath),
