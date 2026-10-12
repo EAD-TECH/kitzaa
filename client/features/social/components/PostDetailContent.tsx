@@ -4,7 +4,7 @@ import { formatDistanceToNowStrict } from "date-fns";
 import { de, enUS } from "date-fns/locale";
 import Image from "next/image";
 import { Heart, ImageOff, MapPin, MessageCircle, MoreHorizontal, Send, Trees } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -76,6 +76,7 @@ function formatShortCommentTime(date: Date, locale: string) {
 
 
 function CommentOwnerMenu({ isOwner, label, onDelete }: { isOwner: boolean; label: string; onDelete: () => void }) {
+  const common = useTranslations("Common");
   if (!isOwner) return null;
 
   return (
@@ -89,7 +90,7 @@ function CommentOwnerMenu({ isOwner, label, onDelete }: { isOwner: boolean; labe
       />
       <DropdownMenuContent align="end" className="min-w-40">
         <DropdownMenuItem variant="destructive" onClick={onDelete}>
-          Löschen
+          {common("delete")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -97,11 +98,12 @@ function CommentOwnerMenu({ isOwner, label, onDelete }: { isOwner: boolean; labe
 }
 
 export default function PostDetailContent({ post }: PostDetailContentProps) {
+  const t = useTranslations("Social");
   const locale = useLocale();
   const authorName =
     [post.author.firstName, post.author.lastName].filter(Boolean).join(" ") ||
     post.author.username ||
-    "Unbekannter Nutzer";
+    t("unknownUser");
   const authorInitials =
     `${post.author.firstName?.[0] ?? ""}${post.author.lastName?.[0] ?? ""}` ||
     post.author.username?.slice(0, 2).toUpperCase() ||
@@ -127,9 +129,9 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
 
   const onCommentLike = (commentId: string) => {
     if (!currentUser) {
-      toast("Bitte melde dich an, um zu liken.", {
+      toast(t("likeLoginPrompt"), {
         action: {
-          label: "Anmelden",
+          label: t("signIn"),
           onClick: () => router.push("/login"),
         },
       });
@@ -174,7 +176,7 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
         ) : (
           <div className="flex size-full min-h-80 flex-col items-center justify-center gap-3 text-muted-foreground">
             <ImageOff className="size-10" />
-            <p className="text-sm">Kein Bild verfügbar</p>
+            <p className="text-sm">{t("noImage")}</p>
           </div>
         )}
 
@@ -203,7 +205,7 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
             ) : null}
           </div>
 
-          <Button type="button" variant="ghost" size="icon" aria-label="Weitere Optionen">
+          <Button type="button" variant="ghost" size="icon" aria-label={t("moreOptions")}>
             <MoreHorizontal />
           </Button>
         </header>
@@ -229,7 +231,7 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
                     <Trees className="size-4" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-medium uppercase text-muted-foreground">Verknüpftes Event</p>
+                    <p className="text-xs font-medium uppercase text-muted-foreground">{t("linkedEvent")}</p>
                     <p className="truncate font-medium">{post.event.title}</p>
                   </div>
                 </CardContent>
@@ -249,7 +251,7 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
 
             <div className="flex items-center justify-between">
               <h2 className="font-heading text-lg font-semibold">
-                Kommentare
+                {t("comments")}
                 <span className="ml-1 text-sm font-normal text-muted-foreground">({post.commentsCount})</span>
               </h2>
               <MessageCircle className="size-5 text-muted-foreground" />
@@ -257,18 +259,18 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
 
             {isLoading ? (
               <div className="flex min-h-36 items-center justify-center">
-                <p className="text-sm text-muted-foreground">Kommentare werden geladen...</p>
+                <p className="text-sm text-muted-foreground">{t("loadingComments")}</p>
               </div>
             ) : isError ? (
               <div className="flex min-h-36 items-center justify-center text-center">
-                <p className="text-sm text-destructive">Kommentare konnten nicht geladen werden.</p>
+                <p className="text-sm text-destructive">{t("commentsError")}</p>
               </div>
             ) : comments.length === 0 ? (
               <div className="flex min-h-36 flex-col items-center justify-center text-center">
                 <MessageCircle className="mb-3 size-8 text-muted-foreground/60" />
-                <p className="text-sm font-medium">Noch keine Kommentare</p>
+                <p className="text-sm font-medium">{t("noComments")}</p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Sei die erste Person, die diesen Beitrag kommentiert.
+                  {t("firstToComment")}
                 </p>
               </div>
             ) : (
@@ -277,7 +279,7 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
                   if (comment.parentCommentId !== null) return null;
 
                   const replies = comments.filter((reply) => reply.parentCommentId === comment._id);
-                  const commentAuthorName = comment.author.username || "Unbekannter Nutzer";
+                  const commentAuthorName = comment.author.username || t("unknownUser");
                   const commentAuthorInitials =
                     `${comment.author.firstName?.[0] ?? ""}${comment.author.lastName?.[0] ?? ""}` ||
                     comment.author.username?.slice(0, 2).toUpperCase() ||
@@ -335,12 +337,12 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
                                 setCommentText(`@${commentAuthorName} `);
                               }}
                             >
-                              Antworten
+                              {t("reply")}
                             </Button>
                             <CommentOwnerMenu
                               onDelete={() => onDelete({ commentId: comment._id, postId: post._id })}
                               isOwner={Boolean(currentUser && currentUser._id === comment.author._id)}
-                              label={`Optionen für Kommentar von ${commentAuthorName}`}
+                              label={t("commentOptions", { name: commentAuthorName })}
                             />
                           </div>
                         </div>
@@ -349,7 +351,7 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
                           type="button"
                           variant="ghost"
                           size="icon-xs"
-                          aria-label={`Kommentar von ${commentAuthorName} liken`}
+                          aria-label={t("likeComment", { name: commentAuthorName })}
                           onClick={() => onCommentLike(comment._id)}
                         >
                           <Heart
@@ -365,8 +367,8 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
                         <details className="group ml-11">
                           <summary className="flex cursor-pointer list-none items-center gap-3 text-xs font-medium text-muted-foreground">
                             <span className="h-px w-6 bg-border" />
-                            <span className="group-open:hidden">Antworten anzeigen ({replies.length})</span>
-                            <span className="hidden group-open:inline">Antworten ausblenden</span>
+                            <span className="group-open:hidden">{t("showReplies", { count: replies.length })}</span>
+                            <span className="hidden group-open:inline">{t("hideReplies")}</span>
                           </summary>
 
                           <div className="mt-4 space-y-4">
@@ -374,7 +376,7 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
                               const replyAuthorName =
                                 [reply.author.firstName, reply.author.lastName].filter(Boolean).join(" ") ||
                                 reply.author.username ||
-                                "Unbekannter Nutzer";
+                                t("unknownUser");
                               const replyAuthorInitials =
                                 `${reply.author.firstName?.[0] ?? ""}${reply.author.lastName?.[0] ?? ""}` ||
                                 reply.author.username?.slice(0, 2).toUpperCase() ||
@@ -433,7 +435,7 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
                                           setCommentText(`@${commentAuthorName} `);
                                         }}
                                       >
-                                        Antworten
+                                        {t("reply")}
                                       </Button>
                                       <CommentOwnerMenu
                                         onDelete={() => onDelete({ commentId: reply._id, postId: post._id })}
@@ -447,7 +449,7 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
                                     type="button"
                                     variant="ghost"
                                     size="icon-xs"
-                                    aria-label={`Antwort von ${replyAuthorName} liken`}
+                                    aria-label={t("likeReply", { name: replyAuthorName })}
                                     onClick={() => onCommentLike(reply._id)}
                                   >
                                     <Heart
@@ -477,8 +479,8 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
               <AvatarFallback>DU</AvatarFallback>
             </Avatar>
             <Input
-              aria-label="Kommentar schreiben"
-              placeholder="Kommentar schreiben..."
+              aria-label={t("writeComment")}
+              placeholder={t("writeCommentPlaceholder")}
               className="rounded-full"
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
@@ -487,7 +489,7 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
               type="button"
               size="icon"
               className="shrink-0 rounded-full"
-              aria-label="Senden"
+              aria-label={t("send")}
               onClick={onCommentSubmit}
             >
               <Send />

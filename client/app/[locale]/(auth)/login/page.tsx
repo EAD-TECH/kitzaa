@@ -1,9 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { LoginForm } from "@/features/auth/components/loginForm";
 import { Link } from "@/i18n/navigation";
 
 export default function LoginPage() {
+  const t = useTranslations("Login");
+
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col justify-center p-6 md:p-10 lg:order-last">
@@ -21,7 +24,7 @@ export default function LoginPage() {
       <div className="relative hidden bg-muted lg:block lg:order-first">
         <img
           src="/images/login-img.png"
-          alt="Familie lacht gemeinsam in einem sonnigen Gemeinschaftsgarten"
+          alt={t("imageAlt")}
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
       </div>

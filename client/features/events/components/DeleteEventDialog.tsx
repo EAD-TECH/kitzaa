@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
+import { useTranslations } from "next-intl"
 import { useDeleteEvent } from "../hooks/useDeleteEvent"
 
 const MIN_REASON_LENGTH = 5
@@ -24,6 +25,8 @@ interface DeleteEventDialogProps {
 }
 
 export function DeleteEventDialog({ open, onOpenChange, eventId, eventTitle }: DeleteEventDialogProps) {
+  const t = useTranslations("Events")
+  const common = useTranslations("Common")
   const [reason, setReason] = useState("")
   const { mutate: deleteEvent, isPending } = useDeleteEvent()
 
@@ -50,29 +53,28 @@ export function DeleteEventDialog({ open, onOpenChange, eventId, eventTitle }: D
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Event absagen</DialogTitle>
+          <DialogTitle>{t("cancelEvent")}</DialogTitle>
           <DialogDescription>
-            Möchtest du „{eventTitle}“ wirklich absagen? Bereits angemeldete Teilnehmer werden
-            benachrichtigt. Diese Aktion kann nicht rückgängig gemacht werden.
+            {t("cancelEventBody", { title: eventTitle })}
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-2">
           <label htmlFor="cancelledReason" className="text-sm font-medium text-foreground">
-            Grund für die Absage *
+            {t("cancelReason")}
           </label>
           <Textarea
             id="cancelledReason"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="z.B. Zu wenige Anmeldungen, Veranstaltungsort nicht mehr verfügbar…"
+            placeholder={t("cancelReasonPlaceholder")}
             disabled={isPending}
           />
         </div>
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isPending}>
-            Abbrechen
+            {common("cancel")}
           </Button>
           <Button
             type="button"
@@ -80,7 +82,7 @@ export function DeleteEventDialog({ open, onOpenChange, eventId, eventTitle }: D
             disabled={reason.trim().length < MIN_REASON_LENGTH || isPending}
             onClick={handleConfirm}
           >
-            {isPending ? "Wird abgesagt…" : "Event absagen"}
+            {isPending ? t("cancelling") : t("cancelEvent")}
           </Button>
         </DialogFooter>
       </DialogContent>

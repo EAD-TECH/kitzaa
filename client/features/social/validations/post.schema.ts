@@ -1,4 +1,6 @@
-import { z } from 'zod';
+import { z } from "zod";
+
+type Translate = (key: string) => string;
 
 const postLocationSchema = z
   .object({
@@ -7,22 +9,19 @@ const postLocationSchema = z
   })
   .strict();
 
-const basePostSchema = z.object({
-  text: z
-    .string()
-    .trim()
-    .min(1, 'Text is required')
-    .max(5000, 'Text cannot exceed 5000 characters'),
-  imageUrl: z.string().trim().url('Invalid image URL').optional().nullable(),
-  eventId: z.string().trim().min(1).optional().nullable(),
-  placeName: z.string().trim().min(1).optional().nullable(),
-  city: z.string().trim().min(1).optional().nullable(),
-  location: postLocationSchema.optional().nullable(),
-});
+export const createPostSchema = (t: Translate) =>
+  z
+    .object({
+      text: z.string().trim().min(1, t("validation.textRequired")).max(5000, t("validation.textMax")),
+      imageUrl: z.string().trim().url(t("validation.invalidImageUrl")).optional().nullable(),
+      eventId: z.string().trim().min(1).optional().nullable(),
+      placeName: z.string().trim().min(1).optional().nullable(),
+      city: z.string().trim().min(1).optional().nullable(),
+      location: postLocationSchema.optional().nullable(),
+    })
+    .strict();
 
-export const createPostSchema = basePostSchema.strict();
+export const updatePostSchema = (t: Translate) => createPostSchema(t).partial().strict();
 
-export const updatePostSchema = basePostSchema.partial().strict();
-
-export type CreatePostInput = z.infer<typeof createPostSchema>;
-export type UpdatePostInput = z.infer<typeof updatePostSchema>;
+export type CreatePostInput = z.infer<ReturnType<typeof createPostSchema>>;
+export type UpdatePostInput = z.infer<ReturnType<typeof updatePostSchema>>;

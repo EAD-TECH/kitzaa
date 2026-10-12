@@ -15,6 +15,7 @@ import EventInfo from "@/features/events/components/eventDetail/EventInfo";
 import EventDetailSidebar from "@/features/events/components/eventDetail/EventDetailSidebar";
 import Standort from "@/features/events/components/eventDetail/Standort";
 import { Badge } from "@/components/ui/badge";
+import { getTranslations } from "next-intl/server";
 
 interface EventDetailPageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -22,6 +23,7 @@ interface EventDetailPageProps {
 
 const EventDetailPage = async ({ params }: EventDetailPageProps) => {
   const { slug } = await params;
+  const t = await getTranslations("Events");
 
   let event;
   try {
@@ -42,7 +44,7 @@ const EventDetailPage = async ({ params }: EventDetailPageProps) => {
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-10 tablet:px-10">
       <nav className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <Link href="/events" className="hover:text-foreground">
-          Events
+          {t("breadcrumb")}
         </Link>
         <span>/</span>
         <span className="truncate text-foreground">{event.title}</span>

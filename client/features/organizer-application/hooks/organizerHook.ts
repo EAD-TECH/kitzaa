@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { ApiError } from "@/lib/api/client";
@@ -18,14 +19,11 @@ import { useTrackActions } from "@/features/socket/hooks/useTrackActions";
 
 const ORGANIZER_QUERY_KEY = ["organizer-application"] as const;
 
-const ORGANIZER_CREATE_ERROR_MESSAGES: Record<string, string> = {
-  "You are already an organizer or admin.":
-    "Du bist bereits Organisator oder Admin.",
-  "Please verify your email before applying.":
-    "Bitte bestätige zuerst deine E-Mail-Adresse, bevor du dich bewirbst.",
-  "You already have an application in progress.":
-    "Du hast bereits einen Antrag in Prüfung.",
-};
+const ORGANIZER_CREATE_ERROR_KEYS = {
+  "You are already an organizer or admin.": "alreadyOrganizerOrAdmin",
+  "Please verify your email before applying.": "verifyBeforeApply",
+  "You already have an application in progress.": "applicationInProgress",
+} as const;
 
 export const useMyOrganizerApplications = (enabled = true) => {
   return useQuery({
@@ -36,6 +34,7 @@ export const useMyOrganizerApplications = (enabled = true) => {
 };
 
 export const useCreateOrganizerApplication = () => {
+  const t = useTranslations("OrganizerApplication");
   const queryClient = useQueryClient();
   const {handleTrackActions}=useTrackActions()
 
@@ -43,15 +42,15 @@ export const useCreateOrganizerApplication = () => {
     mutationFn: (organizerApplicationData: ApplyOrganizerInput) =>
       createOrganizerApplication(organizerApplicationData),
     onError: (error) => {
-      const message =
+      const errorKey =
         error instanceof ApiError
-          ? (ORGANIZER_CREATE_ERROR_MESSAGES[error.message] ??
-            "Antrag konnte nicht gesendet werden. Bitte versuche es erneut.")
-          : "Antrag konnte nicht gesendet werden. Bitte versuche es erneut.";
+          ? ORGANIZER_CREATE_ERROR_KEYS[error.message as keyof typeof ORGANIZER_CREATE_ERROR_KEYS]
+          : undefined;
+      const message = errorKey ? t(errorKey) : t("sendFailed");
       toast.error(message);
     },
     onSuccess: (response: ApplyOrganizerResponse) => {
-      toast.success("Dein Antrag wurde eingereicht.");
+      toast.success(t("submitted"));
       queryClient.setQueryData<GetMyOrganizerApplicationsResponse>(
         ORGANIZER_QUERY_KEY,
         (current) => ({

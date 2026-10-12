@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
@@ -24,43 +25,38 @@ const PHONE_REGEX =
   /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,4}[-\s.]?[0-9]{0,4}$/;
 
 const INSTITUTION_CATEGORIES = [
-  "Spielgruppe",
-  "Kita / Familienzentrum",
-  "Museum / Kultur",
-  "Outdoor / Natur",
-  "Sport / Bewegung",
-  "Workshop / Kurs",
-  "Sonstiges",
+  { value: "Spielgruppe", labelKey: "categories.playgroup" },
+  { value: "Kita / Familienzentrum", labelKey: "categories.kita" },
+  { value: "Museum / Kultur", labelKey: "categories.museum" },
+  { value: "Outdoor / Natur", labelKey: "categories.outdoor" },
+  { value: "Sport / Bewegung", labelKey: "categories.sport" },
+  { value: "Workshop / Kurs", labelKey: "categories.workshop" },
+  { value: "Sonstiges", labelKey: "categories.other" },
 ] as const;
 
-const CATEGORY_ITEMS = Object.fromEntries(
-  INSTITUTION_CATEGORIES.map((category) => [category, category]),
-);
+type Translate = (key: string) => string;
 
-const formSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(2, "Institution name is required")
-    .max(120, "Institution name cannot exceed 120 characters"),
-  category: z.string().trim().max(60, "Category is too long"),
-  description: z.string().trim().max(1000, "Description is too long"),
-  address: z.string().trim().max(200, "Address is too long"),
-  phone: z
-    .string()
-    .trim()
-    .refine((value) => value === "" || PHONE_REGEX.test(value), "Please enter a valid phone number"),
-  website: z
-    .string()
-    .trim()
-    .refine(
-      (value) => value === "" || z.string().url().safeParse(value).success,
-      "Please enter a valid URL",
-    ),
-  message: z.string().trim().max(500, "Message is too long"),
-});
+const createFormSchema = (t: Translate) =>
+  z.object({
+    name: z.string().trim().min(2, t("validation.nameRequired")).max(120, t("validation.nameMax")),
+    category: z.string().trim().max(60, t("validation.categoryMax")),
+    description: z.string().trim().max(1000, t("validation.descriptionMax")),
+    address: z.string().trim().max(200, t("validation.addressMax")),
+    phone: z
+      .string()
+      .trim()
+      .refine((value) => value === "" || PHONE_REGEX.test(value), t("validation.phoneInvalid")),
+    website: z
+      .string()
+      .trim()
+      .refine(
+        (value) => value === "" || z.string().url().safeParse(value).success,
+        t("validation.urlInvalid"),
+      ),
+    message: z.string().trim().max(500, t("validation.messageMax")),
+  });
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
 
 function emptyToNull(value: string) {
   return value.trim() === "" ? null : value;
@@ -87,10 +83,15 @@ interface OrganizerApplicationFormProps {
 }
 
 export default function OrganizerApplicationForm({ onCancel }: OrganizerApplicationFormProps) {
+  const t = useTranslations("OrganizerApplication");
+  const common = useTranslations("Common");
   const { mutate: submitApplication, isPending } = useCreateOrganizerApplication();
+  const categoryItems = Object.fromEntries(
+    INSTITUTION_CATEGORIES.map((category) => [category.value, t(category.labelKey)]),
+  );
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(createFormSchema(t)),
     defaultValues: {
       name: "",
       category: "",
@@ -122,13 +123,13 @@ export default function OrganizerApplicationForm({ onCancel }: OrganizerApplicat
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="organizer-application-name">
-                    Name der Einrichtung (erforderlich)
+                    {t("name")}
                   </FieldLabel>
                   <Input
                     {...field}
                     id="organizer-application-name"
                     aria-invalid={fieldState.invalid}
-                    placeholder="z. B. Spielhaus Berlin"
+                    placeholder={t("namePlaceholder")}
                     autoComplete="off"
                   />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -140,23 +141,23 @@ export default function OrganizerApplicationForm({ onCancel }: OrganizerApplicat
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="organizer-application-category">Kategorie (optional)</FieldLabel>
+                  <FieldLabel htmlFor="organizer-application-category">{t("categoryOptional")}</FieldLabel>
                   <Select
                     value={field.value || null}
                     onValueChange={(value) => field.onChange(value ?? "")}
-                    items={CATEGORY_ITEMS}
+                    items={categoryItems}
                   >
                     <SelectTrigger
                       id="organizer-application-category"
                       className="w-full"
                       aria-invalid={fieldState.invalid}
                     >
-                      <SelectValue placeholder="Kategorie wählen" />
+                      <SelectValue placeholder={t("selectCategory")} />
                     </SelectTrigger>
                     <SelectContent>
                       {INSTITUTION_CATEGORIES.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
+                        <SelectItem key={category.value} value={category.value}>
+                          {t(category.labelKey)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -171,7 +172,7 @@ export default function OrganizerApplicationForm({ onCancel }: OrganizerApplicat
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="organizer-application-description">
-                    Beschreibung (optional)
+                    {t("descriptionOptional")}
                   </FieldLabel>
                   <InputGroup>
                     <InputGroupTextarea
@@ -184,7 +185,7 @@ export default function OrganizerApplicationForm({ onCancel }: OrganizerApplicat
                     />
                     <InputGroupAddon align="block-end">
                       <InputGroupText className="tabular-nums">
-                        {field.value.length}/1000 characters
+                        {t("characterCount", { count: field.value.length, max: 1000 })}
                       </InputGroupText>
                     </InputGroupAddon>
                   </InputGroup>
@@ -197,12 +198,12 @@ export default function OrganizerApplicationForm({ onCancel }: OrganizerApplicat
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="organizer-application-address">Adresse (optional)</FieldLabel>
+                  <FieldLabel htmlFor="organizer-application-address">{t("addressOptional")}</FieldLabel>
                   <Input
                     {...field}
                     id="organizer-application-address"
                     aria-invalid={fieldState.invalid}
-                    placeholder="Straße, PLZ, Stadt"
+                    placeholder={t("addressPlaceholder")}
                     autoComplete="off"
                   />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -215,7 +216,7 @@ export default function OrganizerApplicationForm({ onCancel }: OrganizerApplicat
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="organizer-application-phone">Telefon (optional)</FieldLabel>
+                    <FieldLabel htmlFor="organizer-application-phone">{t("phoneOptional")}</FieldLabel>
                     <Input
                       {...field}
                       id="organizer-application-phone"
@@ -232,7 +233,7 @@ export default function OrganizerApplicationForm({ onCancel }: OrganizerApplicat
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="organizer-application-website">Website (optional)</FieldLabel>
+                    <FieldLabel htmlFor="organizer-application-website">{t("websiteOptional")}</FieldLabel>
                     <Input
                       {...field}
                       id="organizer-application-website"
@@ -251,7 +252,7 @@ export default function OrganizerApplicationForm({ onCancel }: OrganizerApplicat
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="organizer-application-message">
-                    Nachricht an das Team (optional)
+                    {t("messageOptional")}
                   </FieldLabel>
                   <InputGroup>
                     <InputGroupTextarea
@@ -264,7 +265,7 @@ export default function OrganizerApplicationForm({ onCancel }: OrganizerApplicat
                     />
                     <InputGroupAddon align="block-end">
                       <InputGroupText className="tabular-nums">
-                        {field.value.length}/500 characters
+                        {t("characterCount", { count: field.value.length, max: 500 })}
                       </InputGroupText>
                     </InputGroupAddon>
                   </InputGroup>
@@ -287,10 +288,10 @@ export default function OrganizerApplicationForm({ onCancel }: OrganizerApplicat
               onCancel();
             }}
           >
-            Abbrechen
+            {common("cancel")}
           </Button>
           <Button type="submit" form="organizer-application-form" disabled={isPending}>
-            {isPending ? "Wird gesendet…" : "Antrag senden"}
+            {isPending ? t("sending") : t("send")}
           </Button>
         </Field>
       </CardFooter>

@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { Ticket } from "lucide-react"
 
 import { LoadMoreButton } from "@/components/shared/LoadMoreButton"
@@ -13,6 +14,7 @@ const EVENT_GRID_CLASSNAME =
   "grid grid-cols-1 max-w-90 tablet:grid-cols-[repeat(2,minmax(320px,370px))] desktop:grid-cols-[repeat(3,minmax(250px,1fr))] desktop:max-w-270 gap-10 desktop:gap-16 mx-auto justify-center desktop:justify-start desktop:mx-0"
 
 const RegistrierteEventsPage = () => {
+  const t = useTranslations("Profile")
   const { events, isLoading, isError, hasNextPage, isFetchingNextPage, fetchNextPage } =
     useMyParticipations()
 
@@ -28,8 +30,8 @@ const RegistrierteEventsPage = () => {
     return (
       <ProfileEmptyState
         icon={Ticket}
-        title="Noch keine Registrierungen"
-        description="Events, für die du dich angemeldet hast, erscheinen hier."
+        title={t("emptyRegisteredTitle")}
+        description={t("emptyRegisteredBody")}
       />
     )
   }

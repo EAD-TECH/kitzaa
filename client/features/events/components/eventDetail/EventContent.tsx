@@ -1,18 +1,20 @@
 import { CheckCircle2 } from "lucide-react"
+import { getTranslations } from "next-intl/server"
 
 interface EventContentProps {
   description: string
   highlights?: string[]
 }
 
-const EventContent = ({ description, highlights }: EventContentProps) => {
+const EventContent = async ({ description, highlights }: EventContentProps) => {
+  const t = await getTranslations("Events")
   const paragraphs = description.split("\n").filter(Boolean)
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-3">
         <h2 className="font-heading text-lg font-semibold text-foreground">
-          Über das Event
+          {t("aboutEvent")}
         </h2>
         <div className="flex flex-col gap-3 text-sm leading-6 text-muted-foreground">
           {paragraphs.map((paragraph, index) => (
@@ -24,7 +26,7 @@ const EventContent = ({ description, highlights }: EventContentProps) => {
       {highlights && highlights.length > 0 && (
         <div className="flex flex-col gap-3">
           <h3 className="font-heading text-base font-semibold text-foreground">
-            Was dich erwartet
+            {t("whatToExpect")}
           </h3>
           <ul className="flex flex-col gap-2">
             {highlights.map((highlight, index) => (

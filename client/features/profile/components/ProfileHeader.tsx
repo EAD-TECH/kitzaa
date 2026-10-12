@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useRef } from "react";
 import { CalendarDays, Globe, MapPin, Pencil, Plus, Share2 } from "lucide-react";
@@ -12,17 +13,12 @@ import type { AuthUser } from "@/features/auth/types/authTypes";
 import type { ProfileStats } from "../types/profile.types";
 import { useUploadProfileImage } from "../hooks/useUploadProfileImage"
 
-function formatMemberSince(createdAt: string) {
-  return new Date(createdAt).toLocaleDateString("de-DE", {
+function formatMemberSince(createdAt: string, locale: string) {
+  return new Date(createdAt).toLocaleDateString(locale, {
     month: "long",
     year: "numeric",
   });
 }
-
-const LANGUAGE_LABELS: Record<string, string> = {
-  de: "Deutsch",
-  en: "English",
-};
 
 interface ProfileHeaderProps {
   user: AuthUser;
@@ -31,23 +27,26 @@ interface ProfileHeaderProps {
 }
 
 const ProfileHeader = ({ user, stats, isStatsLoading }: ProfileHeaderProps) => {
+  const t = useTranslations("Profile");
+  const common = useTranslations("Common");
+  const locale = useLocale();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { mutate: uploadProfileImage, isPending } = useUploadProfileImage();
 
   const fullName = `${user.firstName} ${user.lastName}`;
-  const initials = `${user.firstName.trim().charAt(0)}${user.lastName.trim().charAt(0)}`.toLocaleUpperCase("de");
+  const initials = `${user.firstName.trim().charAt(0)}${user.lastName.trim().charAt(0)}`.toLocaleUpperCase(locale);
 
   const metaItems = [
     { icon: MapPin, label: `${user.location.city}, ${user.location.country}` },
-    { icon: CalendarDays, label: `Mitglied seit ${formatMemberSince(user.createdAt)}` },
-    { icon: Globe, label: LANGUAGE_LABELS[user.language] ?? user.language },
+    { icon: CalendarDays, label: t("memberSince", { date: formatMemberSince(user.createdAt, locale) }) },
+    { icon: Globe, label: user.language === "en" ? t("english") : t("german") },
   ];
 
   // Yüklenemeyen (null) sayılar uydurma bir değer yerine hiç gösterilmez.
   const statItems = [
-    { label: "Erstellte Events", value: stats.createdEventsCount },
-    { label: "Registrierte Events", value: stats.registeredEventsCount },
-    { label: "Geteilte Beiträge", value: stats.postsCount },
+    { label: t("createdEvents"), value: stats.createdEventsCount },
+    { label: t("registeredEvents"), value: stats.registeredEventsCount },
+    { label: t("sharedPosts"), value: stats.postsCount },
   ].filter((stat) => isStatsLoading || stat.value !== null);
 
   const handleShare = async () => {
@@ -63,7 +62,7 @@ const ProfileHeader = ({ user, stats, isStatsLoading }: ProfileHeaderProps) => {
     }
 
     await navigator.clipboard.writeText(window.location.href);
-    toast.success("Link kopiert");
+    toast.success(common("linkCopied"));
   };
 
   return (
@@ -94,7 +93,7 @@ const ProfileHeader = ({ user, stats, isStatsLoading }: ProfileHeaderProps) => {
               variant="secondary"
               size="icon-sm"
               className="absolute -right-1 -bottom-1 rounded-full shadow-sm"
-              aria-label="Profilbild ändern"
+              aria-label={t("changePhoto")}
               disabled={isPending}
               onClick={() => fileInputRef.current?.click()}
             >
@@ -121,11 +120,11 @@ const ProfileHeader = ({ user, stats, isStatsLoading }: ProfileHeaderProps) => {
         <div className="flex shrink-0 items-center gap-2">
           <Button render={<Link href="/profile/events-erstellen" />} nativeButton={false} size="sm">
             <Plus className="size-4" />
-            Event erstellen
+            {t("createEvent")}
           </Button>
           <Button variant="outline" size="sm" onClick={handleShare}>
             <Share2 className="size-4" />
-            Profil teilen
+            {t("shareProfile")}
           </Button>
         </div>
       </div>

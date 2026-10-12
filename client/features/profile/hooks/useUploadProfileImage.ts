@@ -1,9 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { uploadProfileImage } from "../api/profileImageApi";
 import type { AuthUser } from "@/features/auth/types/authTypes"
 
 export const useUploadProfileImage = () => {
+  const t = useTranslations("Profile");
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -19,11 +21,11 @@ export const useUploadProfileImage = () => {
         };
       });
 
-      toast.success("Profilbild wurde aktualisiert.");
+      toast.success(t("photoUpdated"));
     },
 
     onError: () => {
-      toast.error("Profilbild konnte nicht hochgeladen werden. Bitte versuche es erneut.");
+      toast.error(t("photoFailed"));
     },
   });
 };

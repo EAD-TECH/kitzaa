@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useTranslations } from "next-intl";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import { useUpdatePersonalInfo } from "../hooks/useUpdatePersonalInfo";
 import {
@@ -15,25 +16,19 @@ import {
   type UpdatePersonalInfoValues,
 } from "../validations/updatePersonalInfo.schema";
 
-const schema = updatePersonalInfoSchema();
-
-type PersonalInfoFormInput = z.input<typeof schema>;
-
-const LANGUAGES = [
-  { value: "de", label: "Deutsch" },
-  { value: "en", label: "English" },
-] as const;
-
-const LANGUAGE_ITEMS = {
-  de: "Deutsch",
-  en: "English",
-};
-
 type UpdatePersonalInfoFormProps = {
   onCancel: () => void;
 };
 
 const UpdatePersonalInfoForm = ({ onCancel }: UpdatePersonalInfoFormProps) => {
+  const t = useTranslations("Profile");
+  const common = useTranslations("Common");
+  const schema = updatePersonalInfoSchema(t);
+  type PersonalInfoFormInput = z.input<typeof schema>;
+  const languageItems = {
+    de: t("german"),
+    en: t("english"),
+  };
   const { data: user } = useCurrentUser();
   const userId = user?._id;
   const { mutate: savePersonalInfo, isPending } = useUpdatePersonalInfo(userId);
@@ -78,7 +73,7 @@ const UpdatePersonalInfoForm = ({ onCancel }: UpdatePersonalInfoFormProps) => {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="profile-first-name">Vorname (erforderlich)</FieldLabel>
+                <FieldLabel htmlFor="profile-first-name">{t("firstName")}</FieldLabel>
                 <Input
                   {...field}
                   id="profile-first-name"
@@ -95,7 +90,7 @@ const UpdatePersonalInfoForm = ({ onCancel }: UpdatePersonalInfoFormProps) => {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="profile-last-name">Nachname (erforderlich)</FieldLabel>
+                <FieldLabel htmlFor="profile-last-name">{t("lastName")}</FieldLabel>
                 <Input
                   {...field}
                   id="profile-last-name"
@@ -112,7 +107,7 @@ const UpdatePersonalInfoForm = ({ onCancel }: UpdatePersonalInfoFormProps) => {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="profile-username">Benutzername (erforderlich)</FieldLabel>
+                <FieldLabel htmlFor="profile-username">{t("username")}</FieldLabel>
                 <Input
                   {...field}
                   id="profile-username"
@@ -129,7 +124,7 @@ const UpdatePersonalInfoForm = ({ onCancel }: UpdatePersonalInfoFormProps) => {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="profile-email">E-Mail (erforderlich)</FieldLabel>
+                <FieldLabel htmlFor="profile-email">{t("emailRequired")}</FieldLabel>
                 <Input
                   {...field}
                   id="profile-email"
@@ -149,23 +144,20 @@ const UpdatePersonalInfoForm = ({ onCancel }: UpdatePersonalInfoFormProps) => {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="profile-language">Sprache (optional)</FieldLabel>
+                <FieldLabel htmlFor="profile-language">{t("languageOptional")}</FieldLabel>
                 <Select
                   value={field.value}
                   onValueChange={(value) => {
                     if (value === "de" || value === "en") field.onChange(value);
                   }}
-                  items={LANGUAGE_ITEMS}
+                  items={languageItems}
                 >
                   <SelectTrigger id="profile-language" className="w-full" aria-invalid={fieldState.invalid}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {LANGUAGES.map((language) => (
-                      <SelectItem key={language.value} value={language.value}>
-                        {language.label}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="de">{t("german")}</SelectItem>
+                    <SelectItem value="en">{t("english")}</SelectItem>
                   </SelectContent>
                 </Select>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -178,7 +170,7 @@ const UpdatePersonalInfoForm = ({ onCancel }: UpdatePersonalInfoFormProps) => {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="profile-city">Stadt (erforderlich)</FieldLabel>
+                <FieldLabel htmlFor="profile-city">{t("cityRequired")}</FieldLabel>
                 <Input
                   {...field}
                   id="profile-city"
@@ -195,7 +187,7 @@ const UpdatePersonalInfoForm = ({ onCancel }: UpdatePersonalInfoFormProps) => {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="profile-country">Land (erforderlich)</FieldLabel>
+                <FieldLabel htmlFor="profile-country">{t("countryRequired")}</FieldLabel>
                 <Input
                   {...field}
                   id="profile-country"
@@ -212,7 +204,7 @@ const UpdatePersonalInfoForm = ({ onCancel }: UpdatePersonalInfoFormProps) => {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="profile-zip">PLZ (erforderlich)</FieldLabel>
+                <FieldLabel htmlFor="profile-zip">{t("zipRequired")}</FieldLabel>
                 <Input
                   {...field}
                   id="profile-zip"
@@ -230,7 +222,7 @@ const UpdatePersonalInfoForm = ({ onCancel }: UpdatePersonalInfoFormProps) => {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="profile-district">Stadtteil (optional)</FieldLabel>
+                <FieldLabel htmlFor="profile-district">{t("districtOptional")}</FieldLabel>
                 <Input
                   {...field}
                   value={field.value ?? ""}
@@ -247,7 +239,7 @@ const UpdatePersonalInfoForm = ({ onCancel }: UpdatePersonalInfoFormProps) => {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="profile-state">Bundesland (optional)</FieldLabel>
+                <FieldLabel htmlFor="profile-state">{t("stateOptional")}</FieldLabel>
                 <Input
                   {...field}
                   value={field.value ?? ""}
@@ -264,10 +256,10 @@ const UpdatePersonalInfoForm = ({ onCancel }: UpdatePersonalInfoFormProps) => {
 
       <div className="mt-6 flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={handleCancel} disabled={isPending}>
-          Abbrechen
+          {common("cancel")}
         </Button>
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Wird gespeichert..." : "Speichern"}
+          {isPending ? common("saving") : common("save")}
         </Button>
       </div>
     </form>

@@ -9,6 +9,7 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createPostSchema, type CreatePostInput } from "../validations/post.schema";
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useEvents } from "../hooks/useEvents";
 import {
@@ -34,6 +35,7 @@ interface CreatePostFormProps {
 }
 
 export default function CreatePostForm({ onCreated, post }: CreatePostFormProps) {
+  const t = useTranslations("Social");
   const isEditMode = Boolean(post);
 
   const { data } = useEvents();
@@ -50,7 +52,7 @@ export default function CreatePostForm({ onCreated, post }: CreatePostFormProps)
   const { data: currentUser } = useCurrentUser();
 
   const form = useForm<CreatePostInput>({
-    resolver: zodResolver(createPostSchema),
+    resolver: zodResolver(createPostSchema(t)),
     defaultValues: {
       text: "",
       imageUrl: null,
@@ -110,12 +112,12 @@ export default function CreatePostForm({ onCreated, post }: CreatePostFormProps)
     if (imageStatus === "uploading") return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Bitte wähle eine Bilddatei aus.");
+      toast.error(t("chooseImageFile"));
       return;
     }
 
     if (file.size > MAX_POST_IMAGE_SIZE_MB * 1024 * 1024) {
-      toast.error(`"${file.name}" ist größer als ${MAX_POST_IMAGE_SIZE_MB}MB.`);
+      toast.error(t("imageTooLarge", { name: file.name, size: MAX_POST_IMAGE_SIZE_MB }));
       return;
     }
 
@@ -181,7 +183,7 @@ export default function CreatePostForm({ onCreated, post }: CreatePostFormProps)
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={previewUrl}
-                alt="Ausgewähltes Beitragsbild"
+                alt={t("selectedImage")}
                 className="absolute inset-0 size-full object-cover"
               />
 
@@ -193,7 +195,7 @@ export default function CreatePostForm({ onCreated, post }: CreatePostFormProps)
 
               {imageStatus === "error" ? (
                 <div className="absolute inset-0 flex items-center justify-center bg-destructive/20 px-6 text-center text-sm font-medium text-destructive">
-                  Bild konnte nicht hochgeladen werden.
+                  {t("imageUploadFailed")}
                 </div>
               ) : null}
 
@@ -201,7 +203,7 @@ export default function CreatePostForm({ onCreated, post }: CreatePostFormProps)
                 type="button"
                 onClick={clearImage}
                 disabled={isImageBusy || isPending}
-                aria-label="Bild entfernen"
+                aria-label={t("removeImage")}
                 className="absolute top-3 right-3 flex size-8 cursor-pointer items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm disabled:opacity-50"
               >
                 <X className="size-4" />
@@ -226,9 +228,9 @@ export default function CreatePostForm({ onCreated, post }: CreatePostFormProps)
                 <ImagePlus className="size-6" />
               </div>
 
-              <p className="mt-4 text-sm font-medium">Bild hinzufügen</p>
+              <p className="mt-4 text-sm font-medium">{t("addImage")}</p>
 
-              <p className="mt-1 text-sm text-muted-foreground">Optional</p>
+              <p className="mt-1 text-sm text-muted-foreground">{t("optional")}</p>
 
               <Button
                 type="button"
@@ -266,14 +268,14 @@ export default function CreatePostForm({ onCreated, post }: CreatePostFormProps)
             {/* Post Text */}
             <Field>
               <FieldLabel htmlFor="post-text">
-                Was möchtest du teilen?
-                <span className="font-normal text-muted-foreground">(erforderlich)</span>
+                {t("sharePromptLabel")}
+                <span className="font-normal text-muted-foreground">{t("required")}</span>
               </FieldLabel>
 
               <Textarea
                 id="post-text"
                 maxLength={1000}
-                placeholder="Was möchtest du mit anderen Eltern teilen?"
+                placeholder={t("sharePlaceholder")}
                 className="min-h-36 resize-none"
                 {...form.register("text")}
               />
@@ -281,17 +283,17 @@ export default function CreatePostForm({ onCreated, post }: CreatePostFormProps)
               <FieldError errors={[form.formState.errors.text]} />
 
               <FieldDescription className="flex items-center justify-between gap-4">
-                <span>Ein freundlicher Austausch macht Kitzaa aus.</span>
+                <span>{t("shareHint")}</span>
 
-                <span className="shrink-0">{text.length} / 5000 Zeichen</span>
+                <span className="shrink-0">{t("characterCount", { count: text.length, max: 5000 })}</span>
               </FieldDescription>
             </Field>
 
             {/* Event */}
             <Field>
               <FieldLabel>
-                Event
-                <span className="font-normal text-muted-foreground">(optional)</span>
+                {t("eventLabel")}
+                <span className="font-normal text-muted-foreground">{t("optional")}</span>
               </FieldLabel>
               <Controller
                 name="eventId"
@@ -303,9 +305,9 @@ export default function CreatePostForm({ onCreated, post }: CreatePostFormProps)
                     onValueChange={(event) => onChange(event?._id ?? null)}
                     itemToStringLabel={(event) => event.title}
                   >
-                    <ComboboxInput placeholder="Event auswählen" showClear />
+                    <ComboboxInput placeholder={t("selectEvent")} showClear />
                     <ComboboxContent>
-                      <ComboboxEmpty>Kein Event gefunden.</ComboboxEmpty>
+                      <ComboboxEmpty>{t("noEventFound")}</ComboboxEmpty>
                       <ComboboxList>
                         {(item) => (
                           <ComboboxItem key={item._id} value={item}>
@@ -322,8 +324,8 @@ export default function CreatePostForm({ onCreated, post }: CreatePostFormProps)
             {/* Ort */}
             <Field>
               <FieldLabel>
-                Ort
-                <span className="font-normal text-muted-foreground">(optional)</span>
+                {t("place")}
+                <span className="font-normal text-muted-foreground">{t("optional")}</span>
               </FieldLabel>
 
               <Controller
@@ -373,9 +375,9 @@ export default function CreatePostForm({ onCreated, post }: CreatePostFormProps)
                         Boolean(item && selected && item.lat === selected.lat && item.lng === selected.lng)
                       }
                     >
-                      <ComboboxInput placeholder="Ort suchen" showClear className="w-full" />
+                      <ComboboxInput placeholder={t("searchPlace")} showClear className="w-full" />
                       <ComboboxContent>
-                        <ComboboxEmpty>Kein Ort gefunden.</ComboboxEmpty>
+                        <ComboboxEmpty>{t("noPlaceFound")}</ComboboxEmpty>
                         <ComboboxList>
                           {(item) => (
                             <ComboboxItem key={`${item.lat}-${item.lng}`} value={item}>
@@ -401,18 +403,18 @@ export default function CreatePostForm({ onCreated, post }: CreatePostFormProps)
             <Info className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
 
             <p className="text-sm text-muted-foreground">
-              Dein Beitrag wird in deiner lokalen Kitzaa Community sichtbar.
+              {t("communityHint")}
             </p>
           </div>
 
           {/* Submit */}
           <div className="mt-5 border-t pt-5">
             <p className="text-xs text-muted-foreground">
-              Mit deinem Beitrag hilfst du anderen Familien, schöne Orte und Aktivitäten zu entdecken.
+              {t("publishHelp")}
             </p>
 
             <Button type="submit" className="mt-4 w-full" disabled={!canSubmit}>
-              {isEditMode ? (updatePost.isPending ? "Wird aktualisiert..." : "Beitrag aktualisieren") : (createPost.isPending ? "Wird veröffentlicht..." : "Beitrag veröffentlichen")}
+              {isEditMode ? (updatePost.isPending ? t("updating") : t("updatePost")) : (createPost.isPending ? t("publishing") : t("publish"))}
             </Button>
           </div>
         </section>

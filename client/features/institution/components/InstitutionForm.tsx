@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm, useWatch } from "react-hook-form";
 
@@ -41,8 +42,10 @@ export const InstitutionForm = ({
   institution,
   onCancel,
 }: InstitutionFormProps) => {
+  const t = useTranslations("Institution");
+  const common = useTranslations("Common");
   const form = useForm<InstitutionFormValues>({
-    resolver: zodResolver(institutionSchema),
+    resolver: zodResolver(institutionSchema(t)),
     defaultValues: {
       name: institution.name ?? "",
       description: institution.description ?? "",
@@ -90,7 +93,7 @@ export const InstitutionForm = ({
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="institution-name">Name der Institution (erforderlich)</FieldLabel>
+              <FieldLabel htmlFor="institution-name">{t("name")}</FieldLabel>
               <Input
                 {...field}
                 id="institution-name"
@@ -107,7 +110,7 @@ export const InstitutionForm = ({
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="institution-description">Beschreibung (optional)</FieldLabel>
+              <FieldLabel htmlFor="institution-description">{t("description")}</FieldLabel>
               <InputGroup>
                 <InputGroupTextarea
                   {...field}
@@ -134,7 +137,7 @@ export const InstitutionForm = ({
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="institution-phone">Telefon (optional)</FieldLabel>
+                <FieldLabel htmlFor="institution-phone">{t("phone")}</FieldLabel>
                 <Input
                   {...field}
                   id="institution-phone"
@@ -152,7 +155,7 @@ export const InstitutionForm = ({
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="institution-website">Website (optional)</FieldLabel>
+                <FieldLabel htmlFor="institution-website">{t("website")}</FieldLabel>
                 <Input
                   {...field}
                   id="institution-website"
@@ -171,7 +174,7 @@ export const InstitutionForm = ({
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="institution-address">Adresse (optional)</FieldLabel>
+                <FieldLabel htmlFor="institution-address">{t("address")}</FieldLabel>
                 <Input {...field} id="institution-address" aria-invalid={fieldState.invalid} autoComplete="street-address" />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
@@ -187,14 +190,14 @@ export const InstitutionForm = ({
           onClick={handleCancel}
           disabled={isPending}
         >
-          Abbrechen
+          {common("cancel")}
         </Button>
 
         <Button
           type="submit"
           disabled={isPending}
         >
-          {isPending ? "Wird gespeichert..." : "Speichern"}
+          {isPending ? common("saving") : common("save")}
         </Button>
       </div>
     </form>

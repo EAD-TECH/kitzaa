@@ -1,27 +1,27 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { ApiError } from "@/lib/api/client"
+import { useTranslations } from "next-intl"
 import { deleteEvent } from "../api/eventApi"
 
-// eventController.deletee'nin fırlattığı bilinen CustomError mesajları için kullanıcı dostu metinler.
-const DELETE_ERROR_MESSAGES: Record<string, string> = {
-  "Event not found": "Event nicht gefunden.",
+const DELETE_ERROR_KEYS: Record<string, "eventNotFound"> = {
+  "Event not found": "eventNotFound",
 }
 
 export const useDeleteEvent = () => {
+  const t = useTranslations("Events")
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: ({ id, cancelledReason }: { id: string; cancelledReason: string }) =>
       deleteEvent(id, cancelledReason),
     onError: (err) => {
-      const message = err instanceof ApiError
-        ? (DELETE_ERROR_MESSAGES[err.message] ?? "Event konnte nicht gelöscht werden. Bitte versuche es erneut.")
-        : "Event konnte nicht gelöscht werden. Bitte versuche es erneut."
+      const errorKey = err instanceof ApiError ? DELETE_ERROR_KEYS[err.message] : undefined
+      const message = errorKey ? t(errorKey) : t("cancelFailed")
       toast.error(message)
     },
     onSuccess: () => {
-      toast.success("Event wurde abgesagt.")
+      toast.success(t("cancelledToast"))
       queryClient.invalidateQueries({ queryKey: ["events", "my-events"] })
     },
   })

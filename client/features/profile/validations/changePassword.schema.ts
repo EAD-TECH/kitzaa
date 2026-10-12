@@ -3,19 +3,18 @@ import * as z from "zod";
 const PASSWORD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,64}$/;
 
-export const createChangePasswordSchema = () =>
+type Translate = (key: string) => string
+
+export const createChangePasswordSchema = (t: Translate) =>
   z
     .object({
-      currentPassword: z.string().min(6, "Aktuelles Passwort ist erforderlich"),
-      newPassword: z.string().regex(
-        PASSWORD_REGEX,
-        "Mindestens 8 Zeichen, mit Großbuchstaben, Kleinbuchstaben, einer Zahl und einem Sonderzeichen",
-      ),
-      confirmPassword: z.string().min(1, "Bitte bestätige das neue Passwort"),
+      currentPassword: z.string().min(6, t("validation.currentRequired")),
+      newPassword: z.string().regex(PASSWORD_REGEX, t("validation.passwordRules")),
+      confirmPassword: z.string().min(1, t("validation.confirmRequired")),
     })
     .strict()
     .refine((data) => data.newPassword === data.confirmPassword, {
-      message: "Die Passwörter stimmen nicht überein",
+      message: t("validation.passwordMismatch"),
       path: ["confirmPassword"],
     });
 

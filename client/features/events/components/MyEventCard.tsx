@@ -7,17 +7,18 @@ import { CalendarDays, PartyPopper, Pencil, Trash2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useLocale, useTranslations } from "next-intl"
 import { Link } from "@/i18n/navigation"
 import type { EventDTO, EventStatus } from "../types/event.types"
 import { DeleteEventDialog } from "./DeleteEventDialog"
 
-const STATUS_LABELS: Record<EventStatus, string> = {
-  pending: "Ausstehend",
-  approved: "Genehmigt",
-  rejected: "Abgelehnt",
-  cancelled: "Abgesagt",
-  completed: "Abgeschlossen",
-}
+const STATUS_KEYS = {
+  pending: "statusPending",
+  approved: "statusApproved",
+  rejected: "statusRejected",
+  cancelled: "statusCancelled",
+  completed: "statusCompleted",
+} as const satisfies Record<EventStatus, string>
 
 const STATUS_BADGE_VARIANT: Record<EventStatus, "secondary" | "default" | "destructive" | "outline"> = {
   pending: "outline",
@@ -32,9 +33,10 @@ const STATUS_BADGE_VARIANT: Record<EventStatus, "secondary" | "default" | "destr
 // ausgeblendet statt einen 400 zu riskieren.
 const MANAGEABLE_STATUSES: EventStatus[] = ["pending", "approved"]
 
-function formatEventDate(startDate: string, startTime: string) {
+function formatEventDate(startDate: string, startTime: string, locale: string, atTime: (values: { day: string; time: string }) => string) {
   const date = new Date(startDate)
-  return `${date.toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric" })}, ${startTime} Uhr`
+  const day = date.toLocaleDateString(locale, { day: "2-digit", month: "short", year: "numeric" })
+  return atTime({ day, time: startTime })
 }
 
 interface MyEventCardProps {
@@ -42,6 +44,9 @@ interface MyEventCardProps {
 }
 
 export function MyEventCard({ event }: MyEventCardProps) {
+  const t = useTranslations("Events")
+  const common = useTranslations("Common")
+  const locale = useLocale()
   const isManageable = MANAGEABLE_STATUSES.includes(event.status)
   const [deleteOpen, setDeleteOpen] = useState(false)
 
@@ -61,11 +66,11 @@ export function MyEventCard({ event }: MyEventCardProps) {
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <div className="flex items-center gap-2">
             <h3 className="truncate text-sm font-semibold text-foreground">{event.title}</h3>
-            <Badge variant={STATUS_BADGE_VARIANT[event.status]}>{STATUS_LABELS[event.status]}</Badge>
+            <Badge variant={STATUS_BADGE_VARIANT[event.status]}>{t(STATUS_KEYS[event.status])}</Badge>
           </div>
           <span className="flex items-center gap-1 text-xs text-muted-foreground">
             <CalendarDays className="size-3 shrink-0" />
-            {formatEventDate(event.schedule.startDate, event.schedule.startTime)}
+            {formatEventDate(event.schedule.startDate, event.schedule.startTime, locale, (values) => t("atTime", values))}
           </span>
         </div>
 
@@ -73,7 +78,7 @@ export function MyEventCard({ event }: MyEventCardProps) {
           {event.status === "approved" && (
             <Link href={`/events/${event.slug}`}>
               <Button variant="outline" size="sm">
-                Details
+                {t("myEventDetails")}
               </Button>
             </Link>
           )}
@@ -81,14 +86,14 @@ export function MyEventCard({ event }: MyEventCardProps) {
             <Link href={`/profile/events-bearbeiten/${event._id}`}>
               <Button size="sm">
                 <Pencil className="size-3.5" />
-                Bearbeiten
+                {t("editEvent")}
               </Button>
             </Link>
           )}
           {isManageable && (
             <Button variant="outline" size="sm" onClick={() => setDeleteOpen(true)}>
               <Trash2 className="size-3.5" />
-              Löschen
+              {t("deleteEvent")}
             </Button>
           )}
         </div>

@@ -11,32 +11,31 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
 import type { EventStatus } from "../../types/event.types"
 
 // Backend'de status client'tan değil sunucudan belirleniyor: admin → "approved",
 // diğerleri AI risk analizine göre "pending" / "approved" / "rejected". Modal metni
 // bu yüzden her zaman "onay bekliyor" demiyor, dönen gerçek duruma göre değişiyor.
-const CONTENT: Partial<Record<EventStatus, { icon: typeof Clock; iconClassName: string; title: string; description: string }>> = {
+const CONTENT_STYLE: Partial<Record<EventStatus, { icon: typeof Clock; iconClassName: string; titleKey: "createdPendingTitle" | "createdApprovedTitle" | "createdRejectedTitle"; bodyKey: "createdPendingBody" | "createdApprovedBody" | "createdRejectedBody" }>> = {
   pending: {
     icon: Clock,
     iconClassName: "bg-primary/10 text-primary",
-    title: "Dein Event wurde erstellt!",
-    description:
-      "Vielen Dank! Dein Event wird jetzt von unserem Team geprüft. Sobald es freigegeben ist, benachrichtigen wir dich und es wird für alle sichtbar.",
+    titleKey: "createdPendingTitle",
+    bodyKey: "createdPendingBody",
   },
   approved: {
     icon: CircleCheck,
     iconClassName: "bg-(--green-500)/15 text-[color-mix(in_oklch,var(--green-500),black_35%)]",
-    title: "Dein Event ist online!",
-    description: "Dein Event wurde erstellt und ist ab sofort für alle sichtbar.",
+    titleKey: "createdApprovedTitle",
+    bodyKey: "createdApprovedBody",
   },
   rejected: {
     icon: CircleAlert,
     iconClassName: "bg-destructive/10 text-destructive",
-    title: "Dein Event wurde erstellt",
-    description:
-      "Leider konnte dein Event nicht freigegeben werden. Unter „Meine Events“ kannst du es überarbeiten und erneut zur Prüfung einreichen.",
+    titleKey: "createdRejectedTitle",
+    bodyKey: "createdRejectedBody",
   },
 }
 
@@ -46,7 +45,8 @@ interface EventCreatedDialogProps {
 }
 
 export function EventCreatedDialog({ status, onClose }: EventCreatedDialogProps) {
-  const content = status ? (CONTENT[status] ?? CONTENT.pending!) : null
+  const t = useTranslations("Events")
+  const content = status ? (CONTENT_STYLE[status] ?? CONTENT_STYLE.pending!) : null
   const Icon = content?.icon
 
   return (
@@ -60,13 +60,13 @@ export function EventCreatedDialog({ status, onClose }: EventCreatedDialogProps)
               <div className={cn("mb-2 flex size-12 items-center justify-center rounded-full", content.iconClassName)}>
                 <Icon className="size-6" />
               </div>
-              <DialogTitle className="text-lg">{content.title}</DialogTitle>
-              <DialogDescription>{content.description}</DialogDescription>
+              <DialogTitle className="text-lg">{t(content.titleKey)}</DialogTitle>
+              <DialogDescription>{t(content.bodyKey)}</DialogDescription>
             </DialogHeader>
 
             <DialogFooter>
               <Button type="button" onClick={onClose} className="w-full rounded-full">
-                Zu meinen Events
+                {t("goToMyEvents")}
               </Button>
             </DialogFooter>
           </>

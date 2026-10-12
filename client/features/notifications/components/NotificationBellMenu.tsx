@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { BellIcon } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -18,10 +19,10 @@ import { useMarkAllNotificationsRead } from "@/features/notifications/hooks/useM
 import type { NotificationDTO } from "@/features/notifications/types";
 import { Button } from "@/components/ui/button";
 
-function formatNotificationTime(createdAt: string) {
+function formatNotificationTime(createdAt: string, locale: string) {
   const date = new Date(createdAt);
   if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleString("de-DE", {
+  return date.toLocaleString(locale, {
     day: "numeric",
     month: "short",
     hour: "2-digit",
@@ -36,6 +37,9 @@ function getNotificationHref(not: NotificationDTO) {
 }
 
 export function NotificationBellMenu() {
+  const t = useTranslations("Notifications");
+  const common = useTranslations("Common");
+  const locale = useLocale();
   const router = useRouter();
   // Dropdown sadece yüklenmiş sayfaları gösterir; tüm geçmiş /notifications sayfasında.
   const { notifications, isPending, isError } = useNotifications();
@@ -56,8 +60,8 @@ export function NotificationBellMenu() {
             type="button"
             aria-label={
               unreadCount > 0
-                ? `${unreadCount} ungelesene Benachrichtigungen`
-                : "Benachrichtigungen"
+                ? t("unread", { count: unreadCount })
+                : t("title")
             }
             className="relative inline-flex size-10 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
           >
@@ -75,7 +79,7 @@ export function NotificationBellMenu() {
       <DropdownMenuContent align="end" className="w-80 min-w-80 p-0">
         {/* baslık */}
         <div className="px-4 py-3 font-heading font-semibold text-sm text-foreground">
-          Benachrichtigungen
+          {t("title")}
         </div>
         <DropdownMenuSeparator />
 
@@ -83,15 +87,15 @@ export function NotificationBellMenu() {
         <div className=" max-h-80 overflow-y-auto">
           {isPending ? (
             <p className="px-4 py-4 text-center text-sm text-muted-foreground">
-              Wird geladen...
+              {common("loading")}
             </p>
           ) : isError ? (
             <p className="px-4 py-4 text-center text-sm text-destructive">
-              Benachrichtigungen konnten nicht geladen werden.
+              {t("loadFailedShort")}
             </p>
           ) : notifications.length === 0 ? (
             <p className="px-4 py-4 text-center text-sm text-muted-foreground">
-              Du hast keine Benachrichtigungen.
+              {t("emptyMenu")}
             </p>
           ) : (
             /* tüm bildirimler, l,stele */
@@ -129,7 +133,7 @@ export function NotificationBellMenu() {
                     {not.message}
                   </span>
                   <span className="mt-1 block text-[10px] text-muted-foreground">
-                    {formatNotificationTime(not.createdAt)}
+                    {formatNotificationTime(not.createdAt, locale)}
                   </span>
                 </span>
               </DropdownMenuItem>
@@ -150,7 +154,7 @@ export function NotificationBellMenu() {
               markAllAsRead(); 
             }}
           >
-            Alle als gelesen markieren
+            {t("markAllRead")}
           </DropdownMenuItem>
         </div>
       </DropdownMenuContent>

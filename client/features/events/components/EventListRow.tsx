@@ -12,15 +12,16 @@ import { cn } from "@/lib/utils"
 import type { EventDTO } from "../types/event.types"
 import { useEventsStore } from "../store/EventStore"
 import useToggleSaveEvent from "../hooks/useToggleSaveEvent"
+import { useLocale, useTranslations } from "next-intl"
 import { toast } from "sonner"
 import { useAuthStore } from "@/features/auth/store/authStore"
 import { formatAgeRanges } from "../utils/ageRange"
 
-function getDateParts(startDate: string) {
+function getDateParts(startDate: string, locale: string) {
   const date = new Date(startDate)
   return {
-    day: date.toLocaleDateString("de-DE", { day: "2-digit" }),
-    month: date.toLocaleDateString("de-DE", { month: "short" }),
+    day: date.toLocaleDateString(locale, { day: "2-digit" }),
+    month: date.toLocaleDateString(locale, { month: "short" }),
   }
 }
 
@@ -28,9 +29,9 @@ function getCategoryName(categoryId: EventDTO["categoryId"]) {
   return typeof categoryId === "string" ? null : categoryId.name
 }
 
-function getOrganizer(createdBy: EventDTO["createdBy"]) {
+function getOrganizer(createdBy: EventDTO["createdBy"], unknownName: string) {
   if (typeof createdBy === "string") {
-    return { username: "Unbekannt", avatarUrl: null as string | null, role: "user" as const }
+    return { username: unknownName, avatarUrl: null as string | null, role: "user" as const }
   }
   return createdBy
 }
@@ -40,20 +41,23 @@ interface EventListRowProps {
 }
 
 const EventListRow = ({ event }: EventListRowProps) => {
+  const t = useTranslations("Events")
+  const common = useTranslations("Common")
+  const locale = useLocale()
   const accessToken = useAuthStore((state) => state.accessToken)
   const isSaved = useEventsStore((state) => state.savedEventIds.has(event._id))
   const { mutate: toggleSave } = useToggleSaveEvent()
   const [imgError, setImgError] = useState(false)
 
-  const { day, month } = getDateParts(event.schedule.startDate)
+  const { day, month } = getDateParts(event.schedule.startDate, locale)
   const categoryName = getCategoryName(event.categoryId)
   const freeSpots = Math.max(event.capacity.max - event.capacity.current, 0)
-  const organizer = getOrganizer(event.createdBy)
+  const organizer = getOrganizer(event.createdBy, common("unknown"))
   const isOrganizer = organizer.role === "organizer"
 
   const toggleSaved = () => {
     if (!accessToken) {
-      toast.error("Bitte melde dich an, um Events zu speichern.")
+      toast.error(common("signInToSaveEvents"))
       return
     }
     toggleSave(event._id)
@@ -80,14 +84,14 @@ const EventListRow = ({ event }: EventListRowProps) => {
         )}
         <Badge className="h-5 gap-1 border-none bg-accent px-2 text-[10px] font-medium text-accent-foreground">
           <Baby className="size-2.5" />
-          {formatAgeRanges(event.ageRanges)}
+          {formatAgeRanges(event.ageRanges, t)}
         </Badge>
       </div>
 
       <button
         type="button"
         aria-pressed={isSaved}
-        aria-label={isSaved ? "Event gespeichert" : "Event speichern"}
+        aria-label={isSaved ? t("saved") : t("save")}
         onClick={toggleSaved}
         className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent transition-colors hover:bg-accent/70"
       >
@@ -105,7 +109,7 @@ const EventListRow = ({ event }: EventListRowProps) => {
           className="flex min-w-0 items-center gap-1.5 rounded-full bg-secondary/15 py-0.5 pr-2 pl-0.5 text-xs font-medium text-secondary"
         >
           {avatar}
-          <Building2 className="size-3 shrink-0" aria-label="Organisation" />
+          <Building2 className="size-3 shrink-0" aria-label={common("organization")} />
           <span className="truncate">{organizer.username}</span>
         </span>
       ) : (
@@ -113,7 +117,7 @@ const EventListRow = ({ event }: EventListRowProps) => {
           {avatar}
           <span className="truncate text-xs text-muted-foreground">
             <span title={organizer.username}>{organizer.username}</span>
-            <span className="text-muted-foreground/70"> · Privat</span>
+            <span className="text-muted-foreground/70"> · {common("private")}</span>
           </span>
         </span>
       )}
@@ -121,12 +125,12 @@ const EventListRow = ({ event }: EventListRowProps) => {
       <div className="flex shrink-0 items-center gap-3">
         <span className="flex items-center gap-1 text-xs text-muted-foreground">
           <Users className="size-3 shrink-0" />
-          {freeSpots} frei
+          {t("spotsFree", { count: freeSpots })}
         </span>
         {event.status === "approved" ? (
           <Link href={`/events/${event.slug}`}>
             <Button size="sm" className="rounded-full cursor-pointer hover:bg-primary/90">
-              Details
+              {common("details")}
             </Button>
           </Link>
         ) : (
@@ -134,9 +138,9 @@ const EventListRow = ({ event }: EventListRowProps) => {
             size="sm"
             disabled
             className="rounded-full"
-            title="Details sind erst nach Genehmigung sichtbar."
+            title={t("detailsLocked")}
           >
-            Details
+            {common("details")}
           </Button>
         )}
       </div>
