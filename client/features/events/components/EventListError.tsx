@@ -1,3 +1,6 @@
+"use client"
+
+import { useTranslations } from "next-intl"
 import { Button } from '@/components/ui/button'
 
 interface EventListErrorProps {
@@ -5,12 +8,15 @@ interface EventListErrorProps {
 }
 
 export default function EventListError({ onRetry }: EventListErrorProps) {
+  const t = useTranslations("Events")
+  const common = useTranslations("Common")
+
   return (
     <div className='mt-12 flex flex-col items-center justify-center gap-4 py-20 text-center text-muted-foreground'>
-      <p>Events konnten nicht geladen werden.</p>
+      <p>{t("loadFailed")}</p>
       {onRetry && (
         <Button variant='outline' size='sm' onClick={onRetry}>
-          Erneut versuchen
+          {common("retry")}
         </Button>
       )}
     </div>

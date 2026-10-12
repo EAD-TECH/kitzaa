@@ -1,27 +1,31 @@
 import { z } from "zod";
 
-export const createPostCommentSchema = z
-  .object({
-    postId: z.string().trim().min(1, "Post is required"),
-    text: z
-      .string()
-      .trim()
-      .min(1, "Text is required")
-      .max(1000, "Text cannot exceed 1000 characters"),
-    parentCommentId: z.string().trim().min(1).optional().nullable(),
-    mentionedUserIds: z.array(z.string().trim().min(1)).optional(),
-  })
-  .strict();
+type Translate = (key: string) => string;
 
-export const updatePostCommentSchema = z
-  .object({
-    text: z
-      .string()
-      .trim()
-      .min(1, "Text is required")
-      .max(1000, "Text cannot exceed 1000 characters"),
-  })
-  .strict();
+export const createPostCommentSchema = (t: Translate) =>
+  z
+    .object({
+      postId: z.string().trim().min(1, t("validation.postRequired")),
+      text: z
+        .string()
+        .trim()
+        .min(1, t("validation.commentTextRequired"))
+        .max(1000, t("validation.commentTextMax")),
+      parentCommentId: z.string().trim().min(1).optional().nullable(),
+      mentionedUserIds: z.array(z.string().trim().min(1)).optional(),
+    })
+    .strict();
 
-export type CreatePostCommentInput = z.infer<typeof createPostCommentSchema>;
-export type UpdatePostCommentInput = z.infer<typeof updatePostCommentSchema>;
+export const updatePostCommentSchema = (t: Translate) =>
+  z
+    .object({
+      text: z
+        .string()
+        .trim()
+        .min(1, t("validation.commentTextRequired"))
+        .max(1000, t("validation.commentTextMax")),
+    })
+    .strict();
+
+export type CreatePostCommentInput = z.infer<ReturnType<typeof createPostCommentSchema>>;
+export type UpdatePostCommentInput = z.infer<ReturnType<typeof updatePostCommentSchema>>;

@@ -1,3 +1,4 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
 import NextLink from "next/link";
 import { Calendar, PartyPopper } from "lucide-react";
@@ -12,14 +13,16 @@ function getCategoryName(categoryId: EventDTO["categoryId"]) {
   return typeof categoryId === "string" ? null : categoryId.name;
 }
 
-function formatEventDate(startDate: string) {
-  return new Date(startDate).toLocaleDateString("de-DE", {
+function formatEventDate(startDate: string, locale: string) {
+  return new Date(startDate).toLocaleDateString(locale, {
     day: "2-digit",
     month: "long",
   });
 }
 
-export function UpcomingEventCard({ event }: UpcomingEventCardProps) {
+export async function UpcomingEventCard({ event }: UpcomingEventCardProps) {
+  const t = await getTranslations("Events");
+  const locale = await getLocale();
   const categoryName = getCategoryName(event.categoryId);
 
   return (
@@ -56,10 +59,10 @@ export function UpcomingEventCard({ event }: UpcomingEventCardProps) {
       <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <Calendar className="size-3.5 shrink-0" />
-          {formatEventDate(event.schedule.startDate)}
+          {formatEventDate(event.schedule.startDate, locale)}
         </span>
         <span aria-hidden="true">·</span>
-        <span>{formatAgeRanges(event.ageRanges)}</span>
+        <span>{formatAgeRanges(event.ageRanges, t)}</span>
       </span>
     </NextLink>
   );

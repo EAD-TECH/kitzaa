@@ -1,9 +1,12 @@
+import { getTranslations } from "next-intl/server";
 import { ShieldCheck } from "lucide-react";
 
 import { Separator } from "@/components/ui/separator";
 import { ChangePasswordForm } from "@/features/profile/components/ChangePasswordForm";
 
-const SicherheitPage = () => {
+const SicherheitPage = async () => {
+  const t = await getTranslations("Profile");
+
   return (
     <div className="flex flex-col gap-6 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 tablet:flex-row tablet:items-center tablet:gap-8 tablet:p-8">
       <div className="flex w-full flex-col items-center gap-4 text-center tablet:max-w-xs tablet:shrink-0">
@@ -11,9 +14,9 @@ const SicherheitPage = () => {
           <ShieldCheck className="size-5" />
         </span>
         <div className="flex flex-col gap-1">
-          <h2 className="font-heading text-lg font-semibold text-foreground">Passwort ändern</h2>
+          <h2 className="font-heading text-lg font-semibold text-foreground">{t("securityTitle")}</h2>
           <p className="text-sm text-muted-foreground">
-            Hier kannst du dein Passwort ändern, um dein Konto besser zu schützen.
+            {t("securityBody")}
           </p>
         </div>
       </div>

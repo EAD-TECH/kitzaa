@@ -1,28 +1,25 @@
 import { z } from "zod";
 
-export const institutionSchema = z.object({
-  name: z
-    .string()
-    .min(2, "Der Name muss mindestens 2 Zeichen lang sein.")
-    .max(120, "Der Name darf höchstens 120 Zeichen lang sein."),
+type Translate = (key: string) => string;
 
-  description: z
-    .string()
-    .max(1000, "Die Beschreibung darf höchstens 1000 Zeichen lang sein.")
-    .optional(),
+export const institutionSchema = (t: Translate) =>
+  z.object({
+    name: z
+      .string()
+      .min(2, t("validation.nameMin"))
+      .max(120, t("validation.nameMax")),
 
-  phone: z.string().optional(),
+    description: z.string().max(1000, t("validation.descriptionMax")).optional(),
 
-  website: z
-    .string()
-    .url("Bitte gib eine gültige URL ein.")
-    .optional()
-    .or(z.literal("")),
+    phone: z.string().optional(),
 
-  address: z
-    .string()
-    .max(200, "Die Adresse darf höchstens 200 Zeichen lang sein.")
-    .optional(),
-});
+    website: z
+      .string()
+      .url(t("validation.urlInvalid"))
+      .optional()
+      .or(z.literal("")),
 
-export type InstitutionFormValues = z.infer<typeof institutionSchema>;
+    address: z.string().max(200, t("validation.addressMax")).optional(),
+  });
+
+export type InstitutionFormValues = z.infer<ReturnType<typeof institutionSchema>>;

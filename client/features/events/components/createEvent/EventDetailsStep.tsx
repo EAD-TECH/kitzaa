@@ -20,11 +20,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useTranslations } from "next-intl"
 import { cn, stripHtml } from "@/lib/utils"
 import type { EventCategoryDTO } from "../../types/eventCategory.types"
 import type { CreateEventFormInput } from "../../types/createEvent.types"
 import type { AgeRange } from "../../types/event.types"
-import { AGE_RANGE_OPTIONS, LOCATION_TYPE_OPTIONS, MAX_EVENT_IMAGES, MAX_EVENT_IMAGE_SIZE_MB } from "../../constants/eventFormOptions"
+import { AGE_RANGE_VALUES, LOCATION_TYPE_VALUES, MAX_EVENT_IMAGES, MAX_EVENT_IMAGE_SIZE_MB } from "../../constants/eventFormOptions"
 import { useUploadEventImages } from "../../hooks/useUploadEventImages"
 import { toast } from "sonner"
 
@@ -46,7 +47,23 @@ interface ImageItem {
 // Yüklenen görselleri form state'ine (images/coverImage) bağlar: her dosya seçildiğinde
 // önce yerel bir önizleme gösterilir, ardından UploadThing'e yüklenir; dönen URL form'un
 // "images" alanına eklenir ve ilk görsel otomatik olarak "coverImage" yapılır.
+const AGE_LABEL_KEYS = {
+  "0-3": "age0to3",
+  "4-6": "age4to6",
+  "7-10": "age7to10",
+  "10-14": "age10to14",
+  parents: "ageParents",
+  "all-ages": "ageAll",
+} as const satisfies Record<AgeRange, string>
+
+const LOCATION_LABEL_KEYS = {
+  indoor: "indoor",
+  outdoor: "outdoor",
+  online: "online",
+} as const
+
 function ImageDropzone({ form }: { form: UseFormReturn<CreateEventFormInput> }) {
+  const t = useTranslations("Events")
   // Bearbeiten-Modus'ta form zaten mevcut resim URL'leriyle dolu mount oluyor (bkz.
   // CreateEventWizard'da isLoadingEvent guard'ı) — bu yüzden başlangıç state'ini
   // form'dan türetiyoruz, aksi halde dropzone önizlemesi boş görünür.
@@ -86,19 +103,19 @@ function ImageDropzone({ form }: { form: UseFormReturn<CreateEventFormInput> }) 
     const incoming = Array.from(files)
     const freeSlots = MAX_EVENT_IMAGES - currentImages.length
     if (freeSlots <= 0) {
-      toast.error(`Du kannst maximal ${MAX_EVENT_IMAGES} Bilder hochladen.`)
+      toast.error(t("maxImages", { count: MAX_EVENT_IMAGES }))
       return
     }
 
     const accepted = incoming.slice(0, freeSlots).filter((file) => {
       const isTooLarge = file.size > MAX_EVENT_IMAGE_SIZE_MB * 1024 * 1024
       if (isTooLarge) {
-        toast.error(`"${file.name}" ist größer als ${MAX_EVENT_IMAGE_SIZE_MB}MB und wurde übersprungen.`)
+        toast.error(t("imageTooLarge", { name: file.name, size: MAX_EVENT_IMAGE_SIZE_MB }))
       }
       return !isTooLarge
     })
     if (incoming.length > freeSlots) {
-      toast.error(`Du kannst maximal ${MAX_EVENT_IMAGES} Bilder hochladen.`)
+      toast.error(t("maxImages", { count: MAX_EVENT_IMAGES }))
     }
     if (!accepted.length) return
 
@@ -156,10 +173,10 @@ function ImageDropzone({ form }: { form: UseFormReturn<CreateEventFormInput> }) 
           <ImagePlus className="size-5" />
         </span>
         <p className="text-sm font-medium text-foreground">
-          Klicke zum Hochladen oder per Drag-and-Drop verschieben
+          {t("uploadHint")}
         </p>
         <p className="text-xs text-muted-foreground">
-          PNG, JPG oder GIF (max. {MAX_EVENT_IMAGE_SIZE_MB}MB, bis zu {MAX_EVENT_IMAGES} Bilder)
+          {t("uploadLimits", { size: MAX_EVENT_IMAGE_SIZE_MB, count: MAX_EVENT_IMAGES })}
         </p>
         <input
           type="file"
@@ -183,13 +200,13 @@ function ImageDropzone({ form }: { form: UseFormReturn<CreateEventFormInput> }) 
               )}
               {item.status === "error" && (
                 <div className="absolute inset-0 flex items-center justify-center bg-destructive/20 text-xs font-medium text-destructive">
-                  Fehlgeschlagen
+                  {t("uploadFailed")}
                 </div>
               )}
               <button
                 type="button"
                 onClick={() => removeItem(item.id)}
-                aria-label="Bild entfernen"
+                aria-label={t("removeImage")}
                 className="absolute top-1 right-1 flex size-5 cursor-pointer items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm"
               >
                 <X className="size-3" />
@@ -241,6 +258,7 @@ function AgeRangeMultiSelect({
   value: AgeRange[]
   onChange: (value: AgeRange[]) => void
 }) {
+  const t = useTranslations("Events")
   const toggle = (option: AgeRange) => {
     if (value.includes(option)) {
       onChange(value.filter((v) => v !== option))
@@ -253,14 +271,14 @@ function AgeRangeMultiSelect({
 
   return (
     <div role="group" className="flex flex-wrap gap-2">
-      {AGE_RANGE_OPTIONS.map((option) => {
-        const isSelected = value.includes(option.value)
+      {AGE_RANGE_VALUES.map((option) => {
+        const isSelected = value.includes(option)
         return (
           <button
-            key={option.value}
+            key={option}
             type="button"
             aria-pressed={isSelected}
-            onClick={() => toggle(option.value)}
+            onClick={() => toggle(option)}
             className={cn(
               "cursor-pointer rounded-4xl border px-4 py-1.5 text-sm font-medium transition-colors",
               isSelected
@@ -268,7 +286,7 @@ function AgeRangeMultiSelect({
                 : "border-border bg-background text-muted-foreground hover:text-foreground"
             )}
           >
-            {option.label}
+            {t(AGE_LABEL_KEYS[option])}
           </button>
         )
       })}
@@ -277,6 +295,11 @@ function AgeRangeMultiSelect({
 }
 
 export function EventDetailsStep({ form, categories }: EventDetailsStepProps) {
+  const t = useTranslations("Events")
+  const locationOptions = LOCATION_TYPE_VALUES.map((value) => ({
+    value,
+    label: t(LOCATION_LABEL_KEYS[value]),
+  }))
   const description = form.watch("description") ?? ""
   // Select (Base UI) seçili değerin etiketini <SelectItem> çocuklarından otomatik çıkarmıyor —
   // <SelectValue>'nun "Kreativität" gibi ismi gösterebilmesi için id->isim haritasını ayrıca vermek gerekiyor.
@@ -289,11 +312,11 @@ export function EventDetailsStep({ form, categories }: EventDetailsStepProps) {
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Event-Titel *</FormLabel>
+            <FormLabel>{t("eventTitle")}</FormLabel>
             <FormControl>
               <Input
                 className="bg-background"
-                placeholder="z.B. Töpfer-Workshop am Samstagmorgen"
+                placeholder={t("eventTitlePlaceholder")}
                 spellCheck={false}
                 {...field}
               />
@@ -309,7 +332,7 @@ export function EventDetailsStep({ form, categories }: EventDetailsStepProps) {
           name="categoryId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Kategorie *</FormLabel>
+              <FormLabel>{t("category")}</FormLabel>
               <Select
                 value={field.value}
                 onValueChange={field.onChange}
@@ -317,7 +340,7 @@ export function EventDetailsStep({ form, categories }: EventDetailsStepProps) {
               >
                 <FormControl>
                   <SelectTrigger className="w-full bg-background focus-visible:ring-[0.5px] focus-visible:ring-ring/20">
-                    <SelectValue placeholder="Kategorie auswählen" />
+                    <SelectValue placeholder={t("selectCategory")} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -340,9 +363,9 @@ export function EventDetailsStep({ form, categories }: EventDetailsStepProps) {
           name="locationType"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Event-Ort *</FormLabel>
+              <FormLabel>{t("eventPlace")}</FormLabel>
               <FormControl>
-                <SegmentedField options={LOCATION_TYPE_OPTIONS} value={field.value} onChange={field.onChange} />
+                <SegmentedField options={locationOptions} value={field.value} onChange={field.onChange} />
               </FormControl>
               <div className="min-h-4">
                 <FormMessage />
@@ -357,8 +380,8 @@ export function EventDetailsStep({ form, categories }: EventDetailsStepProps) {
         name="ageRanges"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Altersgruppen *</FormLabel>
-            <p className="text-xs text-muted-foreground">Mehrfachauswahl möglich</p>
+            <FormLabel>{t("ageGroups")}</FormLabel>
+            <p className="text-xs text-muted-foreground">{t("multiSelect")}</p>
             <FormControl>
               <AgeRangeMultiSelect value={field.value ?? []} onChange={field.onChange} />
             </FormControl>
@@ -373,7 +396,7 @@ export function EventDetailsStep({ form, categories }: EventDetailsStepProps) {
         render={({ field }) => (
           <FormItem>
             <div className="flex items-baseline justify-between">
-              <FormLabel>Beschreibung *</FormLabel>
+              <FormLabel>{t("description")}</FormLabel>
               <span className="text-xs text-muted-foreground">
                 {stripHtml(description).length}/{MAX_DESCRIPTION_LENGTH}
               </span>
@@ -382,7 +405,7 @@ export function EventDetailsStep({ form, categories }: EventDetailsStepProps) {
               <RichTextEditor
                 value={field.value}
                 onChange={field.onChange}
-                placeholder="Beschreibe, was Familien bei dieser Aktivität erwarten können. Besondere Bedürfnisse oder mitzubringende Dinge erwähnen."
+                placeholder={t("descriptionPlaceholder")}
                 maxLength={MAX_DESCRIPTION_LENGTH}
               />
             </FormControl>
@@ -392,7 +415,7 @@ export function EventDetailsStep({ form, categories }: EventDetailsStepProps) {
       />
 
       <FormItem>
-        <FormLabel>Titelbild & weitere Fotos</FormLabel>
+        <FormLabel>{t("photos")}</FormLabel>
         <ImageDropzone form={form} />
       </FormItem>
     </div>

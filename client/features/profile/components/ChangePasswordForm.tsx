@@ -9,11 +9,13 @@ import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { createChangePasswordSchema } from "../validations/changePassword.schema";
 import { useChangePassword } from "../hooks/useChangePassword";
+import { useTranslations } from "next-intl";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 
-const formSchema = createChangePasswordSchema();
-
 export function ChangePasswordForm() {
+  const t = useTranslations("Profile");
+  const common = useTranslations("Common");
+  const formSchema = createChangePasswordSchema(t);
   const { data: currentUser } = useCurrentUser();
 
   const userId = currentUser?._id;
@@ -58,7 +60,7 @@ export function ChangePasswordForm() {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="current-password">Aktuelles Passwort</FieldLabel>
+              <FieldLabel htmlFor="current-password">{t("currentPassword")}</FieldLabel>
               <div className="relative">
                 <Input
                   {...field}
@@ -66,7 +68,7 @@ export function ChangePasswordForm() {
                   id="current-password"
                   className="pr-9"
                   aria-invalid={fieldState.invalid}
-                  placeholder="Aktuelles Passwort eingeben"
+                  placeholder={t("currentPasswordPlaceholder")}
                   autoComplete="off"
                 />
                 <button
@@ -86,7 +88,7 @@ export function ChangePasswordForm() {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="new-password">Neues Passwort</FieldLabel>
+              <FieldLabel htmlFor="new-password">{t("newPassword")}</FieldLabel>
               <div className="relative">
                 <Input
                   {...field}
@@ -94,7 +96,7 @@ export function ChangePasswordForm() {
                   id="new-password"
                   className="pr-9"
                   aria-invalid={fieldState.invalid}
-                  placeholder="Neues Passwort eingeben"
+                  placeholder={t("newPasswordPlaceholder")}
                   autoComplete="off"
                 />
                 <button
@@ -117,7 +119,7 @@ export function ChangePasswordForm() {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="confirm-password">Neues Passwort bestätigen</FieldLabel>
+              <FieldLabel htmlFor="confirm-password">{t("confirmPassword")}</FieldLabel>
               <div className="relative">
                 <Input
                   {...field}
@@ -125,7 +127,7 @@ export function ChangePasswordForm() {
                   id="confirm-password"
                   className="pr-9"
                   aria-invalid={fieldState.invalid}
-                  placeholder="Neues Passwort bestätigen"
+                  placeholder={t("confirmPasswordPlaceholder")}
                   autoComplete="off"
                 />
                 <button
@@ -145,10 +147,10 @@ export function ChangePasswordForm() {
 
       <Field orientation="horizontal" className="flex-wrap justify-end">
         <Button type="button" variant="outline" onClick={() => form.reset()}>
-          Abbrechen
+          {common("cancel")}
         </Button>
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Wird gespeichert..." : "Passwort ändern"}
+          {isPending ? common("saving") : t("changePassword")}
         </Button>
       </Field>
     </form>

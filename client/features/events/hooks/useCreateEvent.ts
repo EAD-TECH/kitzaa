@@ -2,22 +2,22 @@ import { useMutation } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { ApiError } from "@/lib/api/client"
 import { createEvent } from "../api/eventApi"
+import { useTranslations } from "next-intl"
 import { useTrackActions } from "@/features/socket/hooks/useTrackActions"
 
-// eventController.create'in fırlattığı bilinen CustomError mesajları için kullanıcı dostu metinler.
-const CREATE_ERROR_MESSAGES: Record<string, string> = {
-  "You must be an organizer to create paid events.": "Du musst Organisator sein, um kostenpflichtige Events zu erstellen.",
+const CREATE_ERROR_KEYS: Record<string, "paidOrganizerOnly"> = {
+  "You must be an organizer to create paid events.": "paidOrganizerOnly",
 }
 
 export const useCreateEvent = () => {
+  const t = useTranslations("Events")
   const { handleTrackActions } = useTrackActions()
 
   return useMutation({
     mutationFn: createEvent,
     onError: (err) => {
-      const message = err instanceof ApiError
-        ? (CREATE_ERROR_MESSAGES[err.message] ?? "Event konnte nicht erstellt werden. Bitte versuche es erneut.")
-        : "Event konnte nicht erstellt werden. Bitte versuche es erneut."
+      const errorKey = err instanceof ApiError ? CREATE_ERROR_KEYS[err.message] : undefined
+      const message = errorKey ? t(errorKey) : t("createFailed")
       toast.error(message)
     },
     onSuccess: (data) => {

@@ -11,6 +11,7 @@ import EventListErrorBoundary from '@/features/events/components/EventListErrorB
 import EventListSkeleton from '@/features/events/components/EventListSkeleton'
 import FilterSidebarSkeleton from '@/features/events/components/filterSidebar/FilterSidebarSkeleton'
 import ScrollToTopButton from '@/features/events/components/ScrollToTopButton'
+import { getTranslations } from 'next-intl/server'
 
 interface EventsPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>
@@ -19,6 +20,7 @@ interface EventsPageProps {
 const EventsPage = async ({ searchParams }: EventsPageProps) => {
 
   const params = await searchParams
+  const t = await getTranslations("Events")
 
   return (
     <div className='grid desktop:grid-cols-[280px_1fr_300px] gap-y-10 desktop:gap-y-8 gap-x-10 desktop:gap-x-14 px-6 tablet:px-20 desktop:px-10 mt-10 mx-auto'>
@@ -51,7 +53,7 @@ const EventsPage = async ({ searchParams }: EventsPageProps) => {
             <div className='mb-6 flex items-center gap-3 text-muted-foreground '>
               <span className='h-px flex-1 bg-border' />
               <span className='font-heading text-xs font-medium tracking-wide'>
-                NICHTS GEFUNDEN?
+                {t("nothingFound")}
               </span>
               <span className='h-px flex-1 bg-border' />
             </div>

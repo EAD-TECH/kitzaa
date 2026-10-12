@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { AlertCircle, RefreshCw } from "lucide-react";
 
 import { Link } from "@/i18n/navigation";
@@ -16,6 +17,8 @@ interface PostDetailViewProps {
 }
 
 export default function PostDetailView({ postId }: PostDetailViewProps) {
+  const t = useTranslations("Social");
+  const common = useTranslations("Common");
   const { data, error, isLoading, isError, refetch } = usePostById(postId);
 
   if (isLoading) {
@@ -53,23 +56,23 @@ export default function PostDetailView({ postId }: PostDetailViewProps) {
           <div className="space-y-4">
             <div>
               <AlertTitle>
-                {isNotFound ? "Beitrag nicht gefunden" : "Beitrag konnte nicht geladen werden"}
+                {isNotFound ? t("postMissingTitle") : t("postLoadFailed")}
               </AlertTitle>
               <AlertDescription>
                 {isNotFound
-                  ? "Der Beitrag wurde gelöscht oder ist nicht mehr verfügbar."
-                  : "Bitte versuche es erneut oder kehre zum Social Feed zurück."}
+                  ? t("postMissingBody")
+                  : t("postLoadFailedBody")}
               </AlertDescription>
             </div>
             <div className="flex flex-wrap gap-2">
               {!isNotFound ? (
                 <Button type="button" variant="outline" size="sm" onClick={() => refetch()}>
                   <RefreshCw />
-                  Erneut versuchen
+                  {common("retry")}
                 </Button>
               ) : null}
               <Button nativeButton={false} render={<Link href="/social" />} size="sm">
-                Zum Social Feed
+                {t("backToFeed")}
               </Button>
             </div>
           </div>

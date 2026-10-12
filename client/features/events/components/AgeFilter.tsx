@@ -3,19 +3,20 @@
 import React from 'react'
 import type { AgeRange } from '../types/event.types';
 import { useQueryParams } from '../hooks/useQueryParams';
+import { useTranslations } from "next-intl"
 import { cn } from '@/lib/utils';
 
 
-const AGE_RANGES: { value: AgeRange; label: string }[] = [
-  { value: "0-3", label: "0-3 Jahre" },
-  { value: "4-6", label: "4-6 Jahre" },
-  { value: "7-10", label: "7-10 Jahre" },
-  { value: "10-14", label: "10-14 Jahre" },
-  { value: "parents", label: "Für Eltern" },
+const AGE_RANGES: { value: AgeRange; labelKey: "age0to3" | "age4to6" | "age7to10" | "age10to14" | "ageParents" }[] = [
+  { value: "0-3", labelKey: "age0to3" },
+  { value: "4-6", labelKey: "age4to6" },
+  { value: "7-10", labelKey: "age7to10" },
+  { value: "10-14", labelKey: "age10to14" },
+  { value: "parents", labelKey: "ageParents" },
 ]
 
 const AgeFilter = () => {
-
+  const t = useTranslations("Events")
   const { getParam, setParam } = useQueryParams()
   const selected = getParam("ageRange")
 
@@ -28,10 +29,10 @@ const AgeFilter = () => {
           selected === null && 'bg-secondary text-secondary-foreground',
         )}
       >
-        Alle Alter
+        {t("ageAll")}
       </button>
 
-      {AGE_RANGES.map(({ value, label }) => (
+      {AGE_RANGES.map(({ value, labelKey }) => (
         <button
           key={value}
           onClick={() => setParam("ageRange", selected === value ? null : value)}
@@ -40,7 +41,7 @@ const AgeFilter = () => {
             selected === value && 'bg-secondary text-secondary-foreground',
           )}
         >
-          {label}
+          {t(labelKey)}
         </button>
       ))}
     </div>

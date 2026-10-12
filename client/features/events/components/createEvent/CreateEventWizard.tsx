@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 import { ArrowLeftIcon, ArrowRightIcon, CalendarClock, CheckIcon, Loader2, PenLine, Wallet, X } from "lucide-react"
 
@@ -33,11 +34,6 @@ import { EventScheduleStep } from "./EventScheduleStep"
 import { EventPricingStep } from "./EventPricingStep"
 import { EventCreatedDialog } from "./EventCreatedDialog"
 
-const STEPS: CreateEventStepMeta[] = [
-  { id: 1, label: "Details", title: "Event-Details" },
-  { id: 2, label: "Zeitplan", title: "Zeitplan & Ort" },
-  { id: 3, label: "Preise", title: "Preise & Kapazität festlegen" },
-]
 
 const STEP_ICONS = { 1: PenLine, 2: CalendarClock, 3: Wallet } as const
 
@@ -136,6 +132,13 @@ interface CreateEventWizardProps {
 }
 
 export function CreateEventWizard({ categories, eventId }: CreateEventWizardProps) {
+  const t = useTranslations("Events")
+  const common = useTranslations("Common")
+  const steps: CreateEventStepMeta[] = [
+    { id: 1, label: t("stepDetails"), title: t("stepDetailsTitle") },
+    { id: 2, label: t("stepSchedule"), title: t("stepScheduleTitle") },
+    { id: 3, label: t("stepPricing"), title: t("stepPricingTitle") },
+  ]
   const isEditMode = !!eventId
   const [currentStep, setCurrentStep] = useState(1)
   // Event oluşturulunca backend'in döndürdüğü status; null değilse başarı modalı açık.
@@ -147,7 +150,7 @@ export function CreateEventWizard({ categories, eventId }: CreateEventWizardProp
   const isPending = isCreating || isUpdating
 
   const form = useForm<CreateEventFormInput, unknown, CreateEventFormValues>({
-    resolver: zodResolver(isEditMode ? editEventSchema : createEventSchema),
+    resolver: zodResolver(isEditMode ? editEventSchema(t) : createEventSchema(t)),
     mode: "onSubmit",
     defaultValues: DEFAULT_VALUES,
   })
@@ -173,7 +176,7 @@ export function CreateEventWizard({ categories, eventId }: CreateEventWizardProp
         { id: eventId, payload: data },
         {
           onSuccess: () => {
-            toast.success("Änderungen wurden gespeichert.")
+            toast.success(t("changesSaved"))
             router.push("/profile/meine-events")
           },
         }
@@ -188,7 +191,7 @@ export function CreateEventWizard({ categories, eventId }: CreateEventWizardProp
 
   const goToMyEvents = () => router.push("/profile/meine-events")
 
-  const activeStepMeta = STEPS[currentStep - 1]
+  const activeStepMeta = steps[currentStep - 1]
   const ActiveIcon = STEP_ICONS[currentStep as 1 | 2 | 3]
 
   if (isEditMode && isLoadingEvent) {
@@ -207,12 +210,12 @@ export function CreateEventWizard({ categories, eventId }: CreateEventWizardProp
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="font-heading text-2xl font-bold text-foreground tablet:text-3xl">
-            {isEditMode ? "Aktivität bearbeiten" : "Eine Aktivität hosten"}
+            {isEditMode ? t("editTitle") : t("hostTitle")}
           </h1>
           <p className="mt-1 max-w-md text-sm text-muted-foreground">
             {isEditMode
-              ? "Passe die Details deiner Aktivität an. Wurde sie bereits genehmigt, wird sie nach dem Speichern erneut geprüft."
-              : "Erstelle eine Aktivität für Kinder und Familien in deiner Nähe – von Ausflug bis Workshop. In wenigen Schritten fertig."}
+              ? t("editSubtitle")
+              : t("hostSubtitle")}
           </p>
         </div>
 
@@ -220,7 +223,7 @@ export function CreateEventWizard({ categories, eventId }: CreateEventWizardProp
           <Button
             variant="ghost"
             size="icon-sm"
-            render={<Link href="/profile" aria-label="Schließen" />}
+            render={<Link href="/profile" aria-label={common("close")} />}
             nativeButton={false}
           >
             <X className="size-4" />
@@ -230,13 +233,13 @@ export function CreateEventWizard({ categories, eventId }: CreateEventWizardProp
 
       <Stepper value={currentStep} onValueChange={setCurrentStep} indicators={{ completed: <CheckIcon className="size-3.5" /> }}>
         <StepperNav>
-          {STEPS.map((step, index) => (
+          {steps.map((step, index) => (
             <StepperItem key={step.id} step={step.id} completed={step.id < currentStep}>
               <StepperTrigger className="flex-col gap-2">
                 <StepperIndicator>{step.id}</StepperIndicator>
                 <StepperTitle className="hidden text-xs tablet:block">{step.label}</StepperTitle>
               </StepperTrigger>
-              {index < STEPS.length - 1 && <StepperSeparator />}
+              {index < steps.length - 1 && <StepperSeparator />}
             </StepperItem>
           ))}
         </StepperNav>
@@ -268,16 +271,16 @@ export function CreateEventWizard({ categories, eventId }: CreateEventWizardProp
               )}
             >
               <ArrowLeftIcon className="size-4" />
-              Zurück
+              {t("back")}
             </Button>
 
-            {currentStep < STEPS.length ? (
+            {currentStep < steps.length ? (
               <Button
                 type="button"
                 onClick={goToNextStep}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
-                Nächster Schritt
+                {t("next")}
                 <ArrowRightIcon className="size-4" />
               </Button>
             ) : (
@@ -290,8 +293,8 @@ export function CreateEventWizard({ categories, eventId }: CreateEventWizardProp
               >
                 <CheckIcon className="size-4" />
                 {isEditMode
-                  ? isPending ? "Wird gespeichert…" : "Änderungen speichern"
-                  : isPending ? "Wird veröffentlicht…" : "Event veröffentlichen"}
+                  ? isPending ? t("savingChanges") : t("saveChanges")
+                  : isPending ? t("publishing") : t("publish")}
               </Button>
             )}
           </div>

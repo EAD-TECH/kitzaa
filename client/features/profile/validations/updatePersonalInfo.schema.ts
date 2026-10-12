@@ -15,64 +15,57 @@ const optionalLocationText = (tooShort: string, tooLong: string) =>
     .transform((value) => (value.length === 0 ? undefined : value))
     .optional();
 
-export const updatePersonalInfoSchema = () =>
+type Translate = (key: string) => string
+
+export const updatePersonalInfoSchema = (t: Translate) =>
   z
     .object({
       username: z
         .string()
         .trim()
-        .min(2, "Der Benutzername muss mindestens 2 Zeichen lang sein.")
-        .max(50, "Der Benutzername darf höchstens 50 Zeichen lang sein."),
+        .min(2, t("validation.usernameMin"))
+        .max(50, t("validation.usernameMax")),
 
       firstName: z
         .string()
         .trim()
-        .min(2, "Der Vorname muss mindestens 2 Zeichen lang sein.")
-        .max(50, "Der Vorname darf höchstens 50 Zeichen lang sein."),
+        .min(2, t("validation.firstNameMin"))
+        .max(50, t("validation.firstNameMax")),
 
       lastName: z
         .string()
         .trim()
-        .min(2, "Der Nachname muss mindestens 2 Zeichen lang sein.")
-        .max(50, "Der Nachname darf höchstens 50 Zeichen lang sein."),
+        .min(2, t("validation.lastNameMin"))
+        .max(50, t("validation.lastNameMax")),
 
       email: z
         .string()
         .trim()
         .toLowerCase()
-        .regex(EMAIL_REGEX, "Bitte gib eine gültige E-Mail-Adresse ein."),
+        .regex(EMAIL_REGEX, t("validation.emailInvalid")),
 
       language: z.enum(["de", "en"], {
-        error: "Bitte wähle eine Sprache.",
+        error: t("validation.languageRequired"),
       }),
 
       location: z.object({
-        state: optionalLocationText(
-          "Das Bundesland muss mindestens 2 Zeichen lang sein.",
-          "Das Bundesland darf höchstens 50 Zeichen lang sein.",
-        ),
+        state: optionalLocationText(t("validation.stateMin"), t("validation.stateMax")),
 
         city: z
           .string()
           .trim()
-          .min(2, "Die Stadt muss mindestens 2 Zeichen lang sein.")
-          .max(50, "Die Stadt darf höchstens 50 Zeichen lang sein."),
+          .min(2, t("validation.cityMin"))
+          .max(50, t("validation.cityMax")),
 
-        district: optionalLocationText(
-          "Der Stadtteil muss mindestens 2 Zeichen lang sein.",
-          "Der Stadtteil darf höchstens 50 Zeichen lang sein.",
-        ),
+        district: optionalLocationText(t("validation.districtMin"), t("validation.districtMax")),
 
-        zipCode: z
-          .string()
-          .trim()
-          .regex(ZIP_CODE_REGEX, "Bitte gib eine gültige deutsche Postleitzahl ein (5 Ziffern)."),
+        zipCode: z.string().trim().regex(ZIP_CODE_REGEX, t("validation.zipInvalid")),
 
         country: z
           .string()
           .trim()
-          .min(2, "Das Land muss mindestens 2 Zeichen lang sein.")
-          .max(50, "Das Land darf höchstens 50 Zeichen lang sein."),
+          .min(2, t("validation.countryMin"))
+          .max(50, t("validation.countryMax")),
       }),
     })
     .strict();

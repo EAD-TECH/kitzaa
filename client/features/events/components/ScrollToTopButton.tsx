@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { ArrowUp } from "lucide-react"
 
+import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -13,6 +14,7 @@ interface ScrollToTopButtonProps {
 }
 
 const ScrollToTopButton = ({ scrollContainerId }: ScrollToTopButtonProps) => {
+  const t = useTranslations("Events")
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
@@ -44,7 +46,7 @@ const ScrollToTopButton = ({ scrollContainerId }: ScrollToTopButtonProps) => {
       type="button"
       size="icon"
       onClick={scrollToTop}
-      aria-label="Nach oben scrollen"
+      aria-label={t("scrollToTop")}
       className={cn(
         "fixed right-6 bottom-24 z-40 rounded-full shadow-lg transition-all duration-300",
         visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"

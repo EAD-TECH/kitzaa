@@ -2,10 +2,12 @@ import type { FieldPath } from "react-hook-form"
 import type { z } from "zod"
 import type { createEventSchema } from "../validations/event.schema"
 
+type CreateEventSchema = ReturnType<typeof createEventSchema>
+
 // Zod .default() alanları yüzünden input (form'a girilen ham veri) ve output (parse
 // sonrası) tipleri farklı — react-hook-form'un state'i input tipini yansıtmalı,
 // zodResolver'ın 3. generic'i (TTransformedValues) onSubmit'e output tipini verir.
-export type CreateEventFormInput = z.input<typeof createEventSchema>
+export type CreateEventFormInput = z.input<CreateEventSchema>
 
 export type CreateEventFieldName = FieldPath<CreateEventFormInput>
 

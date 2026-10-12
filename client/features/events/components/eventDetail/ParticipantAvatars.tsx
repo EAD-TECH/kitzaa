@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server"
 import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { EventDTO } from "../../types/event.types"
@@ -8,7 +9,8 @@ interface ParticipantAvatarsProps {
   event: EventDTO
 }
 
-const ParticipantAvatars = ({ event }: ParticipantAvatarsProps) => {
+const ParticipantAvatars = async ({ event }: ParticipantAvatarsProps) => {
+  const t = await getTranslations("Events")
   const participants = event.participantsPreview
   const visible = participants.slice(0, MAX_VISIBLE_AVATARS)
   const remaining = participants.length - visible.length
@@ -16,11 +18,11 @@ const ParticipantAvatars = ({ event }: ParticipantAvatarsProps) => {
   return (
     <div className="order-2 flex flex-col gap-4 rounded-2xl bg-card p-5 ring-1 ring-foreground/10 desktop:order-3">
       <h2 className="font-heading text-base font-semibold text-foreground">
-        Teilnehmer
+        {t("participants")}
       </h2>
 
       {participants.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Noch keine Teilnehmer</p>
+        <p className="text-sm text-muted-foreground">{t("noParticipants")}</p>
       ) : (
         <AvatarGroup>
           {visible.map((participant) => (

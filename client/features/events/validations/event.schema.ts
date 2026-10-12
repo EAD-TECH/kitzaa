@@ -1,127 +1,130 @@
 import { z } from "zod"
 import { stripHtml } from "@/lib/utils"
 
+type Translate = (key: string) => string
+
 const ageRangeSchema = z.enum(["0-3", "4-6", "7-10", "10-14", "parents", "all-ages"])
 
-// Backend'deki ageRangesSchema ile aynı kurallar: en az bir grup, tekrar yok,
-// "all-ages" tek başına seçilmeli.
-const ageRangesSchema = z
-  .array(ageRangeSchema)
-  .min(1, "Bitte wähle mindestens eine Altersgruppe")
-  .refine((v) => new Set(v).size === v.length, "Altersgruppen dürfen nicht doppelt vorkommen")
-  .refine(
-    (v) => !v.includes("all-ages") || v.length === 1,
-    '"Alle Alter" kann nicht mit anderen Altersgruppen kombiniert werden'
+function createEventSchemas(t: Translate) {
+  // Backend'deki ageRangesSchema ile aynı kurallar: en az bir grup, tekrar yok,
+  // "all-ages" tek başına seçilmeli.
+  const ageRangesSchema = z
+    .array(ageRangeSchema)
+    .min(1, t("validation.ageRangeRequired"))
+    .refine((v) => new Set(v).size === v.length, t("validation.ageRangeDuplicate"))
+    .refine(
+      (v) => !v.includes("all-ages") || v.length === 1,
+      t("validation.ageRangeAllAges")
+    )
+
+  const priceSchema = z.object({
+    amount: z.number().min(0),
+    currency: z.string().trim().min(1).default("EUR"),
+  })
+
+  const scheduleSchema = z
+    .object({
+      startDate: z.coerce.date(),
+      endDate: z.coerce.date().optional().nullable(),
+      startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, t("validation.invalidTime")),
+      endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, t("validation.invalidTime")),
+      isRecurring: z.boolean().optional().default(false),
+      recurrenceRule: z.string().optional().nullable(),
+    })
+    .refine((data) => !data.endDate || data.startDate <= data.endDate, {
+      message: t("validation.endBeforeStart"),
+      path: ["endDate"],
+    })
+
+  // Nur beim Erstellen erzwungen — beim Bearbeiten muss ein bereits gestartetes/vergangenes,
+  // aber weiterhin genehmigtes Event editierbar bleiben (z.B. Titel/Preis korrigieren), ohne
+  // das Datum zwangsweise in die Zukunft verschieben zu müssen.
+  const futureScheduleSchema = scheduleSchema.refine(
+    (data) => data.startDate >= new Date(new Date().setHours(0, 0, 0, 0)),
+    { message: t("validation.startInPast"), path: ["startDate"] }
   )
 
-const priceSchema = z.object({
-  amount: z.number().min(0),
-  currency: z.string().trim().min(1).default("EUR"),
-})
-
-const scheduleSchema = z
-  .object({
-    startDate: z.coerce.date(),
-    endDate: z.coerce.date().optional().nullable(),
-    startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Ungültiges Zeitformat (HH:mm)"),
-    endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Ungültiges Zeitformat (HH:mm)"),
-    isRecurring: z.boolean().optional().default(false),
-    recurrenceRule: z.string().optional().nullable(),
+  // Not: coordinates'i burda GeoJSON'a transform ETMİYORUZ — backend {lat,lng} bekliyor
+  // ve kendi transform'unu kendisi yapıyor. Burada transform edersek backend'in
+  // beklediği şekil bozulur.
+  const locationSchema = z.object({
+    venueName: z.string().trim().optional().nullable(),
+    addressLine: z.string().trim().min(1, t("validation.addressRequired")),
+    city: z.string().trim().min(1, t("validation.cityRequired")),
+    state: z.string().trim().optional().nullable(),
+    zipCode: z
+      .string()
+      .regex(/^\d{5}$/, t("validation.zipInvalid"))
+      .optional()
+      .nullable(),
+    country: z.string().trim().default("DE"),
+    // Form state'inde null olabilir (adres henüz geocode edilmedi / bulunamadı), ama
+    // submit'te null'a izin vermiyoruz. transform + z.NEVER output tipini de {lat,lng}'ye
+    // daraltıyor — şekil aynı kalıyor, yani yukarıdaki "GeoJSON'a çevirmiyoruz" kuralı bozulmuyor.
+    coordinates: z
+      .object({
+        lat: z.number().min(-90).max(90),
+        lng: z.number().min(-180).max(180),
+      })
+      .nullable()
+      .transform((value, ctx) => {
+        if (!value) {
+          ctx.addIssue({
+            code: "custom",
+            message: t("validation.locationUnresolved"),
+          })
+          return z.NEVER
+        }
+        return value
+      }),
   })
-  .refine((data) => !data.endDate || data.startDate <= data.endDate, {
-    message: "Startdatum darf nicht nach dem Enddatum liegen",
-    path: ["endDate"],
+
+  const capacitySchema = z.object({
+    max: z.number().int().min(1, t("validation.capacityMin")),
   })
 
-// Nur beim Erstellen erzwungen — beim Bearbeiten muss ein bereits gestartetes/vergangenes,
-// aber weiterhin genehmigtes Event editierbar bleiben (z.B. Titel/Preis korrigieren), ohne
-// das Datum zwangsweise in die Zukunft verschieben zu müssen.
-const futureScheduleSchema = scheduleSchema.refine(
-  (data) => data.startDate >= new Date(new Date().setHours(0, 0, 0, 0)),
-  { message: "Startdatum darf nicht in der Vergangenheit liegen", path: ["startDate"] }
-)
+  const baseEventSchema = z.object({
+    title: z.string().trim().min(1, t("validation.titleRequired")).max(100),
+    // Beschreibung kommt als HTML aus dem Rich-Text-Editor — Länge/Leer-Prüfung läuft auf
+    // dem sichtbaren Text (stripHtml), nicht auf dem rohen Markup-String.
+    description: z
+      .string()
+      .refine((html) => stripHtml(html).trim().length > 0, t("validation.descriptionRequired"))
+      .refine((html) => stripHtml(html).length <= 2000, t("validation.descriptionMax")),
+    coverImage: z.string().url().optional().nullable(),
+    images: z.array(z.string().url()).optional().default([]),
+    categoryId: z.string().min(1, t("validation.categoryRequired")),
+    locationType: z.enum(["indoor", "outdoor", "online"]),
+    ageRanges: ageRangesSchema,
+    isFree: z.boolean(),
+    price: priceSchema.optional().nullable(),
+    schedule: scheduleSchema,
+    location: locationSchema,
+    capacity: capacitySchema,
+  })
 
-// Not: coordinates'i burda GeoJSON'a transform ETMİYORUZ — backend {lat,lng} bekliyor
-// ve kendi transform'unu kendisi yapıyor. Burada transform edersek backend'in
-// beklediği şekil bozulur.
-const locationSchema = z.object({
-  venueName: z.string().trim().optional().nullable(),
-  addressLine: z.string().trim().min(1, "Adresse ist erforderlich"),
-  city: z.string().trim().min(1, "Stadt ist erforderlich"),
-  state: z.string().trim().optional().nullable(),
-  zipCode: z
-    .string()
-    .regex(/^\d{5}$/, "Bitte gib eine gültige Postleitzahl ein (5 Ziffern)")
-    .optional()
-    .nullable(),
-  country: z.string().trim().default("DE"),
-  // Form state'inde null olabilir (adres henüz geocode edilmedi / bulunamadı), ama
-  // submit'te null'a izin vermiyoruz. transform + z.NEVER output tipini de {lat,lng}'ye
-  // daraltıyor — şekil aynı kalıyor, yani yukarıdaki "GeoJSON'a çevirmiyoruz" kuralı bozulmuyor.
-  coordinates: z
-    .object({
-      lat: z.number().min(-90).max(90),
-      lng: z.number().min(-180).max(180),
-    })
-    .nullable()
-    .transform((value, ctx) => {
-      if (!value) {
-        ctx.addIssue({
-          code: "custom",
-          message: "Der Standort konnte nicht ermittelt werden. Bitte prüfe die Stadt.",
-        })
-        return z.NEVER
-      }
-      return value
+  const paidEvent = (data: { isFree: boolean; price?: { amount: number } | null }) =>
+    data.isFree || !!data.price
+
+  return {
+    create: baseEventSchema
+      .extend({ schedule: futureScheduleSchema })
+      .strict()
+      .refine(paidEvent, {
+        message: t("validation.priceRequired"),
+        path: ["price"],
+      }),
+    edit: baseEventSchema.strict().refine(paidEvent, {
+      message: t("validation.priceRequired"),
+      path: ["price"],
     }),
-})
+    update: baseEventSchema.partial().strict(),
+  }
+}
 
-const capacitySchema = z.object({
-  max: z.number().int().min(1, "Kapazität muss mindestens 1 sein"),
-})
+export const createEventSchema = (t: Translate) => createEventSchemas(t).create
+export const editEventSchema = (t: Translate) => createEventSchemas(t).edit
+export const updateEventSchema = (t: Translate) => createEventSchemas(t).update
 
-const baseEventSchema = z.object({
-  title: z.string().trim().min(1, "Titel ist erforderlich").max(100),
-  // Beschreibung kommt als HTML aus dem Rich-Text-Editor — Länge/Leer-Prüfung läuft auf
-  // dem sichtbaren Text (stripHtml), nicht auf dem rohen Markup-String.
-  description: z
-    .string()
-    .refine((html) => stripHtml(html).trim().length > 0, "Beschreibung ist erforderlich")
-    .refine((html) => stripHtml(html).length <= 2000, "Beschreibung darf maximal 2000 Zeichen haben"),
-  coverImage: z.string().url().optional().nullable(),
-  images: z.array(z.string().url()).optional().default([]),
-  categoryId: z.string().min(1, "Kategorie ist erforderlich"),
-  locationType: z.enum(["indoor", "outdoor", "online"]),
-  ageRanges: ageRangesSchema,
-  isFree: z.boolean(),
-  price: priceSchema.optional().nullable(),
-  schedule: scheduleSchema,
-  location: locationSchema,
-  capacity: capacitySchema,
-})
-
-// CREATE SCHEMA
-
-export const createEventSchema = baseEventSchema
-  .extend({ schedule: futureScheduleSchema })
-  .strict()
-  .refine((data) => data.isFree || !!data.price, {
-    message: "Für kostenpflichtige Events ist ein Preis erforderlich",
-    path: ["price"],
-  })
-
-// UPDATE SCHEMA
-
-export const updateEventSchema = baseEventSchema.partial().strict()
-
-// EDIT-WIZARD SCHEMA — wie createEventSchema (alle Felder Pflicht), aber ohne die
-// "Startdatum nicht in der Vergangenheit"-Regel (siehe futureScheduleSchema-Kommentar oben).
-export const editEventSchema = baseEventSchema
-  .strict()
-  .refine((data) => data.isFree || !!data.price, {
-    message: "Für kostenpflichtige Events ist ein Preis erforderlich",
-    path: ["price"],
-  })
-
-export type CreateEventFormValues = z.infer<typeof createEventSchema>
-export type UpdateEventFormValues = z.infer<typeof updateEventSchema>
+export type CreateEventFormValues = z.infer<ReturnType<typeof createEventSchema>>
+export type UpdateEventFormValues = z.infer<ReturnType<typeof updateEventSchema>>
