@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { MessageSquare } from "lucide-react"
 
 import { Skeleton } from "@/components/ui/skeleton"
@@ -9,6 +10,8 @@ import { MyPostCard } from "@/features/social/components/MyPostCard"
 import { useMyPosts } from "@/features/social/hooks/socialHooks"
 
 const MeineBeitraegePage = () => {
+  const t = useTranslations("Profile")
+  const social = useTranslations("Social")
   const { posts, isLoading, isError, hasNextPage, isFetchingNextPage, fetchNextPage } = useMyPosts()
 
   if (isLoading) {
@@ -24,7 +27,7 @@ const MeineBeitraegePage = () => {
   if (isError) {
     return (
       <div className="mt-12 flex items-center justify-center py-20 text-center text-muted-foreground">
-        <p>Beiträge konnten nicht geladen werden.</p>
+        <p>{social("errorTitle")}</p>
       </div>
     )
   }
@@ -33,8 +36,8 @@ const MeineBeitraegePage = () => {
     return (
       <ProfileEmptyState
         icon={MessageSquare}
-        title="Noch keine Beiträge"
-        description="Deine geteilten Beiträge erscheinen hier, sobald du einen veröffentlichst."
+        title={t("emptyPostsTitle")}
+        description={t("emptyPostsBody")}
       />
     )
   }

@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { PartyPopper } from "lucide-react"
 
 import { Skeleton } from "@/components/ui/skeleton"
@@ -10,6 +11,7 @@ import { MyEventCard } from "@/features/events/components/MyEventCard"
 import { useMyEvents } from "@/features/events/hooks/useMyEvents"
 
 const MeineEventsPage = () => {
+  const t = useTranslations("Profile")
   const { events, isLoading, isError, hasNextPage, isFetchingNextPage, fetchNextPage } = useMyEvents()
 
   if (isLoading) {
@@ -30,8 +32,8 @@ const MeineEventsPage = () => {
     return (
       <ProfileEmptyState
         icon={PartyPopper}
-        title="Noch keine Events erstellt"
-        description="Deine selbst erstellten Events erscheinen hier, sobald du eines veröffentlichst."
+        title={t("emptyCreatedTitle")}
+        description={t("emptyCreatedBody")}
       />
     )
   }

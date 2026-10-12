@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { ApiError } from "@/lib/api/client";
@@ -24,20 +25,21 @@ export function useMyInstitution() {
 }
 
 export function useUpdateMyInstitution() {
+  const t = useTranslations("Institution");
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (payload: UpdateInstitutionPayload) => updateMyInstitution(payload),
 
     onSuccess: () => {
-      toast.success("Institution wurde gespeichert.");
+      toast.success(t("saved"));
       queryClient.invalidateQueries({
         queryKey: INSTITUTION_QUERY_KEY,
       });
     },
 
     onError: () => {
-       toast.error("Institution konnte nicht gespeichert werden.");
+       toast.error(t("saveFailed"));
     },
   });
 }

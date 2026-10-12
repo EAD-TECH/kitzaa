@@ -1,46 +1,49 @@
 import { Baby, CalendarDays, Clock, Euro } from "lucide-react"
+import { getLocale, getTranslations } from "next-intl/server"
 
 import type { EventDTO } from "../../types/event.types"
 import { formatAgeRanges } from "../../utils/ageRange"
 
-function formatDate(startDate: string) {
-  return new Date(startDate).toLocaleDateString("de-DE", {
+function formatDate(startDate: string, locale: string) {
+  return new Date(startDate).toLocaleDateString(locale, {
     day: "2-digit",
     month: "short",
     year: "numeric",
   })
 }
 
-function formatPrice(event: EventDTO) {
-  if (event.isFree || !event.price) return "Kostenlos"
-  return `${event.price.amount} ${event.price.currency}`
-}
-
 interface EventInfoProps {
   event: EventDTO
 }
 
-const EventInfo = ({ event }: EventInfoProps) => {
+const EventInfo = async ({ event }: EventInfoProps) => {
+  const t = await getTranslations("Events")
+  const common = await getTranslations("Common")
+  const locale = await getLocale()
+  const priceLabel = event.isFree || !event.price
+    ? common("free")
+    : `${event.price.amount} ${event.price.currency}`
+
   const items = [
     {
       icon: CalendarDays,
-      label: "Datum",
-      value: formatDate(event.schedule.startDate),
+      label: t("date"),
+      value: formatDate(event.schedule.startDate, locale),
     },
     {
       icon: Clock,
-      label: "Uhrzeit",
+      label: t("time"),
       value: `${event.schedule.startTime} - ${event.schedule.endTime}`,
     },
     {
       icon: Baby,
-      label: "Alter",
-      value: formatAgeRanges(event.ageRanges),
+      label: t("age"),
+      value: formatAgeRanges(event.ageRanges, t),
     },
     {
       icon: Euro,
-      label: "Preis",
-      value: formatPrice(event),
+      label: t("price"),
+      value: priceLabel,
     },
   ]
 

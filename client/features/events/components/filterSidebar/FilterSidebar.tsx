@@ -6,19 +6,21 @@ import OrganisatorFilter from './OrganisatorFilter'
 import { DateRangeFilter } from './DateRangeFilter'
 import LocationFilter from './LocationFilter'
 import { getCategoriesServer } from '../../api/categoryApi.server'
+import { getTranslations } from 'next-intl/server'
 
 
 
 const FilterSidebar = async () => {
 
     const { categories } = await getCategoriesServer()
+    const t = await getTranslations("Events")
 
     return (
 
         <aside className="flex w-full max-w-xs flex-col gap-8 rounded-lg  bg-sidebar p-7 text-sidebar-foreground">
             <p className='flex items-center gap-2 border-b border-border/60 pb-4 font-heading text-2xl font-semibold'>
                 <SlidersHorizontal className="size-5 text-primary" />
-                Filter
+                {t("filter")}
             </p>
             <CategoryFilter categories={categories} />
             <LocationTypeFilter />

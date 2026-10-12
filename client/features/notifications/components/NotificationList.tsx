@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNotifications } from "@/features/notifications/hooks/useNotifications";
 import { cn } from "@/lib/utils";
+import { useLocale, useTranslations } from "next-intl";
 import { AlertCircle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,10 +16,13 @@ import type { NotificationDTO } from "@/features/notifications/types";
 
 const pageShell = "mx-auto max-w-2xl px-4 py-8";
 
-function formatNotificationTime(createdAt: string) {
+/* bunu bıryere bagladm daha */
+
+function formatNotificationTime(createdAt: string, locale: string) {
+
   const date = new Date(createdAt);
   if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleString("de-DE", {
+  return date.toLocaleString(locale, {
     day: "numeric",
     month: "short",
     hour: "2-digit",
@@ -33,6 +37,9 @@ function getNotificationHref(not: NotificationDTO) {
 }
 
 export default function NotificationList() {
+  const t = useTranslations("Notifications");
+  const common = useTranslations("Common");
+  const locale = useLocale();
   const router = useRouter();
   const { mutate: markAsRead } = useMarkNotificationRead();
   const { notifications, isPending, isError, hasNextPage, isFetchingNextPage, fetchNextPage } =
@@ -60,12 +67,12 @@ export default function NotificationList() {
   if (isError)
     return (
       <div className={pageShell}>
-        <h1 className="font-heading mb-6 text-2xl">Benachrichtigungen</h1>
+        <h1 className="font-heading mb-6 text-2xl">{t("title")}</h1>
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Fehler</AlertTitle>
+          <AlertTitle>{common("error")}</AlertTitle>
           <AlertDescription>
-            Benachrichtigungen konnten nicht geladen werden. Bitte versuche es später erneut.
+            {t("loadFailed")}
           </AlertDescription>
         </Alert>
       </div>
@@ -74,16 +81,16 @@ export default function NotificationList() {
   if (!notifications.length)
     return (
       <div className={pageShell}>
-        <h1 className="font-heading mb-6 text-2xl">Benachrichtigungen</h1>
+        <h1 className="font-heading mb-6 text-2xl">{t("title")}</h1>
         <p className="font-body text-center text-sm text-muted-foreground">
-          Keine Benachrichtigungen.
+          {t("empty")}
         </p>
       </div>
     );
 
   return (
     <div className={pageShell}>
-      <h1 className="font-heading mb-6 text-2xl">Benachrichtigungen</h1>
+      <h1 className="font-heading mb-6 text-2xl">{t("title")}</h1>
       <ul className="overflow-hidden rounded-xl border border-border bg-background">
         <li>
           <div className="flex items-center gap-3 bg-amber-200 px-3 py-2">
@@ -145,7 +152,7 @@ export default function NotificationList() {
                 dateTime={not.createdAt}
                 suppressHydrationWarning
               >
-                {formatNotificationTime(not.createdAt)}
+                {formatNotificationTime(not.createdAt, locale)}
               </time>
             </div>
 

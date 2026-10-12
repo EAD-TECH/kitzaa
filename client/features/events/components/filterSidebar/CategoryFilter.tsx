@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { Tag } from 'lucide-react'
 import { FilterCheckboxGroup } from './FilterCheckBoxGroup'
 import type { EventCategoryDTO } from '../../types/eventCategory.types'
+import { useTranslations } from "next-intl"
 import { useQueryParams } from '../../hooks/useQueryParams'
 
 interface CategoryFilterProps {
@@ -11,7 +12,7 @@ interface CategoryFilterProps {
 }
 
 const CategoryFilter = ({ categories }: CategoryFilterProps) => {
-
+  const t = useTranslations("Events")
   const options = categories.map((c) => ({ label: c.name, value: c.slug }))
 
   const { getAll, setParam } = useQueryParams()
@@ -24,7 +25,7 @@ const CategoryFilter = ({ categories }: CategoryFilterProps) => {
     <div>
       <FilterCheckboxGroup
         name='category'
-        title='KATEGORIEN'
+        title={t("categories")}
         icon={<Tag className="size-3.5" />}
         options={options}
         selected={selected}

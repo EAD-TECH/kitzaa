@@ -8,10 +8,11 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group"
 import { useEffect, useState } from "react"
+import { useTranslations } from "next-intl"
 import { useQueryParams } from "../hooks/useQueryParams"
 
 export function EventSearch() {
-
+  const t = useTranslations("Events")
   const { getParam, setParam } = useQueryParams()
   const [value, setValue] = useState(() => getParam("search") ?? "")
 
@@ -29,7 +30,7 @@ export function EventSearch() {
   return (
     <InputGroup className="min-w-0 flex-1 tablet:max-w-md bg-background shadow-2xs">
       <InputGroupInput
-        placeholder="Suche nach Events, Workshops..."
+        placeholder={t("searchPlaceholder")}
         value={value}
         onChange={(e) => setValue(e.target.value)}
       />

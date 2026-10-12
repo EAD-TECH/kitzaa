@@ -1,7 +1,7 @@
 "use client"
 
 import type { UseFormReturn } from "react-hook-form"
-import { de } from "date-fns/locale"
+import { de, enUS } from "date-fns/locale"
 import { format } from "date-fns"
 import { AlertCircle, CalendarIcon, Loader2, MapPin } from "lucide-react"
 
@@ -23,9 +23,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useLocale, useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
 import type { CreateEventFormInput } from "../../types/createEvent.types"
-import { RECURRENCE_OPTIONS } from "../../constants/eventFormOptions"
+import { RECURRENCE_VALUES } from "../../constants/eventFormOptions"
 import { useAddressCoordinates, type GeocodeStatus } from "../../hooks/useAddressCoordinates"
 
 interface EventScheduleStepProps {
@@ -43,11 +44,12 @@ function toDateOrUndefined(value: unknown): Date | undefined {
 // location.coordinates için ayrı bir input yok, bu yüzden <FormMessage /> hatayı kendiliğinden
 // göstermiyor — geocoding durumu ve submit hatası burada gösteriliyor.
 function GeocodeHint({ status, error }: { status: GeocodeStatus; error?: string }) {
+  const t = useTranslations("Events")
   if (status === "loading") {
     return (
       <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <Loader2 className="size-3.5 animate-spin" />
-        Standort wird ermittelt…
+        {t("locating")}
       </p>
     )
   }
@@ -56,16 +58,16 @@ function GeocodeHint({ status, error }: { status: GeocodeStatus; error?: string 
     return (
       <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <MapPin className="size-3.5" />
-        Standort gefunden
+        {t("locationFound")}
       </p>
     )
   }
 
   const message =
     status === "not-found"
-      ? "Wir konnten diese Stadt nicht finden. Bitte prüfe die Schreibweise."
+      ? t("cityNotFound")
       : status === "failed"
-        ? "Der Standort konnte gerade nicht ermittelt werden. Bitte versuche es in einem Moment erneut."
+        ? t("locationLookupFailed")
         : error
 
   if (!message) return null
@@ -79,6 +81,13 @@ function GeocodeHint({ status, error }: { status: GeocodeStatus; error?: string 
 }
 
 export function EventScheduleStep({ form }: EventScheduleStepProps) {
+  const t = useTranslations("Events")
+  const locale = useLocale()
+  const calendarLocale = locale === "en" ? enUS : de
+  const recurrenceOptions = RECURRENCE_VALUES.map((value) => ({
+    value,
+    label: t(value),
+  }))
   const isRecurring = form.watch("schedule.isRecurring")
   const geocodeStatus = useAddressCoordinates(form)
   const coordinatesError = form.formState.errors.location?.coordinates?.message
@@ -86,7 +95,7 @@ export function EventScheduleStep({ form }: EventScheduleStepProps) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4">
-        <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Wann</h3>
+        <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">{t("when")}</h3>
 
         <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
           <FormField
@@ -94,7 +103,7 @@ export function EventScheduleStep({ form }: EventScheduleStepProps) {
             name="schedule.startDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Startdatum *</FormLabel>
+                <FormLabel>{t("startDate")}</FormLabel>
                 <Popover>
                   <PopoverTrigger
                     render={
@@ -109,7 +118,7 @@ export function EventScheduleStep({ form }: EventScheduleStepProps) {
                           <CalendarIcon className="size-4 shrink-0" />
                           {toDateOrUndefined(field.value)
                             ? format(toDateOrUndefined(field.value)!, "dd.MM.yyyy")
-                            : "TT.MM.JJJJ"}
+                            : t("datePlaceholder")}
                         </button>
                       </FormControl>
                     }
@@ -117,7 +126,7 @@ export function EventScheduleStep({ form }: EventScheduleStepProps) {
                   <PopoverContent align="start" className="w-auto p-0">
                     <Calendar
                       mode="single"
-                      locale={de}
+                      locale={calendarLocale}
                       selected={toDateOrUndefined(field.value)}
                       onSelect={(date) => date && field.onChange(date)}
                       disabled={{ before: new Date() }}
@@ -136,7 +145,7 @@ export function EventScheduleStep({ form }: EventScheduleStepProps) {
             name="schedule.endDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Enddatum</FormLabel>
+                <FormLabel>{t("endDate")}</FormLabel>
                 <Popover>
                   <PopoverTrigger
                     render={
@@ -151,7 +160,7 @@ export function EventScheduleStep({ form }: EventScheduleStepProps) {
                           <CalendarIcon className="size-4 shrink-0" />
                           {toDateOrUndefined(field.value)
                             ? format(toDateOrUndefined(field.value)!, "dd.MM.yyyy")
-                            : "TT.MM.JJJJ"}
+                            : t("datePlaceholder")}
                         </button>
                       </FormControl>
                     }
@@ -159,7 +168,7 @@ export function EventScheduleStep({ form }: EventScheduleStepProps) {
                   <PopoverContent align="start" className="w-auto p-0">
                     <Calendar
                       mode="single"
-                      locale={de}
+                      locale={calendarLocale}
                       selected={toDateOrUndefined(field.value)}
                       onSelect={(date) => field.onChange(date ?? null)}
                       disabled={{ before: new Date() }}
@@ -180,7 +189,7 @@ export function EventScheduleStep({ form }: EventScheduleStepProps) {
             name="schedule.startTime"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Startzeit *</FormLabel>
+                <FormLabel>{t("startTime")}</FormLabel>
                 <FormControl>
                   <Input type="time" className="bg-background" {...field} />
                 </FormControl>
@@ -196,7 +205,7 @@ export function EventScheduleStep({ form }: EventScheduleStepProps) {
             name="schedule.endTime"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Endzeit *</FormLabel>
+                <FormLabel>{t("endTime")}</FormLabel>
                 <FormControl>
                   <Input type="time" className="bg-background" {...field} />
                 </FormControl>
@@ -215,8 +224,8 @@ export function EventScheduleStep({ form }: EventScheduleStepProps) {
             <FormItem>
               <div className="flex items-center justify-between gap-4 rounded-2xl bg-accent/50 px-4 py-3">
                 <div className="flex flex-col gap-0.5">
-                  <FormLabel className="text-sm font-medium">Wiederkehrendes Event</FormLabel>
-                  <p className="text-xs text-muted-foreground">Wiederholt sich wöchentlich oder monatlich</p>
+                  <FormLabel className="text-sm font-medium">{t("recurring")}</FormLabel>
+                  <p className="text-xs text-muted-foreground">{t("recurringHint")}</p>
                 </div>
                 <FormControl>
                   <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -232,15 +241,15 @@ export function EventScheduleStep({ form }: EventScheduleStepProps) {
             name="schedule.recurrenceRule"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Wiederholung</FormLabel>
+                <FormLabel>{t("recurrence")}</FormLabel>
                 <Select value={field.value ?? undefined} onValueChange={field.onChange}>
                   <FormControl>
                     <SelectTrigger className="w-full bg-background focus-visible:ring-[0.5px] focus-visible:ring-ring/20">
-                      <SelectValue placeholder="Wiederholungsrhythmus wählen" />
+                      <SelectValue placeholder={t("selectRecurrence")} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {RECURRENCE_OPTIONS.map((option) => (
+                    {recurrenceOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
@@ -255,18 +264,18 @@ export function EventScheduleStep({ form }: EventScheduleStepProps) {
       </div>
 
       <div className="flex flex-col gap-4 border-t border-border pt-5">
-        <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Wo</h3>
+        <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">{t("where")}</h3>
 
         <FormField
           control={form.control}
           name="location.venueName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name des Veranstaltungsortes (Optional)</FormLabel>
+              <FormLabel>{t("venueName")}</FormLabel>
               <FormControl>
                 <Input
                   className="bg-background"
-                  placeholder="z.B. Gemeinschaftshaus"
+                  placeholder={t("venuePlaceholder")}
                   spellCheck={false}
                   {...field}
                   value={field.value ?? ""}
@@ -282,11 +291,11 @@ export function EventScheduleStep({ form }: EventScheduleStepProps) {
           name="location.addressLine"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Adresse *</FormLabel>
+              <FormLabel>{t("address")}</FormLabel>
               <FormControl>
                 <Input
                   className="bg-background"
-                  placeholder="Straße und Hausnummer"
+                  placeholder={t("addressPlaceholder")}
                   spellCheck={false}
                   {...field}
                 />
@@ -302,11 +311,11 @@ export function EventScheduleStep({ form }: EventScheduleStepProps) {
             name="location.city"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Stadt *</FormLabel>
+                <FormLabel>{t("city")}</FormLabel>
                 <FormControl>
                   <Input
                     className="bg-background"
-                    placeholder="Stadt"
+                    placeholder={t("cityPlaceholder")}
                     spellCheck={false}
                     {...field}
                   />
@@ -323,11 +332,11 @@ export function EventScheduleStep({ form }: EventScheduleStepProps) {
             name="location.zipCode"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Postleitzahl *</FormLabel>
+                <FormLabel>{t("zip")}</FormLabel>
                 <FormControl>
                   <Input
                     className="bg-background"
-                    placeholder="12345"
+                    placeholder={t("zipPlaceholder")}
                     spellCheck={false}
                     {...field}
                     value={field.value ?? ""}
@@ -348,11 +357,11 @@ export function EventScheduleStep({ form }: EventScheduleStepProps) {
           name="location.state"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Bundesland (Optional)</FormLabel>
+              <FormLabel>{t("state")}</FormLabel>
               <FormControl>
                 <Input
                   className="bg-background"
-                  placeholder="z.B. Baden-Württemberg"
+                  placeholder={t("statePlaceholder")}
                   spellCheck={false}
                   {...field}
                   value={field.value ?? ""}

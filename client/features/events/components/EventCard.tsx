@@ -19,11 +19,18 @@ import type { EventDTO } from "../types/event.types"
 import { formatAgeRanges } from "../utils/ageRange"
 import { useEventsStore } from "../store/EventStore"
 import useToggleSaveEvent from "../hooks/useToggleSaveEvent"
+import { useLocale, useTranslations } from "next-intl"
 import { toast } from "sonner"
 import { useAuthStore } from "@/features/auth/store/authStore"
 import Link from "next/link"
 
-function formatEventDate(startDate: string, startTime: string) {
+type EventCopy = {
+  today: string
+  tomorrow: string
+  atTime: (values: { day: string; time: string }) => string
+}
+
+function formatEventDate(startDate: string, startTime: string, locale: string, copy: EventCopy) {
   const date = new Date(startDate)
   const today = new Date()
   const tomorrow = new Date(today)
@@ -32,29 +39,29 @@ function formatEventDate(startDate: string, startTime: string) {
   const isSameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString()
 
   const day = isSameDay(date, today)
-    ? "Heute"
+    ? copy.today
     : isSameDay(date, tomorrow)
-      ? "Morgen"
-      : date.toLocaleDateString("de-DE", { day: "2-digit", month: "short" })
+      ? copy.tomorrow
+      : date.toLocaleDateString(locale, { day: "2-digit", month: "short" })
 
-  return `${day}, ${startTime} Uhr`
+  return copy.atTime({ day, time: startTime })
 }
 
-const STATUS_LABELS: Record<EventDTO["status"], string> = {
-  pending: "Ausstehend",
-  approved: "Genehmigt",
-  rejected: "Abgelehnt",
-  cancelled: "Storniert",
-  completed: "Abgeschlossen",
-}
+const STATUS_KEYS = {
+  pending: "statusPending",
+  approved: "statusApproved",
+  rejected: "statusRejected",
+  cancelled: "statusCancelled",
+  completed: "statusCompleted",
+} as const satisfies Record<EventDTO["status"], string>
 
 function getCategoryName(categoryId: EventDTO["categoryId"]) {
   return typeof categoryId === "string" ? null : categoryId.name
 }
 
-function getOrganizer(createdBy: EventDTO["createdBy"]) {
+function getOrganizer(createdBy: EventDTO["createdBy"], unknownName: string) {
   if (typeof createdBy === "string") {
-    return { username: "Unbekannt", avatarUrl: null as string | null, role: "user" as const }
+    return { username: unknownName, avatarUrl: null as string | null, role: "user" as const }
   }
   return createdBy
 }
@@ -67,6 +74,9 @@ interface EventCardProps {
 }
 
 const EventCard = ({ event, className, variant = "public", onDelete }: EventCardProps) => {
+  const t = useTranslations("Events")
+  const common = useTranslations("Common")
+  const locale = useLocale()
 
   const accessToken = useAuthStore((state) => state.accessToken)
 
@@ -76,13 +86,13 @@ const EventCard = ({ event, className, variant = "public", onDelete }: EventCard
   const categoryName = getCategoryName(event.categoryId)
   const freeSpots = Math.max(event.capacity.max - event.capacity.current, 0)
 
-  const organizer = getOrganizer(event.createdBy)
+  const organizer = getOrganizer(event.createdBy, common("unknown"))
   const isOrganizer = organizer.role === "organizer"
 
   const toggleSaved = () => {
 
     if (!accessToken) {
-      toast.error("Bitte melde dich an, um Events zu speichern.")
+      toast.error(common("signInToSaveEvents"))
       return
     }
     toggleSave(event._id)
@@ -124,7 +134,7 @@ const EventCard = ({ event, className, variant = "public", onDelete }: EventCard
           )}
           {variant === "owner" && event.status !== "approved" && (
             <Badge className="h-4 border-none bg-background/90 px-1.5 text-[10px] font-medium text-destructive shadow-sm">
-              {STATUS_LABELS[event.status]}
+              {t(STATUS_KEYS[event.status])}
             </Badge>
           )}
         </div>
@@ -135,7 +145,7 @@ const EventCard = ({ event, className, variant = "public", onDelete }: EventCard
               render={
                 <button
                   type="button"
-                  aria-label="Event-Optionen"
+                  aria-label={t("eventOptions")}
                   className="absolute top-2 right-2 flex size-6 cursor-pointer items-center justify-center rounded-full bg-background/90 shadow-sm transition-colors hover:bg-background"
                 />
               }
@@ -145,11 +155,11 @@ const EventCard = ({ event, className, variant = "public", onDelete }: EventCard
             <DropdownMenuContent align="end">
               <DropdownMenuItem render={<Link href={`/profile/events-bearbeiten/${event._id}`} />}>
                 <Pencil />
-                Bearbeiten
+                {common("edit")}
               </DropdownMenuItem>
               <DropdownMenuItem variant="destructive" onClick={onDelete}>
                 <Trash2 />
-                Löschen
+                {common("delete")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -157,7 +167,7 @@ const EventCard = ({ event, className, variant = "public", onDelete }: EventCard
           <button
             type="button"
             aria-pressed={isSaved}
-            aria-label={isSaved ? "Event gespeichert" : "Event speichern"}
+            aria-label={isSaved ? t("saved") : t("save")}
             onClick={toggleSaved}
             className="absolute top-2 right-2 flex size-6 cursor-pointer items-center justify-center rounded-full bg-background/90 shadow-sm transition-colors hover:bg-background"
           >
@@ -171,12 +181,16 @@ const EventCard = ({ event, className, variant = "public", onDelete }: EventCard
           <span className="flex min-w-0 items-center gap-1">
             <CalendarDays className="size-3 shrink-0" />
             <span className="truncate">
-              {formatEventDate(event.schedule.startDate, event.schedule.startTime)}
+              {formatEventDate(event.schedule.startDate, event.schedule.startTime, locale, {
+                today: common("today"),
+                tomorrow: common("tomorrow"),
+                atTime: (values) => t("atTime", values),
+              })}
             </span>
           </span>
           <span className="flex shrink-0 items-center gap-1 rounded-full bg-accent px-1.5 py-0.5 text-foreground">
             <Baby className="size-3 shrink-0" />
-            {formatAgeRanges(event.ageRanges)}
+            {formatAgeRanges(event.ageRanges, t)}
           </span>
         </div>
 
@@ -204,7 +218,7 @@ const EventCard = ({ event, className, variant = "public", onDelete }: EventCard
               className="flex min-w-0 items-center gap-1.5 rounded-full bg-secondary/15 py-0.5 pr-2 pl-0.5 text-xs font-medium text-secondary"
             >
               {avatar}
-              <Building2 className="size-3 shrink-0" aria-label="Organisation" />
+              <Building2 className="size-3 shrink-0" aria-label={common("organization")} />
               <span className="truncate">{organizer.username}</span>
             </span>
           ) : (
@@ -212,14 +226,14 @@ const EventCard = ({ event, className, variant = "public", onDelete }: EventCard
               {avatar}
               <span className="truncate text-xs text-muted-foreground">
                 <span title={organizer.username}>{organizer.username}</span>
-                <span className="text-muted-foreground/70"> · Privat</span>
+                <span className="text-muted-foreground/70"> · {common("private")}</span>
               </span>
             </span>
           )}
           {event.status === "approved" ? (
             <Link href={`/events/${event.slug}`}>
               <Button size="xs" className="shrink-0 rounded-full cursor-pointer hover:bg-primary/90">
-                Details
+                {common("details")}
               </Button>
             </Link>
           ) : (
@@ -227,9 +241,9 @@ const EventCard = ({ event, className, variant = "public", onDelete }: EventCard
               size="xs"
               disabled
               className="shrink-0 rounded-full"
-              title="Details sind erst nach Genehmigung sichtbar."
+              title={t("detailsLocked")}
             >
-              Details
+              {common("details")}
             </Button>
           )}
 

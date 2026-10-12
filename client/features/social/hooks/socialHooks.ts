@@ -7,6 +7,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { ApiError } from "@/lib/api/client";
@@ -43,14 +44,13 @@ const COMMENT_DELETE_ERROR_MESSAGES: Record<string, string> = {};
 
 // Backend CustomError.message → kullanıcıya gösterilen Almanca metin.
 // Key'ler sunucudaki string ile birebir aynı olmalı (isOwnerOrAdmin + comment deletee).
-const POST_DELETE_ERROR_MESSAGES: Record<string, string> = {
-  "You do not have permission to perform this action.":
-    "Du darfst diesen Beitrag nicht löschen.",
-  "Post not found": "Beitrag wurde nicht gefunden.",
-  "Resource not found": "Beitrag wurde nicht gefunden.",
-  "Invalid resource id.": "Ungültige Beitrags-ID.",
-  "Invalid id.": "Ungültige Beitrags-ID.",
-};
+const POST_DELETE_ERROR_KEYS = {
+  "You do not have permission to perform this action.": "deleteNotAllowed",
+  "Post not found": "postNotFound",
+  "Resource not found": "postNotFound",
+  "Invalid resource id.": "invalidPostId",
+  "Invalid id.": "invalidPostId",
+} as const;
 
 export const usePosts = ({
   city,
@@ -114,20 +114,21 @@ export function usePostById(postId: string) {
 }
 
 export const useDeletePost = () => {
+  const t = useTranslations("Social");
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (postId: string) => deleteSocialPost(postId),
     onError: (error) => {
-      const message =
+      const errorKey =
         error instanceof ApiError
-          ? (POST_DELETE_ERROR_MESSAGES[error.message] ??
-            "Post konnte nicht gelöscht werden. Bitte versuche es erneut.")
-          : "Post konnte nicht gelöscht werden. Bitte versuche es erneut.";
+          ? POST_DELETE_ERROR_KEYS[error.message as keyof typeof POST_DELETE_ERROR_KEYS]
+          : undefined;
+      const message = errorKey ? t(errorKey) : t("deletePostFailed");
       toast.error(message);
     },
     onSuccess: (_response, postId) => {
-      toast.success("Post erfolgreich gelöscht.");
+      toast.success(t("postDeleted"));
       queryClient.invalidateQueries({
         queryKey: ["social-post", postId],
       });
@@ -155,6 +156,7 @@ export function usePostComments(postId: string) {
 }
 
 export const useCreatePost = () => {
+  const t = useTranslations("Social");
   const queryClient = useQueryClient();
   const { handleTrackActions } = useTrackActions();
 
@@ -163,13 +165,12 @@ export const useCreatePost = () => {
     onError: (error) => {
       const message =
         error instanceof ApiError
-          ? (POST_CREATE_ERROR_MESSAGES[error.message] ??
-            "Beitrag konnte nicht erstellt werden. Bitte versuche es erneut.")
-          : "Beitrag konnte nicht erstellt werden. Bitte versuche es erneut.";
+          ? (POST_CREATE_ERROR_MESSAGES[error.message] ?? t("createPostFailed"))
+          : t("createPostFailed");
       toast.error(message);
     },
     onSuccess: (response) => {
-      toast.success("Beitrag erfolgreich erstellt.");
+      toast.success(t("postCreated"));
       queryClient.invalidateQueries({ queryKey: ["social-posts"] });
 
       const user = queryClient.getQueryData<{
@@ -189,6 +190,7 @@ export const useCreatePost = () => {
 };
 
 export const useUpdatePost = () => {
+  const t = useTranslations("Social");
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -197,13 +199,12 @@ export const useUpdatePost = () => {
     onError: (error) => {
       const message =
         error instanceof ApiError
-          ? (POST_UPDATE_ERROR_MESSAGES[error.message] ??
-            "Beitrag konnte nicht aktualisiert werden. Bitte versuche es erneut.")
-          : "Beitrag konnte nicht aktualisiert werden. Bitte versuche es erneut.";
+          ? (POST_UPDATE_ERROR_MESSAGES[error.message] ?? t("updatePostFailed"))
+          : t("updatePostFailed");
       toast.error(message);
     },
     onSuccess: (_response, variables) => {
-      toast.success("Beitrag erfolgreich aktualisiert.");
+      toast.success(t("postUpdated"));
       queryClient.invalidateQueries({ queryKey: ["social-posts"] });
       queryClient.invalidateQueries({
         queryKey: ["social-post", variables.id],
@@ -213,6 +214,7 @@ export const useUpdatePost = () => {
 };
 
 export const useDeletePostComment = () => {
+  const t = useTranslations("Social");
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -226,13 +228,12 @@ export const useDeletePostComment = () => {
     onError: (error) => {
       const message =
         error instanceof ApiError
-          ? (COMMENT_DELETE_ERROR_MESSAGES[error.message] ??
-            "Kommentar konnte nicht gelöscht werden. Bitte versuche es erneut.")
-          : "Kommentar konnte nicht gelöscht werden. Bitte versuche es erneut.";
+          ? (COMMENT_DELETE_ERROR_MESSAGES[error.message] ?? t("deleteCommentFailed"))
+          : t("deleteCommentFailed");
       toast.error(message);
     },
     onSuccess: (_response, variablesId) => {
-      toast.success("Kommentar erfolgreich gelöscht.");
+      toast.success(t("commentDeleted"));
       queryClient.invalidateQueries({
         queryKey: ["social-post-comments", variablesId.postId],
       });
@@ -245,6 +246,7 @@ export const useDeletePostComment = () => {
 };
 
 export const useCreatePostComment = () => {
+  const t = useTranslations("Social");
   const queryClient = useQueryClient();
   const { handleTrackActions } = useTrackActions();
 
@@ -254,13 +256,12 @@ export const useCreatePostComment = () => {
     onError: (error) => {
       const message =
         error instanceof ApiError
-          ? (COMMENT_CREATE_ERROR_MESSAGES[error.message] ??
-            "Kommentar konnte nicht erstellt werden. Bitte versuche es erneut.")
-          : "Kommentar konnte nicht erstellt werden. Bitte versuche es erneut.";
+          ? (COMMENT_CREATE_ERROR_MESSAGES[error.message] ?? t("createCommentFailed"))
+          : t("createCommentFailed");
       toast.error(message);
     },
     onSuccess: (_response, submittedComment) => {
-      toast.success("Kommentar erfolgreich erstellt.");
+      toast.success(t("commentCreated"));
       queryClient.invalidateQueries({
         queryKey: ["social-post-comments", submittedComment.postId],
       });

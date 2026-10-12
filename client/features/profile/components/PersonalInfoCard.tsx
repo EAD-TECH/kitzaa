@@ -6,6 +6,7 @@ import { PencilSparkles, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { useTranslations } from "next-intl";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
 import type { AuthUser } from "@/features/auth/types/authTypes";
 import UpdatePersonalInfoForm from "./UpdatePersonalInfoForm";
@@ -16,6 +17,8 @@ function formatAddress(location: AuthUser["location"]) {
 }
 
 const PersonalInfoCard = () => {
+  const t = useTranslations("Profile");
+  const common = useTranslations("Common");
   const { data: user } = useCurrentUser();
   const [isFormOpen, setIsFormOpen] = useState(false);
 
@@ -26,12 +29,12 @@ const PersonalInfoCard = () => {
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2.5">
           <User className="size-5 text-primary" />
-          <h2 className="font-heading text-lg font-semibold text-foreground">Persönliche Informationen</h2>
+          <h2 className="font-heading text-lg font-semibold text-foreground">{t("personalInfo")}</h2>
         </div>
         {!isFormOpen ? (
           <Button type="button" onClick={() => setIsFormOpen(true)}>
             <PencilSparkles />
-            Bearbeiten
+            {common("edit")}
           </Button>
         ) : null}
       </div>
@@ -43,16 +46,16 @@ const PersonalInfoCard = () => {
       ) : (
         <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2">
           <div className="flex flex-col gap-1">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">E-Mail</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("email")}</p>
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-sm text-foreground">{user.email}</p>
               <Badge variant="secondary" className="h-6 rounded-full px-2 text-[11px] font-medium">
-                {user.isEmailVerified ? "Verifiziert" : "Nicht verifiziert"}
+                {user.isEmailVerified ? t("verified") : t("notVerified")}
               </Badge>
             </div>
           </div>
           <div className="flex flex-col gap-1">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Adresse</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("address")}</p>
             <p className="text-sm text-foreground">{formatAddress(user.location)}</p>
           </div>
         </div>

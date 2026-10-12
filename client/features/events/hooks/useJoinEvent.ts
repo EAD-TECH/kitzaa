@@ -4,24 +4,26 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { joinEvent } from '../api/eventApi'
 import { toast } from 'sonner'
 import { ApiError } from '@/lib/api/client'
+import { useTranslations } from "next-intl"
 import { useTrackActions } from "@/features/socket/hooks/useTrackActions"
 
-const JOIN_ERROR_MESSAGES: Record<string, string> = {
-  "Event not found": "Veranstaltung nicht gefunden.",
-  "You can only join approved events.": "Du kannst nur genehmigten Veranstaltungen beitreten.",
-  "You have already joined this event.": "Du nimmst bereits an dieser Veranstaltung teil.",
-  "This event is full.": "Diese Veranstaltung ist ausgebucht.",
-  "This event is full or you have already joined.": "Diese Veranstaltung ist ausgebucht oder du nimmst bereits teil.",
+const JOIN_ERROR_KEYS: Record<string, "eventNotFound" | "joinApprovedOnly" | "alreadyJoined" | "eventFull" | "eventFullOrJoined"> = {
+  "Event not found": "eventNotFound",
+  "You can only join approved events.": "joinApprovedOnly",
+  "You have already joined this event.": "alreadyJoined",
+  "This event is full.": "eventFull",
+  "This event is full or you have already joined.": "eventFullOrJoined",
 }
 
 export const useJoinEvent = (eventId: string) => {
+  const t = useTranslations("Events")
   const queryClient = useQueryClient()
   const {handleTrackActions}=useTrackActions()
 
   return useMutation({
     mutationFn: (participantCount: number) => joinEvent(eventId, participantCount),
     onSuccess: (data) => {
-      toast.success("Erfolgreich für das Event angemeldet!")
+      toast.success(t("joined"))
       queryClient.invalidateQueries({ queryKey: ["events", "my-participations"] })
       const user = queryClient.getQueryData<{
           firstName?: string;
@@ -43,9 +45,8 @@ export const useJoinEvent = (eventId: string) => {
 
     },
     onError: (err) => {
-      const message = err instanceof ApiError
-        ? (JOIN_ERROR_MESSAGES[err.message] ?? "Anmeldung fehlgeschlagen. Bitte versuche es erneut.")
-        : "Anmeldung fehlgeschlagen. Bitte versuche es erneut."
+      const errorKey = err instanceof ApiError ? JOIN_ERROR_KEYS[err.message] : undefined
+      const message = errorKey ? t(errorKey) : t("joinFailed")
       toast.error(message)
     },
   })

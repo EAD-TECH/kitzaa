@@ -12,9 +12,11 @@ import {
 import { IoLocationOutline } from "react-icons/io5"
 import { MdMyLocation } from "react-icons/md"
 import { MapPin, X } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { useQueryParams } from "../../hooks/useQueryParams"
 
 const LocationFilter = () => {
+    const t = useTranslations("Events")
     const { getParam, setParam, setParams } = useQueryParams()
 
     const radius = Number(getParam("radius") ?? 25)
@@ -42,7 +44,7 @@ const LocationFilter = () => {
                 const data = await res.json()
 
                 if (!res.ok || typeof data.lat !== "number" || typeof data.lng !== "number") {
-                    setLocationError("Ort nicht gefunden.")
+                    setLocationError(t("placeNotFound"))
                     return
                 }
 
@@ -52,7 +54,7 @@ const LocationFilter = () => {
                     radius: String(radius),
                 })
             } catch {
-                setLocationError("Etwas ist schiefgelaufen.")
+                setLocationError(t("somethingWentWrong"))
             } finally {
                 setIsLocating(false)
             }
@@ -70,7 +72,7 @@ const LocationFilter = () => {
 
     const useCurrentLocation = (radiusOverride?: number) => {
         if (!navigator.geolocation) {
-            setLocationError("Dein Browser unterstützt keine Standortermittlung.")
+            setLocationError(t("geolocationUnsupported"))
             return
         }
 
@@ -91,11 +93,11 @@ const LocationFilter = () => {
             (error) => {
                 setIsLocating(false)
                 if (error.code === error.PERMISSION_DENIED) {
-                    setLocationError("Standortzugriff verweigert. Bitte Stadt oder PLZ eingeben.")
+                    setLocationError(t("geolocationDenied"))
                 } else if (error.code === error.POSITION_UNAVAILABLE) {
-                    setLocationError("Standort konnte nicht ermittelt werden.")
+                    setLocationError(t("geolocationFailed"))
                 } else {
-                    setLocationError("Zeitüberschreitung bei der Standortermittlung.")
+                    setLocationError(t("geolocationTimeout"))
                 }
             },
             { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 },
@@ -110,7 +112,7 @@ const LocationFilter = () => {
                     className="mb-0 flex items-center gap-1.5 font-heading text-xs font-medium tracking-wide text-foreground uppercase"
                 >
                     <MapPin className="size-3.5" />
-                    ORT & ENTFERNUNG
+                    {t("locationDistance")}
                 </FieldLegend>
                 <div className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-sm text-muted-foreground">
                     <Input
@@ -134,7 +136,7 @@ const LocationFilter = () => {
                     <Input
                         id="input-field-location"
                         type="text"
-                        placeholder="Stadt oder PLZ"
+                        placeholder={t("cityOrZip")}
                         value={cityInput}
                         onChange={(e) => setCityInput(e.target.value)}
                         spellCheck={false}
@@ -144,7 +146,7 @@ const LocationFilter = () => {
                     {(cityInput || hasLocation) && (
                         <button
                             type="button"
-                            aria-label="Standort entfernen"
+                            aria-label={t("clearLocation")}
                             onClick={clearLocation}
                             className="absolute top-1/2 right-9 -translate-y-1/2 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-destructive"
                         >
@@ -153,7 +155,7 @@ const LocationFilter = () => {
                     )}
                     <button
                         type="button"
-                        aria-label="Aktuellen Standort verwenden"
+                        aria-label={t("useCurrentLocation")}
                         onClick={() => useCurrentLocation()}
                         disabled={isLocating}
                         className="absolute top-1/2 right-2 -translate-y-1/2 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-primary disabled:opacity-50"
@@ -162,7 +164,7 @@ const LocationFilter = () => {
                     </button>
                 </div>
                 {hasLocation && !cityInput && (
-                    <p className="text-xs text-muted-foreground">Aktueller Standort wird verwendet.</p>
+                    <p className="text-xs text-muted-foreground">{t("usingCurrentLocation")}</p>
                 )}
                 {locationError && (
                     <p className="text-xs text-destructive">{locationError}</p>

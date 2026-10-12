@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
 import { Switch } from "@/components/ui/switch"
+import { useTranslations } from "next-intl"
 import type { CreateEventFormInput } from "../../types/createEvent.types"
 
 interface EventPricingStepProps {
@@ -80,6 +81,7 @@ function CapacityInput({
 }: {
   field: ControllerRenderProps<CreateEventFormInput, "capacity.max">
 }) {
+  const t = useTranslations("Events")
   const { text, handleChange } = useNumericText(field.value, field.onChange, false)
 
   return (
@@ -88,7 +90,7 @@ function CapacityInput({
       type="text"
       inputMode="numeric"
       className="bg-background"
-      placeholder="z.B. 20"
+      placeholder={t("capacityPlaceholder")}
       value={text}
       onChange={handleChange}
       onFocus={(e) => e.target.select()}
@@ -97,6 +99,7 @@ function CapacityInput({
 }
 
 export function EventPricingStep({ form }: EventPricingStepProps) {
+  const t = useTranslations("Events")
   const isFree = form.watch("isFree")
 
   return (
@@ -108,8 +111,8 @@ export function EventPricingStep({ form }: EventPricingStepProps) {
           <FormItem>
             <div className="flex items-center justify-between gap-4 rounded-2xl bg-accent/50 px-4 py-3">
               <div className="flex flex-col gap-0.5">
-                <FormLabel className="text-sm font-medium">Kostenloses Event</FormLabel>
-                <p className="text-xs text-muted-foreground">Familien können an dieser Aktivität kostenlos teilnehmen.</p>
+                <FormLabel className="text-sm font-medium">{t("freeEvent")}</FormLabel>
+                <p className="text-xs text-muted-foreground">{t("freeEventHint")}</p>
               </div>
               <FormControl>
                 <Switch
@@ -138,7 +141,7 @@ export function EventPricingStep({ form }: EventPricingStepProps) {
           name="price.amount"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Preis</FormLabel>
+              <FormLabel>{t("price")}</FormLabel>
               <FormControl>
                 <InputGroup className="bg-background">
                   <InputGroupAddon>€</InputGroupAddon>
@@ -156,8 +159,8 @@ export function EventPricingStep({ form }: EventPricingStepProps) {
         name="capacity.max"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Maximale Kapazität *</FormLabel>
-            <p className="text-xs text-muted-foreground">Gesamtzahl der erlaubten Teilnehmer.</p>
+            <FormLabel>{t("capacity")}</FormLabel>
+            <p className="text-xs text-muted-foreground">{t("capacityHint")}</p>
             <FormControl>
               <CapacityInput field={field} />
             </FormControl>

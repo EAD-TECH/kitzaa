@@ -22,27 +22,33 @@ import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser"
 import { useAuthStore } from "@/features/auth/store/authStore"
 import { useJoinEvent } from "../../hooks/useJoinEvent"
 import { useLeaveEvent } from "../../hooks/useLeaveEvent"
+import { useTranslations } from "next-intl"
 import { revalidateEventTag } from "../../actions/revalidateEvent"
 
-const AGE_RANGE_SHORT_LABELS: Record<Exclude<AgeRange, "parents">, string> = {
-  "0-3": "0-3 J.",
-  "4-6": "4-6 J.",
-  "7-10": "7-10 J.",
-  "10-14": "10-14 J.",
-  "all-ages": "Alle Alter",
+const AGE_RANGE_SHORT_KEYS: Record<Exclude<AgeRange, "parents">, "ageShort0to3" | "ageShort4to6" | "ageShort7to10" | "ageShort10to14" | "ageShortAll"> = {
+  "0-3": "ageShort0to3",
+  "4-6": "ageShort4to6",
+  "7-10": "ageShort7to10",
+  "10-14": "ageShort10to14",
+  "all-ages": "ageShortAll",
 }
 
-function getParticipantLabel(ageRanges: EventDTO["ageRanges"]) {
+function getParticipantLabel(
+  ageRanges: EventDTO["ageRanges"],
+  t: (key: string, values?: Record<string, string>) => string,
+) {
   const childRanges = sortAgeRanges(ageRanges ?? []).filter(
     (r): r is Exclude<AgeRange, "parents"> => r !== "parents"
   )
   const includesParents = ageRanges?.includes("parents") ?? false
 
-  if (includesParents && childRanges.length === 0) return "Eltern"
+  if (includesParents && childRanges.length === 0) return t("parentsOnly")
   // Hem ebeveyn hem çocuk gruplarına açık event'te tek bir kişi tipi yok.
-  if (includesParents) return "Teilnehmer"
-  if (childRanges.length === 0) return "Kinder"
-  return `Kinder (${childRanges.map((r) => AGE_RANGE_SHORT_LABELS[r]).join(", ")})`
+  if (includesParents) return t("participants")
+  if (childRanges.length === 0) return t("children")
+  return t("childrenWithAges", {
+    ages: childRanges.map((r) => t(AGE_RANGE_SHORT_KEYS[r])).join(", "),
+  })
 }
 
 interface EventRegistrationCardProps {
@@ -51,6 +57,9 @@ interface EventRegistrationCardProps {
 }
 
 const EventRegistrationCard = ({ event, onEventChange }: EventRegistrationCardProps) => {
+  const t = useTranslations("Events")
+  const common = useTranslations("Common")
+  const participantLabel = getParticipantLabel(event.ageRanges, t)
 
   const { data: currentUser } = useCurrentUser()
   const isAuthReady = useAuthStore((state) => state.isReady)
@@ -112,7 +121,7 @@ const EventRegistrationCard = ({ event, onEventChange }: EventRegistrationCardPr
 
   return (
     <div className="order-3 flex w-full flex-col gap-4 rounded-2xl bg-card p-5 ring-1 ring-foreground/10 tablet:col-span-2 tablet:mx-auto tablet:mt-10 tablet:max-w-xl desktop:order-1 desktop:mx-0 desktop:mt-0 desktop:max-w-none">
-      <h2 className="font-heading text-base font-semibold text-foreground">Event Registrierung</h2>
+      <h2 className="font-heading text-base font-semibold text-foreground">{t("registration")}</h2>
 
       {price && (
         <div className="flex items-baseline gap-1">
@@ -120,7 +129,7 @@ const EventRegistrationCard = ({ event, onEventChange }: EventRegistrationCardPr
             {price.amount},00 €
           </span>
           <span className="text-sm text-muted-foreground">
-            / {getParticipantLabel(event.ageRanges)}
+            / {participantLabel}
           </span>
         </div>
       )}
@@ -128,12 +137,12 @@ const EventRegistrationCard = ({ event, onEventChange }: EventRegistrationCardPr
       <div className="flex flex-col gap-2">
         <span className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-muted-foreground uppercase">
           <Users className="size-3.5" />
-          Anzahl Teilnehmer
+          {t("participantCount")}
         </span>
 
         <div className="flex items-center justify-between gap-3 rounded-full border border-border bg-input/30 py-1.5 pr-1.5 pl-3">
           <span className="text-sm text-foreground">
-            {getParticipantLabel(event.ageRanges)}
+            {participantLabel}
           </span>
 
           <div className="flex items-center gap-2">
@@ -143,7 +152,7 @@ const EventRegistrationCard = ({ event, onEventChange }: EventRegistrationCardPr
               size="icon-sm"
               disabled={isFull || isJoined || participantCount <= 1}
               onClick={decrease}
-              aria-label="Anzahl verringern"
+              aria-label={t("decreaseCount")}
               className="cursor-pointer"
             >
               <Minus className="size-3.5 cursor-pointer" />
@@ -157,7 +166,7 @@ const EventRegistrationCard = ({ event, onEventChange }: EventRegistrationCardPr
               size="icon-sm"
               disabled={isFull || isJoined || participantCount >= freeSpots}
               onClick={increase}
-              aria-label="Anzahl erhöhen"
+              aria-label={t("increaseCount")}
               className="cursor-pointer"
             >
               <Plus className="size-3.5" />
@@ -168,7 +177,7 @@ const EventRegistrationCard = ({ event, onEventChange }: EventRegistrationCardPr
 
       {price && (
         <div className="flex items-center justify-between border-t border-border pt-3 text-sm">
-          <span className="font-medium text-foreground">Gesamt</span>
+          <span className="font-medium text-foreground">{t("total")}</span>
           <span className="font-semibold text-foreground">
             {totalPrice} €
           </span>
@@ -183,12 +192,12 @@ const EventRegistrationCard = ({ event, onEventChange }: EventRegistrationCardPr
         variant={isJoined ? "outline" : "default"}
       >
         {isFull && !isJoined
-          ? "Ausgebucht"
+          ? t("soldOut")
           : isJoined
-            ? "Teilnahme stornieren"
+            ? t("cancelParticipation")
             : price
-              ? "Jetzt buchen"
-              : "Kostenlos anmelden"}
+              ? t("bookNow")
+              : t("joinFree")}
         {!isFull && !isJoined && <ArrowRight className="size-4" />}
       </Button>
 
@@ -199,41 +208,36 @@ const EventRegistrationCard = ({ event, onEventChange }: EventRegistrationCardPr
         )}
       >
         {isFull
-          ? "Keine freien Plätze mehr verfügbar"
-          : `${freeSpots} von ${event.capacity.max} Plätzen frei`}
+          ? t("noSpots")
+          : t("spotsAvailable", { free: freeSpots, max: event.capacity.max })}
       </span>
 
       <AlertDialog open={confirmOpen} onOpenChange={handleConfirmOpenChange}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {isJoinConfirm ? "Anmeldung bestätigen" : "Teilnahme stornieren?"}
+              {isJoinConfirm ? t("confirmJoin") : t("confirmLeave")}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {isJoinConfirm ? (
                 <>
-                  Du meldest {participantCount} {participantCount === 1 ? "Person" : "Personen"} für
-                  „{event.title}“ an.
-                  {price && ` Gesamtpreis: ${totalPrice} €.`}
+                  {t("joinSummary", { count: participantCount, title: event.title })}
+                  {price && t("joinPrice", { price: totalPrice })}
                 </>
               ) : (
-                <>
-                  Deine Anmeldung für „{event.title}“ wird storniert und deine Plätze werden
-                  freigegeben. Ist das Event danach ausgebucht, kannst du dich eventuell nicht
-                  erneut anmelden.
-                </>
+                t("leaveSummary", { title: event.title })
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isPending} className="rounded-full">
-              Abbrechen
+              {common("cancel")}
             </AlertDialogCancel>
             {/* Katılma ve ayrılma aynı ana renkte (terracotta) — projeyle uyumlu; ne yapıldığını buton metni anlatıyor. */}
             <AlertDialogAction disabled={isPending} onClick={handleConfirm} className="rounded-full">
               {isJoinConfirm
-                ? isPending ? "Wird angemeldet…" : "Verbindlich anmelden"
-                : isPending ? "Wird storniert…" : "Teilnahme stornieren"}
+                ? isPending ? t("joining") : t("confirmJoinAction")
+                : isPending ? t("leaving") : t("cancelParticipation")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

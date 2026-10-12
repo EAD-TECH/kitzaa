@@ -1,4 +1,5 @@
 import { CheckCircle2 } from "lucide-react"
+import { getTranslations } from "next-intl/server"
 import { isHtml, sanitizeRichText } from "@/lib/sanitizeRichText"
 
 interface EventContentProps {
@@ -11,12 +12,14 @@ interface EventContentProps {
 const RICH_TEXT_CLASSNAME =
   "text-sm leading-6 text-muted-foreground [&_p]:my-1.5 [&_p:empty]:h-3 [&_strong]:font-semibold [&_strong]:text-foreground [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-5 [&_ol]:pl-5 [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2"
 
-const EventContent = ({ description, highlights }: EventContentProps) => {
+const EventContent = async ({ description, highlights }: EventContentProps) => {
+  const t = await getTranslations("Events")
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-3">
         <h2 className="font-heading text-lg font-semibold text-foreground">
-          Über das Event
+          {t("aboutEvent")}
         </h2>
         {isHtml(description) ? (
           // Server Component: temizleme sunucuda yapılıyor, tarayıcıya sanitize-html gitmiyor.
@@ -36,7 +39,7 @@ const EventContent = ({ description, highlights }: EventContentProps) => {
       {highlights && highlights.length > 0 && (
         <div className="flex flex-col gap-3">
           <h3 className="font-heading text-base font-semibold text-foreground">
-            Was dich erwartet
+            {t("whatToExpect")}
           </h3>
           <ul className="flex flex-col gap-2">
             {highlights.map((highlight, index) => (

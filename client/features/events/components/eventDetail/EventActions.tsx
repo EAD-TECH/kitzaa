@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 import { Bookmark, Share2 } from "lucide-react"
 
@@ -14,13 +15,15 @@ interface EventActionsProps {
 }
 
 const EventActions = ({ event }: EventActionsProps) => {
+  const t = useTranslations("Events")
+  const common = useTranslations("Common")
   const accessToken = useAuthStore((state) => state.accessToken)
   const isSaved = useEventsStore((state) => state.savedEventIds.has(event._id))
   const { mutate: toggleSave } = useToggleSaveEvent()
 
   const handleToggleSave = () => {
     if (!accessToken) {
-      toast.error("Bitte melde dich an, um Events zu speichern.")
+      toast.error(common("signInToSaveEvents"))
       return
     }
     toggleSave(event._id)
@@ -39,7 +42,7 @@ const EventActions = ({ event }: EventActionsProps) => {
     }
 
     await navigator.clipboard.writeText(window.location.href)
-    toast.success("Link kopiert")
+    toast.success(common("linkCopied"))
   }
 
   return (
@@ -47,7 +50,7 @@ const EventActions = ({ event }: EventActionsProps) => {
       <button
         type="button"
         aria-pressed={isSaved}
-        aria-label={isSaved ? "Event gespeichert" : "Event speichern"}
+        aria-label={isSaved ? t("saved") : t("save")}
         onClick={handleToggleSave}
         className="flex size-8 cursor-pointer items-center justify-center rounded-full bg-background/90 shadow-sm transition-colors hover:bg-background"
       >
@@ -55,7 +58,7 @@ const EventActions = ({ event }: EventActionsProps) => {
       </button>
       <button
         type="button"
-        aria-label="Event teilen"
+        aria-label={t("share")}
         onClick={handleShare}
         className="flex size-8 cursor-pointer items-center justify-center rounded-full bg-background/90 shadow-sm transition-colors hover:bg-background"
       >

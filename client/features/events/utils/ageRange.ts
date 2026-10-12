@@ -1,28 +1,28 @@
 import type { AgeRange } from "../types/event.types"
 
-export const AGE_RANGE_LABELS: Record<AgeRange, string> = {
-  "0-3": "0-3 Jahre",
-  "4-6": "4-6 Jahre",
-  "7-10": "7-10 Jahre",
-  "10-14": "10-14 Jahre",
-  parents: "Für Eltern",
-  "all-ages": "Alle Alter",
+type Translate = (key: string) => string
+
+const AGE_RANGE_KEYS: Record<AgeRange, string> = {
+  "0-3": "age0to3",
+  "4-6": "age4to6",
+  "7-10": "age7to10",
+  "10-14": "age10to14",
+  parents: "ageParents",
+  "all-ages": "ageAll",
 }
 
-// Etiket listesinde de seçim sırası değil, sabit (küçükten büyüğe) sıra kullanılsın.
-const AGE_RANGE_ORDER = Object.keys(AGE_RANGE_LABELS) as AgeRange[]
+const AGE_RANGE_ORDER = Object.keys(AGE_RANGE_KEYS) as AgeRange[]
 
 export function sortAgeRanges(ageRanges: readonly AgeRange[]): AgeRange[] {
   return [...ageRanges].sort((a, b) => AGE_RANGE_ORDER.indexOf(a) - AGE_RANGE_ORDER.indexOf(b))
 }
 
-export function formatAgeRange(ageRange: AgeRange) {
-  return AGE_RANGE_LABELS[ageRange]
-}
-
-// ["4-6", "7-10"] -> "4-6 Jahre, 7-10 Jahre". Boş/eksik dizi "Alle Alter" diye gösterilmez —
-// eksik veriyi gerçek bir değer gibi göstermek yanıltıcı olur.
-export function formatAgeRanges(ageRanges: readonly AgeRange[] | null | undefined) {
-  if (!ageRanges?.length) return "Nicht angegeben"
-  return sortAgeRanges(ageRanges).map(formatAgeRange).join(", ")
+export function formatAgeRanges(
+  ageRanges: readonly AgeRange[] | null | undefined,
+  t: Translate,
+) {
+  if (!ageRanges?.length) return t("ageNotSpecified")
+  return sortAgeRanges(ageRanges)
+    .map((range) => t(AGE_RANGE_KEYS[range]))
+    .join(", ")
 }

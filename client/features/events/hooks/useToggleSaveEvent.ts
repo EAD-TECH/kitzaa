@@ -3,10 +3,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import React from 'react'
 import { toast } from 'sonner'
 import { toggleSaveEvent } from '../api/eventApi'
+import { useTranslations } from "next-intl"
 import { useEventsStore } from '../store/EventStore'
 
 const useToggleSaveEvent = () => {
-
+    const t = useTranslations("Events")
     const queryClient = useQueryClient()
     const savedEventIds = useEventsStore((state) => state.savedEventIds)
     const addSavedEventId = useEventsStore((state) => state.addSavedEventId)
@@ -21,12 +22,12 @@ const useToggleSaveEvent = () => {
              return {wasSaved}
         },
         onSuccess: (data) => {
-            toast.success(data.saved ? "Event gespeichert." : "Event aus gespeicherten Events entfernt.")
+            toast.success(data.saved ? t("savedToast") : t("unsavedToast"))
             queryClient.invalidateQueries({ queryKey: ["events", "saved-events"] })
         },
         onError: (_err, eventId, context) => {
             context?.wasSaved ? addSavedEventId(eventId) : removeSavedEventId(eventId)
-            toast.error("Aktion fehlgeschlagen. Bitte versuche es erneut.")
+            toast.error(t("saveFailed"))
         },
 
     })

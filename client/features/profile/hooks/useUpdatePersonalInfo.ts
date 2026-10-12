@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import type { AuthUser } from "@/features/auth/types/authTypes";
@@ -8,6 +9,7 @@ import { updatePersonalInfo } from "../api/updatePersonalInfoApi";
 import type { UpdatePersonalInfoPayload } from "../types/updatePersonalInfo.types";
 
 export function useUpdatePersonalInfo(userId: string | undefined) {
+  const t = useTranslations("Profile");
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -21,12 +23,12 @@ export function useUpdatePersonalInfo(userId: string | undefined) {
 
     onSuccess: (data) => {
       queryClient.setQueryData<AuthUser | null>(["currentUser"], data.user);
-      toast.success("Deine persönlichen Informationen wurden gespeichert.");
+      toast.success(t("infoSaved"));
     },
 
     onError: () => {
       toast.error(
-        "Persönliche Informationen konnten nicht gespeichert werden. Bitte versuche es erneut.",
+        t("infoSaveFailed"),
       );
     },
   });

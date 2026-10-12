@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { CalendarDays, Heart, MapPin, MessageCircle, Pencil, Trash2 } from "lucide-react";
 
@@ -23,11 +24,11 @@ import { CreatePostDialog } from "./CreatePostDialog";
 
 const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
 
-function formatPostDate(createdAt: string) {
+function formatPostDate(createdAt: string, locale: string) {
   const date = new Date(createdAt);
   if (Number.isNaN(date.getTime())) return null;
 
-  return date.toLocaleDateString("de-DE", {
+  return date.toLocaleDateString(locale, {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -53,7 +54,10 @@ interface MyPostCardProps {
 }
 
 export function MyPostCard({ post }: MyPostCardProps) {
-  const dateLabel = formatPostDate(post.createdAt);
+  const t = useTranslations("Social");
+  const common = useTranslations("Common");
+  const locale = useLocale();
+  const dateLabel = formatPostDate(post.createdAt, locale);
   const placeLabel = [...new Set([post.placeName, post.city].filter(Boolean))].join(", ");
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [updateOpen, setUpdateOpen] = useState(false);
@@ -121,7 +125,7 @@ export function MyPostCard({ post }: MyPostCardProps) {
             onClick={() => setUpdateOpen(true)}
             >
             <Pencil className="size-3.5" />
-            Bearbeiten
+            {common("edit")}
           </Button>
           <CreatePostDialog open={updateOpen} onOpenChange={setUpdateOpen} post={post} />
           <Button
@@ -132,7 +136,7 @@ export function MyPostCard({ post }: MyPostCardProps) {
             disabled={isPending}
           >
             <Trash2 className="size-3.5" />
-            Löschen
+            {common("delete")}
           </Button>
 
           <AlertDialog
@@ -143,13 +147,13 @@ export function MyPostCard({ post }: MyPostCardProps) {
           >
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Beitrag löschen?</AlertDialogTitle>
+                <AlertDialogTitle>{t("deletePostTitle")}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Dieser Beitrag wird entfernt. Das kann nicht rückgängig gemacht werden.
+                  {t("deletePostBody")}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel disabled={isPending}>Abbrechen</AlertDialogCancel>
+                <AlertDialogCancel disabled={isPending}>{common("cancel")}</AlertDialogCancel>
                 <AlertDialogAction
                   variant="destructive"
                   disabled={isPending}
@@ -159,7 +163,7 @@ export function MyPostCard({ post }: MyPostCardProps) {
                     })
                   }
                 >
-                  {isPending ? "Wird gelöscht…" : "Löschen"}
+                  {isPending ? t("deleting") : common("delete")}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

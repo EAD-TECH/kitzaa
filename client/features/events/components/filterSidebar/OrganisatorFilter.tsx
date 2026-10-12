@@ -3,16 +3,16 @@
 import React, { useState } from 'react'
 import { Users } from 'lucide-react'
 import { FilterCheckboxGroup } from './FilterCheckBoxGroup'
+import { useTranslations } from "next-intl"
 import { useQueryParams } from '../../hooks/useQueryParams'
 
-const ORGANISATION_TYPES = [
-  { label: 'Organisationen', value: 'organizer' },
-  { label: 'Privat', value: 'user' }
-]
-
-
 const OrganisatorFilter = () => {
-
+    const t = useTranslations("Events")
+    const common = useTranslations("Common")
+    const organisationTypes = [
+      { label: t("organizations"), value: "organizer" },
+      { label: common("private"), value: "user" },
+    ]
 
     const {getAll, setParam} = useQueryParams()
 
@@ -23,9 +23,9 @@ const OrganisatorFilter = () => {
         <div>
             <FilterCheckboxGroup
                 name='organisator'
-                title='ORGANISATOR'
+                title={t("organizer")}
                 icon={<Users className="size-3.5" />}
-                options={ORGANISATION_TYPES}
+                options={organisationTypes}
                 selected={selected}
                 onChange={value => setParam('organisator', value)}
             />

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { de, enUS } from "date-fns/locale"
 import { CalendarIcon, CalendarRange, X } from "lucide-react"
 
 import { Calendar } from "@/components/ui/calendar"
@@ -16,14 +17,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useLocale, useTranslations } from "next-intl"
 import { useQueryParams } from "../../hooks/useQueryParams"
 
-function formatDate(date: Date | undefined) {
+function formatDate(date: Date | undefined, locale: string) {
   if (!date) {
     return ""
   }
 
-  return date.toLocaleDateString("de-DE", {
+  return date.toLocaleDateString(locale, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -66,6 +68,9 @@ function DatePickerField({
   date: Date | undefined
   onSelect: (date: Date | undefined) => void
 }) {
+  const t = useTranslations("Events")
+  const locale = useLocale()
+  const calendarLocale = locale === "en" ? enUS : de
   const [open, setOpen] = React.useState(false)
   const [month, setMonth] = React.useState<Date | undefined>(date)
 
@@ -82,8 +87,8 @@ function DatePickerField({
       <InputGroup>
         <InputGroupInput
           id={id}
-          value={formatDate(date)}
-          placeholder="TT.MM.JJJJ"
+          value={formatDate(date, locale)}
+          placeholder={t("datePlaceholder")}
           readOnly
           onClick={() => setOpen(true)}
           onKeyDown={(e) => {
@@ -99,7 +104,7 @@ function DatePickerField({
               type="button"
               variant="ghost"
               size="icon-xs"
-              aria-label="Datum entfernen"
+              aria-label={t("clearDate")}
               onClick={() => onSelect(undefined)}
             >
               <X />
@@ -111,7 +116,7 @@ function DatePickerField({
                   <InputGroupButton
                     variant="ghost"
                     size="icon-xs"
-                    aria-label="Datum auswählen"
+                    aria-label={t("pickDate")}
                   >
                     <CalendarIcon />
                   </InputGroupButton>
@@ -125,6 +130,7 @@ function DatePickerField({
               >
                 <Calendar
                   mode="single"
+                  locale={calendarLocale}
                   selected={date}
                   month={month}
                   onMonthChange={setMonth}
@@ -143,6 +149,7 @@ function DatePickerField({
 }
 
 export function DateRangeFilter() {
+  const t = useTranslations("Events")
   const { getParam, setParams } = useQueryParams()
 
   const dateFrom = parseISODate(getParam("dateFrom"))
@@ -155,18 +162,18 @@ export function DateRangeFilter() {
         className="flex items-center gap-1.5 font-heading text-xs font-medium tracking-wide text-foreground uppercase"
       >
         <CalendarRange className="size-3.5" />
-        ZEITRAUM
+        {t("dateRange")}
       </FieldLegend>
       <div className="flex gap-3">
         <DatePickerField
           id="date-from"
-          label="Von"
+          label={t("from")}
           date={dateFrom}
           onSelect={(date) => setParams({ dateFrom: date ? toISODateString(date) : null })}
         />
         <DatePickerField
           id="date-to"
-          label="Bis"
+          label={t("to")}
           date={dateTo}
           onSelect={(date) => setParams({ dateTo: date ? toISODateString(date) : null })}
         />

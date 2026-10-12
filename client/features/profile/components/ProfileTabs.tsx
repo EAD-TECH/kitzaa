@@ -1,18 +1,20 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { Link, usePathname } from "@/i18n/navigation"
 import { cn } from "@/lib/utils"
 
 const TABS = [
-  { href: "/profile", label: "Profil" },
-  { href: "/profile/meine-events", label: "Meine Events" },
-  { href: "/profile/registrierte-events", label: "Registrierte Events" },
-  { href: "/profile/gespeicherte-events", label: "Gespeicherte Events" },
-  { href: "/profile/meine-beitraege", label: "Meine Beiträge" },
-  { href: "/profile/sicherheit", label: "Sicherheit" },
+  { href: "/profile", labelKey: "tabProfile" },
+  { href: "/profile/meine-events", labelKey: "tabMyEvents" },
+  { href: "/profile/registrierte-events", labelKey: "tabRegistered" },
+  { href: "/profile/gespeicherte-events", labelKey: "tabSaved" },
+  { href: "/profile/meine-beitraege", labelKey: "tabPosts" },
+  { href: "/profile/sicherheit", labelKey: "tabSecurity" },
 ] as const
 
 const ProfileTabs = () => {
+  const t = useTranslations("Profile")
   const pathname = usePathname()
 
   return (
@@ -29,7 +31,7 @@ const ProfileTabs = () => {
               isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
             )}
           >
-            {tab.label}
+            {t(tab.labelKey)}
             <span
               className={cn(
                 "absolute inset-x-0 -bottom-px h-0.5 origin-left rounded-full bg-primary transition-transform duration-300 ease-spring",
