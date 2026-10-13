@@ -61,7 +61,7 @@ app.use('/api-docs',
 
 app.use('/api/v1', rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
+    max: 5000, // limit each IP to 5000 requests per windowMs
     message: 'Too many requests, please try again later.'
 }));
 
