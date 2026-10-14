@@ -1,6 +1,6 @@
 "use strict";
 
-import type { Request, Response } from "express";
+import type { CookieOptions, Request, Response } from "express";
 import User from "../../models/userModel.js";
 import {
   generateAccessToken,
@@ -26,6 +26,30 @@ import type {
   SetupAccountInput,
 } from "../../validations/user.schema.js";
 
+const REFRESH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
+
+function refreshCookieBase(): Pick<
+  CookieOptions,
+  "httpOnly" | "secure" | "sameSite" | "path"
+> {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    // Cross-site (frontend and API on different domains) only sends the cookie when SameSite=None and Secure.
+    sameSite: isProduction ? "none" : "lax",
+    path: "/",
+  };
+}
+
+function refreshCookieOptions(): CookieOptions {
+  return {
+    ...refreshCookieBase(),
+    maxAge: REFRESH_COOKIE_MAX_AGE,
+  };
+}
+
 const authController = {
   login: async (req: Request<{}, any, LoginInput>, res: Response) => {
     const validatedData = req.body;
@@ -35,8 +59,6 @@ const authController = {
     const user = await User.findOne({
       $or: [{ email: validatedData.login }, { username: validatedData.login }],
     }).select("+password");
-
-    console.log("user", user);
 
     if (!user) throw new CustomError("Wrong email/username or password", 401);
 
@@ -57,17 +79,10 @@ const authController = {
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    console.log("tokens", refreshToken);
-
     user.refreshToken = refreshToken;
     await user.save();
 
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production", //normalde localde http uzerinde calisiyoruz. ama production asamasinda https uzerinde calismasi icin sadece. browser cookieyi kabul etmiyor bunu yazinca http de.
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie("refreshToken", refreshToken, refreshCookieOptions());
 
     res.status(200).send({
       error: false,
@@ -128,7 +143,7 @@ const authController = {
 
     if (!user) throw new CustomError("User must first login", 401);
 
-    res.clearCookie("refreshToken");
+    res.clearCookie("refreshToken", refreshCookieBase());
 
     if (user) {
       user.refreshToken = null;
@@ -163,12 +178,7 @@ const authController = {
       user.refreshToken = newRefreshToken;
       await user.save();
 
-      res.cookie("refreshToken", newRefreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
+      res.cookie("refreshToken", newRefreshToken, refreshCookieOptions());
 
       res.status(200).send({
         error: false,
@@ -281,12 +291,7 @@ const authController = {
     user.refreshToken = refreshToken;
     await user.save();
 
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie("refreshToken", refreshToken, refreshCookieOptions());
 
     // tarayıcı navigasyonu bu — JSON değil, frontend'e redirect ediyoruz.
     // accessToken'ı frontend orada mount olunca /refresh çağrısıyla alacak.
