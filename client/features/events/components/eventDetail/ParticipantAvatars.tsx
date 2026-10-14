@@ -1,4 +1,6 @@
-import { getTranslations } from "next-intl/server"
+"use client"
+
+import { useTranslations } from "next-intl"
 import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { EventDTO } from "../../types/event.types"
@@ -9,8 +11,8 @@ interface ParticipantAvatarsProps {
   event: EventDTO
 }
 
-const ParticipantAvatars = async ({ event }: ParticipantAvatarsProps) => {
-  const t = await getTranslations("Events")
+const ParticipantAvatars = ({ event }: ParticipantAvatarsProps) => {
+  const t = useTranslations("Events")
   const participants = event.participantsPreview
   const visible = participants.slice(0, MAX_VISIBLE_AVATARS)
   const remaining = participants.length - visible.length

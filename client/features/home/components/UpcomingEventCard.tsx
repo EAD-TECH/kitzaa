@@ -1,4 +1,6 @@
-import { getLocale, getTranslations } from "next-intl/server";
+"use client";
+
+import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import NextLink from "next/link";
 import { Calendar, PartyPopper } from "lucide-react";
@@ -20,9 +22,9 @@ function formatEventDate(startDate: string, locale: string) {
   });
 }
 
-export async function UpcomingEventCard({ event }: UpcomingEventCardProps) {
-  const t = await getTranslations("Events");
-  const locale = await getLocale();
+export function UpcomingEventCard({ event }: UpcomingEventCardProps) {
+  const t = useTranslations("Events");
+  const locale = useLocale();
   const categoryName = getCategoryName(event.categoryId);
 
   return (
