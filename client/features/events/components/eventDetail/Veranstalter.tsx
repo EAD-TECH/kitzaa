@@ -1,5 +1,7 @@
+"use client"
+
 import { Building2, PartyPopper } from "lucide-react"
-import { getTranslations } from "next-intl/server"
+import { useTranslations } from "next-intl"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
@@ -17,9 +19,9 @@ interface VeranstalterProps {
   eventCount: number
 }
 
-const Veranstalter = async ({ createdBy, eventCount }: VeranstalterProps) => {
-  const t = await getTranslations("Events")
-  const common = await getTranslations("Common")
+const Veranstalter = ({ createdBy, eventCount }: VeranstalterProps) => {
+  const t = useTranslations("Events")
+  const common = useTranslations("Common")
   const organizer = getOrganizer(createdBy, common("unknown"))
   const isOrganizer = organizer.role === "organizer"
 

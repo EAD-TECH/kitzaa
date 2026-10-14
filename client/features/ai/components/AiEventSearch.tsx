@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { UpcomingEventCard } from "@/features/home/components/UpcomingEventCard"
+import { AiSearchErrorBoundary } from "./AiSearchErrorBoundary"
 import { useAiEventSearch } from "../hooks/useAiEventSearch"
 import { formatSpecificDate, getFilterChips, type AiFilterChip } from "../utils/formatAiSearchResult"
 import type { AiEventSearchResponse } from "../types/aiEventSearch.types"
@@ -206,11 +207,13 @@ export function AiEventSearch() {
             </div>
 
             {result.events.length > 0 && (
-              <div className="grid grid-cols-1 gap-8 tablet:grid-cols-2 desktop:grid-cols-3">
-                {result.events.map((event) => (
-                  <UpcomingEventCard key={event._id} event={event} />
-                ))}
-              </div>
+              <AiSearchErrorBoundary>
+                <div className="grid grid-cols-1 gap-8 tablet:grid-cols-2 desktop:grid-cols-3">
+                  {result.events.map((event) => (
+                    <UpcomingEventCard key={event._id} event={event} />
+                  ))}
+                </div>
+              </AiSearchErrorBoundary>
             )}
           </div>
         )}
