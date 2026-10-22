@@ -58,10 +58,7 @@ export const sendBulknotificaitons = async ({
 
     return result;
   } catch (error:any) {
-    console.log(
-      "bıldırım olusurma sırasında olusan hatayı logla ve coz",
-      error,
-    );
+    console.error("Fehler beim Erstellen von Sammelbenachrichtigungen:", error);
     throw new CustomError(
       `Sistem Hatası: Bildirimler oluşturulamadı. (${error.message || "Bilinmeyen hata"})`, 
       500

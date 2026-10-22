@@ -63,5 +63,4 @@ export const sendOrganizerPrepSummary = async () => {
 /* motoru olusturdm simdi onu tetiklemem lazim her gece 00:00 calısması ıcın*/
 export const startEventForOrganizerReminderJob = () => {
   cron.schedule("0 0 * * *", sendOrganizerPrepSummary);
-  // console.log("event reminder baslattım");
 };

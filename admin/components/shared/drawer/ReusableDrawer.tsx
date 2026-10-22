@@ -41,9 +41,7 @@ export default function ReusableDrawer() {
   const pathname = usePathname();
   const router = useRouter();
   const cardId = params.get("applicationId");
- /*  console.log("cardid geldimi",cardId) */
   const isOpen = Boolean(cardId);
- /*  console.log(isOpen,"kontrol et isopen kısmını cekmece acılmalı ") */
 
   const { data: response, isLoading } = useOrganızarApplicationById(cardId);
   const appData = response?.application;
@@ -60,27 +58,21 @@ export default function ReusableDrawer() {
     defaultValues: reviewFormDefaults,
   });
 
-/* console.log("zod hatası almalıym bossa rejected kısmım") */
   function onSubmit(data: ReviewFormValues) {
     
-    /*  console.log(data); */
     if (!cardId) return;
     if (data.status === "approved") {
-      /* console.log("onay kamyonu yola cıktımı id:" ,cardId) */
       approveApplication(cardId, {
         onSuccess: () => {
           /* basarılı olduysa drawerı kapa */
-         /*  console.log("islm basarılımı cekmece kapanıyormu") */
           handleDrawerClose(false);
         },
       });
     } else if (data.status === "rejected") {
-      /* console.log("reject kamyonum yola cıktı  Sebebi ve id ",data.note,cardId ) */
       rejectApplication(
         { id: cardId, body: { rejectedReason: data.note } },
         {
           onSuccess: () => {
-            /* console.log("cekmece kapanıyrmu ıslem tamam") */
             handleDrawerClose(false);
           },
         },
@@ -116,9 +108,9 @@ export default function ReusableDrawer() {
     >
       <DrawerContent>
         <ReusableDrawerHeader
-          title="Başvuru Detayı"
-          tag={appData?.institutionData?.name ?? "Yeni Başvuru Detayı"}
-          subtitle={formatted ? `Operasyon · ${formatted}` : "Operasyon"}
+          title="Bewerbungsdetails"
+          tag={appData?.institutionData?.name ?? "Neue Bewerbungsdetails"}
+          subtitle={formatted ? `Verwaltung · ${formatted}` : "Verwaltung"}
         />
 
         <Form {...form}>
@@ -130,7 +122,7 @@ export default function ReusableDrawer() {
               <SectionShell title="Kurum bilgisi" columns={2}>
                 {isLoading ? (
                   <div className="p-4 text-sm text-primary">
-                    Yükleniyor...
+                    Wird geladen...
                   </div>
                 ) : (
                   <>
@@ -167,7 +159,7 @@ export default function ReusableDrawer() {
                 <div className="pl-4 flex flex-col gap-2 rounded-l border-l-2 border-l-primary bg-muted p-2">
                   <p className="font-body text-xs leading-7 italic">
                     {appData?.message ||
-                      "Başvuru sırasında özel bir mesaj iletilmemiş."}
+                      "Bei der Bewerbung wurde keine besondere Nachricht übermittelt."}
                   </p>
                 </div>
               </div>
@@ -179,7 +171,7 @@ export default function ReusableDrawer() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="font-heading text-primary">
-                        Reddetme Sebebi (Zorunlu)
+                        Ablehnungsgrund (erforderlich)
                       </FormLabel>
                       <FormControl>
                         <Textarea
@@ -199,7 +191,7 @@ export default function ReusableDrawer() {
               <DrawerClose
                 render={
                   <Button type="button" variant="ghost">
-                    Vazgeç
+                    Abbrechen
                   </Button>
                 }
               />
@@ -209,7 +201,7 @@ export default function ReusableDrawer() {
                   type="submit"
                   onClick={() => form.setValue("status", "approved")}
                 >
-                  {isApproving ? "Onaylanıyor..." : "Onayla"}
+                  {isApproving ? "Wird genehmigt..." : "Genehmigen"}
                 </Button>
                 <Button
                  disabled={isRejecting}

@@ -27,10 +27,9 @@ export function UserCreateForm({ onSuccess }: UserCreateFormProps) {
   });
 
   function onSubmit(data: UserFormValues) {
-    console.log("Backend'e gidecek veri:", data);
     createUser(data, {
       onSuccess: () => {
-        toast.success("Davet başarıyla gönderildi.");
+        toast.success("Die Einladung wurde erfolgreich gesendet.");
         onSuccess();
       },
     });
@@ -60,12 +59,12 @@ export function UserCreateForm({ onSuccess }: UserCreateFormProps) {
         <ReusableFormSelect
           control={form.control}
           name="role"
-          label="Kullanıcı Rolu"
-          placeholder="Bir rol sec.."
+          label="Nutzerrolle"
+          placeholder="Rolle auswählen ..."
           options={[
-            { label: "Yönetici (Admin)", value: "admin" },
-            { label: "Organizatör", value: "organizer" },
-            { label: "Kullanıcı (User)", value: "user" },
+            { label: "Administrator", value: "admin" },
+            { label: "Organisator", value: "organizer" },
+            { label: "Nutzer", value: "user" },
           ]}
         />
 
@@ -74,7 +73,7 @@ export function UserCreateForm({ onSuccess }: UserCreateFormProps) {
           name="role"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Kullanıcı Rolü</FormLabel>
+              <FormLabel>Nutzerrolle</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
@@ -84,7 +83,7 @@ export function UserCreateForm({ onSuccess }: UserCreateFormProps) {
                 <SelectContent>
                   <SelectItem value="admin">Yönetici (Admin)</SelectItem>
                   <SelectItem value="organizer">Organizatör</SelectItem>
-                  <SelectItem value="user">Kullanıcı (User)</SelectItem>
+                  <SelectItem value="user">Nutzer</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

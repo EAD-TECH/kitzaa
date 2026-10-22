@@ -54,9 +54,6 @@ export const notifyUserForApprovedEvent = async (
       linkNotification: `/events/${slug}`,
     });
 
-    /* console.log(
-      `socket: Yapay zeka onay sinyali kullanıcıya (ID: ${userId}) fırlatıldı.`,
-    ); */
   } catch (error: any) {
     console.error("AI Onay bildirimi gönderilirken hata oluştu:", error);
   }

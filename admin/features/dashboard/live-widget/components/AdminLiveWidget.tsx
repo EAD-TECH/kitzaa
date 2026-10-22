@@ -128,7 +128,6 @@ export default function AdminLiveWidget() {
   const [messageInput, setMessageInput] = useState("");
 
   const handleSendMessage = () => {
-    console.log("click calısıyormu enterlayınca");
     if (!messageInput.trim() || !activeConversationRoomId) return;
     if (!messageInput.trim()) return;
 
@@ -139,7 +138,6 @@ export default function AdminLiveWidget() {
       receiverId: selectedUser?.id,
       text: messageInput,
     });
-    console.log("emit twtıklenıyoemu");
     setMessageInput("");
   };
 
@@ -148,10 +146,7 @@ export default function AdminLiveWidget() {
       /* tıkladıgm kısının id simi */
       const currentSelectedUser = useLiveWidgetStore.getState().selectedUser;
       if (currentSelectedUser && data.targetId === currentSelectedUser.id) {
-        console.log(" EŞLEŞME BAŞARILI! Odaya giriliyor:", data.conversationId);
         setActiveConversationRoomId(data.conversationId);
-      } else {
-        console.log("EŞLEŞME HATASI var");
       }
     };
 
@@ -164,30 +159,27 @@ export default function AdminLiveWidget() {
       }
     };
 
-    const handleLoadHistory=(historyData:any[])=>{
+    const handleLoadHistory = (historyData: any[]) => {
       /* once ekranı temızleme */
-      clearChatMessages()
-      historyData.map((msg)=>{
-        addMessage(msg)
-      })
-    }
+      clearChatMessages();
+      historyData.map((msg) => {
+        addMessage(msg);
+      });
+    };
 
     socket.on("chat_session_ready", handleChatReady);
     socket.on("receive_message", handleReceiveMessage);
-    socket.on("load_chat_history",handleLoadHistory)
+    socket.on("receive_support_message", handleReceiveMessage);
+    socket.on("load_chat_history", handleLoadHistory);
 
     return () => {
       socket.off("chat_session_ready", handleChatReady);
       socket.off("receive_message", handleReceiveMessage);
+      socket.off("receive_support_message", handleReceiveMessage);
+      socket.off("load_chat_history", handleLoadHistory);
     };
   }, []);
 
-  console.log(
-    "GÜNCEL DURUM - Seçili Kullanıcı:",
-    selectedUser?.firstName,
-    "Oda Şifresi:",
-    activeConversationRoomId,
-  );
   const closeChat = () => {
     if (activeConversationRoomId) {
       socket.emit("leave_chat_room", { roomId: activeConversationRoomId });
@@ -239,16 +231,19 @@ export default function AdminLiveWidget() {
                 <MessageScrollerViewport>
                   <MessageScrollerContent className="gap-3 px-3 py-3 ">
                     {messages.map((msg) => {
-                      const isMe =
-                        msg.senderType === "admin" &&
-                        msg.senderId !== "Kitzaa-ai";
+                      const isMe = msg.senderType === "admin";
+                      const isAi = msg.senderType === "ai";
 
                       return (
                         <Message key={msg.id} align={isMe ? "end" : "start"}>
                           <MessageAvatar>
                             <Avatar className="size-8">
                               <AvatarImage
-                                src={isMe ? undefined : selectedUser?.avatarUrl}
+                                src={
+                                  !isMe && !isAi
+                                    ? selectedUser?.avatarUrl
+                                    : undefined
+                                }
                                 alt={msg.senderName}
                               />
                               <AvatarFallback>
@@ -259,7 +254,9 @@ export default function AdminLiveWidget() {
                           <MessageContent>
                             <MessageHeader>{msg.senderName}</MessageHeader>
                             <Bubble
-                              variant={isMe ? "default" : "muted"}
+                              variant={
+                                isMe ? "default" : isAi ? "outline" : "muted"
+                              }
                               align={isMe ? "end" : "start"}
                             >
                               <BubbleContent>{msg.text}</BubbleContent>

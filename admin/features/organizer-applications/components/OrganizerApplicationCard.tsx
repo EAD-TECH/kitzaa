@@ -9,16 +9,12 @@ export default function OrganizerApplicationCard(application: {
   application: OrganizerApplicationDTO;
 }) {
   const params = useSearchParams();
-  console.log(params);
   const pathname = usePathname();
-  console.log(pathname);
 
   const router = useRouter();
-  console.log(router, "analız et");
 
   const handleCardClick = (clickedId: string) => {
     const currentParams = new URLSearchParams(params.toString());
-    console.log(currentParams, "calısıyomu");
     currentParams.set("applicationId", clickedId);
     router.push(`${pathname}?${currentParams.toString()}`);
   };

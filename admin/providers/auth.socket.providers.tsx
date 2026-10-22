@@ -6,8 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { io } from "socket.io-client";
 import { toast } from "sonner";
-import { NotificationDTO } from "@/features/notifications/types/notification"; 
-
+import { NotificationDTO } from "@/features/notifications/types/notification";
 
 const URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -27,88 +26,81 @@ export default function AuthSocketProvider({
 
   /* salterim  useeffect*/
   useEffect(() => {
+    const handleConnect = () => {
+      setIsSocketConnected(true);
+    };
+
+    const handleDisconnect = () => {
+      setIsSocketConnected(false);
+    };
+
+    const handleConnectError = () => {
+      setIsSocketConnected(false);
+    };
+
+    const handleNotification = (yenibildirim: NotificationDTO) => {
+      const targetPath = yenibildirim.linkNotification;
+
+      toast("Yeni Bildirim ", {
+        description: yenibildirim.title || "Sistemden yeni bir mesajınız var.",
+        action: targetPath
+          ? {
+              label: "Görüntüle",
+              onClick: () => router.push(targetPath),
+            }
+          : undefined,
+      });
+
+      if (yenibildirim.type === "organizer_application") {
+        queryClient.invalidateQueries({
+          queryKey: ["organizer-applications"],
+        });
+      }
+
+      if (yenibildirim.type === "new_event") {
+        queryClient.invalidateQueries({
+          queryKey: ["event-applications"],
+        });
+      }
+
+      queryClient.setQueryData(
+        ["notifications", "unread-count"],
+        (eskiData: any) => {
+          if (!eskiData || !eskiData.data) {
+            return { error: false, data: { count: 1 } };
+          }
+
+          return {
+            ...eskiData,
+            data: {
+              ...eskiData.data,
+              count: eskiData.data.count + 1,
+            },
+          };
+        },
+      );
+
+      queryClient.setQueryData(["notifications", "list"], (eskiData: any) => {
+        if (!eskiData || !eskiData.result) {
+          return { error: false, result: [yenibildirim] };
+        }
+
+        return {
+          ...eskiData,
+          result: [yenibildirim, ...eskiData.result],
+        };
+      });
+    };
+
     if (accessToken) {
       /* sockete tokenı ve baglantıyı kur */
       socket.auth = { token: accessToken };
       socket.connect();
 
-      socket.on("connect", () => {
-        console.log("Socket bağlandı, Polling durdurulacak!");
-        setIsSocketConnected(true);
-      });
-
-      socket.on("disconnect", () => {
-        console.log("Socket koptu, Polling (Yedekleme) devreye giriyor!");
-        setIsSocketConnected(false);
-      });
-
-      // Hata olursa da koptu sayıyoruz
-      socket.on("connect_error", () => {
-        setIsSocketConnected(false);
-      });
-
-      /* backendın gonderdıgı verıyı socket.on la getırdm */
-      /* burda socket baglantısı kurulduktan sonra socketın durumunu dınlıyorm ve zustanda yazıyorm */
-      socket.on("notification:new", (yenibildirim: NotificationDTO) => {
-        const targetPath = yenibildirim.linkNotification;
-
-        toast("Yeni Bildirim ", {
-          description:
-            yenibildirim.title || "Sistemden yeni bir mesajınız var.",
-          action: targetPath
-            ? {
-                label: "Görüntüle",
-                onClick: () => router.push(targetPath),
-              }
-            : undefined,
-        });
-        console.log("Yeni bildirim yakalandı!", yenibildirim);
-
-        /* yenı organızator bassvurusu varsa yenıle */
-        if(yenibildirim.type==="organizer_application"){
-          queryClient.invalidateQueries({queryKey:["organizer-applications"]})
-          
-        }
-
-        if(yenibildirim.type==="new_event"){
-          queryClient.invalidateQueries({queryKey:["events"]})
-          
-        }
-
-        /* sayac guncellem (Badge) */
-        queryClient.setQueryData(
-          ["notifications", "unread-count"],
-          (eskiData: any) => {
-            // Eğer raf boşsa (henüz API çekilmediyse):
-            if (!eskiData || !eskiData.data) {
-              return { error: false, data: { count: 1 } };
-            }
-
-            // Kutunun yapısını koruyarak sadece count değerini 1 artır:
-            return {
-              ...eskiData,
-              data: {
-                ...eskiData.data,
-                count: eskiData.data.count + 1,
-              },
-            };
-          },
-        );
-
-        /* list güncelle (Inbox) */
-        queryClient.setQueryData(["notifications", "list"], (eskiData: any) => {
-          /*  Eğer raf boşsa (henüz API çekilmediyse) */
-          if (!eskiData || !eskiData.result) {
-            return { error: false, result: [yenibildirim] };
-          }
-
-          /*    Kutunun yapısını koruyarak yeni bildirimi result dizisinin en başına ekle */
-          return {
-            ...eskiData,
-            result: [yenibildirim, ...eskiData.result],
-          };
-        });
-      });
+      socket.on("connect", handleConnect);
+      socket.on("disconnect", handleDisconnect);
+      socket.on("connect_error", handleConnectError);
+      socket.on("notification:new", handleNotification);
     } else {
       /* token yoksa hattı kes */
       socket.disconnect();
@@ -122,10 +114,10 @@ export default function AuthSocketProvider({
       /* memory sızıntısı sorununa karsın */
       /* bileşen ekrandan gıttı : kapanma, sayfa degısımı gıbı */
       /* frekansı dınlemeyı bırak ve baglantıyı kes dıyorum */
-      socket.off("notification:new");
-      socket.off("connect");
-      socket.off("disconnect");
-      socket.off("connect_error");
+      socket.off("notification:new", handleNotification);
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
+      socket.off("connect_error", handleConnectError);
       setIsSocketConnected(false);
       socket.disconnect();
     };

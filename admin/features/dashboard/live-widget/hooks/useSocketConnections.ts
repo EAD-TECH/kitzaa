@@ -12,47 +12,50 @@ export const useSocketConnection = () => {
   const setActivities = useLiveWidgetStore((state) => state.setActivities);
   const setOnlineUsers = useLiveWidgetStore((state) => state.setOnlineUsers);
 
-  /*   console.log(token, "oldumu") */ useEffect(() => {
+  useEffect(() => {
     if (!token) {
       return;
-      /*  console.log("token gelmesı lazım"); */
     }
-    /*    console.log(
-      "once motorun calısması lazım:sebekeyı dınlemem lazım token okey",
-    ); */
 
-    /* baglantı gerceklestı socket.on ıle baglantıyı gerceklestırıyorm */
-    socket.on("connect", () => {
-      /*  console.log("baglantı oldu zustand depomdakı statusumu guncellıyorum"); */
+    const handleConnect = () => {
       setSocketStatus(true);
-    });
+    };
 
-    socket.on("new_activity", (newActivityData) => {
-      /*  console.log("yeni bildirim geldi zustanı yenılıyorm") */
+    const handleNewActivity = (
+      newActivityData: Parameters<typeof addActivity>[0],
+    ) => {
       addActivity(newActivityData);
-    });
-    socket.on("activity_snapshot", (newactivites) => {
+    };
+
+    const handleActivitySnapshot = (
+      newactivites: Parameters<typeof setActivities>[0],
+    ) => {
       setActivities(newactivites);
-    });
+    };
 
-    socket.on("online_users_update", (users) => {
+    const handleOnlineUsersUpdate = (
+      users: Parameters<typeof setOnlineUsers>[0],
+    ) => {
       setOnlineUsers(users);
-    });
+    };
 
-    socket.on("disconnect", () => {
+    const handleDisconnect = () => {
       setSocketStatus(false);
-    });
+    };
 
-    console.log("backende baglandımmı", socket);
+    socket.on("connect", handleConnect);
+    socket.on("new_activity", handleNewActivity);
+    socket.on("activity_snapshot", handleActivitySnapshot);
+    socket.on("online_users_update", handleOnlineUsersUpdate);
+    socket.on("disconnect", handleDisconnect);
 
     /* cleanup mantıgı */
     return () => {
-      socket.off("connect");
-      socket.off("new_activity");
-      socket.off("activity_snapshot");
-      socket.off("online_users_update");
-      socket.off("disconnect");
-      /*  console.log("baglantı durdu:sebeke yanı socket baglantım kesıldı🔴🔴"); */
+      socket.off("connect", handleConnect);
+      socket.off("new_activity", handleNewActivity);
+      socket.off("activity_snapshot", handleActivitySnapshot);
+      socket.off("online_users_update", handleOnlineUsersUpdate);
+      socket.off("disconnect", handleDisconnect);
     };
     /* bos dızı eklıyorm bır kere tetıklen sadece */
   }, [token, addActivity, setActivities, setOnlineUsers, setSocketStatus]);

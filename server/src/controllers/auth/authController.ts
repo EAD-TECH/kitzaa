@@ -54,8 +54,6 @@ const authController = {
   login: async (req: Request<{}, any, LoginInput>, res: Response) => {
     const validatedData = req.body;
 
-    // console.log('validatedData', validatedData)
-
     const user = await User.findOne({
       $or: [{ email: validatedData.login }, { username: validatedData.login }],
     }).select("+password");
@@ -93,7 +91,6 @@ const authController = {
 
   register: async (req: Request<{}, any, CreateUserInput>, res: Response) => {
     const validatedData = req.body;
-    // console.log('validate data', validatedData)
 
     const userExists = await User.findOne({
       $or: [
@@ -107,8 +104,6 @@ const authController = {
     }
 
     const newUser = await User.create(validatedData);
-
-    // console.log('newUser', newUser)
 
     const { rawToken, hashedToken, expires } = generateSecureToken(
       24 * 60 * 60 * 1000,
@@ -128,7 +123,7 @@ const authController = {
         html: welcomeTemplate({ username: newUser.username, verifyUrl }),
       });
     } catch (error) {
-      console.log("Failed to send email.", error);
+      console.error("Failed to send email.", error);
     }
 
     res.status(201).send({
@@ -230,7 +225,7 @@ const authController = {
       user.passwordResetExp = undefined;
       await user.save();
 
-      console.log("Failed to send email.", mailError);
+      console.error("Failed to send email.", mailError);
       throw new CustomError(
         "E-Mail konnte nicht gesendet werden. Bitte versuche es später erneut.",
         500,
@@ -299,7 +294,8 @@ const authController = {
   },
 
   setupAccount: async (
-    req: Request<{ token: string }, any, SetupAccountInput>,res: Response
+    req: Request<{ token: string }, any, SetupAccountInput>,
+    res: Response,
   ) => {
     const { token } = req.params;
 

@@ -7,6 +7,7 @@ import Event from "../../models/eventModel.js";
 import Post from "../../models/postModel.js";
 import type { CreatePostInput, UpdatePostInput } from "../../validations/post.schema.js";
 import type { PostDocument } from "../../types/post.types.js";
+import { createNotification } from "../../helpers/createNotification.js";
 
 const socialPostController = {
   list: async (req: Request, res: Response) => {
@@ -155,6 +156,17 @@ const socialPostController = {
 
     if (!updatedPost) {
       throw new CustomError("Post not found", 404);
+    }
+
+    if (!alreadyLiked && !post.authorId.equals(userId)) {
+      await createNotification(post.authorId, "post_like", {
+        title: "Yeni Beğeni",
+        message: `${req.user.firstName || "Birisi"} gönderini beğendi.`,
+        senderId: userId,
+        relatedId: post._id,
+        relatedModel: "Post",
+        linkNotification: `/posts/${post._id}`,
+      });
     }
 
     res.status(200).send({
