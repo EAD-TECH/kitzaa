@@ -14,7 +14,12 @@ export const socketAuth = async (
     const token = socket.handshake.auth.token as string | undefined;
 
     if (!token) {
-      return next(new CustomError("Token bulunamadı", 401));
+      socket.data.userId = `guest:${socket.id}`;
+      socket.data.role = "guest";
+      socket.data.firstName = "Gast";
+      socket.data.lastName = "";
+      next();
+      return;
     }
 
     const decoded = jwt.verify(
