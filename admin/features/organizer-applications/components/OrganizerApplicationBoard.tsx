@@ -10,7 +10,7 @@ import KanbanSkeleton from "@/components/shared/KanbanSkeleton";
 import KanbanErrorState from "@/components/shared/KanbanErrorState";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Calendar, CircleIcon, UserIcon } from "lucide-react";
+import { Calendar, CircleIcon } from "lucide-react";
 import { useDebounce } from "use-debounce";
 
 import ReusableDrawer from "@/components/shared/drawer/ReusableDrawer";
@@ -19,34 +19,23 @@ const filtreSecenekleri = [
   {
     id: "status",
     value: "status",
-    label: "Status (Durum)",
+    label: "Status",
     icon: <CircleIcon />,
     options: [
-      { value: "pending", label: "Yeni Başvurular" },
-      { value: "under_review", label: "İncelemedekiler" },
-      { value: "approved", label: "Onaylananlar" },
-      { value: "rejected", label: "Reddedilenler" },
-    ],
-  },
-  {
-    id: "assignee",
-    value: "assignee",
-    label: "Assignee (Atanan Kişi)",
-    icon: <UserIcon />,
-    options: [
-      { value: "elif", label: "Elif" },
-      { value: "ayla", label: "Ayla" },
-      { value: "duygu", label: "Duygu" },
+      { value: "pending", label: "Neue Bewerbungen" },
+      { value: "under_review", label: "In Prüfung" },
+      { value: "approved", label: "Genehmigt" },
+      { value: "rejected", label: "Abgelehnt" },
     ],
   },
   {
     id: "sort",
     value: "sort",
-    label: "Tarihe Göre",
+    label: "Nach Datum",
     icon: <Calendar />,
     options: [
-      { value: "sort_newest", label: "En Yeniler" },
-      { value: "sort_oldest", label: "Eskiler" },
+      { value: "sort_newest", label: "Neueste" },
+      { value: "sort_oldest", label: "Älteste" },
     ],
   },
 ];
@@ -129,8 +118,6 @@ export default function OrganizerApplicationBoard() {
       } else {
         setSeciliStatus([...seciliStatus, tiklananDeger]);
       }
-    } else {
-      console.log("Kişi seçildi, tahta silinmeyecek!"); // Assignee bug'ı çözümü
     }
   };
 
@@ -139,8 +126,8 @@ export default function OrganizerApplicationBoard() {
       {/* BAŞLIK VE FİLTRELER */}
       <div className="flex flex-col gap-4 desktop:flex-row desktop:items-center desktop:justify-between">
         <PageHeader
-          title="Organizatör Başvuruları"
-          description="Başvuruları yönetin"
+          title="Organisatorbewerbungen"
+          description="Bewerbungen verwalten"
         />
 
         <div className="flex w-full flex-wrap items-center gap-2 desktop:w-fit">
@@ -189,7 +176,7 @@ export default function OrganizerApplicationBoard() {
           {(seciliStatus.length === 0 || seciliStatus.includes("pending")) && (
             <KanbanColumn
               scrollable
-              title="Yeni"
+              title="Neu"
               count={pendingEvents.length}
               dotColor="bg-yellow-500"
               fetchNextPage={pendingEvent.fetchNextPage}
@@ -230,7 +217,7 @@ export default function OrganizerApplicationBoard() {
           {(seciliStatus.length === 0 || seciliStatus.includes("approved")) && (
             <KanbanColumn
               scrollable
-              title="Onaylandı"
+              title="Genehmigt"
               count={approvedEvents.length}
               dotColor="bg-green-500"
               fetchNextPage={approvedEvent.fetchNextPage}

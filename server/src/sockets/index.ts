@@ -60,16 +60,13 @@ export const initSocket = (httpServer: HttpServer) => {
         "online_users_update",
         Array.from(onlineUsers.values()),
       );
-      console.log(onlineUsers, "baglananların sayısını gorucm ");
     });
 
     /* eger baglanan kısı admın ıse onu admınlerın oldugu odaya alıcm */
     if (socket.data.role === "admin") {
-      /* console.log("admin yetkılı kısısı baglandı"); */
       /* onu ozel odaya alıyorm */
       socket.join("admins_room");
       socket.emit("activity_snapshot", recentActivities);
-      /*  console.log("admin odaya alındı"); */
     }
     io.to("admins_room").emit(
       "online_users_update",
@@ -79,7 +76,6 @@ export const initSocket = (httpServer: HttpServer) => {
     /* normal kullanıcıdan gelen aksıyonları dınlemem lazım */
 
     socket.on("user_action", (clientData) => {
-      console.log("dinleme cıhazımı taktım");
       const activityPayload = {
         id: crypto.randomUUID(),
         title: clientData.title,
@@ -99,17 +95,13 @@ export const initSocket = (httpServer: HttpServer) => {
       if (recentActivities.length > 50) {
         recentActivities.pop();
       }
-      console.log("kutunun boyutu", recentActivities.length);
-
       io.to("admins_room").emit("new_activity", activityPayload);
-      console.log("admin odasına fırlattım");
     });
 
     socket.on("ping", (mesaj) => {
       socket.emit("pong", "Backend'den selamlar, garson göreve hazır!");
     });
     socket.on("request_chat_session", (payload) => {
-      console.log(`Sohbet talebi geldi. Hedef ID: ${payload.targetId}`);
       /* controlrıa paslıyorm */
       handleChatSessionRequest(io, socket, payload);
     });
@@ -117,7 +109,6 @@ export const initSocket = (httpServer: HttpServer) => {
       handleSupportRequest(io, socket, payload);
     });
     socket.on("send_message", (payload) => {
-      console.log("admının yoladıgı mesaj", payload);
       /* controlrıa paslıyorm */
       handleSendMessage(io, socket, payload);
     });
@@ -153,7 +144,6 @@ export const initSocket = (httpServer: HttpServer) => {
       }
 
       socket.join(payload.roomId);
-      console.log("chat room'a katildi");
 
       const rawHistory = await Message.find({
         conversationId: payload.roomId,
@@ -190,9 +180,6 @@ export const initSocket = (httpServer: HttpServer) => {
     socket.on("leave_chat_room", (payload) => {
       if (payload.roomId) {
         socket.leave(payload.roomId);
-        console.log(
-          `Socket ${socket.id}, ${payload.roomId} odasından ayrıldı.`,
-        );
       }
     });
 

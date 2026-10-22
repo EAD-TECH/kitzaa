@@ -19,32 +19,20 @@ import {
   Calendar,
   CircleIcon,
   Loader2,
-  UserIcon,
 } from "lucide-react";
 
 const filtreSecenekleri = [
   {
     id: "status",
     value: "status",
-    label: "Status (Durum)",
+    label: "Status",
     icon: <CircleIcon />,
     options: [
-      { value: "pending", label: "Yeni Başvurular" },
-      { value: "approved", label: "Onaylananlar" },
+      { value: "pending", label: "Neue Bewerbungen" },
+      { value: "approved", label: "Genehmigt" },
       { value: "rejected", label: "Reddeilenler" },
-      { value: "cancelled", label: "İptal Edilenler" },
+      { value: "cancelled", label: "Storniert" },
       { value: "completed", label: "Tamamlananlar" },
-    ],
-  },
-  {
-    id: "assignee",
-    value: "assignee",
-    label: "Assignee (Atanan Kişi)",
-    icon: <UserIcon />,
-    options: [
-      { value: "elif", label: "Elif" },
-      { value: "ayla", label: "Ayla" },
-      { value: "duygu", label: "Duygu" },
     ],
   },
   {
@@ -53,16 +41,15 @@ const filtreSecenekleri = [
     label: "Tarihe Göre",
     icon: <Calendar />,
     options: [
-      { value: "sort_newest", label: "En Yeniler" },
-      { value: "sort_oldest", label: "Eskiler" },
+      { value: "sort_newest", label: "Neueste" },
+      { value: "sort_oldest", label: "Älteste" },
     ],
   },
 ];
 
 export default function AdminEventsBoard() {
-  const [aktifKategori, SetAktifKategori] = useState("Tümü");
+  const [aktifKategori, SetAktifKategori] = useState("Alle");
   const { data: categoriesResponse } = useEventCategories();
-  console.log(categoriesResponse);
   const [inputValue, setInputValue] = useState("");
   const [sakinKelime] = useDebounce(inputValue, 400);
 
@@ -75,32 +62,19 @@ export default function AdminEventsBoard() {
     : (categoriesResponse as any)?.data ||
       (categoriesResponse as any)?.categories ||
       [];
-  console.log(categories);
-
   const categoryNames = categories.map((cat: any) => cat.name);
-  console.log(categoryNames);
-  const benzersizkategoriler = ["Tümü", ...categoryNames];
+  const benzersizkategoriler = ["Alle", ...categoryNames];
 
   const seciliKategoriObj = categories.find(
     (cat: any) => cat.name === aktifKategori,
   );
-  console.log(seciliKategoriObj);
   const seciliKategoriId = seciliKategoriObj
     ? seciliKategoriObj._id
     : undefined;
-  console.log(seciliKategoriId);
 
   const onKategoriSec = (kategori: string) => {
     SetAktifKategori(kategori);
   };
-
-  /*  const tumEtkinlikler = data?.pages.flatMap((page) => page.events || []) || [];
-
-  const pendingEvents = tumEtkinlikler.filter((e) => e.status === "pending");
-  const approvedEvents = tumEtkinlikler.filter((e) => e.status === "approved");
-  const rejected = tumEtkinlikler.filter((e) => e.status === "rejected");
-  const cancelled = tumEtkinlikler.filter((e) => e.status === "cancelled");
-  const completed = tumEtkinlikler.filter((e) => e.status === "completed"); */
 
   const pendingEvent = useEventApplications({
     secilenKategori: seciliKategoriId,
@@ -178,16 +152,12 @@ export default function AdminEventsBoard() {
     completedEvent.isError;
 
   const onFilterSelect = (tiklananDeger: string) => {
-    console.log("popoverdan gelen deger", tiklananDeger);
-    console.log("popoverın defaultu", seciliStatus);
-
     if (tiklananDeger.startsWith("sort_")) {
       setSiralama(tiklananDeger);
       return;
     }
 
     const varMi = seciliStatus.includes(tiklananDeger);
-    console.log("bu deger dızı de varmı", varMi);
     if (varMi) {
       let yeniDizi = seciliStatus.filter((deger) => deger != tiklananDeger);
       setSeciliStatus(yeniDizi);
@@ -200,8 +170,8 @@ export default function AdminEventsBoard() {
     <Card className="flex flex-col gap-6 self-stretch rounded-2xl border border-border bg-background p-4 ring-0 shadow-none tablet:p-6">
       {/* baslik*/}
       <PageHeader
-        title="Etkinlikler"
-        description="Etkinlikleri durumlarına göre yönetin ve yayın akışını takip edin."
+        title="Events"
+        description="Verwalten Sie Events nach Status und behalten Sie den Veröffentlichungsablauf im Blick."
       />
       <div className="flex w-full min-w-0 flex-col gap-2 tablet:flex-row tablet:items-center">
         <FilterAndSearch
@@ -258,7 +228,7 @@ export default function AdminEventsBoard() {
           {(seciliStatus.length === 0 || seciliStatus.includes("pending")) && (
             <KanbanColumn
               scrollable
-              title="Onay Bekliyor"
+              title="Genehmigung ausstehend"
               count={pendingEvents.length}
               dotColor="bg-yellow-500"
               fetchNextPage={pendingEvent.fetchNextPage}
@@ -352,12 +322,12 @@ export default function AdminEventsBoard() {
             {isFetchingNextPage ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Etkinlikler Yükleniyor...
+                Events werden geladen...
               </>
             ) : (
               <>
                 <ArrowDown className="mr-2 h-5 w-5" />
-                Daha Fazla Etkinlik Yükle
+                Weitere Events laden
               </>
             )}
           </Button>

@@ -109,12 +109,12 @@ export const createCategoryColumns = (handlers: {
               <DropdownMenuItem
                 onClick={() => handlers.onEdit?.(category?._id)}
               >
-                Düzenle
+                Bearbeiten
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => handlers.onDelete?.(category?._id)}
               >
-                Sil
+                Löschen
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>

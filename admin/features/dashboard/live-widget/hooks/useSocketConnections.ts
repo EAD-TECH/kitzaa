@@ -12,23 +12,17 @@ export const useSocketConnection = () => {
   const setActivities = useLiveWidgetStore((state) => state.setActivities);
   const setOnlineUsers = useLiveWidgetStore((state) => state.setOnlineUsers);
 
-  /*   console.log(token, "oldumu") */ useEffect(() => {
+  useEffect(() => {
     if (!token) {
       return;
-      /*  console.log("token gelmesı lazım"); */
     }
-    /*    console.log(
-      "once motorun calısması lazım:sebekeyı dınlemem lazım token okey",
-    ); */
 
     /* baglantı gerceklestı socket.on ıle baglantıyı gerceklestırıyorm */
     socket.on("connect", () => {
-      /*  console.log("baglantı oldu zustand depomdakı statusumu guncellıyorum"); */
       setSocketStatus(true);
     });
 
     socket.on("new_activity", (newActivityData) => {
-      /*  console.log("yeni bildirim geldi zustanı yenılıyorm") */
       addActivity(newActivityData);
     });
     socket.on("activity_snapshot", (newactivites) => {
@@ -43,8 +37,6 @@ export const useSocketConnection = () => {
       setSocketStatus(false);
     });
 
-    console.log("backende baglandımmı", socket);
-
     /* cleanup mantıgı */
     return () => {
       socket.off("connect");
@@ -52,7 +44,6 @@ export const useSocketConnection = () => {
       socket.off("activity_snapshot");
       socket.off("online_users_update");
       socket.off("disconnect");
-      /*  console.log("baglantı durdu:sebeke yanı socket baglantım kesıldı🔴🔴"); */
     };
     /* bos dızı eklıyorm bır kere tetıklen sadece */
   }, [token, addActivity, setActivities, setOnlineUsers, setSocketStatus]);

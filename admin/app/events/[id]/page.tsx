@@ -9,7 +9,6 @@ export default function EventDetailPage() {
   const onTest = async () => {
     try {
       const data = await getAdminEvent(id);
-      console.log("admin event", data);
       alert("OK — check Console");
     } catch (e) {
       console.error(e);

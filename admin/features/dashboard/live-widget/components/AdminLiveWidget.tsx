@@ -128,7 +128,6 @@ export default function AdminLiveWidget() {
   const [messageInput, setMessageInput] = useState("");
 
   const handleSendMessage = () => {
-    console.log("click calısıyormu enterlayınca");
     if (!messageInput.trim() || !activeConversationRoomId) return;
     if (!messageInput.trim()) return;
 
@@ -139,7 +138,6 @@ export default function AdminLiveWidget() {
       receiverId: selectedUser?.id,
       text: messageInput,
     });
-    console.log("emit twtıklenıyoemu");
     setMessageInput("");
   };
 
@@ -148,10 +146,7 @@ export default function AdminLiveWidget() {
       /* tıkladıgm kısının id simi */
       const currentSelectedUser = useLiveWidgetStore.getState().selectedUser;
       if (currentSelectedUser && data.targetId === currentSelectedUser.id) {
-        console.log(" EŞLEŞME BAŞARILI! Odaya giriliyor:", data.conversationId);
         setActiveConversationRoomId(data.conversationId);
-      } else {
-        console.log("EŞLEŞME HATASI var");
       }
     };
 
@@ -184,12 +179,6 @@ export default function AdminLiveWidget() {
     };
   }, []);
 
-  console.log(
-    "GÜNCEL DURUM - Seçili Kullanıcı:",
-    selectedUser?.firstName,
-    "Oda Şifresi:",
-    activeConversationRoomId,
-  );
   const closeChat = () => {
     if (activeConversationRoomId) {
       socket.emit("leave_chat_room", { roomId: activeConversationRoomId });

@@ -9,7 +9,6 @@ export const socketAuth = async (
   socket: Socket,
   next: (err?: Error) => void,
 ) => {
-  console.log("gelen kişiyi kontrlet.");
   try {
     const token = socket.handshake.auth.token as string | undefined;
 

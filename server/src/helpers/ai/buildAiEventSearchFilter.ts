@@ -76,8 +76,6 @@ const dateRangeForPreference = (
     const startOfToday = berlinNow().startOf("day").toDate();
     const endOfToday = berlinNow().endOf("day").toDate();
 
-    // console.log("startOfToday:", startOfToday);
-    // console.log("endOfToday:", endOfToday);
     return {
       $gte: startOfToday,
       $lte: endOfToday,
@@ -90,8 +88,6 @@ const dateRangeForPreference = (
     const startOfTomorrow = tomorrow.startOf("day").toDate();
     const endOfTomorrow = tomorrow.endOf("day").toDate();
 
-    // console.log("startOfTomorrow:", startOfTomorrow);
-    // console.log("endOfTomorrow:", endOfTomorrow);
     return {
       $gte: startOfTomorrow,
       $lte: endOfTomorrow,

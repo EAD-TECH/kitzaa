@@ -95,10 +95,8 @@ export default function UserActionDrawer() {
 
     const payload: UpdateUserDTO = { _id: userId };
     const changedKey = Object.keys(dirtyFields);
-    console.log(changedKey, "degısen kısımlar");
 
     if (changedKey.length === 0) {
-      console.log("Değişiklik yapılmadı, ");
       handleDrawerClose(false);
       return;
     }
@@ -106,7 +104,6 @@ export default function UserActionDrawer() {
     changedKey.forEach((item) => {
       const key = item as keyof UpdateUserFormValues;
       (payload as any)[key] = (data as any)[key];
-      console.log(payload, "hangı lokasyon bılgısı");
     });
 
     if (payload.location && typeof payload.location === "object") {
@@ -134,7 +131,6 @@ export default function UserActionDrawer() {
       const query = currentParams.toString();
       router.replace(query ? `${pathname}?${query}` : pathname);
       form.reset();
-      console.log("form hataları", form.setError);
     }
   }
 
@@ -142,9 +138,9 @@ export default function UserActionDrawer() {
     <ResponsiveModal
       isOpen={isOpen}
       onClose={handleDrawerClose}
-      title="Kullanıcı Detayı"
-      tag={userData?.role ? userData.role.toUpperCase() : "Yükleniyor..."}
-      description={userId ? `Kullanıcı ID: ${userId}` : "Operasyon"}
+      title="Nutzerdetails"
+      tag={userData?.role ? userData.role.toUpperCase() : "Wird geladen..."}
+      description={userId ? `Nutzer-ID: ${userId}` : "Verwaltung"}
     >
       <Form {...form}>
         <form
@@ -153,21 +149,21 @@ export default function UserActionDrawer() {
         >
           <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 tablet:px-6 tablet:py-6 bg-kanban-column-bg">
             {isLoading ? (
-              <div className="p-10 text-center">(Yükleniyor)...</div>
+              <div className="p-10 text-center">(Wird geladen)...</div>
             ) : (
               <div className="grid grid-cols-1 tablet:grid-cols-2 min-w-0 gap-2">
-                <SectionShell title="Kişisel Bilgiler">
+                <SectionShell title="Persönliche Informationen">
                   <ReusableFormInput
                     control={form.control}
                     name="firstName"
-                    label="Ad"
-                    placeholder="Adı"
+                    label="Vorname"
+                    placeholder="Vorname"
                   />
                   <ReusableFormInput
                     control={form.control}
                     name="lastName"
-                    label="Soyad"
-                    placeholder="Soyadı"
+                    label="Nachname"
+                    placeholder="Nachname"
                   />
                   <ReusableFormInput
                     control={form.control}
@@ -184,7 +180,7 @@ export default function UserActionDrawer() {
                   />
                 </SectionShell>
 
-                <SectionShell title="Lokasyon Bilgileri">
+                <SectionShell title="Standortinformationen">
                   <ReusableFormInput
                     control={form.control}
                     name="location.state"
@@ -216,23 +212,23 @@ export default function UserActionDrawer() {
                     placeholder="district..."
                   />
                 </SectionShell>
-                <SectionShell title="Kullanıcı Rolü ve Dil Tercihi">
+                <SectionShell title="Nutzerrolle und Spracheinstellungen">
                   <ReusableFormSelect
                     control={form.control}
                     name="role"
-                    label="Kullanıcı Rolu"
-                    placeholder="Bir rol sec.."
+                    label="Nutzerrolle"
+                    placeholder="Rolle auswählen ..."
                     options={[
-                      { label: "Yönetici (Admin)", value: "admin" },
-                      { label: "Organizatör", value: "organizer" },
-                      { label: "Kullanıcı (User)", value: "user" },
+                      { label: "Administrator", value: "admin" },
+                      { label: "Organisator", value: "organizer" },
+                      { label: "Nutzer", value: "user" },
                     ]}
                   />
                   <ReusableFormSelect
                     control={form.control}
                     name="language"
-                    label="Kullanıcı Dil Secenegi"
-                    placeholder="Bir dil sec.."
+                    label="Nutzersprache"
+                    placeholder="Sprache auswählen ..."
                     options={[
                       { label: "DE", value: "de" },
                       { label: "EN", value: "en" },
@@ -251,7 +247,7 @@ export default function UserActionDrawer() {
 
           <div className="shrink-0 flex justify-end gap-2 border-t px-4 py-4 tablet:px-6">
             <Button type="submit" disabled={isUpdating}>
-              {isUpdating ? "Kaydediliyor..." : "Kaydet"}
+              {isUpdating ? "Wird gespeichert..." : "Speichern"}
             </Button>
           </div>
         </form>

@@ -12,9 +12,6 @@ export const useUnreadCount=()=>{
   const accessToken=useAuthStore((state)=>state.accessToken)
     const isSocketConnected = useAuthStore((state) => state.isSocketConnected);
   
-  /* console.log("hazırmı",isReady)
-  console.log("token varmı",accessToken) */
-
   return useQuery({
     queryKey:["notifications","unread-count"],
     queryFn:getUnreadNotificationCount,
