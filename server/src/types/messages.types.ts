@@ -1,13 +1,13 @@
 import type { Types, Model, HydratedDocument } from "mongoose";
 
-export const MESSAGE_SENDER_TYPES = ["user", "admin"] as const;
+export const MESSAGE_SENDER_TYPES = ["user", "admin", "ai"] as const;
 export type MessageSenderType = (typeof MESSAGE_SENDER_TYPES)[number];
 
 export interface IMessage {
   _id?: Types.ObjectId;
   conversationId: Types.ObjectId;
   senderType: MessageSenderType;
-  senderId: Types.ObjectId;
+  senderId?: Types.ObjectId | null;
   content: string;
   isRead: boolean;
   createdAt?: Date;
@@ -20,7 +20,7 @@ export interface MessageDTO {
   _id: string;
   conversationId: string;
   senderType: MessageSenderType;
-  senderId: string;
+  senderId: string | null;
   content: string;
   isRead: boolean;
   createdAt: Date;

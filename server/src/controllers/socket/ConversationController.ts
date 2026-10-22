@@ -1,12 +1,13 @@
-import { runAgent } from "../../agent/run.js";
 import { createNotification } from "../../helpers/createNotification.js";
 import Conversation from "../../models/Conversation.js";
 import { findOrCreateConversation } from "../../services/conversationService.js";
 import { createSupportRoom } from "../../services/createSupportRoom.js";
+import { SaveMessage } from "../../services/messageService.js";
 import {
-  getConversationHistory,
-  SaveMessage,
-} from "../../services/messageService.js";
+  processGuestSupportAgent,
+  processSupportAgent,
+} from "../../services/supportAgentService.js";
+import type { ModelMessage } from "ai";
 import type { MessageSenderType } from "../../types/messages.types.js";
 import type { Socket, Server } from "socket.io";
 
@@ -16,10 +17,10 @@ interface ChatPayload {
 
 export interface SendMessagePayload {
   roomId: string;
-  receiverId: string;
   text: string;
 }
 
+/* birebir chat olusturma */
 export const handleChatSessionRequest = async (
   io: Server,
   socket: Socket,
@@ -33,36 +34,77 @@ export const handleChatSessionRequest = async (
     adminId,
     payload.targetId,
   );
-
-  /* admini odaya aldım */
   socket.join(conversation._id.toString());
   socket.emit("chat_session_ready", {
     conversationId: conversation._id,
     targetId: payload.targetId,
   });
-
-  /* admının yazdıgı kullanıcıyı bılgılendırıyorm */
   io.to(`user:${payload.targetId}`).emit("chat_invite", {
     roomId: conversation._id,
     adminId: socket.data.userId,
   });
 };
 
+/*
+  Mesaj Gönderme (Direct ve Support Odaları)
+  */
 export const handleSendMessage = async (
   io: Server,
   socket: Socket,
   payload: SendMessagePayload,
 ) => {
   try {
-    if (payload.roomId) {
+    const senderId = socket.data.userId;
+    const userRole = socket.data.role;
+
+    if (userRole === "guest" && payload.roomId.startsWith("guest:")) {
+      if (!payload.text?.trim()) return;
       socket.join(payload.roomId);
+      io.to(payload.roomId).emit("receive_support_message", {
+        id: `guest-user:${Date.now()}`,
+        senderId,
+        senderName: "Gast",
+        senderType: "user",
+        text: payload.text,
+        roomId: payload.roomId,
+        timestamp: new Date(),
+      });
+      const history = (socket.data.guestHistory ?? []) as ModelMessage[];
+      const agentResponse = await processGuestSupportAgent(
+        io,
+        payload.roomId,
+        payload.text,
+        history,
+      );
+      socket.data.guestHistory = [
+        ...history,
+        { role: "user", content: payload.text },
+        ...(agentResponse
+          ? [{ role: "assistant" as const, content: agentResponse }]
+          : []),
+      ];
+      return;
+    }
+   /*  */
+    const room = await Conversation.findById(payload.roomId);
+    if (!room || room.status === "closed") {
+      socket.emit("error_message", { message: "Oda bulunamadı veya kapalı." });
+      return;
     }
 
-    const senderId = socket.data.userId;
-    const senderType: MessageSenderType =
-      socket.data.role === "admin" ? "admin" : "user";
+    const isParticipant = room.participants.some(
+      (p) => p.toString() === senderId,
+    );
+    if (!isParticipant && userRole !== "admin") {
+      socket.emit("error_message", { message: "Bu odaya erişim yetkiniz yok." });
+      return;
+    }
 
-    /* musterinin-adminin mesajini kaydettim */
+    socket.join(payload.roomId);
+
+    const senderType: MessageSenderType = userRole === "admin" ? "admin" : "user";
+
+    // --- Mesajı DB'ye Kaydet ---
     const savedUserMessage = await SaveMessage(
       payload.roomId,
       senderId,
@@ -75,25 +117,31 @@ export const handleSendMessage = async (
       senderId: senderId,
       senderName:
         socket.data.firstName ||
-        (socket.data.role === "admin" ? "Admin" : "Nutzer"),
+        (userRole === "admin" ? "Admin" : "Nutzer"),
       senderType: savedUserMessage.senderType,
       text: savedUserMessage.content,
       roomId: savedUserMessage.conversationId.toString(),
       timestamp: savedUserMessage.createdAt,
     };
-    io.to(payload.roomId).emit("receive_message", frontendUserMessage);
 
-    if (socket.data.role === "admin") {
-      const room = await Conversation.findById(payload.roomId);
-      const recipientId = room?.participants[0];
+    // --- EKSİK 2 DÜZELTİLDİ: ODA TİPİNE GÖRE SOCKET EVENT YAYINI ---
+    if (room.roomtype === "support") {
+      io.to(payload.roomId).emit("receive_support_message", frontendUserMessage);
+    } else {
+      io.to(payload.roomId).emit("receive_message", frontendUserMessage);
+    }
 
-      if (room?.roomtype === "support" && recipientId) {
+    // --- Admin Mesajı ve Bildirim Mantığı ---
+    if (userRole === "admin" && room.roomtype === "support") {
+      const recipientId = room.participants[0];
+      if (recipientId) {
         try {
           await createNotification(recipientId, "system", {
             title: "Antwort vom Support",
             message: payload.text,
             relatedId: room._id,
             senderId,
+            linkNotification: `/?supportRoomId=${room._id.toString()}`,
           });
         } catch (error) {
           console.error("Destek bildirimi yazılamadı:", error);
@@ -101,142 +149,103 @@ export const handleSendMessage = async (
       }
     }
 
-    /* musteri mesajini gordu eger role user ise yapay zekayi cagiriyorm */
-    if (socket.data.role === "user") {
-      /* yapay zeka sadece support odada gorev alsın */
-      const currentRoom = await Conversation.findById(payload.roomId);
-
-      if (currentRoom && currentRoom.roomtype === "support") {
-        /* ŞALTER BURADA: ajan aktifse ve admin henüz devralmadıysa */
-        if (currentRoom.isAgentActive === true) {
-          // 1. Önce tarihi çekiyoruz
-          const history = await getConversationHistory(payload.roomId);
-
-          // 2. Ajanı çalıştırıp tarihi veriyoruz
-          const agentResponse = await runAgent(
-            payload.text,
-            payload.roomId,
-            senderId,
-            history,
-          );
-
-          /* Yapay zekanın ürettiği cevabı, kendi özel kimliğiyle DB'ye kaydet */
-          const savedAiMessage = await SaveMessage(
-            payload.roomId,
-            "000000000000000000000000",
-            "admin",
-            agentResponse,
-          );
-
-          /* Yapay zekanın cevabını odaya fırlat */
-          const frontendAiMessage = {
-            id: savedAiMessage._id.toString(),
-            senderId: "Kitzaa-ai",
-            senderName: "Kitzaa Assistent",
-            senderType: savedAiMessage.senderType,
-            text: savedAiMessage.content,
-            roomId: savedAiMessage.conversationId.toString(),
-            timestamp: savedAiMessage.createdAt,
-          };
-
-          io.to(payload.roomId).emit("receive_message", frontendAiMessage);
-          io.to(payload.roomId).emit(
-            "receive_support_message",
-            frontendAiMessage,
-          );
-        } else {
-          console.log("Bu odada admin var, Yapay Zeka devre dısı.");
-        }
-      }
+    // --- EKSİK 3 DÜZELTİLDİ: MERKEZİ AGENT SERVİSİ ÇAĞRISI ---
+    if (userRole === "user" && room.roomtype === "support") {
+      // Şalter, history ve runAgent mantığı artık tek merkezde
+      await processSupportAgent(
+        io,
+        payload.roomId,
+        senderId,
+        payload.text,
+        savedUserMessage._id.toString(),
+      );
     }
   } catch (error) {
     console.error("Mesaj gönderilirken hata oluştu:", error);
   }
-}; // <-- İŞTE EKSİK OLAN VE FONKSİYONU KAPATAN ANA PARANTEZ BURADA
+};
 
+/**
+  * 3. İlk Destek Talebi Oluşturma (Support Request)
+  */
 export const handleSupportRequest = async (
   io: Server,
   socket: Socket,
-  payload: any /* bu kısmı yazıcm sonra */,
+  payload: { text: string },
 ) => {
-  const userId = socket.data.userId;
+  try {
+    const userId = socket.data.userId;
 
-  /* service klasorundekı fonk cagırıyorm ve userıd yı parametre olarak verıyorm */
+    if (socket.data.role === "guest") {
+      if (!payload?.text || !payload.text.trim()) return;
 
-  const supportRoom = await createSupportRoom(userId);
-  const roomId = (supportRoom as any)._id.toString();
-
-  /* musterıyı odayı aldım musterı odada beklıyor */
-
-  socket.join(roomId);
-  /* musterının mesajını db ye kaydet */
-
-  const savedMessage = await SaveMessage(roomId, userId, "user", payload.text);
-
-  const frontendMessage = {
-    id: savedMessage._id.toString(),
-    senderId: userId,
-    senderName: socket.data.firstName || "Nutzer",
-    senderType: savedMessage.senderType,
-    text: savedMessage.content,
-    roomId: savedMessage.conversationId.toString(),
-    timestamp: savedMessage.createdAt,
-  };
-
-  io.to((supportRoom as any)._id.toString()).emit(
-    "receive_support_message",
-    frontendMessage,
-  );
-
-  /* io.to("admins_room").emit("new_activity", {
-    id: `ticket_${Date.now()}`,
-    title: " Yeni Destek Talebi",
-    time: new Date().toISOString(),
-    relatedId: (supportRoom as any)._id.toString(),
-    type: "system-alert",
-    isRead: false,
-  });
- */
-  /* bu noktadan sonra agentı devreye sokmam gerekıyor */
-
-  if (socket.data.role === "admin") return;
-
-  if (socket.data.role === "user") {
-    try {
-      const history = await getConversationHistory(roomId);
-      const agentResponse = await runAgent(
-        payload.text,
+      const roomId = `guest:${socket.id}`;
+      socket.join(roomId);
+      io.to(roomId).emit("receive_support_message", {
+        id: `guest-user:${Date.now()}`,
+        senderId: socket.data.userId,
+        senderName: "Gast",
+        senderType: "user",
+        text: payload.text,
         roomId,
-        userId,
+        timestamp: new Date(),
+      });
+      const history = (socket.data.guestHistory ?? []) as ModelMessage[];
+      const agentResponse = await processGuestSupportAgent(
+        io,
+        roomId,
+        payload.text,
         history,
       );
-
-      const savedAiRespond = await SaveMessage(
-        roomId,
-        "000000000000000000000000",
-        "admin",
-        agentResponse,
-      );
-      io.to(roomId).emit("receive_support_message", {
-        id: savedAiRespond._id.toString(),
-        senderId: "Kitzaa-ai",
-        senderName: "Kitzaa Assistent",
-        senderType: savedAiRespond.senderType,
-        text: savedAiRespond.content,
-        roomId: savedAiRespond.conversationId.toString(),
-        timestamp: savedAiRespond.createdAt,
-      });
-    } catch (error) {
-      console.log("destek mesajinda agent hatasi", error);
-      io.to(roomId).emit("receive_support_message", {
-        id: `error_${Date.now()}`,
-        senderId: "Kitzaa-ai",
-        senderName: "Kitzaa Assistent",
-        senderType: "admin",
-        text: "Der Assistent ist gerade nicht erreichbar. Eine Person aus dem Team meldet sich in Kürze.",
-        roomId,
-        timestamp: new Date().toISOString(),
-      });
+      socket.data.guestHistory = [
+        ...history,
+        { role: "user", content: payload.text },
+        ...(agentResponse
+          ? [{ role: "assistant" as const, content: agentResponse }]
+          : []),
+      ];
+      return;
     }
+
+    if (socket.data.role !== "user") {
+      socket.emit("error_message", {
+        message: "Sadece kullanıcılar destek talebi oluşturabilir.",
+      });
+      return;
+    }
+
+    if (!payload?.text || !payload.text.trim()) return;
+
+    // Support Odasını Oluştur veya Aktif Olanı Getir
+    const supportRoom = await createSupportRoom(userId);
+    const roomId = (supportRoom as any)._id.toString();
+
+    socket.join(roomId);
+
+    // İlk Kullanıcı Mesajını Kaydet
+    const savedMessage = await SaveMessage(roomId, userId, "user", payload.text);
+
+    const frontendMessage = {
+      id: savedMessage._id.toString(),
+      senderId: userId,
+      senderName: socket.data.firstName || "Nutzer",
+      senderType: savedMessage.senderType,
+      text: savedMessage.content,
+      roomId: savedMessage.conversationId.toString(),
+      timestamp: savedMessage.createdAt,
+    };
+
+    io.to(roomId).emit("receive_support_message", frontendMessage);
+
+    // --- EKSİK 4 DÜZELTİLDİ: TEKRAR EDEN AGENT KODLARI KALDIRILDI ---
+    await processSupportAgent(
+      io,
+      roomId,
+      userId,
+      payload.text,
+      savedMessage._id.toString(),
+    );
+  } catch (error) {
+    console.error("Destek talebi oluşturulurken hata oluştu:", error);
   }
 };

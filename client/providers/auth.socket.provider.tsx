@@ -8,6 +8,7 @@ import type {
 } from "@/features/notifications/types";
 
 import { socket } from "@/features/socket/socket";
+import { useSupport } from "@/features/socket/store/useSupport";
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -26,9 +27,11 @@ export default function AuthSocketProvider({
     (state) => state.setIsSocketConnected,
   );
   const queryClient = useQueryClient();
+  const clearSupportSession = useSupport((state) => state.clearSupportSession);
 
   /* salterim  useeffect*/
   useEffect(() => {
+    clearSupportSession();
     if (accessToken) {
       /* sockete tokenı ve baglantıyı kur */
       socket.auth = { token: accessToken };
@@ -115,10 +118,8 @@ export default function AuthSocketProvider({
         );
       });
     } else {
-      /* token yoksa hattı kes */
-      socket.disconnect();
-
-      /* cıkıs yapınca bayragıda ındır */
+      socket.auth = {};
+      socket.connect();
       setIsSocketConnected(false);
     }
 
@@ -135,7 +136,7 @@ export default function AuthSocketProvider({
       setIsSocketConnected(false);
       socket.disconnect();
     };
-  }, [accessToken, queryClient]);
+  }, [accessToken, clearSupportSession, queryClient]);
 
   const isSocketConnected = useAuthStore((state) => state.isSocketConnected);
 

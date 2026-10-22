@@ -123,36 +123,68 @@ export const initSocket = (httpServer: HttpServer) => {
     });
 
     socket.on("join_chat_room", async (payload) => {
-      if (payload.roomId) {
+      if (!payload.roomId) return;
+
+      if (
+        socket.data.role === "guest" &&
+        payload.roomId === `guest:${socket.id}`
+      ) {
         socket.join(payload.roomId);
-        console.log("user adminin daveti ile odaya katildi");
+        socket.emit("load_support_history", []);
+        return;
       }
+
+      const conversation = await Conversation.findById(payload.roomId);
+      if (!conversation || conversation.status === "closed") {
+        socket.emit("error_message", {
+          message: "Oda bulunamadı veya kapalı.",
+        });
+        return;
+      }
+
+      const isParticipant = conversation.participants.some(
+        (participant) => participant.toString() === socket.data.userId,
+      );
+      if (!isParticipant && socket.data.role !== "admin") {
+        socket.emit("error_message", {
+          message: "Bu odaya erişim yetkiniz yok.",
+        });
+        return;
+      }
+
+      socket.join(payload.roomId);
+      console.log("chat room'a katildi");
+
+      const rawHistory = await Message.find({
+        conversationId: payload.roomId,
+      }).sort({ createdAt: 1 });
+
+      const formattedHistory = rawHistory.map((msg) => ({
+        id: msg._id.toString(),
+        senderId: msg.senderId?.toString() ?? "Kitzaa-ai",
+        senderName:
+          msg.senderType === "ai"
+            ? "Kitzaa Assistent"
+            : msg.senderType === "admin"
+              ? "Admin"
+              : "Nutzer",
+        senderType: msg.senderType,
+        text: msg.content,
+        roomId: msg.conversationId.toString(),
+        timestamp: msg.createdAt,
+      }));
+
       if (socket.data.role === "admin") {
         /* admin odaya gırdı agentın fısını cek */
-        await Conversation.findByIdAndUpdate(payload.roomId, {
-          isAgentActive: false,
-        });
+        if (conversation.roomtype === "support") {
+          await Conversation.findByIdAndUpdate(payload.roomId, {
+            isAgentActive: false,
+          });
+        }
         /* admin devre dısı user-agent konusmalarını admıne pasla */
-        const rawHistory = await Message.find({
-          conversationId: payload.roomId,
-        })/* .sort({ createdAt: -1 }) */;
-
-        const formattedHistory = rawHistory.map((msg) => ({
-          id: msg._id.toString(),
-          senderId: msg.senderId,
-          senderName:
-            msg.senderType === "admin"
-              ? msg.senderId.toString() === "000000000000000000000000"
-                ? "Kitzaa Assistent"
-                : "Admin"
-              : "Nutzer",
-          senderType: msg.senderType,
-          text: msg.content,
-          roomId: msg.conversationId.toString(),
-          timestamp: msg.createdAt,
-        }));
-
         socket.emit("load_chat_history", formattedHistory);
+      } else {
+        socket.emit("load_support_history", formattedHistory);
       }
     });
     socket.on("leave_chat_room", (payload) => {

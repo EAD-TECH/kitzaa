@@ -174,11 +174,13 @@ export default function AdminLiveWidget() {
 
     socket.on("chat_session_ready", handleChatReady);
     socket.on("receive_message", handleReceiveMessage);
+    socket.on("receive_support_message", handleReceiveMessage);
     socket.on("load_chat_history",handleLoadHistory)
 
     return () => {
       socket.off("chat_session_ready", handleChatReady);
       socket.off("receive_message", handleReceiveMessage);
+      socket.off("receive_support_message", handleReceiveMessage);
     };
   }, []);
 
@@ -239,16 +241,15 @@ export default function AdminLiveWidget() {
                 <MessageScrollerViewport>
                   <MessageScrollerContent className="gap-3 px-3 py-3 ">
                     {messages.map((msg) => {
-                      const isMe =
-                        msg.senderType === "admin" &&
-                        msg.senderId !== "Kitzaa-ai";
+                      const isMe = msg.senderType === "admin";
+                      const isAi = msg.senderType === "ai";
 
                       return (
                         <Message key={msg.id} align={isMe ? "end" : "start"}>
                           <MessageAvatar>
                             <Avatar className="size-8">
                               <AvatarImage
-                                src={isMe ? undefined : selectedUser?.avatarUrl}
+                                src={!isMe && !isAi ? selectedUser?.avatarUrl : undefined}
                                 alt={msg.senderName}
                               />
                               <AvatarFallback>
@@ -259,7 +260,7 @@ export default function AdminLiveWidget() {
                           <MessageContent>
                             <MessageHeader>{msg.senderName}</MessageHeader>
                             <Bubble
-                              variant={isMe ? "default" : "muted"}
+                              variant={isMe ? "default" : isAi ? "outline" : "muted"}
                               align={isMe ? "end" : "start"}
                             >
                               <BubbleContent>{msg.text}</BubbleContent>
