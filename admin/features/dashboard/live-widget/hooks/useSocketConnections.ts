@@ -17,33 +17,45 @@ export const useSocketConnection = () => {
       return;
     }
 
-    /* baglantı gerceklestı socket.on ıle baglantıyı gerceklestırıyorm */
-    socket.on("connect", () => {
+    const handleConnect = () => {
       setSocketStatus(true);
-    });
+    };
 
-    socket.on("new_activity", (newActivityData) => {
+    const handleNewActivity = (
+      newActivityData: Parameters<typeof addActivity>[0],
+    ) => {
       addActivity(newActivityData);
-    });
-    socket.on("activity_snapshot", (newactivites) => {
+    };
+
+    const handleActivitySnapshot = (
+      newactivites: Parameters<typeof setActivities>[0],
+    ) => {
       setActivities(newactivites);
-    });
+    };
 
-    socket.on("online_users_update", (users) => {
+    const handleOnlineUsersUpdate = (
+      users: Parameters<typeof setOnlineUsers>[0],
+    ) => {
       setOnlineUsers(users);
-    });
+    };
 
-    socket.on("disconnect", () => {
+    const handleDisconnect = () => {
       setSocketStatus(false);
-    });
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("new_activity", handleNewActivity);
+    socket.on("activity_snapshot", handleActivitySnapshot);
+    socket.on("online_users_update", handleOnlineUsersUpdate);
+    socket.on("disconnect", handleDisconnect);
 
     /* cleanup mantıgı */
     return () => {
-      socket.off("connect");
-      socket.off("new_activity");
-      socket.off("activity_snapshot");
-      socket.off("online_users_update");
-      socket.off("disconnect");
+      socket.off("connect", handleConnect);
+      socket.off("new_activity", handleNewActivity);
+      socket.off("activity_snapshot", handleActivitySnapshot);
+      socket.off("online_users_update", handleOnlineUsersUpdate);
+      socket.off("disconnect", handleDisconnect);
     };
     /* bos dızı eklıyorm bır kere tetıklen sadece */
   }, [token, addActivity, setActivities, setOnlineUsers, setSocketStatus]);
