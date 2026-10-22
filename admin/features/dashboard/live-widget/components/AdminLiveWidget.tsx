@@ -159,23 +159,24 @@ export default function AdminLiveWidget() {
       }
     };
 
-    const handleLoadHistory=(historyData:any[])=>{
+    const handleLoadHistory = (historyData: any[]) => {
       /* once ekranı temızleme */
-      clearChatMessages()
-      historyData.map((msg)=>{
-        addMessage(msg)
-      })
-    }
+      clearChatMessages();
+      historyData.map((msg) => {
+        addMessage(msg);
+      });
+    };
 
     socket.on("chat_session_ready", handleChatReady);
     socket.on("receive_message", handleReceiveMessage);
     socket.on("receive_support_message", handleReceiveMessage);
-    socket.on("load_chat_history",handleLoadHistory)
+    socket.on("load_chat_history", handleLoadHistory);
 
     return () => {
       socket.off("chat_session_ready", handleChatReady);
       socket.off("receive_message", handleReceiveMessage);
       socket.off("receive_support_message", handleReceiveMessage);
+      socket.off("load_chat_history", handleLoadHistory);
     };
   }, []);
 
@@ -238,7 +239,11 @@ export default function AdminLiveWidget() {
                           <MessageAvatar>
                             <Avatar className="size-8">
                               <AvatarImage
-                                src={!isMe && !isAi ? selectedUser?.avatarUrl : undefined}
+                                src={
+                                  !isMe && !isAi
+                                    ? selectedUser?.avatarUrl
+                                    : undefined
+                                }
                                 alt={msg.senderName}
                               />
                               <AvatarFallback>
@@ -249,7 +254,9 @@ export default function AdminLiveWidget() {
                           <MessageContent>
                             <MessageHeader>{msg.senderName}</MessageHeader>
                             <Bubble
-                              variant={isMe ? "default" : isAi ? "outline" : "muted"}
+                              variant={
+                                isMe ? "default" : isAi ? "outline" : "muted"
+                              }
                               align={isMe ? "end" : "start"}
                             >
                               <BubbleContent>{msg.text}</BubbleContent>

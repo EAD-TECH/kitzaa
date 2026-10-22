@@ -54,7 +54,6 @@ const authController = {
   login: async (req: Request<{}, any, LoginInput>, res: Response) => {
     const validatedData = req.body;
 
-
     const user = await User.findOne({
       $or: [{ email: validatedData.login }, { username: validatedData.login }],
     }).select("+password");
@@ -105,7 +104,6 @@ const authController = {
     }
 
     const newUser = await User.create(validatedData);
-
 
     const { rawToken, hashedToken, expires } = generateSecureToken(
       24 * 60 * 60 * 1000,
@@ -296,7 +294,8 @@ const authController = {
   },
 
   setupAccount: async (
-    req: Request<{ token: string }, any, SetupAccountInput>,res: Response
+    req: Request<{ token: string }, any, SetupAccountInput>,
+    res: Response,
   ) => {
     const { token } = req.params;
 
