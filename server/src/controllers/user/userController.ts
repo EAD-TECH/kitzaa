@@ -24,7 +24,6 @@ const userController = {
             `
         */
 
-    // console.log('list controller calisiyor')
     const customFilter = req.user.role === 'admin' ? {} : { _id: req.user._id };
 
     const result = await res.getModelList(User, customFilter)
@@ -48,17 +47,13 @@ const userController = {
             #swagger.summary = 'Get Single User'
         */
 
-    // console.log('read calisti')
 
-    // console.log('userId', req.user._id)
 
     const userId = req.user._id
 
-    // console.log('userId var', userId)
 
     const result = await User.findOne({ _id: userId });
 
-    // console.log('result', result)
 
     if (!result) {
       throw new CustomError('User not found', 404);
@@ -80,7 +75,6 @@ const userController = {
 
     const validatedData = req.body
 
-    // console.log('updateValidateddata', validatedData)
 
     const userId = req.user._id
 
@@ -89,7 +83,6 @@ const userController = {
       new: true,
     });
 
-    // console.log('update-result', result)
 
     res.status(200).send({
       error: false,
@@ -99,16 +92,13 @@ const userController = {
 
   updatePassword: async (req: Request<{ id: string }, any, ChangePasswordInput>, res: Response) => {
 
-    console.log('updatepasswordUser', req.body)
 
     const validatedData = req.body
     const userId = req.user._id
 
-    // console.log('updatepasswordUser', userId)
 
     const user = await User.findById(userId).select("+password")
 
-    // console.log('updatepasswordUser', user)
 
     if (!user) throw new CustomError('User not found', 404)
 

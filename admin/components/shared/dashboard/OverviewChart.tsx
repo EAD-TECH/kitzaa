@@ -21,7 +21,7 @@ import {
 export const description = "An interactive bar chart";
 
 const chartConfig = {
-  events: { label: "Etkinlik", color: "var(--chart-2)" },
+  events: { label: "Events", color: "var(--chart-2)" },
   participants: { label: "Katılımcı", color: "var(--chart-1)" },
 } satisfies ChartConfig;
 
@@ -53,7 +53,7 @@ export default function OverviewChart({
     <Card className="py-0">
       <CardHeader className="flex flex-col items-stretch border-b p-0! sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 pt-4 pb-3 sm:py-0!">
-          <CardTitle>Etkinlik Kullanıcı Analizi</CardTitle>
+          <CardTitle>Event-Nutzer-Analyse</CardTitle>
           <CardDescription>Son 12 ay</CardDescription>
         </div>
         <div className="flex">

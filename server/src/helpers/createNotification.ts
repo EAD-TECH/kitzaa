@@ -40,17 +40,12 @@ export const createNotification = async (
       relatedModel: payload.relatedModel,
     });
 
-    console.log("bilgiyi gormem  lazım", data);
-
     const dto = toNotificationDTO(data as NotificationDocument);
     if (dto && !Array.isArray(dto)) {
       emitNotificationToUser(String(recipientId), dto);
     }
   } catch (error: any) {
-    console.log(
-      "bıldırım olusurma sırasında olusan hatayı logla ve coz",
-      error,
-    );
+    console.error("Fehler beim Erstellen der Benachrichtigung:", error);
     throw new CustomError(
       `Sistem Hatası: Bildirimler oluşturulamadı. (${error.message || "Bilinmeyen hata"})`,
       500,

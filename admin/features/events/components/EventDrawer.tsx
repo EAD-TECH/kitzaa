@@ -167,9 +167,9 @@ export default function EventDrawer() {
     >
       <DrawerContent>
         <ReusableDrawerHeader
-          title="Etkinlik Detayı"
-          tag={eventData?.title ?? "Yükleniyor..."}
-          subtitle={formattedDate ? `Operasyon · ${formattedDate}` : "Operasyon"}
+          title="Eventdetails"
+          tag={eventData?.title ?? "Wird geladen..."}
+          subtitle={formattedDate ? `Verwaltung · ${formattedDate}` : "Verwaltung"}
         />
 
         <Form {...form}>
@@ -178,43 +178,43 @@ export default function EventDrawer() {
             className="flex min-h-0 flex-1 flex-col"
           >
             <div className="min-h-0 flex flex-col gap-8 flex-1 overflow-y-auto px-6 py-6">
-              <SectionShell title="Etkinlik bilgileri" columns={2}>
+              <SectionShell title="Eventinformationen" columns={2}>
                 {isLoading ? (
-                  <div className="p-4 text-sm text-primary">Yükleniyor...</div>
+                  <div className="p-4 text-sm text-primary">Wird geladen...</div>
                 ) : (
                   <>
-                    <InfoSection label="Organizatör">
-                      {organizerName || "Belirtilmemiş"}
+                    <InfoSection label="Organisator">
+                      {organizerName || "Nicht angegeben"}
                     </InfoSection>
-                    <InfoSection label="Durum">
+                    <InfoSection label="Status">
                       <span className="capitalize">
-                        {eventData?.status || "Belirtilmemiş"}
+                        {eventData?.status || "Nicht angegeben"}
                       </span>
                     </InfoSection>
-                    <InfoSection label="Kategori">
-                      {categoryName || "Belirtilmemiş"}
+                    <InfoSection label="Kategorie">
+                      {categoryName || "Nicht angegeben"}
                     </InfoSection>
-                    <InfoSection label="Yaş aralığı">
+                    <InfoSection label="Altersgruppe">
                       {eventData?.ageRanges?.length
                         ? eventData.ageRanges.join(", ")
-                        : "Belirtilmemiş"}
+                        : "Nicht angegeben"}
                     </InfoSection>
-                    <InfoSection label="Tarih / saat" wide>
-                      {scheduleLabel || "Belirtilmemiş"}
+                    <InfoSection label="Datum / Uhrzeit" wide>
+                      {scheduleLabel || "Nicht angegeben"}
                     </InfoSection>
-                    <InfoSection label="Konum" wide>
-                      {locationLabel || "Belirtilmemiş"}
+                    <InfoSection label="Ort" wide>
+                      {locationLabel || "Nicht angegeben"}
                     </InfoSection>
-                    <InfoSection label="Mekan tipi">
-                      {locationTypeLabel || "Belirtilmemiş"}
+                    <InfoSection label="Veranstaltungsort">
+                      {locationTypeLabel || "Nicht angegeben"}
                     </InfoSection>
                     <InfoSection label="Kapasite">
                       {eventData?.capacity
                         ? `${eventData.capacity.current} / ${eventData.capacity.max}`
-                        : "Belirtilmemiş"}
+                        : "Nicht angegeben"}
                     </InfoSection>
-                    <InfoSection label="Ücret">
-                      {priceLabel || "Belirtilmemiş"}
+                    <InfoSection label="Preis">
+                      {priceLabel || "Nicht angegeben"}
                     </InfoSection>
                     {(eventData?.status === "rejected" ||
                       eventData?.status === "cancelled") && (
@@ -222,13 +222,13 @@ export default function EventDrawer() {
                         wide
                         label={
                           eventData.status === "rejected"
-                            ? "Red sebebi"
-                            : "İptal sebebi"
+                            ? "Ablehnungsgrund"
+                            : "Stornierungsgrund"
                         }
                       >
                         {eventData.status === "rejected"
-                          ? eventData.rejectedReason || "Sebep yok"
-                          : eventData.cancelledReason || "Sebep yok"}
+                          ? eventData.rejectedReason || "Kein Grund angegeben"
+                          : eventData.cancelledReason || "Kein Grund angegeben"}
                       </InfoSection>
                     )}
                   </>
@@ -239,12 +239,12 @@ export default function EventDrawer() {
 
               <div className="flex flex-col gap-3">
                 <h2 className="font-heading uppercase text-xs text-primary">
-                  Etkinlik açıklaması
+                  Eventbeschreibung
                 </h2>
                 <div className="pl-4 flex flex-col gap-2 rounded-l border-l-2 border-l-primary bg-muted p-2">
                   <p className="font-body text-xs leading-7 italic">
                     {eventData?.description ||
-                      "Etkinlik için özel bir açıklama iletilmemiş."}
+                      "Es wurde keine spezielle Beschreibung für dieses Event übermittelt."}
                   </p>
                 </div>
               </div>
@@ -259,15 +259,15 @@ export default function EventDrawer() {
                       <FormItem>
                         <FormLabel className="font-heading text-primary">
                           {eventData?.status === "pending"
-                            ? "Reddetme sebebi (zorunlu)"
-                            : "İptal sebebi (zorunlu)"}
+                            ? "Ablehnungsgrund (erforderlich)"
+                            : "Stornierungsgrund (erforderlich)"}
                         </FormLabel>
                         <FormControl>
                           <Textarea
                             placeholder={
                               eventData?.status === "pending"
-                                ? "İşlemi neden reddettiğini yaz"
-                                : "Etkinliği neden iptal ettiğini yaz"
+                                ? "Grund für die Ablehnung eingeben"
+                                : "Grund für die Stornierung eingeben"
                             }
                             className="focus-visible:ring-0 bg-muted border-none resize-none"
                             {...field}
@@ -285,7 +285,7 @@ export default function EventDrawer() {
               <DrawerClose
                 render={
                   <Button type="button" variant="ghost">
-                    Vazgeç
+                    Abbrechen
                   </Button>
                 }
               />
@@ -297,7 +297,7 @@ export default function EventDrawer() {
                     type="submit"
                     onClick={() => form.setValue("status", "approved")}
                   >
-                    {isApproving ? "Onaylanıyor..." : "Onayla"}
+                    {isApproving ? "Wird genehmigt..." : "Genehmigen"}
                   </Button>
                 )}
 
@@ -308,7 +308,7 @@ export default function EventDrawer() {
                     onClick={() => form.setValue("status", "rejected")}
                     className="bg-muted text-foreground hover:bg-muted/80"
                   >
-                    {isRejecting ? "Reddediliyor..." : "Reddet"}
+                    {isRejecting ? "Wird abgelehnt..." : "Ablehnen"}
                   </Button>
                 )}
 
@@ -319,7 +319,7 @@ export default function EventDrawer() {
                     onClick={() => form.setValue("status", "cancelled")}
                     className="bg-muted text-foreground hover:bg-muted/80"
                   >
-                    {isCanceling ? "İptal ediliyor..." : "İptal et"}
+                    {isCanceling ? "Wird storniert..." : "Stornieren"}
                   </Button>
                 )}
               </div>

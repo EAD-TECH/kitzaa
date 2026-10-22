@@ -38,19 +38,16 @@ export default function AuthSocketProvider({
       socket.connect();
 
       socket.on("connect", () => {
-        /* console.log("Socket bağlandı, Polling durdurulacak!"); */
         setIsSocketConnected(true);
         socket.emit("update_path", pathname);
       });
 
       socket.on("disconnect", () => {
-        console.log("Socket koptu, Polling (Yedekleme) devreye giriyor!");
         setIsSocketConnected(false);
       });
 
       /* kullanıcının admının davetını duyması ıcın */
       socket.on("chat_invite", (payload) => {
-        console.log("admın benı cagırdı odaya katılıyorm", payload.roomId);
         /* backende emıt benı odaya al */
         socket.emit("join_chat_room", { roomId: payload.roomId });
       });
@@ -64,7 +61,6 @@ export default function AuthSocketProvider({
       /* burda socket baglantısı kurulduktan sonra socketın durumunu dınlıyorm ve zustanda yazıyorm */
       socket.on("notification:new", (yenibildirim: NotificationDTO) => {
         const targetPath = yenibildirim.linkNotification || "/notifications";
-        console.log(targetPath);
 
         toast("Yeni Bildirim ", {
           description:
@@ -76,7 +72,6 @@ export default function AuthSocketProvider({
               }
             : undefined,
         });
-        console.log("Yeni bildirim yakalandı!", yenibildirim);
 
         /* sayac guncellem (Badge) */
         queryClient.setQueryData<UnreadCountResponse>(

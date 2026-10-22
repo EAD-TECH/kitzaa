@@ -55,7 +55,7 @@ export default function Header() {
         <Button
           variant="outline"
           size="icon"
-          aria-label={isDark ? "Açık temaya geç" : "Koyu temaya geç"}
+          aria-label={isDark ? "Zum hellen Design wechseln" : "Zum dunklen Design wechseln"}
           disabled={!mounted}
           onClick={() => setTheme(isDark ? "light" : "dark")}
           className="rounded-full"
@@ -78,7 +78,7 @@ export default function Header() {
                 variant="ghost"
                 size="icon"
                 className="size-10 rounded-full px-2 tablet:h-11 tablet:w-auto tablet:gap-2"
-                aria-label="Profil menüsünü aç"
+                aria-label="Profilmenü öffnen"
               >
                 <Avatar className="hidden tablet:flex">
                   {user?.avatar && (
@@ -124,7 +124,7 @@ export default function Header() {
               onClick={() => void logout()}
             >
               <LogOut />
-              Çıkış
+              Abmelden
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -20,7 +20,6 @@ import { usePathname } from "next/navigation";
 
 export default function SideBar() {
   const pathname = usePathname();
-  console.log(pathname);
   const menuItems = [
     { icon: LayoutDashboardIcon, label: "Übersicht", href: "/" },
     { icon: Calendar, label: "Events", href: "/events" },

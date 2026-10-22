@@ -116,7 +116,6 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
 
   const [commentText, setCommentText] = useState("");
   const [selectedComment, setSelectedComment] = useState<SelectedComment | null>(null);
-  // console.log("Selected comment ID:", selectedComment);
 
   const { data: currentUser } = useCurrentUser();
   const router = useRouter();
@@ -144,7 +143,6 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
 
 
   const onCommentSubmit = () => {
-    console.log("Submitting comment:", commentText);
     createComment.mutate(
       {
         postId: post._id,
@@ -153,7 +151,6 @@ export default function PostDetailContent({ post }: PostDetailContentProps) {
       },
       {
         onSuccess: () => {
-          console.log("Yorum başarılı, input temizleniyor");
           setCommentText("");
           setSelectedComment(null);
         },

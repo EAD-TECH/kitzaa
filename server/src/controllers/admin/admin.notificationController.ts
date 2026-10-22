@@ -13,7 +13,6 @@ export const getAdminNotificationQueue = async (
   if (req.query.isRead === "false") {
     customFilter.isRead = false;
   }
-  //console.log("kontrol et filtreyi",customFilter)
 
   const notifications = await res.getModelList!(Notification, customFilter, [
     /* bildirimi yollayanın detayları */
@@ -37,7 +36,6 @@ export const getAdminNotificationQueue = async (
 
   const details = await res.getModelListDetails!(Notification, customFilter);
   /*   const result = toAdminNotificationDTO(notifications); */
-  //console.log("verinin sanitizasyonuna bak",result)
 
   res.status(200).json({
    error:false,

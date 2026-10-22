@@ -7,7 +7,7 @@ export default function SectionAIBox({ aiAnalysis }: SectionAIBoxProps) {
   if (!aiAnalysis || (!('riskLevel' in aiAnalysis) && !('status' in aiAnalysis))) return null;
 
   let badgeStyle = "text-gray-800 bg-gray-100";
-  let badgeText = "Bilinmeyen Durum";
+  let badgeText = "Unbekannter Status";
 
   
   if ('riskLevel' in aiAnalysis && aiAnalysis.riskLevel) {
@@ -26,7 +26,7 @@ export default function SectionAIBox({ aiAnalysis }: SectionAIBoxProps) {
   else if ('status' in aiAnalysis && aiAnalysis.status) {
     if (aiAnalysis.status === "approved") {
       badgeStyle = "text-primary bg-primary/10";
-      badgeText = "Onaylandı (Güvenli)";
+      badgeText = "Genehmigt (Sicher)";
     } else if (aiAnalysis.status === "pending") {
       badgeStyle = "text-yellow-700 bg-yellow-100";
       badgeText = "İnceleme Gerekiyor";

@@ -16,7 +16,6 @@ export const EVENT_LIST_CLASSNAME = "flex flex-col desktop:max-w-270";
 const EventList = async ({ searchParams }: EventListProps) => {
   const { events, details } = await getEventsServer(searchParams);
 
-  /*  console.log(details) */
 
   const nextPage =
     details.pages !== false && details.pages.next !== false

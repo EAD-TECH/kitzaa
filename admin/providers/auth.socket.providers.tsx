@@ -33,12 +33,10 @@ export default function AuthSocketProvider({
       socket.connect();
 
       socket.on("connect", () => {
-        console.log("Socket bağlandı, Polling durdurulacak!");
         setIsSocketConnected(true);
       });
 
       socket.on("disconnect", () => {
-        console.log("Socket koptu, Polling (Yedekleme) devreye giriyor!");
         setIsSocketConnected(false);
       });
 
@@ -62,8 +60,6 @@ export default function AuthSocketProvider({
               }
             : undefined,
         });
-        console.log("Yeni bildirim yakalandı!", yenibildirim);
-
         /* yenı organızator bassvurusu varsa yenıle */
         if(yenibildirim.type==="organizer_application"){
           queryClient.invalidateQueries({queryKey:["organizer-applications"]})

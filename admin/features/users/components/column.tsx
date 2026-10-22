@@ -104,8 +104,8 @@ export const createColumns = (handlers: {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={()=>handlers.onEdit?.(user?._id)}>Düzenle</DropdownMenuItem>
-              <DropdownMenuItem onClick={()=>handlers.onDelete?.(user?._id)}>Sil</DropdownMenuItem>
+              <DropdownMenuItem onClick={()=>handlers.onEdit?.(user?._id)}>Bearbeiten</DropdownMenuItem>
+              <DropdownMenuItem onClick={()=>handlers.onDelete?.(user?._id)}>Löschen</DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
