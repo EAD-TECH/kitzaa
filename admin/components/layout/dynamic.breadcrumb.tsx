@@ -16,8 +16,15 @@ export default function DynamicBreadCrumb() {
   const splitResult = pathname.split("/");
   const segments = splitResult.filter(Boolean);
   if (segments.length === 0) {
-    segments.push("Dashboard");
+    segments.push("Übersicht");
   }
+
+  const labels: Record<string, string> = {
+    events: "Events",
+    "organizer-applications": "Organisatorbewerbungen",
+    users: "Nutzer",
+    categories: "Kategorien",
+  };
 
   const crumbs = segments.map((segment, index) => {
     const partsUntilHere = segments.slice(0, index + 1);
@@ -25,7 +32,7 @@ export default function DynamicBreadCrumb() {
     const href = `/${path}`;
 
     return {
-      segment,
+      segment: labels[segment] ?? segment,
       href,
       isLast: index === segments.length - 1,
     };

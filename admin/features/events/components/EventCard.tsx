@@ -18,7 +18,7 @@ function EventCard(application: { application: AdminEventDTO }) {
   };
 
   /*  tarihi formatlıyorm */
-  let formattedDate = "Tarih yok";
+  let formattedDate = "Kein Datum";
 
   if (application.application?.schedule?.startDate) {
     const dateObj = new Date(application.application.schedule.startDate);

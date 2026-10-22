@@ -99,7 +99,6 @@ export interface InfoSectionProps {
   address:string
   description?:string
   url?:string
-  assignee:string
   status:string
   */
   label: string;

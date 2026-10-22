@@ -60,16 +60,13 @@ export const initSocket = (httpServer: HttpServer) => {
         "online_users_update",
         Array.from(onlineUsers.values()),
       );
-      console.log(onlineUsers, "baglananların sayısını gorucm ");
     });
 
     /* eger baglanan kısı admın ıse onu admınlerın oldugu odaya alıcm */
     if (socket.data.role === "admin") {
-      /* console.log("admin yetkılı kısısı baglandı"); */
       /* onu ozel odaya alıyorm */
       socket.join("admins_room");
       socket.emit("activity_snapshot", recentActivities);
-      /*  console.log("admin odaya alındı"); */
     }
     io.to("admins_room").emit(
       "online_users_update",
@@ -79,7 +76,6 @@ export const initSocket = (httpServer: HttpServer) => {
     /* normal kullanıcıdan gelen aksıyonları dınlemem lazım */
 
     socket.on("user_action", (clientData) => {
-      console.log("dinleme cıhazımı taktım");
       const activityPayload = {
         id: crypto.randomUUID(),
         title: clientData.title,
@@ -99,17 +95,13 @@ export const initSocket = (httpServer: HttpServer) => {
       if (recentActivities.length > 50) {
         recentActivities.pop();
       }
-      console.log("kutunun boyutu", recentActivities.length);
-
       io.to("admins_room").emit("new_activity", activityPayload);
-      console.log("admin odasına fırlattım");
     });
 
     socket.on("ping", (mesaj) => {
       socket.emit("pong", "Backend'den selamlar, garson göreve hazır!");
     });
     socket.on("request_chat_session", (payload) => {
-      console.log(`Sohbet talebi geldi. Hedef ID: ${payload.targetId}`);
       /* controlrıa paslıyorm */
       handleChatSessionRequest(io, socket, payload);
     });
@@ -117,50 +109,77 @@ export const initSocket = (httpServer: HttpServer) => {
       handleSupportRequest(io, socket, payload);
     });
     socket.on("send_message", (payload) => {
-      console.log("admının yoladıgı mesaj", payload);
       /* controlrıa paslıyorm */
       handleSendMessage(io, socket, payload);
     });
 
     socket.on("join_chat_room", async (payload) => {
-      if (payload.roomId) {
+      if (!payload.roomId) return;
+
+      if (
+        socket.data.role === "guest" &&
+        payload.roomId === `guest:${socket.id}`
+      ) {
         socket.join(payload.roomId);
-        console.log("user adminin daveti ile odaya katildi");
+        socket.emit("load_support_history", []);
+        return;
       }
+
+      const conversation = await Conversation.findById(payload.roomId);
+      if (!conversation || conversation.status === "closed") {
+        socket.emit("error_message", {
+          message: "Oda bulunamadı veya kapalı.",
+        });
+        return;
+      }
+
+      const isParticipant = conversation.participants.some(
+        (participant) => participant.toString() === socket.data.userId,
+      );
+      if (!isParticipant && socket.data.role !== "admin") {
+        socket.emit("error_message", {
+          message: "Bu odaya erişim yetkiniz yok.",
+        });
+        return;
+      }
+
+      socket.join(payload.roomId);
+
+      const rawHistory = await Message.find({
+        conversationId: payload.roomId,
+      }).sort({ createdAt: 1 });
+
+      const formattedHistory = rawHistory.map((msg) => ({
+        id: msg._id.toString(),
+        senderId: msg.senderId?.toString() ?? "Kitzaa-ai",
+        senderName:
+          msg.senderType === "ai"
+            ? "Kitzaa Assistent"
+            : msg.senderType === "admin"
+              ? "Admin"
+              : "Nutzer",
+        senderType: msg.senderType,
+        text: msg.content,
+        roomId: msg.conversationId.toString(),
+        timestamp: msg.createdAt,
+      }));
+
       if (socket.data.role === "admin") {
         /* admin odaya gırdı agentın fısını cek */
-        await Conversation.findByIdAndUpdate(payload.roomId, {
-          isAgentActive: false,
-        });
+        if (conversation.roomtype === "support") {
+          await Conversation.findByIdAndUpdate(payload.roomId, {
+            isAgentActive: false,
+          });
+        }
         /* admin devre dısı user-agent konusmalarını admıne pasla */
-        const rawHistory = await Message.find({
-          conversationId: payload.roomId,
-        })/* .sort({ createdAt: -1 }) */;
-
-        const formattedHistory = rawHistory.map((msg) => ({
-          id: msg._id.toString(),
-          senderId: msg.senderId,
-          senderName:
-            msg.senderType === "admin"
-              ? msg.senderId.toString() === "000000000000000000000000"
-                ? "Kitzaa Assistent"
-                : "Admin"
-              : "Nutzer",
-          senderType: msg.senderType,
-          text: msg.content,
-          roomId: msg.conversationId.toString(),
-          timestamp: msg.createdAt,
-        }));
-
         socket.emit("load_chat_history", formattedHistory);
+      } else {
+        socket.emit("load_support_history", formattedHistory);
       }
     });
     socket.on("leave_chat_room", (payload) => {
       if (payload.roomId) {
         socket.leave(payload.roomId);
-        console.log(
-          `Socket ${socket.id}, ${payload.roomId} odasından ayrıldı.`,
-        );
       }
     });
 
