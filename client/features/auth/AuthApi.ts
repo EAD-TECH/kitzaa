@@ -7,6 +7,7 @@ import type {
   ResetPasswordResponse
 } from "./types/authTypes";
 import type { RegisterPayload } from "./validations/register.schema";
+import type { CompleteProfileValues } from "./validations/completeProfile.schema";
 import type { ForgotPasswordValues } from "./validations/forgotpassword.schema";
 import type { ResetPasswordValues } from "./validations/resetpassword.schema";
 import { SetupAccountPayload } from "./validations/setup-account.schema";
@@ -72,6 +73,25 @@ export async function resetPassword(token: string, payload: ResetPasswordValues)
   });
 }
 
+
+export async function googleSignIn(payload: {
+  credential: string;
+  locale: "de" | "en";
+}): Promise<LoginResponse> {
+  return apiFetch<LoginResponse>("/api/v1/auth/google", {
+    method: "POST",
+    body: payload,
+    skipAuthRefresh: true,
+    skipAuthHeaders: true,
+  });
+}
+
+export async function completeProfile(payload: CompleteProfileValues): Promise<LoginResponse> {
+  return apiFetch<LoginResponse>("/api/v1/auth/complete-profile", {
+    method: "POST",
+    body: payload,
+  });
+}
 
 export async function setupAccount(token: string, payload: SetupAccountPayload) {
  

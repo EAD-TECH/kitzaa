@@ -10,8 +10,6 @@ const authentication = async (req: Request, res: Response, next: NextFunction) =
 
     const authHeader = req.headers.authorization
 
-    console.log('authHeader', authHeader)
-
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
         throw new CustomError('AuthenticationError: Token not found.', 401)
     }
@@ -30,10 +28,8 @@ const authentication = async (req: Request, res: Response, next: NextFunction) =
         throw new CustomError("Invalid or expired token.", 401);
     }
 
-   
-    const user = await User.findById(decoded._id)
 
-    console.log('decoded token', decoded)
+    const user = await User.findById(decoded._id)
 
     if (!user) {
         throw new CustomError('User not found', 401)

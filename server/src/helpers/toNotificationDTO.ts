@@ -70,7 +70,7 @@ export function toNotificationDTO(
       ? {
           firstName:senderData.firstName,
           lastName:senderData.lastName,
-          username: senderData.username,
+          username: senderData.username ?? "",
           email: senderData.email,
           avatarUrl: senderData.avatarUrl ?? "",
         }

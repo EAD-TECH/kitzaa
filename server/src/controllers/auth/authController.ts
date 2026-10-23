@@ -25,10 +25,11 @@ import type {
   ResetPasswordInput,
   SetupAccountInput,
 } from "../../validations/user.schema.js";
+import { applyPasswordReset, hasPasswordSecret } from "../../helpers/authCredentials.js";
 
 const REFRESH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
 
-function refreshCookieBase(): Pick<
+export function refreshCookieBase(): Pick<
   CookieOptions,
   "httpOnly" | "secure" | "sameSite" | "path"
 > {
@@ -43,7 +44,7 @@ function refreshCookieBase(): Pick<
   };
 }
 
-function refreshCookieOptions(): CookieOptions {
+export function refreshCookieOptions(): CookieOptions {
   return {
     ...refreshCookieBase(),
     maxAge: REFRESH_COOKIE_MAX_AGE,
@@ -60,7 +61,11 @@ const authController = {
       $or: [{ email: validatedData.login }, { username: validatedData.login }],
     }).select("+password");
 
-    if (!user) throw new CustomError("Wrong email/username or password", 401);
+    // Same status and message as an unknown account, including accounts that
+    // have no password yet. A distinct message would show that the email exists.
+    if (!user || !hasPasswordSecret(user.password)) {
+      throw new CustomError("Wrong email/username or password", 401);
+    }
 
     //password compare
     const isMatchingPassword = await user.matchPassword(validatedData.password);
@@ -125,7 +130,7 @@ const authController = {
       await sendMail({
         to: newUser.email,
         subject: "Willkommen bei Kitzaa",
-        html: welcomeTemplate({ username: newUser.username, verifyUrl }),
+        html: welcomeTemplate({ username: newUser.username ?? "", verifyUrl }),
       });
     } catch (error) {
       console.log("Failed to send email.", error);
@@ -223,7 +228,10 @@ const authController = {
       await sendMail({
         to: user.email,
         subject: "Passwort zurücksetzen",
-        html: resetPasswordTemplate({ username: user.username, resetUrl }),
+        html: resetPasswordTemplate({
+          username: user.username || user.firstName,
+          resetUrl,
+        }),
       });
     } catch (mailError) {
       user.passwordResetToken = undefined;
@@ -258,10 +266,10 @@ const authController = {
       throw new CustomError("Der Link ist ungültig oder abgelaufen.", 400);
     }
 
-    user.password = newPassword;
-    user.passwordResetToken = null;
-    user.passwordResetExp = null;
+    applyPasswordReset(user, newPassword);
     await user.save();
+
+    res.clearCookie("refreshToken", refreshCookieBase());
 
     res.status(200).json({
       error: "false",

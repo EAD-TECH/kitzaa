@@ -2,6 +2,7 @@ import { Router } from "express";
 import Event from "../../models/eventModel.js";
 import eventController from "../../controllers/user/eventController.js";
 import authentication from "../../middlewares/authentication.js";
+import requireCompleteProfile from "../../middlewares/requireCompleteProfile.js";
 import { isOwnerOrAdmin } from "../../middlewares/permissions.js";
 import { validateBody } from "../../middlewares/validateBody.js";
 import { validateObjectIdParam } from "../../middlewares/validateObjectId.js";
@@ -18,14 +19,14 @@ router.route("/").get(list);
 router.route("/nearby").get(validateQuery(nearbyQuerySchema), nearby);
 
 
-router.route("/my-events").get(authentication, myEvents);
-router.route("/my-participations").get(authentication, myParticipations);
-router.route("/saved-events").get(authentication, savedEvents);
+router.route("/my-events").get(authentication, requireCompleteProfile, myEvents);
+router.route("/my-participations").get(authentication, requireCompleteProfile, myParticipations);
+router.route("/saved-events").get(authentication, requireCompleteProfile, savedEvents);
 
 router.route("/:slug").get(read);
 
 // authentication i
-router.use(authentication);
+router.use(authentication, requireCompleteProfile);
 
 router.route("/").post(validateBody(createEventSchema), create);
 router.route("/:id/edit").get(isOwnerOrAdmin(Event), readForEdit);

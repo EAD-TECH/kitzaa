@@ -274,3 +274,32 @@ export const setupAccountSchema = updateUserShape
 export type SetupAccountInput = z.infer<typeof setupAccountSchema>;
 
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+
+export const completeProfileSchema = z
+  .object({
+    username: z
+      .string()
+      .trim()
+      .min(2, "Username is required")
+      .max(50, "Username cannot exceed 50 characters"),
+
+    postalCode: z
+      .string()
+      .regex(/^\d{5}$/, "Please enter a valid German postal code"),
+
+    city: z.string().trim().min(2, "City is required").max(80),
+
+    state: z.string().trim().min(2, "State is required").max(80),
+  })
+  .strict();
+
+export type CompleteProfileInput = z.infer<typeof completeProfileSchema>;
+
+export const googleSignInSchema = z
+  .object({
+    credential: z.string().trim().min(1, "Google credential is required"),
+    locale: z.enum(["de", "en"]).optional(),
+  })
+  .strict();
+
+export type GoogleSignInInput = z.infer<typeof googleSignInSchema>;

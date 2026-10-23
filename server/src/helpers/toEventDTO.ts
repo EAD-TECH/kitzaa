@@ -49,7 +49,7 @@ function toCreatedByRef(event: EventDocument): string | EventCreatedByRef {
 
   return {
     _id: user._id!.toString(),
-    username: user.username,
+    username: user.username ?? "",
     avatarUrl: user.avatarUrl ?? null,
     role: user.role,
   };
@@ -71,7 +71,7 @@ function toParticipantsPreview(event: EventDocument): EventParticipantRef[] {
     .filter((user): user is UserDocument => !!user)
     .map((user) => ({
       _id: user._id!.toString(),
-      username: user.username,
+      username: user.username ?? "",
       avatarUrl: user.avatarUrl ?? null,
     }));
 }
@@ -151,7 +151,7 @@ export function toAdminEventDTO(
     createdBy: createdBy
       ? {
           _id: createdBy._id!.toString(),
-          username: createdBy.username,
+          username: createdBy.username ?? "",
           avatarUrl: createdBy.avatarUrl ?? null,
           role: createdBy.role,
         }

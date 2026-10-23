@@ -135,7 +135,7 @@ const organizerApplicationController = {
         to: user.email,
         subject: "Organisator-Antrag genehmigt",
         html: organizerApplicationApprovedTemplate({
-          username: user.username,
+          username: user.username ?? "",
           institutionName: institution.name,
         }),
       });
@@ -216,7 +216,7 @@ const organizerApplicationController = {
         to: user.email,
         subject: "Organisator-Antrag abgelehnt",
         html: organizerApplicationRejectedTemplate({
-          username: user.username,
+          username: user.username ?? "",
           institutionName: application.institutionData.name,
           rejectedReason,
         }),

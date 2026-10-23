@@ -1,6 +1,7 @@
 import { Router } from "express";
 import socialPostCommentController from "../../controllers/user/socialPostCommentController.js";
 import authentication from "../../middlewares/authentication.js";
+import requireCompleteProfile from "../../middlewares/requireCompleteProfile.js";
 import { isOwnerOrAdmin } from "../../middlewares/permissions.js";
 import { validateBody } from "../../middlewares/validateBody.js";
 import { validateObjectIdParam } from "../../middlewares/validateObjectId.js";
@@ -11,7 +12,7 @@ import {
 } from "../../validations/postComment.schema.js";
 
 const router = Router();
-router.use(authentication);
+router.use(authentication, requireCompleteProfile);
 router.param("id", validateObjectIdParam);
 
 const { list, create, update, deletee, toggleLike } = socialPostCommentController;

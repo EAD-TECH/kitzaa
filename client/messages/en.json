@@ -80,7 +80,15 @@
     "submitting": "Signing in...",
     "submit": "Sign in",
     "continueWith": "Or continue with",
-    "google": "Sign in with Google",
+    "oauthErrors": {
+      "cancelled": "Google sign-in was cancelled.",
+      "state": "Sign-in could not be verified. Please try again.",
+      "exchange": "Google sign-in failed. Please try again.",
+      "emailUnverified": "The Google email address is not verified.",
+      "usePassword": "This email is already registered with a password. Sign in with your email and password.",
+      "inactive": "This account is disabled.",
+      "notConfigured": "Google sign-in is not configured."
+    },
     "newHere": "New to Kitzaa?",
     "register": "Register",
     "validation": {
@@ -122,8 +130,7 @@
     "english": "English",
     "submitting": "Creating account...",
     "submit": "Create account",
-    "continueWith": "Or continue with",
-    "google": "Register with Google",
+    "continueWith": "Or register with email",
     "hasAccount": "Already have an account?",
     "login": "Sign in",
     "successTitle": "Confirm your email address",
@@ -144,6 +151,30 @@
       "cityRequired": "City is required",
       "zipInvalid": "Please enter a valid postal code",
       "passwordMismatch": "Passwords do not match"
+    }
+  },
+  "CompleteProfile": {
+    "title": "Complete your profile",
+    "subtitle": "Choose a username and confirm your location in Germany.",
+    "username": "Username",
+    "usernamePlaceholder": "family_hero",
+    "zipCode": "Postal code",
+    "zipLookup": "Looking up city...",
+    "invalidZip": "This postal code is invalid",
+    "city": "City",
+    "state": "State",
+    "submitting": "Saving...",
+    "submit": "Save profile",
+    "usernameTaken": "This username is already taken.",
+    "addressMismatch": "Postal code, city, and state do not match.",
+    "lookupUnavailable": "The postal code could not be checked right now. Please try again.",
+    "submitFailed": "The profile could not be saved. Please try again.",
+    "validation": {
+      "usernameRequired": "Username is required",
+      "usernameMax": "Username must be at most 50 characters",
+      "stateRequired": "State is required",
+      "cityRequired": "City is required",
+      "zipInvalid": "Please enter a valid postal code"
     }
   },
   "ForgotPassword": {
