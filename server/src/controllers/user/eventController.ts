@@ -186,7 +186,7 @@ const eventController = {
     // Onay bekleyen bir şey yoksa admin'lere "yeni event onay bekliyor" bildirimi gitmesin.
     if (!isAdmin && newEvent.status === "pending") {
       await notifyAdminsForNewEvent(
-        req.user.username,
+        req.user.username ?? "",
         newEvent.title,
         newEvent._id,
       );

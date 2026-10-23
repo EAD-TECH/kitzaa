@@ -1,5 +1,6 @@
 import { Router } from "express";
 import authentication from "../../middlewares/authentication.js";
+import requireCompleteProfile from "../../middlewares/requireCompleteProfile.js";
 import { validateObjectIdParam } from "../../middlewares/validateObjectId.js";
 import {
   getUnReadNotificationCount,
@@ -16,7 +17,7 @@ router.get("/test-post-event-summary", async (_req, res) => {
 });
 
 /* kullanici giris yaptmi */
-router.use(authentication);
+router.use(authentication, requireCompleteProfile);
 
 router.param("id", validateObjectIdParam);
 

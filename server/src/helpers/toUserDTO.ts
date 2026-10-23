@@ -1,3 +1,4 @@
+import { isProfileComplete } from "./profileCompletion.js";
 import type { UserDocument, UserDTO } from "../types/user.types.js";
 
 // Function overloads
@@ -19,7 +20,7 @@ export function toUserDTO(
 
   return {
     _id: user._id.toString(),
-    username: user.username,
+    username: user.username ?? "",
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
@@ -29,6 +30,7 @@ export function toUserDTO(
     language: user.language,
     location: user.location,
     isEmailVerified: user.isEmailVerified,
+    profileCompleted: isProfileComplete(user),
     savedEvents: (user.savedEvents ?? []).map((id) => id.toString()),
     createdAt: user.createdAt!,
     updatedAt: user.updatedAt!,

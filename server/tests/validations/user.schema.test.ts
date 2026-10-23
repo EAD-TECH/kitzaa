@@ -1,7 +1,10 @@
 import {
   changePasswordSchema,
+  completeProfileSchema,
   createUserSchema,
+  googleSignInSchema,
   loginSchema,
+  resetPasswordSchema,
 } from "../../src/validations/user.schema.js";
 
 /**
@@ -217,6 +220,22 @@ describe("createUserSchema", () => {
     expect(result.success).toBe(false);
   });
 
+  test("password alani yoksa reddedilir", () => {
+    const { password: _password, ...withoutPassword } = validUser;
+    const result = createUserSchema.safeParse(withoutPassword);
+
+    expect(result.success).toBe(false);
+  });
+
+  test("googleSub gibi kayit govdesine ait olmayan alan reddedilir", () => {
+    const result = createUserSchema.safeParse({
+      ...validUser,
+      googleSub: "google-sub-1",
+    });
+
+    expect(result.success).toBe(false);
+  });
+
   test("location.zipCode yoksa reddedilir", () => {
     const result = createUserSchema.safeParse({
       ...validUser,
@@ -349,5 +368,77 @@ describe("changePasswordSchema", () => {
     });
 
     expect(result.success).toBe(false);
+  });
+});
+
+describe("resetPasswordSchema", () => {
+  test("guclu sifreyi kabul eder", () => {
+    const result = resetPasswordSchema.safeParse({
+      newPassword: "YeniSifre1!",
+      confirmPassword: "YeniSifre1!",
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  test("zayif sifreyi reddeder", () => {
+    const result = resetPasswordSchema.safeParse({
+      newPassword: "12345678",
+      confirmPassword: "12345678",
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  test("sifreler uyusmazsa reddeder", () => {
+    const result = resetPasswordSchema.safeParse({
+      newPassword: "YeniSifre1!",
+      confirmPassword: "BaskaSifre1!",
+    });
+
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("completeProfileSchema", () => {
+  const validProfile = {
+    username: "ada",
+    postalCode: "10115",
+    city: "Berlin",
+    state: "Berlin",
+  };
+
+  test("gecerli profil kabul edilir", () => {
+    expect(completeProfileSchema.safeParse(validProfile).success).toBe(true);
+  });
+
+  test("kisa kullanici adi ve bozuk posta kodu reddedilir", () => {
+    expect(
+      completeProfileSchema.safeParse({ ...validProfile, username: "a" }).success,
+    ).toBe(false);
+    expect(
+      completeProfileSchema.safeParse({ ...validProfile, postalCode: "101" }).success,
+    ).toBe(false);
+  });
+
+  test("fazla alan reddedilir", () => {
+    expect(
+      completeProfileSchema.safeParse({ ...validProfile, role: "admin" }).success,
+    ).toBe(false);
+  });
+});
+
+describe("googleSignInSchema", () => {
+  test("credential ve locale kabul edilir", () => {
+    expect(
+      googleSignInSchema.safeParse({ credential: "id-token", locale: "en" }).success,
+    ).toBe(true);
+  });
+
+  test("bos credential ve fazla alan reddedilir", () => {
+    expect(googleSignInSchema.safeParse({ credential: "  " }).success).toBe(false);
+    expect(
+      googleSignInSchema.safeParse({ credential: "id-token", clientSecret: "secret" }).success,
+    ).toBe(false);
   });
 });

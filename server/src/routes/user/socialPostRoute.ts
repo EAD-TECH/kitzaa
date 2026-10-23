@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import socialPostController from '../../controllers/user/socialPostController.js';
 import authentication from '../../middlewares/authentication.js';
+import requireCompleteProfile from '../../middlewares/requireCompleteProfile.js';
 import { isOwnerOrAdmin } from '../../middlewares/permissions.js';
 import { validateBody } from '../../middlewares/validateBody.js';
 import { validateObjectIdParam } from '../../middlewares/validateObjectId.js';
@@ -14,11 +15,11 @@ router.param('id', validateObjectIdParam);
 const { list, read, myPosts, create, update, deletee, toggleLike } = socialPostController;
 
 router.route('/').get(list);
-router.route('/my-posts').get(authentication, myPosts);
+router.route('/my-posts').get(authentication, requireCompleteProfile, myPosts);
 router.route('/:id').get(read);
 
 
-router.use(authentication);
+router.use(authentication, requireCompleteProfile);
 router.route('/').post(validateBody(createPostSchema), create);
 router
   .route('/:id')

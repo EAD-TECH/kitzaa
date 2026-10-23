@@ -1,13 +1,17 @@
 import {
+  completeProfileSchema,
   createUserSchema,
   forgotPasswordSchema,
+  googleSignInSchema,
   loginSchema,
   resetPasswordSchema,
   setupAccountSchema,
 } from "../../validations/user.schema.js";
 
 import { Router } from "express";
+import { rateLimit } from "express-rate-limit";
 import authController from "../../controllers/auth/authController.js";
+import googleAuthController from "../../controllers/auth/googleAuthController.js";
 import { validateBody } from "../../middlewares/validateBody.js";
 import authentication from "../../middlewares/authentication.js";
 
@@ -45,6 +49,26 @@ router.post(
   "/setup-account/:token",
   validateBody(setupAccountSchema),
   setupAccount,
+);
+
+const googleAuthLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  message: "Too many Google sign-in attempts. Please try again later.",
+});
+
+router.get("/google/nonce", googleAuthLimit, googleAuthController.issueNonce);
+router.post(
+  "/google",
+  googleAuthLimit,
+  validateBody(googleSignInSchema),
+  googleAuthController.signIn,
+);
+router.post(
+  "/complete-profile",
+  authentication,
+  validateBody(completeProfileSchema),
+  googleAuthController.completeProfile,
 );
 
 export default router;

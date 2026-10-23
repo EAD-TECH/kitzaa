@@ -28,7 +28,6 @@ const authentication = async (req: Request, res: Response, next: NextFunction) =
         throw new CustomError("Invalid or expired token.", 401);
     }
 
-   
     const user = await User.findById(decoded._id)
 
     if (!user) {
