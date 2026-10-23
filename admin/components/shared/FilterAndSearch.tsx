@@ -58,7 +58,7 @@ export default function FilterAndSearch({
               className="flex h-8 shrink-0 items-center border-dashed"
             >
               <ListFilter className="mr-2 h-4 w-4 text-muted-foreground" />
-              <span>Filtrele</span>
+              <span>Filtern</span>
 
               {selectedValues.length > 0 && (
                 <>

@@ -10,7 +10,7 @@ export interface SupportMessage {
   id: string;
   senderId: string;
   senderName: string;
-  senderType: string;
+  senderType: "user" | "admin" | "ai";
   text: string;
   timestamp: string;
   roomId: string;

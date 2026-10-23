@@ -30,7 +30,6 @@ const eventController = {
     const category = req.query.category;
     const organisator = req.query.organisator;
 
-    // console.log("category", category) // familie,bildung,sport
 
     if (typeof category === "string" && category.length > 0) {
       const slugs = category.split(",");
@@ -91,8 +90,6 @@ const eventController = {
       { path: "categoryId", select: "name slug icon" },
       { path: "createdBy", select: "username avatarUrl role" },
     ]);
-
-    console.log("result", result);
 
     res.status(200).send({
       error: false,
@@ -307,7 +304,6 @@ const eventController = {
     event.cancelledReason = req.body.cancelledReason;
     await event.save();
 
-    console.log("API Yanıtı dönüyor, arka planda KTZ-61 motoru ateşleniyor");
     notifyUsersForCancelledEvent(event);
 
     res.sendStatus(204);

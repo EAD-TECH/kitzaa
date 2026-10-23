@@ -73,10 +73,8 @@ export default function UpdateCategoryForm() {
 
     const payload: UpdateCategoryDTO = { _id: categoryId };
     const changedKey = Object.keys(dirtyFields);
-    console.log(changedKey, "degısen kısımlar");
 
     if (changedKey.length === 0) {
-      console.log("Değişiklik yapılmadı, ");
       handleDrawerClose(false);
       return;
     }
@@ -84,7 +82,6 @@ export default function UpdateCategoryForm() {
     changedKey.forEach((item) => {
       const key = item as keyof UpdateCategoryFormValues;
       (payload as any)[key] = (data as any)[key];
-      console.log(payload, "hangı lokasyon bılgısı");
     });
 
     updateCategory(payload, {
@@ -99,7 +96,6 @@ export default function UpdateCategoryForm() {
       const query = currentParams.toString();
       router.replace(query ? `${pathname}?${query}` : pathname);
       form.reset();
-      console.log("form hataları", form.setError);
     }
   }
 
@@ -107,8 +103,8 @@ export default function UpdateCategoryForm() {
     <ResponsiveModal
       isOpen={isOpen}
       onClose={handleDrawerClose}
-      title="Kategori Detayı"
-      description={categoryId ? `Kategori ID: ${categoryId}` : "Operasyon"}
+      title="Kategoriendetails"
+      description={categoryId ? `Kategorie-ID: ${categoryId}` : "Verwaltung"}
     >
       <Form {...form}>
         <form
@@ -117,21 +113,21 @@ export default function UpdateCategoryForm() {
         >
           <div className="flex flex-col flex-1 gap-4 overflow-y-auto px-4">
             {isLoading ? (
-              <div className="p-10 text-center">(Yükleniyor)...</div>
+              <div className="p-10 text-center">(Wird geladen)...</div>
             ) : (
               <div className="grid grid-cols-1 gap-4">
                 <ReusableFormInput
                   control={form.control}
                   name="name"
-                  label="Kategori Adı"
-                  placeholder="kategori adı.."
+                  label="Kategoriename"
+                  placeholder="Kategoriename ..."
                 />
                 <FormField
                   control={form.control}
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Kategori Detayı</FormLabel>
+                      <FormLabel>Kategoriendetails</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="kategori detayi.."
@@ -164,9 +160,9 @@ export default function UpdateCategoryForm() {
             render={({ field }) => (
               <FormItem className="flex  items-center  justify-between">
                 <div className="flex flex-col gap-2">
-                  <FormLabel>Durum</FormLabel>
+                  <FormLabel>Status</FormLabel>
                   <p className="text-xs text-muted-foreground">
-                    {field.value ? "Kategori aktif" : "Kategori pasif"}
+                    {field.value ? "Kategorie aktiv" : "Kategorie inaktiv"}
                   </p>
                 </div>
 
@@ -184,7 +180,7 @@ export default function UpdateCategoryForm() {
 
           <div className="flex justify-end gap-2 px-4 py-4">
             <Button type="submit" disabled={isUpdating}>
-              {isUpdating ? "Kaydediliyor..." : "Kaydet"}
+              {isUpdating ? "Wird gespeichert..." : "Speichern"}
             </Button>
           </div>
         </form>

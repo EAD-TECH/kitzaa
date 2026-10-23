@@ -99,11 +99,9 @@ export function RegisterForm() {
 
 
   const onSubmit = async (data: RegisterFormValues) => {
-    console.log("geldi onsubmite")
     const payload = toRegisterPayload(data)
     submitRegister(payload)
 
-    console.log("kullanici olustu", payload)
   }
 
 

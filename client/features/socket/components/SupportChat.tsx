@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MessageCircle, Send, X } from "lucide-react";
+import { Bot, Headset, MessageCircle, Send, X } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +22,8 @@ export default function SupportChat() {
   const supportRoomId = useSupport((state) => state.supportRoomId);
   const setSupportRoomId = useSupport((state) => state.setSupportRoomId);
   const addSupportMessage = useSupport((state) => state.addSupportMessage);
+  const clearSupportSession = useSupport((state) => state.clearSupportSession);
+  const searchParams = useSearchParams();
   const [messageInput, setMessageInput] = useState("");
   const [open, setOpen] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
@@ -37,17 +40,39 @@ export default function SupportChat() {
     const handleSessionReady = (data: { roomId: string }) => {
       setSupportRoomId(data.roomId);
     };
+    const handleSupportHistory = (history: SupportMessage[]) => {
+      clearSupportSession();
+      if (history[0]) {
+        setSupportRoomId(history[0].roomId);
+      }
+      history.forEach(addSupportMessage);
+    };
 
     socket.on("receive_support_message", handleSupportMessage);
     socket.on("receive_message", handleStandardMessage);
     socket.on("support_session_ready", handleSessionReady);
+    socket.on("load_support_history", handleSupportHistory);
 
     return () => {
       socket.off("receive_support_message", handleSupportMessage);
       socket.off("receive_message", handleStandardMessage);
       socket.off("support_session_ready", handleSessionReady);
+      socket.off("load_support_history", handleSupportHistory);
     };
-  }, [addSupportMessage, setSupportRoomId]);
+  }, [addSupportMessage, clearSupportSession, setSupportRoomId]);
+
+  useEffect(() => {
+    const roomId = searchParams.get("supportRoomId");
+    if (!roomId) return;
+
+    setSupportRoomId(roomId);
+    const openSupportChat = window.setTimeout(() => {
+      setOpen(true);
+      socket.emit("join_chat_room", { roomId });
+    }, 0);
+
+    return () => window.clearTimeout(openSupportChat);
+  }, [searchParams, setSupportRoomId]);
 
   useEffect(() => {
     const viewport = listRef.current?.parentElement;
@@ -110,18 +135,44 @@ export default function SupportChat() {
               ) : (
                 messages.map((message, index) => {
                   const isMe = message.senderType === "user";
+                  const isAi = message.senderType === "ai";
                   const previous = messages[index - 1];
                   const showName = !isMe && previous?.senderName !== message.senderName;
+                  const senderLabel = isAi
+                    ? "Kitzaa Assistent"
+                    : message.senderName || "Support";
 
                   return (
                     <div
                       key={message.id}
-                      className={cn("flex", isMe ? "justify-end" : "justify-start")}
+                      className={cn(
+                        "flex items-end gap-2",
+                        isMe ? "justify-end" : "justify-start",
+                      )}
                     >
+                      {!isMe ? (
+                        <span
+                          className={cn(
+                            "mb-1 flex size-7 shrink-0 items-center justify-center rounded-full",
+                            isAi
+                              ? "bg-primary/10 text-primary"
+                              : "bg-secondary/15 text-secondary",
+                          )}
+                          aria-hidden="true"
+                        >
+                          {isAi ? <Bot className="size-4" /> : <Headset className="size-4" />}
+                        </span>
+                      ) : null}
+
                       <div className={cn("max-w-[80%]", showName && "mt-1")}>
                         {showName && (
-                          <p className="mb-1 px-1 text-xs text-muted-foreground">
-                            {message.senderName}
+                          <p
+                            className={cn(
+                              "mb-1 px-1 text-xs",
+                              isAi ? "text-primary" : "text-secondary",
+                            )}
+                          >
+                            {senderLabel}
                           </p>
                         )}
                         <div
@@ -129,7 +180,9 @@ export default function SupportChat() {
                             "rounded-2xl px-3 py-2 text-sm leading-relaxed wrap-break-word",
                             isMe
                               ? "rounded-br-md bg-primary text-primary-foreground"
-                              : "rounded-bl-md bg-muted text-foreground"
+                              : isAi
+                                ? "rounded-bl-md border border-primary/30 bg-primary/10 text-foreground"
+                                : "rounded-bl-md border border-secondary/30 bg-secondary/10 text-foreground",
                           )}
                         >
                           {message.text}
@@ -153,6 +206,7 @@ export default function SupportChat() {
               <InputGroupInput
                 value={messageInput}
                 placeholder="Nachricht schreiben…"
+                className="text-popover-foreground caret-popover-foreground placeholder:text-muted-foreground"
                 onChange={(event) => setMessageInput(event.target.value)}
               />
               <InputGroupAddon align="inline-end">

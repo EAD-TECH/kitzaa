@@ -21,9 +21,9 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Kitzaa Admin | Dashboard",
+  title: "Kitzaa Admin | Übersicht",
   description:
-    "Centralized administration panel for Kitzaa events, organizer applications, and notifications.",
+    "Zentrale Verwaltung für Kitzaa-Events, Organisatorbewerbungen und Benachrichtigungen.",
 };
 
 export default function RootLayout({
@@ -33,7 +33,7 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="tr"
+      lang="de"
       className={`${fraunces.variable} ${manrope.variable}`}
       suppressHydrationWarning
     >

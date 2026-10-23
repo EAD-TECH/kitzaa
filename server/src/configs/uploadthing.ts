@@ -60,7 +60,6 @@ export const uploadRouter = {
   eventImage: f({ image: { maxFileSize: "8MB", maxFileCount: 5 } })
     .input(z.object({ eventId: z.string().optional() }))
     .middleware(async ({ req, input }) => {
-      console.log("Middleware çalıştı");
       const user = await getUserFromRequest(req);
 
       if (!input.eventId) {
@@ -81,7 +80,6 @@ export const uploadRouter = {
       return { userId: user._id.toString(), eventId: input.eventId };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log(file.url);
       if (metadata.eventId) {
         await Event.findByIdAndUpdate(metadata.eventId, { $push: { images: file.url } });
       }

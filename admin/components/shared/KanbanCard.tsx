@@ -79,20 +79,20 @@ export function KanbanCard({ data }: { data: KanbanCardProps }) {
                 className="text-kanban-card-title focus:text-kanban-card-title"
                 onClick={() => data.onReview && data.onReview(data.id)}
               >
-                İncele
+                Prüfen
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-kanban-card-title focus:text-kanban-card-title"
                 onClick={() => data.onEdit && data.onEdit(data.id)}
               >
-                Düzenle
+                Bearbeiten
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 variant="destructive"
                 onClick={() => data.onDelete && data.onDelete(data.id)}
               >
-                Sil
+                Löschen
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
