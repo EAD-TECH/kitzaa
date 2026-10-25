@@ -80,7 +80,7 @@ function SocialLeftRail({ children, onCreatePost }: SocialLeftRailProps) {
 
       {children}
 
-      <section className="relative isolate hidden overflow-hidden rounded-2xl bg-primary p-5 text-primary-foreground shadow-sm tablet:block">
+      <section className="relative isolate hidden overflow-hidden rounded-2xl bg-primary p-4 text-primary-foreground shadow-sm tablet:block">
         <Image
           src={backgroundPattern}
           alt=""
@@ -88,16 +88,16 @@ function SocialLeftRail({ children, onCreatePost }: SocialLeftRailProps) {
           className="pointer-events-none absolute -right-6 -bottom-8 -z-10 w-44 opacity-20 invert"
         />
 
-        <div className="flex size-10 items-center justify-center rounded-full bg-primary-foreground/15">
-          <Camera className="size-5" />
+        <div className="flex size-8 items-center justify-center rounded-full bg-primary-foreground/15">
+          <Camera className="size-4" />
         </div>
 
-        <p className="mt-3 font-heading text-xl font-semibold">{t("shareTitle")}</p>
-        <p className="mt-2 text-sm text-primary-foreground/85">{t("shareBody")}</p>
+        <p className="mt-2 font-heading text-lg font-semibold">{t("shareTitle")}</p>
+        <p className="mt-1.5 text-sm text-primary-foreground/85">{t("shareBody")}</p>
 
         <button 
           type="button"
-          className="mt-4 flex items-center gap-2 rounded-full bg-primary-foreground/12 px-3 py-2 text-sm text-primary-foreground/80"
+          className="mt-3 flex items-center gap-2 rounded-full bg-primary-foreground/12 px-3 py-2 text-sm text-primary-foreground/80"
           onClick={handleCreatePostClick}>
           <Images className="size-4 shrink-0" />
           <span className="truncate">{t("sharePrompt")}</span>

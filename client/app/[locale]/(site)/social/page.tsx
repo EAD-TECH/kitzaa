@@ -6,18 +6,34 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import SocialFeedHeader from "@/features/social/components/SocialFeedHeader";
 import SocialFilter, { SocialFilterTrigger } from "@/features/social/components/SocialFilter";
 import SocialLeftRail from "@/features/social/components/SocialLeftRail";
 import SocialRightRail from "@/features/social/components/SocialRightRail";
 import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import { useAuthStore } from "@/features/auth/store/authStore";
+import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { CreatePostDialog } from "@/features/social/components/CreatePostDialog";
 
+const FEED_CONTINUE_MARGIN_PX = 300;
+
 function SocialPage() {
   const t = useTranslations("Social");
+  const router = useRouter();
+  const isAuthReady = useAuthStore((state) => state.isReady);
   const currentUser = useCurrentUser();
   const currentUserCity = currentUser?.data?.location?.city;
+  const [isLoginWallOpen, setIsLoginWallOpen] = useState(false);
+  const [feedLocked, setFeedLocked] = useState(false);
 
   const [city, setCity] = useState(currentUserCity || "");
   const [eventId, setEventId] = useState("");
@@ -52,24 +68,64 @@ function SocialPage() {
 
     if (!element) return;
 
+    const openLoginWall = () => {
+      if (currentUser.data || !isAuthReady || window.scrollY <= 0) return;
+
+      setFeedLocked(true);
+      setIsLoginWallOpen(true);
+    };
+
     const observer = new IntersectionObserver(
       (entries) => {
         const firstEntry = entries[0];
+        if (!firstEntry?.isIntersecting) return;
 
-        if (firstEntry.isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
+        if (currentUser.data) {
+          if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+          return;
         }
+
+        openLoginWall();
       },
       {
-        rootMargin: "300px",
+        rootMargin: `${FEED_CONTINUE_MARGIN_PX}px`,
       },
     );
 
     observer.observe(element);
+
+    const onScroll = () => {
+      if (currentUser.data) return;
+
+      const reachedContinuePoint =
+        element.getBoundingClientRect().top <= window.innerHeight + FEED_CONTINUE_MARGIN_PX;
+      if (reachedContinuePoint) openLoginWall();
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+
     return () => {
       observer.disconnect();
+      window.removeEventListener("scroll", onScroll);
     };
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  }, [currentUser.data, fetchNextPage, hasNextPage, isAuthReady, isFetchingNextPage]);
+
+  useEffect(() => {
+    if (!feedLocked || currentUser.data) return;
+
+    const limit = window.scrollY;
+
+    const clampScroll = () => {
+      if (window.scrollY <= limit) return;
+      window.scrollTo(0, limit);
+      setIsLoginWallOpen(true);
+    };
+
+    window.addEventListener("scroll", clampScroll, { passive: true });
+    return () => window.removeEventListener("scroll", clampScroll);
+  }, [currentUser.data, feedLocked]);
 
   if (isError) {
     return (
@@ -93,8 +149,8 @@ function SocialPage() {
   }
 
   return (
-    <div className="mx-auto mt-10 grid w-full grid-cols-1 gap-6 px-6 tablet:px-20 desktop:grid-cols-[320px_minmax(0,1fr)_280px] desktop:items-start desktop:gap-16 desktop:px-10">
-      <aside className="desktop:sticky desktop:top-20 desktop:max-h-[calc(100vh-5.5rem)] desktop:overflow-y-auto">
+    <div className="mx-auto mt-10 grid w-full grid-cols-1 gap-6 px-6 tablet:px-20 desktop:grid-cols-[360px_minmax(0,1fr)_320px] desktop:items-start desktop:gap-8 desktop:px-10">
+      <aside>
         <SocialLeftRail onCreatePost={() => setIsCreatePostOpen(true)}>
           <div className="hidden desktop:block">
             <SocialFilter
@@ -154,7 +210,7 @@ function SocialPage() {
         <div ref={loadMoreRef} />
       </div>
 
-      <aside className="sticky top-20 hidden desktop:block">
+      <aside className="hidden desktop:block">
         <SocialRightRail
           selectedEventId={eventId}
           onSelectEvent={(selectedEventId) => {
@@ -167,6 +223,19 @@ function SocialPage() {
         />
       </aside>
       <CreatePostDialog open={isCreatePostOpen} onOpenChange={setIsCreatePostOpen} />
+      <Dialog open={isLoginWallOpen} onOpenChange={setIsLoginWallOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("loginWallTitle")}</DialogTitle>
+            <DialogDescription>{t("loginWallBody")}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button type="button" onClick={() => router.push("/login?next=/social")}>
+              {t("signIn")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

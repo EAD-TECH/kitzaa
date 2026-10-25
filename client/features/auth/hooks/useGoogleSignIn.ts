@@ -5,6 +5,7 @@ import { useLocale } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useEventsStore } from "@/features/events/store/EventStore";
 import { googleSignIn } from "../AuthApi";
+import { safeNextPath } from "../safeNextPath";
 import { useAuthStore } from "../store/authStore";
 
 export function useGoogleSignIn() {
@@ -35,7 +36,8 @@ export function useGoogleSignIn() {
         return;
       }
 
-      router.push("/");
+      const nextPath = safeNextPath(new URLSearchParams(window.location.search).get("next"));
+      router.push(nextPath ?? "/");
     },
   });
 }
