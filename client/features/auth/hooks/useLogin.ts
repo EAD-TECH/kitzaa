@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { login as loginApi } from "../AuthApi";
+import { safeNextPath } from "../safeNextPath";
 import { useAuthStore } from "../store/authStore";
 import { ApiError } from "@/lib/api/client";
 import type { LoginFormValues } from "../validations/login.schema";
@@ -27,7 +28,8 @@ export function useLogin() {
         return;
       }
 
-      router.push("/");
+      const nextPath = safeNextPath(new URLSearchParams(window.location.search).get("next"));
+      router.push(nextPath ?? "/");
     },
   });
 }

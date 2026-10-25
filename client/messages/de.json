@@ -91,6 +91,7 @@
     },
     "newHere": "Neu bei Kitzaa?",
     "register": "Registrieren",
+    "imageAlt": "Familie mit Kind in einem Gemeinschaftsgarten",
     "validation": {
       "loginRequired": "E-Mail oder Benutzername ist erforderlich.",
       "passwordRequired": "Passwort ist erforderlich."
@@ -269,6 +270,8 @@
     "likeLoginPrompt": "Bitte melde dich an, um Beiträge zu liken.",
     "createLoginPrompt": "Bitte melde dich an, um einen Beitrag zu erstellen.",
     "signIn": "Anmelden",
+    "loginWallTitle": "Melde dich an, um weiterzuscrollen",
+    "loginWallBody": "Die Vorschau endet hier. Melde dich an, um den Feed weiter anzusehen.",
     "more": "Mehr",
     "like": "Gefällt mir",
     "unlike": "Gefällt mir entfernen",

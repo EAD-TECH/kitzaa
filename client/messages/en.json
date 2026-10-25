@@ -91,6 +91,7 @@
     },
     "newHere": "New to Kitzaa?",
     "register": "Register",
+    "imageAlt": "Family with a child in a community garden",
     "validation": {
       "loginRequired": "Email or username is required.",
       "passwordRequired": "Password is required."
@@ -269,6 +270,8 @@
     "likeLoginPrompt": "Please sign in to like posts.",
     "createLoginPrompt": "Please sign in to create a post.",
     "signIn": "Sign in",
+    "loginWallTitle": "Sign in to keep scrolling",
+    "loginWallBody": "The preview ends here. Sign in to continue the feed.",
     "more": "More",
     "like": "Like",
     "unlike": "Unlike",
