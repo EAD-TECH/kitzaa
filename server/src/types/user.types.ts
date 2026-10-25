@@ -25,13 +25,19 @@ export interface INotifications {
   push: INotificationPush;
 }
 
+export const AUTH_PROVIDERS = ["password", "google"] as const;
+
+export type AuthProvider = (typeof AUTH_PROVIDERS)[number];
+
 export interface IUser {
   _id?: Types.ObjectId;
-  username: string;
+  username?: string;
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
+  password?: string;
+  googleSub?: string;
+  authProviders?: AuthProvider[];
   institutionId?: Types.ObjectId | null;
   emailVerifyToken?: string | null;
   emailVerifyExp?: Date | null;
@@ -72,6 +78,7 @@ export interface UserDTO {
   language: string;
   location?: ILocation;
   isEmailVerified: boolean;
+  profileCompleted: boolean;
   savedEvents: string[];
   createdAt: Date;
   updatedAt: Date;

@@ -7,6 +7,12 @@ import type {
   UserDocument,
   ILocation,
 } from '../types/user.types.js';
+import { AUTH_PROVIDERS } from '../types/user.types.js';
+import {
+  hasGoogleIdentity,
+  hashPasswordIfNeeded,
+  syncAuthProvidersForNewUser,
+} from '../helpers/authCredentials.js';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PASSWORD_REGEX =
@@ -49,9 +55,17 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>(
   {
     username: {
       type: String,
-      required: [true, 'Username is required'],
+      required: [
+        function (this: UserDocument) {
+          return !hasGoogleIdentity(this.googleSub);
+        },
+        'Username is required',
+      ],
       trim: true,
+      // Sparse: unfinished Google profiles omit username. Existing password
+      // accounts already have one, so they stay unique without a data rewrite.
       unique: true,
+      sparse: true,
       maxlength: [50, 'Username cannot exceed 50 characters'],
     },
     firstName: {
@@ -79,13 +93,37 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>(
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
+      required: [
+        function (this: UserDocument) {
+          // select:false leaves password undefined on later saves. Only a new
+          // local account, or an explicit password change, must carry one.
+          if (hasGoogleIdentity(this.googleSub)) return false;
+          return this.isNew || this.isModified('password');
+        },
+        'Password is required',
+      ],
       select: false,
       validate: {
         validator: (value: string) => PASSWORD_REGEX.test(value),
         message:
           'Password must be at least 8 characters and contain uppercase, lowercase, number, and special character',
       },
+    },
+    googleSub: {
+      type: String,
+      trim: true,
+      unique: true,
+      sparse: true,
+    },
+    authProviders: {
+      type: [
+        {
+          type: String,
+          enum: AUTH_PROVIDERS,
+        },
+      ],
+      // Mongoose otherwise materialises [] and would write it onto old accounts.
+      default: undefined,
     },
     institutionId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -149,7 +187,12 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>(
     },
     location: {
       type: locationSchema,
-      required: [true, 'Location information is required'],
+      required: [
+        function (this: UserDocument) {
+          return !hasGoogleIdentity(this.googleSub);
+        },
+        'Location information is required',
+      ],
     },
     refreshToken: {
       type: String,
@@ -185,8 +228,10 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>(
 );
 
 userSchema.pre('save', async function (this: UserDocument) {
+  syncAuthProvidersForNewUser(this);
+
   if (this.isModified('password')) {
-    this.password = await bcrypt.hash(this.password, 12);
+    this.password = await hashPasswordIfNeeded(this.password, true);
   }
 
   if (this.isModified('role')) {

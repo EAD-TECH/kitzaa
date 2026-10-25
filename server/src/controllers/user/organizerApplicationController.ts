@@ -59,7 +59,7 @@ const OrganizerApplicationController = {
         to: req.user.email,
         subject: "Organisator-Antrag eingegangen",
         html: organizerApplicationReceivedTemplate({
-          username: req.user.username,
+          username: req.user.username ?? "",
           institutionName: institutionData.name,
         }),
       });
@@ -68,7 +68,7 @@ const OrganizerApplicationController = {
     }
 
     await notifyAdminsForNewApplication(
-      req?.user.username,
+      req.user.username ?? "",
       institutionData.name,
       application._id,
     );

@@ -17,6 +17,7 @@ export interface AuthUser {
     country: string;
   };
   isEmailVerified: boolean;
+  profileCompleted?: boolean;
   savedEvents: string[];
   createdAt: string;
   updatedAt: string;

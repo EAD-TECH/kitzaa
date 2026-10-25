@@ -3,6 +3,7 @@ import { Socket } from "socket.io";
 import jwt from "jsonwebtoken";
 import CustomError from "../../helpers/customError.js";
 import type { AccessTokenPayload } from "../../helpers/generateJwt.js";
+import { isProfileComplete } from "../../helpers/profileCompletion.js";
 import User from "../../models/userModel.js";
 
 export const socketAuth = async (
@@ -30,11 +31,15 @@ export const socketAuth = async (
     socket.data.role = String(decoded.role);
 
     const dbUser = await User.findById(decoded._id).select(
-      "firstName lastName avatarUrl",
+      "firstName lastName avatarUrl username location",
     );
 
     if (!dbUser) {
       throw new CustomError("Kullanıcı bulunumadı", 403);
+    }
+
+    if (!isProfileComplete(dbUser)) {
+      return next(new CustomError("Profile is incomplete.", 403));
     }
 
     socket.data.firstName = dbUser.firstName;

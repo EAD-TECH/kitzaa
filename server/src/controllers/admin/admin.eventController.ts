@@ -75,7 +75,7 @@ const adminEventController = {
         to: createdBy.email,
         subject: "Event genehmigt",
         html: eventApprovedTemplate({
-          username: createdBy.username,
+          username: createdBy.username ?? "",
           eventTitle: event.title,
           eventSlug: event.slug,
         }),
@@ -116,7 +116,7 @@ const adminEventController = {
         to: createdBy.email,
         subject: "Event abgelehnt",
         html: eventRejectedTemplate({
-          username: createdBy.username,
+          username: createdBy.username ?? "",
           eventTitle: event.title,
           rejectedReason: event.rejectedReason,
         }),
@@ -163,7 +163,7 @@ const adminEventController = {
         to: createdBy.email,
         subject: "Event abgesagt",
         html: eventCancelledTemplate({
-          username: createdBy.username,
+          username: createdBy.username ?? "",
           eventTitle: event.title,
           cancelledReason: event.cancelledReason,
         }),

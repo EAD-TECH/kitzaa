@@ -70,7 +70,7 @@
  *         schema: { $ref: '#/definitions/ForgotPasswordInput' }
  *     responses:
  *       200:
- *         description: Returns a generic message (does not leak whether the email exists)
+ *         description: Returns a generic message (does not leak whether the email exists). Accounts that have no password yet receive the same link.
  *
  * /auth/reset-password/{token}:
  *   post:
@@ -87,7 +87,7 @@
  *         schema: { $ref: '#/definitions/ResetPasswordInput' }
  *     responses:
  *       200:
- *         description: Password changed successfully
+ *         description: Password changed. The reset token and stored refresh token are invalidated. An existing Google identity is kept.
  *       400:
  *         description: Token is invalid or expired
  *
@@ -105,5 +105,55 @@
  *         description: Email verified successfully
  *       400:
  *         description: Token is invalid or expired
+ *
+ * /auth/google/nonce:
+ *   get:
+ *     summary: Issues a one-time nonce for Google Identity Services
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Returns the nonce and sets it in an httpOnly cookie. The browser Origin must be the client app.
+ *       401:
+ *         description: Origin is missing or not allowed
+ *
+ * /auth/google:
+ *   post:
+ *     summary: Verifies a Google ID token and starts a Kitzaa session
+ *     tags: [Auth]
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         schema:
+ *           type: object
+ *           required: [credential]
+ *           properties:
+ *             credential:
+ *               type: string
+ *             locale:
+ *               type: string
+ *               enum: [de, en]
+ *     responses:
+ *       200:
+ *         description: Refresh cookie is set. The access token is returned in the JSON body, as with email login.
+ *       401:
+ *         description: Origin, nonce, or Google ID token could not be verified
+ *       403:
+ *         description: The account is disabled
+ *       409:
+ *         description: The email already belongs to a password account and was not linked
+ *
+ * /auth/complete-profile:
+ *   post:
+ *     summary: Saves username and verified German location for an unfinished Google account
+ *     tags: [Auth]
+ *     security:
+ *       - Bearer: []
+ *     responses:
+ *       200:
+ *         description: Profile completed
+ *       403:
+ *         description: Not used here. Other protected routes return this while the profile is unfinished.
+ *       409:
+ *         description: Username is already taken
  */
 export {};

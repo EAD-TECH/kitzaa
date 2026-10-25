@@ -16,9 +16,11 @@ export interface RefreshTokenPayload {
 }
 
 export const generateAccessToken = (user: UserDocument): string => {
+  // A new Google account has no username until /complete-profile. The token still
+  // identifies the user by _id. Protected routes reject the incomplete profile.
   const accessData: AccessTokenPayload = {
     _id: user._id,
-    username: user.username,
+    username: user.username ?? "",
     isActive: user.isActive,
     role: user.role,
     institutionId: user.institutionId,

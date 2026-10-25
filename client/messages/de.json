@@ -80,7 +80,15 @@
     "submitting": "Wird angemeldet...",
     "submit": "Anmelden",
     "continueWith": "Oder weiter mit",
-    "google": "Anmelden mit Google",
+    "oauthErrors": {
+      "cancelled": "Die Google-Anmeldung wurde abgebrochen.",
+      "state": "Die Anmeldung konnte nicht sicher bestätigt werden. Bitte versuche es erneut.",
+      "exchange": "Die Anmeldung bei Google ist fehlgeschlagen. Bitte versuche es erneut.",
+      "emailUnverified": "Die Google-E-Mail-Adresse ist nicht bestätigt.",
+      "usePassword": "Diese E-Mail-Adresse ist bereits mit einem Passwort registriert. Melde dich mit E-Mail und Passwort an.",
+      "inactive": "Dieses Konto ist deaktiviert.",
+      "notConfigured": "Die Google-Anmeldung ist derzeit nicht konfiguriert."
+    },
     "newHere": "Neu bei Kitzaa?",
     "register": "Registrieren",
     "validation": {
@@ -122,8 +130,7 @@
     "english": "Englisch",
     "submitting": "Wird erstellt...",
     "submit": "Konto erstellen",
-    "continueWith": "Oder weiter mit",
-    "google": "Mit Google registrieren",
+    "continueWith": "Oder mit E-Mail registrieren",
     "hasAccount": "Du hast bereits ein Konto?",
     "login": "Anmelden",
     "successTitle": "E-Mail-Adresse bestätigen",
@@ -144,6 +151,30 @@
       "cityRequired": "Stadt ist erforderlich",
       "zipInvalid": "Bitte gib eine gültige Postleitzahl ein",
       "passwordMismatch": "Passwörter stimmen nicht überein"
+    }
+  },
+  "CompleteProfile": {
+    "title": "Profil vervollständigen",
+    "subtitle": "Wähle einen Nutzernamen und bestätige deinen Wohnort in Deutschland.",
+    "username": "Nutzername",
+    "usernamePlaceholder": "family_hero",
+    "zipCode": "Postleitzahl",
+    "zipLookup": "Stadt wird gesucht...",
+    "invalidZip": "Diese Postleitzahl ist ungültig",
+    "city": "Stadt",
+    "state": "Bundesland",
+    "submitting": "Wird gespeichert...",
+    "submit": "Profil speichern",
+    "usernameTaken": "Dieser Nutzername ist bereits vergeben.",
+    "addressMismatch": "Postleitzahl, Stadt und Bundesland passen nicht zusammen.",
+    "lookupUnavailable": "Die Postleitzahl konnte gerade nicht geprüft werden. Bitte versuche es erneut.",
+    "submitFailed": "Das Profil konnte nicht gespeichert werden. Bitte versuche es erneut.",
+    "validation": {
+      "usernameRequired": "Nutzername ist erforderlich",
+      "usernameMax": "Nutzername darf höchstens 50 Zeichen lang sein",
+      "stateRequired": "Bundesland ist erforderlich",
+      "cityRequired": "Stadt ist erforderlich",
+      "zipInvalid": "Bitte gib eine gültige Postleitzahl ein"
     }
   },
   "ForgotPassword": {
