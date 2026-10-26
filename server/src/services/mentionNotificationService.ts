@@ -28,14 +28,16 @@ export const triggerMentionNotifications = async (
     ...new Set(mentionedUserIds.map((id) => id.toString())),
   ].filter((id) => id !== senderId.toString());
 
-  uniqueIds.forEach((id) => {
-    createNotification(id as unknown as Types.ObjectId, "post_mention", {
-      title: "Seni etiketlediler",
-      message: `${senderName || "Birisi"} bir yorumda senden bahsetti.`,
-      senderId,
-      relatedId,
-      relatedModel,
-      linkNotification,
-    });
-  });
+  await Promise.all(
+    uniqueIds.map((id) =>
+      createNotification(id as unknown as Types.ObjectId, "post_mention", {
+        title: "Seni etiketlediler",
+        message: `${senderName || "Birisi"} bir yorumda senden bahsetti.`,
+        senderId,
+        relatedId,
+        relatedModel,
+        linkNotification,
+      }),
+    ),
+  );
 };

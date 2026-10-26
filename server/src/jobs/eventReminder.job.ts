@@ -4,7 +4,7 @@ import Event from "../models/eventModel.js";
 import dayjs from "dayjs";
 
 import utc from "dayjs/plugin/utc.js";
-import { Notification } from "../models/notificationModel.js";
+import { sendBulknotificaitons } from "../helpers/sendBulkNotifications.js";
 
 dayjs.extend(utc);
 
@@ -24,6 +24,7 @@ export const sendRemindersForTomorrow = async () => {
 
   const eventsTomorrow = await Event.find({
     status: "approved",
+    systemNotificationSent: { $nin: ["event_reminder"] },
 
     "schedule.startDate": {
       $gte: startOfTomorrow, //yarının baslangıcından buyuk olan
@@ -50,9 +51,25 @@ export const sendRemindersForTomorrow = async () => {
   if (notificationToInsert.length === 0) return null;
 
   /* insertMany ıle bulk ınsert yap */
-  const result = await Notification.insertMany(notificationToInsert);
+  const result = await Promise.all(
+    notificationToInsert.map((notification) =>
+      sendBulknotificaitons({
+        userIdsArray: [notification.recipientId],
+        type: "event_reminder",
+        title: notification.title,
+        message: notification.message,
+        relatedId: notification.relatedId,
+        relatedModel: "Event",
+        linkNotification: notification.linkNotification,
+      }),
+    ),
+  );
 
   console.log("etkinlik hatırlatıcısı olusturuldu ve sayısı", result.length);
+  await Event.updateMany(
+    { _id: { $in: eventsTomorrow.map((event) => event._id) } },
+    { $addToSet: { systemNotificationSent: "event_reminder" } },
+  );
 };
 
 /* motoru olusturdm simdi onu tetiklemem lazim her gece 00:00 calısması ıcın*/
