@@ -15,9 +15,9 @@ Laminar.initialize({
 export const runAgent = async (
   userMessage: string,
   roomId: string,
-  userId: string, 
+  userId: string,
   conversationHistory: ModelMessage[] = [],
-  callbacks: AgentCallbacks = {}, 
+  callbacks: AgentCallbacks = {},
   options: { enableAdminTools?: boolean } = {},
 ): Promise<string> => {
   callbacks.onStart?.();
@@ -49,7 +49,14 @@ export const runAgent = async (
 
     callbacks.onComplete?.(reply);
     return reply;
-  } catch (error) {
+  } catch (error: any) {
+    console.error("[agent] runAgent FAILED", {
+      name: error?.name,
+      message: error?.message,
+      statusCode: error?.statusCode, // APICallError ise dolu gelir
+      responseBody: error?.responseBody, // Groq'un döndüğü gerçek hata
+      cause: error?.cause,
+    });
     callbacks.onError?.(error);
     throw error;
   }
