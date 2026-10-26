@@ -15,7 +15,7 @@ export default function RequireAuth({ children, roles }: RequireAuthProps) {
   const isReady = useAuthStore((state) => state.isReady);
   const { data: user } = useCurrentUser();
   const CLIENT_URL =
-    process.env.NEXT_PUBLIC_CLIENT_URL ?? "http://localhost:3000";
+    process.env.NEXT_PUBLIC_CLIENT_URL ?? "https://kitzaa.de";
 
   useEffect(() => {
     if (!isReady) return;

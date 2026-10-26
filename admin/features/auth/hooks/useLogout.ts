@@ -6,7 +6,7 @@ import { ApiError } from "@/lib/api/client";
 import { redirectExternal } from "../utils/navigation";
 
 const CLIENT_URL =
-  process.env.NEXT_PUBLIC_CLIENT_URL ?? "http://localhost:3000";
+  process.env.NEXT_PUBLIC_CLIENT_URL ?? "https://kitzaa.de";
 
 export function useLogout() {
   const queryClient = useQueryClient();
