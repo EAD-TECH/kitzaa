@@ -64,7 +64,7 @@ describe("RequireAuth guvenlik sefini test ediyorum", () => {
 
     // KONTROL: JSDOM'u hacklemek yerine kendi casusumuzu kontrol ediyoruz!
     expect(mockedRedirectExternal).toHaveBeenCalledWith(
-      "http://localhost:3000/login",
+      "https://kitzaa.de/login",
     );
   });
 
@@ -81,7 +81,7 @@ describe("RequireAuth guvenlik sefini test ediyorum", () => {
 
     // KONTROL
     expect(mockedRedirectExternal).toHaveBeenCalledWith(
-      "http://localhost:3000",
+      "https://kitzaa.de",
     );
   });
 
