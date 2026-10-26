@@ -376,6 +376,9 @@
   "Events": {
     "breadcrumb": "Events",
     "nothingFound": "Nothing found?",
+    "eventsWord": "{count, plural, one {Event} other {Events}}",
+    "ofTotal": "of {total}",
+    "noEventsFound": "No event found",
     "loadFailed": "Events could not be loaded.",
     "searchPlaceholder": "Search for events, workshops...",
     "scrollToTop": "Scroll to top",

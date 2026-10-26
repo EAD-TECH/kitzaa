@@ -3,6 +3,19 @@ import type { EventListResponse, EventResponse } from "../types/event.types"
 import { buildEventQuery, type EventSearchParams } from "./buildEventQuery"
 
 
+export const getApprovedEventCountServer = async () => {
+    const { details } = await apiFetchServer<EventListResponse>(
+        `/api/v1/events?limit=1`,
+        {
+            method: "GET",
+            revalidate: 60,
+            tags: ["events"],
+        }
+    )
+
+    return details.count
+}
+
 export const getOrganizerEventCountServer = async (organizerId: string) => {
 
     const { details } = await apiFetchServer<EventListResponse>(

@@ -24,6 +24,13 @@ function databaseNameFromUri(uri: string): string {
   return decodeURIComponent(parsed.pathname.replace(/^\//, "").split("/")[0] ?? "");
 }
 
+function allowsProductionDatabaseInDevelopment(): boolean {
+  return (
+    process.env.NODE_ENV === "development" &&
+    process.env.ALLOW_PRODUCTION_DB_IN_DEV === "true"
+  );
+}
+
 function assertSafeDatabaseTarget(uri: string): string {
   const databaseName = databaseNameFromUri(uri);
 
@@ -31,12 +38,26 @@ function assertSafeDatabaseTarget(uri: string): string {
     throw new Error("DB_URI does not contain a database name.");
   }
 
-  // Only the exact value "production" is production. An unset NODE_ENV stays in development.
+  // Only the exact value "production" is production. An unset NODE_ENV stays protected.
   const isProduction = process.env.NODE_ENV === "production";
+  const targetsProductionDatabase = databaseName.toLowerCase() === PRODUCTION_DATABASE;
 
-  if (!isProduction && databaseName.toLowerCase() === PRODUCTION_DATABASE) {
-    throw new Error(
-      "Refusing to connect: a non-production process is configured to use the production database.",
+  if (!isProduction && targetsProductionDatabase) {
+    if (!allowsProductionDatabaseInDevelopment()) {
+      throw new Error(
+        "Refusing to connect: a non-production process is configured to use the production database.",
+      );
+    }
+
+    console.warn(
+      [
+        "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
+        "! WARNING: development is using the production database.   !",
+        "! Database: kindoradb                                      !",
+        "! ALLOW_PRODUCTION_DB_IN_DEV=true                          !",
+        "! Writes from this process affect live data.               !",
+        "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
+      ].join("\n"),
     );
   }
 

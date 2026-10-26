@@ -63,3 +63,26 @@ export const buildEventQuery = (searchParams: EventSearchParams) => {
 
     return params
 }
+
+const hasText = (value: string | string[] | undefined) =>
+    typeof value === "string" && value.trim().length > 0
+
+const hasList = (value: string | string[] | undefined) => {
+    if (Array.isArray(value)) return value.some((item) => item.trim().length > 0)
+    return hasText(value)
+}
+
+// buildEventQuery ile aynı koşullar: boş veya tek başına etkisiz bir parametre
+// filtre sayılmaz. Aksi halde toplam ile "bulunan" aynı sonuçken ikisi birden yazılır.
+export const hasActiveEventFilters = (searchParams: EventSearchParams) => {
+    if (hasText(searchParams.search)) return true
+    if (hasText(searchParams.locationType)) return true
+    if (hasText(searchParams.ageRange)) return true
+    if (hasText(searchParams.dateFrom)) return true
+    if (hasText(searchParams.dateTo)) return true
+    if (hasList(searchParams.category)) return true
+    if (hasList(searchParams.organisator)) return true
+
+    const { lat, lng, radius } = searchParams
+    return hasText(lat) && hasText(lng) && hasText(radius)
+}
