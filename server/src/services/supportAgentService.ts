@@ -4,27 +4,53 @@ import { getConversationHistory, SaveMessage } from "./messageService.js";
 import type { Server } from "socket.io";
 import type { ModelMessage } from "ai";
 
+const AI_SENDER = {
+  senderId: "Kitzaa-ai",
+  senderName: "Kitzaa Assistent",
+  senderType: "ai" as const,
+};
+
+const emitAiMessage = (
+  io: Server,
+  roomId: string,
+  id: string,
+  text: string,
+  timestamp: Date = new Date(),
+) => {
+  io.to(roomId).emit("receive_support_message", {
+    id,
+    ...AI_SENDER,
+    text,
+    roomId,
+    timestamp,
+  });
+};
+
 export const processSupportAgent = async (
   io: Server,
   roomId: string,
   userId: string,
   userMessageText: string,
-  currentMessageId: string
+  currentMessageId: string,
 ) => {
   try {
-    // 1. Oda ve Agent Durum Kontrolü
     const currentRoom = await Conversation.findById(roomId);
-    if (!currentRoom || currentRoom.roomtype !== "support") return;
-    
-    // Şalter inmişse (admin devralmışsa) AI kesinlikle susar
+
+    if (!currentRoom || currentRoom.roomtype !== "support") {
+      console.warn("[support] Oda bulunamadı veya support değil:", roomId);
+      return;
+    }
+
+    // Admin devraldıysa AI susar (bilinçli davranış)
     if (currentRoom.isAgentActive !== true) {
-      console.log("Bu odada admin var veya agent kapalı, Yapay Zeka devre dışı.");
+      console.log(
+        "[support] Agent kapalı / admin odada, AI cevap vermiyor:",
+        roomId,
+      );
       return;
     }
 
     const history = await getConversationHistory(roomId, currentMessageId);
-
-    
     const agentResponse = await runAgent(
       userMessageText,
       roomId,
@@ -32,49 +58,33 @@ export const processSupportAgent = async (
       history,
     );
 
-    // 4. AI Cevabını DB'ye Kaydetme
-    const savedAiMessage = await SaveMessage(
+    const saved = await SaveMessage(roomId, null, "ai", agentResponse);
+    emitAiMessage(
+      io,
       roomId,
-      null,
-      "ai",
-      agentResponse,
+      saved._id.toString(),
+      saved.content,
+      saved.createdAt,
     );
-
-    // 5. Socket ile Tek Bir Event Üzerinden Yayınlama (Duplicate event önlendi)
-    const frontendAiMessage = {
-      id: savedAiMessage._id.toString(),
-      senderId: "Kitzaa-ai",
-      senderName: "Kitzaa Assistent",
-      senderType: savedAiMessage.senderType,
-      text: savedAiMessage.content,
-      roomId: savedAiMessage.conversationId.toString(),
-      timestamp: savedAiMessage.createdAt,
-    };
-
-    io.to(roomId).emit("receive_support_message", frontendAiMessage);
-
   } catch (error) {
-    console.error("Destek agent hatası:", error);
-    
-    // Fault Tolerance (Faz 1/2 gereği fallback mesajı artık DB'ye de yazılıyor)
-    const fallbackText = "Der Assistent ist gerade nicht erreichbar. Eine Person aus dem Team meldet sich in Kürze.";
-    
-    const savedFallback = await SaveMessage(
-      roomId,
-      null,
-      "ai",
-      fallbackText
-    );
+    console.error("[support] Destek agent hatası:", error);
 
-    io.to(roomId).emit("receive_support_message", {
-      id: savedFallback._id.toString(),
-      senderId: "Kitzaa-ai",
-      senderName: "Kitzaa Assistent",
-      senderType: "ai",
-      text: fallbackText,
-      roomId,
-      timestamp: savedFallback.createdAt,
-    });
+    const fallbackText =
+      "Der Assistent ist gerade nicht erreichbar. Eine Person aus dem Team meldet sich in Kürze.";
+
+    try {
+      const saved = await SaveMessage(roomId, null, "ai", fallbackText);
+      emitAiMessage(
+        io,
+        roomId,
+        saved._id.toString(),
+        fallbackText,
+        saved.createdAt,
+      );
+    } catch (saveError) {
+      console.error("[support] Fallback mesajı kaydedilemedi:", saveError);
+      emitAiMessage(io, roomId, `fallback:${Date.now()}`, fallbackText);
+    }
   }
 };
 
@@ -94,21 +104,18 @@ export const processGuestSupportAgent = async (
       { enableAdminTools: false },
     );
 
-    io.to(roomId).emit("receive_support_message", {
-      id: `guest-ai:${Date.now()}`,
-      senderId: "Kitzaa-ai",
-      senderName: "Kitzaa Assistent",
-      senderType: "ai",
-      text: agentResponse,
-      roomId,
-      timestamp: new Date(),
-    });
+    emitAiMessage(io, roomId, `guest-ai:${Date.now()}`, agentResponse);
     return agentResponse;
   } catch (error) {
-    console.error("Gast-Agent konnte nicht antworten:", error);
-    io.to(roomId).emit("error_message", {
-      message: "Der Assistent ist momentan nicht verfügbar.",
-    });
+    console.error("[guest] Gast-Agent konnte nicht antworten:", error);
+
+    // error_message yerine client'ın dinlediği event ile gönder
+    emitAiMessage(
+      io,
+      roomId,
+      `guest-fallback:${Date.now()}`,
+      "Der Assistent ist momentan nicht verfügbar. Bitte versuche es gleich noch einmal oder logge dich ein.",
+    );
     return null;
   }
 };
