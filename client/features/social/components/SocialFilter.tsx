@@ -1,9 +1,18 @@
 "use client";
 
+import { useMemo } from "react";
 import { SlidersHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
 import { Field, FieldLabel } from "@/components/ui/field";
 import {
   Select,
@@ -14,14 +23,29 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { germanCities, germanCitySet } from "../data/germanCities";
 import { useEvents } from "../hooks/useEvents";
 
-const cityItems = [
-  { label: "Berlin", value: "Berlin" },
-  { label: "Karlsruhe", value: "Karlsruhe" },
-  { label: "Pforzheim", value: "Pforzheim" },
-  { label: "Stuttgart", value: "Stuttgart" },
-];
+const ALL_CITIES = "all";
+const CITY_RESULT_LIMIT = 40;
+
+function foldForSearch(value: string, umlautStyle: "digraph" | "base") {
+  const folded = value.trim().toLocaleLowerCase("de-DE").replaceAll("ß", "ss");
+  if (umlautStyle === "digraph") {
+    return folded.replaceAll("ä", "ae").replaceAll("ö", "oe").replaceAll("ü", "ue");
+  }
+  return folded.replaceAll("ä", "a").replaceAll("ö", "o").replaceAll("ü", "u");
+}
+
+function cityMatchesQuery(city: string, query: string) {
+  const trimmed = query.trim();
+  if (!trimmed) return true;
+
+  return (
+    foldForSearch(city, "digraph").includes(foldForSearch(trimmed, "digraph")) ||
+    foldForSearch(city, "base").includes(foldForSearch(trimmed, "base"))
+  );
+}
 
 export type PostSort = {
   createdAt?: 1 | -1;
@@ -84,6 +108,17 @@ const SocialFilter = ({
   const t = useTranslations("Social");
   const { data } = useEvents();
   const events = data?.events ?? [];
+  const allCitiesLabel = t("allCities");
+  const cityOptions = useMemo(() => {
+    const names =
+      city && !germanCitySet.has(city)
+        ? [...germanCities, city].sort((left, right) =>
+            left.localeCompare(right, "de", { sensitivity: "base" }),
+          )
+        : germanCities;
+
+    return [ALL_CITIES, ...names];
+  }, [city]);
 
   const selectedEvent = events.find((event) => event._id === eventId);
 
@@ -106,25 +141,31 @@ const SocialFilter = ({
         <Field>
           <FieldLabel>{t("cityLabel")}</FieldLabel>
 
-          <Select
-            value={city || "all"}
-            onValueChange={(value) => setCity(!value || value === "all" ? "" : value)}
+          <Combobox
+            items={cityOptions}
+            value={city || ALL_CITIES}
+            onValueChange={(value) => setCity(!value || value === ALL_CITIES ? "" : value)}
+            itemToStringLabel={(item) => (item === ALL_CITIES ? allCitiesLabel : item)}
+            filter={(item, query) =>
+              item === ALL_CITIES
+                ? cityMatchesQuery(allCitiesLabel, query)
+                : cityMatchesQuery(item, query)
+            }
+            limit={CITY_RESULT_LIMIT}
+            locale="de"
           >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={t("cityPlaceholder")} />
-            </SelectTrigger>
-
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="all">{t("allCities")}</SelectItem>
-                {cityItems.map((item) => (
-                  <SelectItem key={item.value} value={item.value}>
-                    {item.label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+            <ComboboxInput placeholder={t("cityPlaceholder")} className="w-full" />
+            <ComboboxContent>
+              <ComboboxEmpty>{t("noCityFound")}</ComboboxEmpty>
+              <ComboboxList>
+                {(item) => (
+                  <ComboboxItem key={item} value={item}>
+                    {item === ALL_CITIES ? allCitiesLabel : item}
+                  </ComboboxItem>
+                )}
+              </ComboboxList>
+            </ComboboxContent>
+          </Combobox>
         </Field>
 
         <Field>

@@ -248,6 +248,7 @@
     "cityLabel": "Stadt",
     "cityPlaceholder": "Stadt wählen",
     "allCities": "Alle Städte",
+    "noCityFound": "Keine Stadt gefunden.",
     "eventLabel": "Event",
     "allEvents": "Alle Events",
     "sortLabel": "Sortierung",
@@ -376,6 +377,9 @@
   "Events": {
     "breadcrumb": "Events",
     "nothingFound": "Nichts gefunden?",
+    "eventsWord": "{count, plural, one {Event} other {Events}}",
+    "ofTotal": "von {total}",
+    "noEventsFound": "Kein Event gefunden",
     "loadFailed": "Events konnten nicht geladen werden.",
     "searchPlaceholder": "Suche nach Events, Workshops...",
     "scrollToTop": "Nach oben scrollen",
