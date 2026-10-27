@@ -248,6 +248,7 @@
     "cityLabel": "City",
     "cityPlaceholder": "Select a city",
     "allCities": "All cities",
+    "noCityFound": "No city found.",
     "eventLabel": "Event",
     "allEvents": "All events",
     "sortLabel": "Sort",
