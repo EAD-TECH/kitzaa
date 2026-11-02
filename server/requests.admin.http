@@ -7,6 +7,10 @@
 @baseUrl = http://localhost:8000/api/v1
 @contentType = application/json
 @accessToken = {{login.response.body.accessToken}}
+# Set these in server/.env. Do not write password values in this file.
+@requestPassword = {{$dotenv LOCAL_REQUEST_PASSWORD}}
+@currentPassword = {{$dotenv LOCAL_CURRENT_PASSWORD}}
+@newPassword = {{$dotenv LOCAL_NEW_PASSWORD}}
 
 
 
@@ -17,7 +21,7 @@ Content-Type: {{contentType}}
 
 {
   "login": "admin",
-  "password": "Admin123!"
+  "password": "{{requestPassword}}"
 }
 
 
@@ -32,8 +36,8 @@ Content-Type: {{contentType}}
   "username": "admin",
   "firstName": "adminAyla",
   "lastName": "adminAyla",
-  "email": "ataydirayla@gmail.com",
-  "password": "AdminAyla12.",
+  "email": "ayla@example.com",
+  "password": "{{requestPassword}}"
   "role": "admin"
 }
 
@@ -73,9 +77,9 @@ Authorization: Bearer {{accessToken}}
 Content-Type: {{contentType}}
 
 {
-  "currentPassword": "Organizer1.",
-  "newPassword": "NewOrganizer1.",
-  "confirmPassword": "NewOrganizer1."
+  "currentPassword": "{{currentPassword}}",
+  "newPassword": "{{newPassword}}",
+  "confirmPassword": "{{newPassword}}"
 }
 
 

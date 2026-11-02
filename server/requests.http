@@ -4,6 +4,10 @@
 @contentType = application/json
 @accessToken = {{login.response.body.$.accessToken}}
 @notificationID={{listNotifications.response.body.$.data[0].id}}
+# Set these in server/.env. Do not write password values in this file.
+@requestPassword = {{$dotenv LOCAL_REQUEST_PASSWORD}}
+@currentPassword = {{$dotenv LOCAL_CURRENT_PASSWORD}}
+@newPassword = {{$dotenv LOCAL_NEW_PASSWORD}}
 
 
 
@@ -27,7 +31,7 @@ Content-Type: {{contentType}}
   "firstName": "Sofia",
   "lastName": "Hoffmann",
   "email": "sofia.hoffmann@kitzaa.test",
-  "password": "Password1.",
+  "password": "{{requestPassword}}",
   "phone": "+4915333333333",
   "language": "de",
   "location": { "state": "Berlin", "city": "Berlin", "zipCode": "10115", "country": "DE" }
@@ -41,8 +45,8 @@ Content-Type: {{contentType}}
   "username": "TestCommenter3",
   "firstName": "testcommenter3",
   "lastName": "testcommenter3",
-  "email": "testcommenter3@gmail.com",
-  "password": "Password1.",
+  "email": "testcommenter3@example.com",
+  "password": "{{requestPassword}}",
   "phone": "+491234567190",
   "language": "de",
   "location": {
@@ -61,7 +65,7 @@ Content-Type: {{contentType}}
 
 {
   "login": "marco.klein",
-  "password": "Password1."
+  "password": "{{requestPassword}}"
 }
 
 ### 
@@ -81,18 +85,18 @@ POST {{baseUrl}}/auth/forgot-password
 Content-Type: {{contentType}}
 
 {
-  "email": "dyg.cankurt17@gmail.com"
+  "email": "duygu@example.com"
 }
 
 
 ###
 # @name resetPassword
-POST {{baseUrl}}/auth/reset-password/29155b09a8d7642e4900bbc0388d23d56ecf5c5912243e4e5aea02a4d651ee60
+POST {{baseUrl}}/auth/reset-password/{{resetToken}}
 Content-Type: {{contentType}}
 
 {
-  "newPassword": "Almanca12.",
-  "confirmPassword":"Almanca12."
+  "newPassword": "{{newPassword}}",
+  "confirmPassword": "{{newPassword}}"
 }
 
 
@@ -144,9 +148,9 @@ Authorization: Bearer {{accessToken}}
 Content-Type: {{contentType}}
 
 {
-  "currentPassword": "Passw0rd!",
-  "newPassword": "NewPassw0rd!1",
-  "confirmPassword": "NewPassw0rd!1"
+  "currentPassword": "{{currentPassword}}",
+  "newPassword": "{{newPassword}}",
+  "confirmPassword": "{{newPassword}}"
 }
 
 
