@@ -2,12 +2,25 @@ import "dotenv/config";
 import { dbConnection, mongoose } from "../src/configs/dbConnection.js";
 import User from "../src/models/userModel.js";
 
+function readRequiredPassword(name: string): string {
+  const value = process.env[name]?.trim();
+  if (!value) {
+    throw new Error(
+      `${name} is missing. Set it in the environment before running this script.`,
+    );
+  }
+  return value;
+}
+
+const adminPassword = readRequiredPassword("SEED_ADMIN_PASSWORD");
+const userPassword = readRequiredPassword("SEED_USER_PASSWORD");
+
 const ADMIN = {
   username: "adminAyla",
   firstName: "Ayla",
   lastName: "Admin",
   email: "adminayla@example.com",
-  password: "AdminAyla2026!",
+  password: adminPassword,
   role: "admin" as const,
   isEmailVerified: true,
   location: { state: "Berlin", city: "Berlin", zipCode: "10115", country: "DE" },
@@ -50,14 +63,12 @@ const USERS: { firstName: string; lastName: string; role: "user" | "organizer" }
   { firstName: "Nora", lastName: "Meyer", role: "organizer" },
 ];
 
-const USER_PASSWORD = "Kitzaa2026!";
-
 const ELIF_ADMIN = {
   username: "elif.admin",
   firstName: "Elif",
   lastName: "Yuzer",
   email: "elif.admin@example.com",
-  password: "ElifAdmin2026!",
+  password: adminPassword,
   role: "admin" as const,
   isEmailVerified: true,
   location: { state: "Berlin", city: "Berlin", zipCode: "10115", country: "DE" },
@@ -68,7 +79,7 @@ const ELIF_USER = {
   firstName: "Elif",
   lastName: "User",
   email: "elif.user@example.com",
-  password: USER_PASSWORD,
+  password: userPassword,
   role: "user" as const,
   isEmailVerified: true,
   location: { state: "Berlin", city: "Berlin", zipCode: "10115", country: "DE" },
@@ -92,13 +103,13 @@ async function run() {
   console.log(`${deletedCount} mevcut seed kullanıcısı silindi.`);
 
   const admin = await User.create(ADMIN);
-  console.log(`Admin oluşturuldu: ${admin.username} / ${ADMIN.password}`);
+  console.log(`Admin oluşturuldu: ${admin.username}`);
 
   const elifAdmin = await User.create(ELIF_ADMIN);
-  console.log(`Elif admin: ${elifAdmin.username} / ${ELIF_ADMIN.password}`);
+  console.log(`Elif admin: ${elifAdmin.username}`);
 
   const elifUser = await User.create(ELIF_USER);
-  console.log(`Elif user: ${elifUser.username} / ${ELIF_USER.password}`);
+  console.log(`Elif user: ${elifUser.username}`);
 
   for (const [i, u] of USERS.entries()) {
     const location = CITIES[i % CITIES.length]!;
@@ -109,7 +120,7 @@ async function run() {
       firstName: u.firstName,
       lastName: u.lastName,
       email: `${username}@example.com`,
-      password: USER_PASSWORD,
+      password: userPassword,
       role: u.role,
       isEmailVerified: true,
       location,
@@ -118,7 +129,6 @@ async function run() {
   }
 
   console.log(`\nToplam: 2 admin + ${USERS.length} kullanıcı + Elif user.`);
-  console.log(`Kullanıcı şifresi (user/organizer için): ${USER_PASSWORD}`);
 
   await mongoose.disconnect();
 }
