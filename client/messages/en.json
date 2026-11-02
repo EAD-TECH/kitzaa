@@ -66,7 +66,7 @@
     "faq": "FAQ",
     "contact": "Contact",
     "privacy": "Privacy Policy",
-    "terms": "Terms and Conditions",
+    "terms": "Terms of Use",
     "rights": "All rights reserved."
   },
   "Login": {
@@ -751,5 +751,152 @@
       "urlInvalid": "Please enter a valid URL.",
       "addressMax": "The address must be at most 200 characters."
     }
+  },
+  "FaqPage": {
+    "eyebrow": "Help",
+    "title": "FAQ",
+    "intro": "Short answers about accounts, events, and search on Kitzaa.",
+    "sections": [
+      {
+        "title": "What is Kitzaa?",
+        "paragraphs": [
+          "Kitzaa is a platform for family-friendly events. You can discover events near you, save them, and register."
+        ]
+      },
+      {
+        "title": "How do I find an event?",
+        "paragraphs": [
+          "On the events page you can search and filter. On the home page you describe in your own words what you would like to do with your child. If something is missing, the search asks a follow-up question, for example about age, day, or city."
+        ]
+      },
+      {
+        "title": "How does AI search work?",
+        "paragraphs": [
+          "You write freely what you are looking for. Kitzaa turns that into details such as age, date, place, or price and shows matching events from the existing catalogue.",
+          "The conversation is kept for about 30 minutes so a follow-up question can stay in the same conversation. It is then deleted."
+        ]
+      },
+      {
+        "title": "How do I create an account?",
+        "paragraphs": [
+          "You register with your name, username, email, and password. The email address has to be confirmed. You can also sign in with Google.",
+          "Location details help show events near you."
+        ]
+      },
+      {
+        "title": "How do I become an organizer?",
+        "paragraphs": [
+          "Sign in and confirm your email address first. You can then submit an organizer application. After it is approved, you can create your own events.",
+          "New events are reviewed before they become public. Registration is only possible within the stated capacity."
+        ]
+      },
+      {
+        "title": "Which languages are available?",
+        "paragraphs": [
+          "The site is available in German and English. You change the language from the navigation."
+        ]
+      }
+    ]
+  },
+  "ContactPage": {
+    "eyebrow": "Contact",
+    "title": "Contact",
+    "intro": "Write to us if you have a question about your account, an event, or Kitzaa.",
+    "email": "kitzaa.support@gmail.com",
+    "sections": [
+      {
+        "title": "Email",
+        "paragraphs": [
+          "You can reach kitzaa.support@gmail.com from the address above. Include your username and what the message is about when you can, so the request can be matched to the right account."
+        ]
+      },
+      {
+        "title": "Support chat",
+        "paragraphs": [
+          "When you are signed in, you can use the support chat on the site. Messages are stored so the request can be answered."
+        ]
+      }
+    ]
+  },
+  "PrivacyPage": {
+    "eyebrow": "Privacy",
+    "title": "Privacy Policy",
+    "intro": "This page describes which data the current Kitzaa application processes. It describes the project and is not individual legal advice. A postal address for the provider is not on file yet.",
+    "sections": [
+      {
+        "title": "Who is responsible",
+        "paragraphs": [
+          "Kitzaa is responsible for this application. Privacy questions go to kitzaa.support@gmail.com."
+        ]
+      },
+      {
+        "title": "Account",
+        "paragraphs": [
+          "When you create an account, we store your first name, last name, username, email address, an optional phone number, and your location: state, city, optional district, postal code, and country.",
+          "The password is not stored in plain text. It is stored as a hash. If you sign in with Google, we store the identifier and email address provided by Google."
+        ]
+      },
+      {
+        "title": "Using the platform",
+        "paragraphs": [
+          "This includes events you create, registrations, saved events, posts, comments, and support-chat messages. These details are stored so the related feature can work."
+        ]
+      },
+      {
+        "title": "AI search",
+        "paragraphs": [
+          "Your search message and the details derived from it, such as age, date, or city, are stored for about 30 minutes. That conversation state is then deleted. Search shows events that already exist on Kitzaa."
+        ]
+      },
+      {
+        "title": "Purpose",
+        "paragraphs": [
+          "The data is used to run accounts, show and manage events, provide search, and answer support requests."
+        ]
+      },
+      {
+        "title": "Your requests",
+        "paragraphs": [
+          "If you want access to your account data, a correction, or deletion of your account, write to kitzaa.support@gmail.com."
+        ]
+      }
+    ]
+  },
+  "TermsPage": {
+    "eyebrow": "Use",
+    "title": "Terms of Use",
+    "intro": "These terms describe how the current Kitzaa application is used.",
+    "sections": [
+      {
+        "title": "Account",
+        "paragraphs": [
+          "You are responsible for the details in your account and for protecting your sign-in credentials. Your email address must be confirmed before you apply to become an organizer."
+        ]
+      },
+      {
+        "title": "Events",
+        "paragraphs": [
+          "Organizers provide the content of their events. Events become public after review. Registration is only possible while the stated capacity has not been reached."
+        ]
+      },
+      {
+        "title": "Posts",
+        "paragraphs": [
+          "Do not publish content that insults other people or infringes their rights. You remain responsible for the content you post on Kitzaa."
+        ]
+      },
+      {
+        "title": "Availability",
+        "paragraphs": [
+          "The platform may be maintained, changed, or temporarily unavailable."
+        ]
+      },
+      {
+        "title": "Contact",
+        "paragraphs": [
+          "Questions about these terms go to kitzaa.support@gmail.com."
+        ]
+      }
+    ]
   }
 }
