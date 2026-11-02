@@ -66,7 +66,7 @@
     "faq": "FAQ",
     "contact": "Kontakt",
     "privacy": "Datenschutzpolitik",
-    "terms": "Zustellungsbedingungen",
+    "terms": "Nutzungsbedingungen",
     "rights": "Alle Rechte vorbehalten."
   },
   "Login": {
@@ -751,5 +751,152 @@
       "urlInvalid": "Bitte gib eine gültige URL ein.",
       "addressMax": "Die Adresse darf höchstens 200 Zeichen lang sein."
     }
+  },
+  "FaqPage": {
+    "eyebrow": "Hilfe",
+    "title": "FAQ",
+    "intro": "Kurze Antworten zu Konto, Events und Suche auf Kitzaa.",
+    "sections": [
+      {
+        "title": "Was ist Kitzaa?",
+        "paragraphs": [
+          "Kitzaa ist eine Plattform für familienfreundliche Veranstaltungen. Du kannst Events in deiner Nähe entdecken, speichern und dich anmelden."
+        ]
+      },
+      {
+        "title": "Wie finde ich ein Event?",
+        "paragraphs": [
+          "Auf der Event-Seite kannst du suchen und filtern. Auf der Startseite beschreibst du in eigenen Worten, was du mit deinem Kind unternehmen möchtest. Wenn etwas fehlt, fragt die Suche nach, zum Beispiel nach Alter, Tag oder Stadt."
+        ]
+      },
+      {
+        "title": "Wie funktioniert die KI-Suche?",
+        "paragraphs": [
+          "Du schreibst frei, was du suchst. Kitzaa leitet daraus Angaben wie Alter, Datum, Ort oder Preis ab und zeigt passende Events aus dem bestehenden Angebot.",
+          "Der Gesprächsstand bleibt etwa 30 Minuten gespeichert, damit eine Rückfrage im selben Gespräch möglich ist. Danach wird er gelöscht."
+        ]
+      },
+      {
+        "title": "Wie erstelle ich ein Konto?",
+        "paragraphs": [
+          "Du registrierst dich mit Name, Benutzername, E-Mail und Passwort. Die E-Mail-Adresse muss bestätigt werden. Alternativ kannst du dich mit Google anmelden.",
+          "Standortangaben helfen dabei, Events in deiner Nähe anzuzeigen."
+        ]
+      },
+      {
+        "title": "Wie werde ich Veranstalter?",
+        "paragraphs": [
+          "Melde dich an und bestätige zuerst deine E-Mail-Adresse. Danach kannst du eine Veranstalter-Anfrage stellen. Nach der Freigabe kannst du eigene Events anlegen.",
+          "Neue Events werden geprüft, bevor sie öffentlich sichtbar sind. Anmeldungen sind nur im Rahmen der angegebenen Kapazität möglich."
+        ]
+      },
+      {
+        "title": "Welche Sprachen gibt es?",
+        "paragraphs": [
+          "Die Seite gibt es auf Deutsch und Englisch. Die Sprache wechselst du über die Navigation."
+        ]
+      }
+    ]
+  },
+  "ContactPage": {
+    "eyebrow": "Kontakt",
+    "title": "Kontakt",
+    "intro": "Schreib uns, wenn du eine Frage zu deinem Konto, einem Event oder zu Kitzaa hast.",
+    "email": "kitzaa.support@gmail.com",
+    "sections": [
+      {
+        "title": "E-Mail",
+        "paragraphs": [
+          "Nachrichten an kitzaa.support@gmail.com erreichst du direkt über die Adresse oben. Nenne nach Möglichkeit deinen Benutzernamen und worum es geht, damit wir die Anfrage zuordnen können."
+        ]
+      },
+      {
+        "title": "Support-Chat",
+        "paragraphs": [
+          "Wenn du angemeldet bist, kannst du den Support-Chat auf der Seite nutzen. Die Nachrichten werden gespeichert, damit die Anfrage beantwortet werden kann."
+        ]
+      }
+    ]
+  },
+  "PrivacyPage": {
+    "eyebrow": "Datenschutz",
+    "title": "Datenschutzpolitik",
+    "intro": "Diese Seite beschreibt, welche Daten die aktuelle Kitzaa-Anwendung verarbeitet. Sie ist eine Beschreibung des Projekts und keine individuelle Rechtsberatung. Eine postalische Anbieteranschrift ist noch nicht hinterlegt.",
+    "sections": [
+      {
+        "title": "Verantwortliche Stelle",
+        "paragraphs": [
+          "Verantwortlich für diese Anwendung ist Kitzaa. Fragen zum Datenschutz richtest du an kitzaa.support@gmail.com."
+        ]
+      },
+      {
+        "title": "Konto",
+        "paragraphs": [
+          "Wenn du ein Konto anlegst, speichern wir Vorname, Nachname, Benutzername, E-Mail-Adresse, optional eine Telefonnummer und den Standort: Bundesland, Stadt, optional Stadtteil, Postleitzahl und Land.",
+          "Das Passwort wird nicht im Klartext gespeichert, sondern als Hash. Bei der Anmeldung mit Google speichern wir die von Google übermittelte Kennung und die E-Mail-Adresse."
+        ]
+      },
+      {
+        "title": "Nutzung der Plattform",
+        "paragraphs": [
+          "Dazu gehören Events, die du erstellst, Anmeldungen, gespeicherte Events, Beiträge, Kommentare und Nachrichten im Support-Chat. Diese Angaben werden gespeichert, damit die jeweilige Funktion arbeiten kann."
+        ]
+      },
+      {
+        "title": "KI-Suche",
+        "paragraphs": [
+          "Deine Suchanfrage und die daraus abgeleiteten Angaben, zum Beispiel Alter, Datum oder Stadt, werden etwa 30 Minuten gespeichert. Danach wird dieser Gesprächsstand gelöscht. Die Suche zeigt Events, die bereits auf Kitzaa vorhanden sind."
+        ]
+      },
+      {
+        "title": "Zweck",
+        "paragraphs": [
+          "Die Daten werden verwendet, um Konten zu führen, Events anzuzeigen und zu verwalten, die Suche zu ermöglichen und Support-Anfragen zu beantworten."
+        ]
+      },
+      {
+        "title": "Deine Anfragen",
+        "paragraphs": [
+          "Wenn du Auskunft, eine Berichtigung oder die Löschung deines Kontos möchtest, schreib an kitzaa.support@gmail.com."
+        ]
+      }
+    ]
+  },
+  "TermsPage": {
+    "eyebrow": "Nutzung",
+    "title": "Nutzungsbedingungen",
+    "intro": "Diese Bedingungen beschreiben, wie die aktuelle Kitzaa-Anwendung genutzt wird.",
+    "sections": [
+      {
+        "title": "Konto",
+        "paragraphs": [
+          "Du bist für die Angaben in deinem Konto und für den Schutz deiner Zugangsdaten verantwortlich. Bevor du dich als Veranstalter bewirbst, muss deine E-Mail-Adresse bestätigt sein."
+        ]
+      },
+      {
+        "title": "Events",
+        "paragraphs": [
+          "Veranstalter stellen die Inhalte ihrer Events ein. Öffentlich sichtbar werden Events nach der Prüfung. Eine Anmeldung ist nur möglich, solange die angegebene Kapazität nicht erreicht ist."
+        ]
+      },
+      {
+        "title": "Beiträge",
+        "paragraphs": [
+          "Veröffentliche keine Inhalte, die andere beleidigen oder deren Rechte verletzen. Du bleibst für die Inhalte verantwortlich, die du auf Kitzaa einstellst."
+        ]
+      },
+      {
+        "title": "Verfügbarkeit",
+        "paragraphs": [
+          "Die Plattform kann gewartet, geändert oder vorübergehend nicht erreichbar sein."
+        ]
+      },
+      {
+        "title": "Kontakt",
+        "paragraphs": [
+          "Fragen zu diesen Bedingungen richtest du an kitzaa.support@gmail.com."
+        ]
+      }
+    ]
   }
 }
