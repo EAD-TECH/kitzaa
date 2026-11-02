@@ -15,7 +15,17 @@ import type { AgeRange, EventLocationType } from "../src/types/event.types.js";
 // Önkoşul: seedCategories.ts çalışmış olmalı. Seed kullanıcıları yoksa bu script oluşturur.
 // Idempotent: aynı başlıklı event'leri silip yeniden oluşturur, kullanıcıları ise tekrar oluşturmaz.
 
-const SEED_PASSWORD = "Kitzaa2026!";
+function readRequiredPassword(name: string): string {
+  const value = process.env[name]?.trim();
+  if (!value) {
+    throw new Error(
+      `${name} is missing. Set it in the environment before running this script.`,
+    );
+  }
+  return value;
+}
+
+const SEED_PASSWORD = readRequiredPassword("SEED_USER_PASSWORD");
 
 type SeedUser = {
   firstName: string;
@@ -707,7 +717,7 @@ async function run() {
   }
 
   console.log(`\nToplam: ${created}/${seeds.length} event.`);
-  console.log(`Seed kullanıcı şifresi: ${SEED_PASSWORD}`);
+  console.log("Seed kullanıcıları hazır.");
 
   await mongoose.disconnect();
 }

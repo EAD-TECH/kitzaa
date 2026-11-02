@@ -9,11 +9,11 @@ const Footer = () => {
   const t = useTranslations("Footer");
 
   const footerLinks = [
-    { title: t("faq"), href: "#" },
-    { title: t("contact"), href: "#" },
-    { title: t("privacy"), href: "#" },
-    { title: t("terms"), href: "#" },
-  ];
+    { title: t("faq"), href: "/faq" },
+    { title: t("contact"), href: "/kontakt" },
+    { title: t("privacy"), href: "/datenschutz" },
+    { title: t("terms"), href: "/nutzungsbedingungen" },
+  ] as const;
   return (
     <footer className="mt-10 border-t bg-card">
       <div className="flex flex-col items-center px-3 py-3 tablet:px-5 desktop:px-8">
