@@ -3,7 +3,7 @@ import Event from "../models/eventModel.js";
 import dayjs from "dayjs";
 
 import utc from "dayjs/plugin/utc.js";
-import { Notification } from "../models/notificationModel.js";
+import { sendBulknotificaitons } from "../helpers/sendBulkNotifications.js";
 
 dayjs.extend(utc);
 
@@ -62,7 +62,19 @@ export const sendLowCapacityPrompts = async () => {
     };
   });
 
-  const result = await Notification.insertMany(notificationToInsert);
+  const result = await Promise.all(
+    notificationToInsert.map((notification) =>
+      sendBulknotificaitons({
+        userIdsArray: [notification.recipientId],
+        type: "low_capacity_3day",
+        title: notification.title,
+        message: notification.message,
+        relatedId: notification.relatedId,
+        relatedModel: "Event",
+        linkNotification: notification.linkNotification,
+      }),
+    ),
+  );
   console.log(`Düşük kapasite bildirimleri oluşturuldu: ${result.length} adet`);
 
   /* simdi spam olayına bakıyoruz */

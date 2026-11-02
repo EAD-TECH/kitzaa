@@ -1,3 +1,4 @@
 export const redirectExternal = (url: string) => {
-  window.location.assign(url);
+  const target = new URL(url, window.location.origin);
+  window.location.replace(target.href);
 };

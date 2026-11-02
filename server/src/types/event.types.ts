@@ -83,8 +83,10 @@ export interface IEvent {
   updatedAt?: Date;
   systemNotificationSent?: (
     | "organizer_prep_1day"
+    | "organizer_prep_summary"
     | "low_capacity_3day"
     | "post_event_summary"
+    | "event_reminder"
     | "event_reminder_2hour"
   )[];
     aiAnalysis?: {

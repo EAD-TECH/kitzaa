@@ -40,7 +40,7 @@ export const triggerCommentNotification = async (
     /* REPLY: yorum, parent yorumun sahibine gider */
     if (senderId.equals(parentComment.authorId)) return null;
 
-    createNotification(parentComment.authorId, "post_reply", {
+    await createNotification(parentComment.authorId, "post_reply", {
       title: "Yeni Yorum",
       message: `${user.firstName || "Birisi"} yorumuna yanıt verdi.`,
       senderId: user._id,
@@ -55,7 +55,7 @@ export const triggerCommentNotification = async (
   /* TOP-LEVEL COMMENT: parentCommentId yok, yorum post sahibine gider */
   if (senderId.equals(post.authorId)) return null;
 
-  createNotification(post.authorId, "post_comment", {
+  await createNotification(post.authorId, "post_comment", {
     title: "Yeni Yorum",
     message: `${user.firstName || "Birisi"} gönderine yeni bir yorum yaptı.`,
     senderId: user._id,

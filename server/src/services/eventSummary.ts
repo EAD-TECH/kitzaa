@@ -1,7 +1,7 @@
 import Event from "../models/eventModel.js";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js";
-import { Notification } from "../models/notificationModel.js";
+import { sendBulknotificaitons } from "../helpers/sendBulkNotifications.js";
 
 dayjs.extend(utc);
 
@@ -58,7 +58,19 @@ export const sendPostEventSummaries = async () => {
     });
 
     // Bildirimleri gönder
-    const result = await Notification.insertMany(notificationToInsert);
+    const result = await Promise.all(
+      notificationToInsert.map((notification) =>
+        sendBulknotificaitons({
+          userIdsArray: [notification.recipientId],
+          type: "post_event_summary",
+          title: notification.title,
+          message: notification.message,
+          relatedId: notification.relatedId,
+          relatedModel: "Event",
+          linkNotification: notification.linkNotification,
+        }),
+      ),
+    );
     console.log(
       `Etkinlik sonrası bildirimler oluşturuldu: ${result.length} adet`,
     );

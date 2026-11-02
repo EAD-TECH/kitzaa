@@ -23,7 +23,7 @@ export function useLogin() {
 
       if (data.user.role === "admin") {
         window.location.assign(
-          process.env.NEXT_PUBLIC_ADMIN_URL ?? "http://localhost:3001",
+          process.env.NEXT_PUBLIC_ADMIN_URL ?? "https://kitzaa-admin.vercel.app",
         );
         return;
       }

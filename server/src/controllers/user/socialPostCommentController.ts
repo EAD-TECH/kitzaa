@@ -96,9 +96,9 @@ const socialPostCommentController = {
     };
 
     /* yorum olustuktan sonra bıldırımı atıyorm  KTZ-59 VE 109*/
-    triggerCommentNotification(propData);
+    await triggerCommentNotification(propData);
     /* KTZ-110 için */
-    triggerMentionNotifications(propDataforMentioned);
+    await triggerMentionNotifications(propDataforMentioned);
 
     res.status(201).send({
       error: false,

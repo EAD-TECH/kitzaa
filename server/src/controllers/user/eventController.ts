@@ -304,7 +304,7 @@ const eventController = {
     event.cancelledReason = req.body.cancelledReason;
     await event.save();
 
-    notifyUsersForCancelledEvent(event);
+    await notifyUsersForCancelledEvent(event);
 
     res.sendStatus(204);
   },

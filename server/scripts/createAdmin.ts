@@ -2,12 +2,22 @@ import "dotenv/config";
 import { dbConnection, mongoose } from "../src/configs/dbConnection.js";
 import User from "../src/models/userModel.js";
 
+function readRequiredPassword(name: string): string {
+  const value = process.env[name]?.trim();
+  if (!value) {
+    throw new Error(
+      `${name} is missing. Set it in the environment before running this script.`,
+    );
+  }
+  return value;
+}
+
 const ADMIN_DATA = {
   username: "admin",
   firstName: "Admin",
   lastName: "User",
   email: "admin@kitzaa.dev",
-  password: "Admin123!",
+  password: readRequiredPassword("SEED_ADMIN_PASSWORD"),
   role: "admin" as const,
   isEmailVerified: true,
   location: {
@@ -36,7 +46,6 @@ async function run() {
   console.log("Admin kullanıcı oluşturuldu:");
   console.log(`  username: ${admin.username}`);
   console.log(`  email: ${admin.email}`);
-  console.log(`  password: ${ADMIN_DATA.password}`);
 
   await mongoose.disconnect();
 }

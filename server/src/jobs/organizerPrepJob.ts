@@ -4,7 +4,7 @@ import Event from "../models/eventModel.js";
 import dayjs from "dayjs";
 
 import utc from "dayjs/plugin/utc.js";
-import { Notification } from "../models/notificationModel.js";
+import { sendBulknotificaitons } from "../helpers/sendBulkNotifications.js";
 
 dayjs.extend(utc);
 
@@ -22,6 +22,7 @@ export const sendOrganizerPrepSummary = async () => {
   /* gıdıp eventlarda yarınkı etkınlıklerı bulucm */
   const eventsTomorrow = await Event.find({
     status: "approved",
+    systemNotificationSent: { $nin: ["organizer_prep_summary"] },
     "schedule.startDate": {
       $gte: startOfTomorrow, //yarının baslangıcından buyuk olan
       $lte: endOfTomorrow, //kucuk veya esit olan
@@ -50,13 +51,30 @@ export const sendOrganizerPrepSummary = async () => {
       title: "Vorbereitungs-Übersicht",
       message: message,
       type: "organizer_prep_summary",
+      linkNotification: `/events/${event.slug}`,
     };
   });
 
   // Performans için veritabanına tek seferde bulk insert yapıyoruz
-  const result = await Notification.insertMany(notificationToInsert);
+  const result = await Promise.all(
+    notificationToInsert.map((notification) =>
+      sendBulknotificaitons({
+        userIdsArray: [notification.recipientId],
+        type: "organizer_prep_summary",
+        title: notification.title,
+        message: notification.message,
+        relatedId: notification.relatedId,
+        relatedModel: "Event",
+        linkNotification: notification.linkNotification,
+      }),
+    ),
+  );
   console.log(
     `Organizatör hazırlık bildirimi oluşturuldu: ${result.length} adet`,
+  );
+  await Event.updateMany(
+    { _id: { $in: eventsTomorrow.map((event) => event._id) } },
+    { $addToSet: { systemNotificationSent: "organizer_prep_summary" } },
   );
 };
 
